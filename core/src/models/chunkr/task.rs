@@ -238,10 +238,18 @@ impl Task {
         include_chunks: bool,
         base64_urls: bool,
     ) -> Result<OutputResponse, Box<dyn std::error::Error>> {
-        let pdf_url = generate_presigned_url(&self.pdf_location, true, None, base64_urls).await?;
+        let pdf_url = generate_presigned_url(
+            &self.pdf_location,
+            true,
+            None,
+            base64_urls,
+            "application/pdf",
+        )
+        .await?;
         let mut output_response = OutputResponse::default();
         if include_chunks {
-            let temp_file = download_to_tempfile(&self.output_location, None).await?;
+            let temp_file =
+                download_to_tempfile(&self.output_location, None, "application/json").await?;
             let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
             output_response = match serde_json::from_str(&json_content) {
                 Ok(output) => output,
@@ -267,6 +275,7 @@ impl Task {
                     true,
                     None,
                     base64_urls,
+                    "image/jpeg",
                 )
                 .await
                 .ok();
@@ -479,12 +488,14 @@ impl Task {
         ),
         Box<dyn std::error::Error>,
     > {
-        let output_temp_file = download_to_tempfile(&self.output_location, None).await?;
+        let output_temp_file =
+            download_to_tempfile(&self.output_location, None, "application/json").await?;
         let output: OutputResponse =
             serde_json::from_str(&tokio::fs::read_to_string(output_temp_file.path()).await?)?;
 
-        let input_future = download_to_tempfile(&self.input_location, None);
-        let pdf_future = download_to_tempfile(&self.pdf_location, None);
+        let input_future =
+            download_to_tempfile(&self.input_location, None, self.mime_type.as_ref().unwrap());
+        let pdf_future = download_to_tempfile(&self.pdf_location, None, "application/pdf");
 
         let page_count = self
             .page_count
@@ -497,7 +508,7 @@ impl Task {
                 );
                 let s3_key = s3_key.clone();
                 async move {
-                    download_to_tempfile(&s3_key, None)
+                    download_to_tempfile(&s3_key, None, "image/jpeg")
                         .await
                         .map_err(|e| e.into())
                 }
@@ -512,7 +523,8 @@ impl Task {
                 segment.image.as_ref().map(|image_path| {
                     let segment_id = segment.segment_id.clone();
                     async move {
-                        let segment_image = download_to_tempfile(image_path, None).await?;
+                        let segment_image =
+                            download_to_tempfile(image_path, None, "image/jpeg").await?;
                         Result::<_, Box<dyn std::error::Error>>::Ok((segment_id, segment_image))
                     }
                 })
@@ -561,9 +573,15 @@ impl Task {
         include_chunks: bool,
         base64_urls: bool,
     ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
-        let input_file_url = generate_presigned_url(&self.input_location, true, None, base64_urls)
-            .await
-            .map_err(|_| "Error getting input file url")?;
+        let input_file_url = generate_presigned_url(
+            &self.input_location,
+            true,
+            None,
+            base64_urls,
+            self.mime_type.as_ref().unwrap(),
+        )
+        .await
+        .map_err(|_| "Error getting input file url")?;
         let output = self
             .create_output(
                 include_chunks && self.status == Status::Succeeded,
