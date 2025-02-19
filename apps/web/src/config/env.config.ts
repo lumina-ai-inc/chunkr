@@ -34,4 +34,4 @@ export function validateEnvConfig(): void {
 export type WhenEnabled<
   Flag extends keyof Features,
   T,
-> = Features[Flag] extends true ? T | undefined : undefined;
+> = Features[Flag] extends true ? T : undefined;
