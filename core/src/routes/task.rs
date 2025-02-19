@@ -151,6 +151,7 @@ pub async fn create_task_route(
 /// Update Task
 ///
 /// Updates an existing task's configuration and reprocesses the document.
+/// The original configuration will be used for all values that are not provided in the update.
 ///
 /// Requirements:
 /// - Task must have status `Succeeded` or `Failed`
