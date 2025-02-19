@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod azure;
 pub mod chunk_processing;
 pub mod cropping;
 pub mod general_ocr;
@@ -14,5 +15,3 @@ pub mod tasks;
 pub mod upload;
 pub mod upload_multipart;
 pub mod user;
-
-pub mod azure;
