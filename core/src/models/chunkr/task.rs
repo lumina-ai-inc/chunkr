@@ -578,7 +578,9 @@ impl Task {
             true,
             None,
             base64_urls,
-            self.mime_type.as_ref().unwrap(),
+            self.mime_type
+                .as_ref()
+                .unwrap_or(&"application/pdf".to_string()),
         )
         .await
         .map_err(|_| "Error getting input file url")?;
