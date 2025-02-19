@@ -70,8 +70,8 @@ pub struct CreateForm {
     #[schema(default = "All")]
     pub ocr_strategy: Option<OcrStrategy>,
     #[cfg(feature = "azure")]
-    /// The PipelineType to use for processing.
-    /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
+    #[schema(default = "Azure")]
+    /// Choose the provider whose models will be used for segmentation and OCR.
     /// The output will be unified to the Chunkr `output` format.
     pub pipeline: Option<PipelineType>,
     pub segment_processing: Option<SegmentProcessing>,
@@ -147,7 +147,7 @@ impl CreateForm {
 
     #[cfg(feature = "azure")]
     fn get_pipeline(&self) -> Option<PipelineType> {
-        self.pipeline.clone()
+        Some(self.pipeline.clone().unwrap_or_default())
     }
 
     pub fn to_configuration(&self) -> Configuration {
@@ -178,9 +178,8 @@ pub struct UpdateForm {
     pub high_resolution: Option<bool>,
     pub ocr_strategy: Option<OcrStrategy>,
     #[cfg(feature = "azure")]
-    /// The pipeline to use for processing.
-    /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
-    /// The output will be unified to the Chunkr output.
+    /// Choose the provider whose models will be used for segmentation and OCR.
+    /// The output will be unified to the Chunkr `output` format.
     pub pipeline: Option<PipelineType>,
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
@@ -248,7 +247,7 @@ impl UpdateForm {
                 .clone()
                 .unwrap_or(current_config.ocr_strategy.clone()),
             #[cfg(feature = "azure")]
-            pipeline: self.pipeline.clone(),
+            pipeline: current_config.pipeline.clone(),
             segment_processing: self.get_segment_processing(current_config),
             segmentation_strategy: self
                 .segmentation_strategy

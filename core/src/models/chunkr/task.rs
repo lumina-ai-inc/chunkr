@@ -673,6 +673,14 @@ pub enum Status {
 )]
 pub enum PipelineType {
     Azure,
+    Chunkr,
+}
+
+#[cfg(feature = "azure")]
+impl Default for PipelineType {
+    fn default() -> Self {
+        PipelineType::Azure
+    }
 }
 
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
