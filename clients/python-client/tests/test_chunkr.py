@@ -203,8 +203,15 @@ async def test_update_task_direct(client, sample_path):
     assert task.configuration.segmentation_strategy == SegmentationStrategy.PAGE
 
 @pytest.mark.asyncio
-async def test_pipeline_type(client, sample_path):
+async def test_pipeline_type_azure(client, sample_path):
     response = await client.upload(sample_path, Configuration(pipeline=Pipeline.AZURE))
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    
+@pytest.mark.asyncio
+async def test_pipeline_type_azure(client, sample_path):
+    response = await client.upload(sample_path, Configuration(pipeline=Pipeline.CHUNKR))
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
