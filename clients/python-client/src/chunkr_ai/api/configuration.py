@@ -102,6 +102,7 @@ class Model(str, Enum):
 
 class Pipeline(str, Enum):
     AZURE = "Azure"
+    CHUNKR = "Chunkr"
 
 class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = None
