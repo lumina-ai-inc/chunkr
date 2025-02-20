@@ -49,25 +49,11 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
 
     let row = &rows[0];
     let stripe_customer_id: String = row.get("customer_id");
-    let bill_date: DateTime<Utc> = row.get("bill_date");
     let amount_due: f64 = row.get("amount_due");
     let user_tier: String = row.get("tier");
-    let overage_pages: i32 = row.get("total_pages");
-
-    let rate_row = client
-        .query_one("SELECT overage_rate FROM tiers WHERE tier = $1", &[&user_tier])
-        .await?;
-    let overage_rate: f64 = rate_row.get("overage_rate");
 
     let stripe_config = StripeConfig::from_env()?;
     let reqwest_client = ReqwestClient::new();
-    let desc = format!(
-        "Overage invoice ending {} | Tier: {} | Overage Pages: {} | Rate: ${:.4}/page",
-        bill_date.format("%Y-%m-%d"),
-        user_tier,
-        overage_pages,
-        overage_rate
-    );
 
     let create_invoice = reqwest_client
         .post("https://api.stripe.com/v1/invoices")
@@ -76,17 +62,12 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
             ("customer", stripe_customer_id.as_str()),
             ("auto_advance", "true"),
             ("collection_method", "charge_automatically"),
-            ("description", desc.as_str()),
         ])
         .send()
         .await?;
 
     if !create_invoice.status().is_success() {
-        return Err(format!(
-            "Failed to create invoice: {}",
-            create_invoice.text().await?
-        )
-        .into());
+        return Err(format!("Failed to create invoice: {}", create_invoice.text().await?).into());
     }
 
     let invoice: serde_json::Value = create_invoice.json().await?;
@@ -106,11 +87,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
         .await?;
 
     if !add_item.status().is_success() {
-        return Err(format!(
-            "Failed to add item to invoice: {}",
-            add_item.text().await?
-        )
-        .into());
+        return Err(format!("Failed to add item to invoice: {}", add_item.text().await?).into());
     }
 
     let finalize = reqwest_client
@@ -123,11 +100,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
         .await?;
 
     if !finalize.status().is_success() {
-        return Err(format!(
-            "Failed to finalize invoice: {}",
-            finalize.text().await?
-        )
-        .into());
+        return Err(format!("Failed to finalize invoice: {}", finalize.text().await?).into());
     } else {
         client
             .execute(
