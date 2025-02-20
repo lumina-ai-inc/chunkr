@@ -13,7 +13,6 @@ docker compose up -d
 
 # Load files into queue
 uv run orchestrator.py
-honcho start -c processor=200
 ```
 
 Terminal 2 - Start processors and writer:
