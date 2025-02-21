@@ -15,6 +15,9 @@ pub struct Config {
     pub dev_price_id: String,
     pub growth_price_id: String,
     pub return_url: String,
+    pub starter_product_id: String,
+    pub dev_product_id: String,
+    pub growth_product_id: String,
 }
 
 fn default_invoice_interval() -> u64 {
