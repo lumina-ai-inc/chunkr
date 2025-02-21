@@ -8,7 +8,7 @@ use crate::utils::stripe::invoicer::create_and_send_invoice;
 use crate::utils::stripe::stripe_utils::{
     create_customer_session, create_stripe_billing_portal_session, create_stripe_checkout_session,
     create_stripe_customer, create_stripe_setup_intent, get_stripe_checkout_session,
-    update_invoice_status, update_subscription_billing_cycle,
+    update_invoice_status,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use log::info;
