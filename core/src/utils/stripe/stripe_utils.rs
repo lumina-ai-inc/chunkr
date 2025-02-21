@@ -309,28 +309,21 @@ pub async fn create_stripe_billing_portal_session(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-<<<<<<< HEAD
-=======
     // First update the subscription billing cycle
 
     // Create or retrieve the portal configuration ID
     // let config_id = create_stripe_portal_configuration(stripe_config).await?;
 
->>>>>>> public/ik/stripe-self-meter
     let return_url = format!(
         "{}/dashboard",
         stripe_config.return_url.trim_end_matches('/')
     );
-<<<<<<< HEAD
-    let form_data = vec![("customer", customer_id), ("return_url", &return_url)];
-=======
 
     let form_data = vec![
         ("customer", customer_id),
         ("return_url", &return_url),
         // ("configuration", &config_id),
     ];
->>>>>>> public/ik/stripe-self-meter
 
     info!(
         "Creating billing portal session for customer {}",
