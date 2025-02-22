@@ -3,7 +3,7 @@ drop trigger if exists update_usage_on_status_change_trigger on tasks;
 drop function if exists update_usage_on_status_change();
 
 ALTER TABLE monthly_usage
-DROP CONSTRAINT monthly_usage_user_id_usage_type_year_month_key;
+DROP CONSTRAINT IF EXISTS monthly_usage_user_id_usage_type_year_month_key;
 
 
 create table task_ledger (
