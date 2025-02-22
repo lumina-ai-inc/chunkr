@@ -6,45 +6,47 @@ ALTER TABLE monthly_usage
 DROP CONSTRAINT IF EXISTS monthly_usage_user_id_usage_type_year_month_key;
 
 
-create table task_ledger (
-    ledger_id text primary key,
-    task_id text not null,
-    user_id text not null,
-    tier text not null,
-    usage_type text not null,
-    tier_cost float not null,
-    usage_amount int not null,
-    total_cost float not null,
-    created_at timestamp not null);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'task_ledger') THEN
+        CREATE TABLE task_ledger (
+            ledger_id text primary key,
+            task_id text not null,
+            user_id text not null,
+            tier text not null,
+            usage_type text not null,
+            tier_cost float not null,
+            usage_amount int not null,
+            total_cost float not null,
+            created_at timestamp not null);
 
-
--- migration for task ledger
-
-INSERT INTO task_ledger (
-    ledger_id,
-    task_id,
-    user_id,
-    tier,
-    usage_type,
-    tier_cost,
-    usage_amount,
-    total_cost,
-    created_at
-)
-SELECT 
-    gen_random_uuid()::text,
-    t.task_id,
-    t.user_id,
-    COALESCE(u.tier, 'Free'),
-    'Page',
-    COALESCE((SELECT price_per_month FROM tiers WHERE tier = u.tier), 0),
-    COALESCE(t.page_count, 0),
-    COALESCE(t.page_count, 0) * COALESCE((SELECT overage_rate FROM tiers WHERE tier = u.tier), 0),
-    t.created_at
-FROM tasks t
-JOIN users u ON t.user_id = u.user_id
-WHERE t.status = 'Succeeded'
-AND t.page_count > 0;
+        INSERT INTO task_ledger (
+            ledger_id,
+            task_id,
+            user_id,
+            tier,
+            usage_type,
+            tier_cost,
+            usage_amount,
+            total_cost,
+            created_at
+        )
+        SELECT 
+            gen_random_uuid()::text,
+            t.task_id,
+            t.user_id,
+            COALESCE(u.tier, 'Free'),
+            'Page',
+            COALESCE((SELECT price_per_month FROM tiers WHERE tier = u.tier), 0),
+            COALESCE(t.page_count, 0),
+            COALESCE(t.page_count, 0) * COALESCE((SELECT overage_rate FROM tiers WHERE tier = u.tier), 0),
+            t.created_at
+        FROM tasks t
+        JOIN users u ON t.user_id = u.user_id
+        WHERE t.status = 'Succeeded'
+        AND t.page_count > 0;
+    END IF;
+END $$;
 
 --trigger for task ledger
 
@@ -79,7 +81,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER task_ledger_trigger  
+CREATE OR REPLACE TRIGGER task_ledger_trigger  
     AFTER UPDATE ON TASKS
     FOR EACH ROW
     WHEN (NEW.status = 'Succeeded')
