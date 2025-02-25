@@ -14,9 +14,9 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
 
-COPY emails/.python-version .
-COPY emails/main.py .
-COPY emails/pyproject.toml .
+COPY services/emails/.python-version .
+COPY services/emails/main.py .
+COPY services/emails/pyproject.toml .
 
 EXPOSE 8000
 

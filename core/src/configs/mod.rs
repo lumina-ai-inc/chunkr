@@ -14,3 +14,4 @@ pub mod user_config;
 pub mod worker_config;
 
 pub mod azure_config;
+pub mod email_config;
