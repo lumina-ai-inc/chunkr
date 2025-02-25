@@ -38,4 +38,4 @@ RUN apt-get update -y; \
 COPY --from=builder /app/target/release/core /app/core
 COPY subtrace.yaml .
 EXPOSE 8000
-ENTRYPOINT ["./subtrace", "run", "--config=subtrace.yaml", "--", "/app/core"]
+ENTRYPOINT ["/app/core"]
