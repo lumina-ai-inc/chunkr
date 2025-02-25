@@ -39,4 +39,4 @@ COPY --from=builder /app/target/release/task /app/task
 COPY subtrace.yaml .
 
 EXPOSE 8000
-ENTRYPOINT ["./subtrace", "run", "--config=subtrace.yaml", "--", "/app/task"]
+ENTRYPOINT ["/app/task"]
