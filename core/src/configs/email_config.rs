@@ -9,7 +9,7 @@ pub struct Config {
 }
 
 fn default_server_url() -> String {
-    "http://localhost:8000".to_string()
+    "http://localhost:8009".to_string()
 }
 
 impl Config {
