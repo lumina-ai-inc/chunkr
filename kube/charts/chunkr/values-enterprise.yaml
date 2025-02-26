@@ -37,7 +37,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "bd9c94fd"
+      tag: "6841c126"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -49,12 +49,25 @@ services:
       - secretRef:
           name: chunkr-secret
 
+  emails:
+    enabled: true
+    image:
+      repository: emails-azure
+      tag: "6841c126"
+    imagePullSecrets:
+      - name: regcred
+    port: 8009
+    targetPort: 8000
+    envFrom:
+      - secretRef:
+          name: chunkr-secret
+
   task:
     enabled: true
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "bd9c94fd"
+      tag: "6841c126"
     imagePullSecrets:
       - name: regcred
     envFrom:
