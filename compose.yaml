@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:bd382272
+    image: luminainc/server:700324ef
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -11,7 +11,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   task:
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   web:
@@ -35,7 +35,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   segmentation:
@@ -146,6 +146,16 @@ services:
         /usr/bin/mc mb myminio/chunkr --ignore-existing &&
         /usr/bin/mc anonymous set public myminio/chunkr
       "
+
+  emails:
+    image: luminainc/emails:700324ef
+    platform: linux/amd64
+    ports:
+      - "8009:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.2
