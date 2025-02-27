@@ -63,7 +63,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "e0d6fe8f"
+      tag: "02096028"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -79,7 +79,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: "e0d6fe8f"
+      tag: "02096028"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -93,7 +93,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "e0d6fe8f"
+      tag: "02096028"
     imagePullSecrets:
       - name: regcred
     envFrom:
