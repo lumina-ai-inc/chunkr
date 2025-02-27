@@ -30,14 +30,40 @@ ingress:
         - name: "analytics-server"
         - name: "sparse-doc-embeddings"
         - name: "sparse-query-embeddings"
-
+common:
+  standardEnv:
+    - name: AUTH__KEYCLOAK_URL
+      value: "https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+    - name: AWS__ENDPOINT
+      value: 'http://{{- .Release.Name }}-minio:9000'
+    - name: AWS__PRESIGNED_URL_ENDPOINT
+      value: 'https://{{ .Values.services.minio.ingress.subdomain }}.{{ .Values.ingress.domain }}'
+    - name: AWS__REGION
+      value: "us-east-1"
+    - name: PG__URL
+      value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
+    - name: RRQ__URL
+      value: "http://{{- .Release.Name }}-rrq:8000"
+    - name: REDIS__URL
+      value: "redis://{{- .Release.Name }}-redis:6379"
+    - name: SEARCH__DENSE_VECTOR_URL
+      value: "http://{{- .Release.Name }}-embeddings:8000"
+    - name: WORKER__GENERAL_OCR_URL
+      value: "http://{{- .Release.Name }}-ocr:8000"
+    - name: WORKER__SEGMENTATION_URL
+      value: "http://{{- .Release.Name }}-segmentation:8000"
+    - name: WORKER__SERVER_URL
+      value: "https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+    - name: EMAIL__SERVER_URL
+      value: "http://{{- .Release.Name }}-emails:8000"
+      
 services:
   server:
     enabled: true
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "6841c126"
+      tag: "66cb54bc"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -52,11 +78,11 @@ services:
   emails:
     enabled: true
     image:
-      repository: emails-azure
-      tag: "6841c126"
+      repository: emails
+      tag: "66cb54bc"
     imagePullSecrets:
       - name: regcred
-    port: 8009
+    port: 8000
     targetPort: 8000
     envFrom:
       - secretRef:
@@ -67,7 +93,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "6841c126"
+      tag: "66cb54bc"
     imagePullSecrets:
       - name: regcred
     envFrom:
