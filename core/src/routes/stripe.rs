@@ -274,25 +274,23 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                     EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
                                     $2 as tier,
                                     t.usage_limit,
-                                    CURRENT_TIMESTAMP as billing_cycle_start,
-                                    CURRENT_TIMESTAMP + INTERVAL '30 days' as billing_cycle_end
+                                    NOW() as billing_cycle_start,
+                                    NOW() + INTERVAL '30 days' as billing_cycle_end
                                 FROM tiers t
                                 WHERE t.tier = $2
                             )
                             INSERT INTO monthly_usage (
                                 user_id, usage_type, usage, overage_usage,
                                 year, month, tier, usage_limit,
-                                billing_cycle_start, billing_cycle_end
+                                billing_cycle_start, billing_cycle_end,
+                                created_at, updated_at
                             )
-                            SELECT * FROM new_data
-                            ON CONFLICT (user_id, usage_type, year, month)
-                            DO UPDATE
-                            SET tier = EXCLUDED.tier,
-                                usage_limit = EXCLUDED.usage_limit,
-                                usage = 0,
-                                overage_usage = 0,
-                                billing_cycle_start = EXCLUDED.billing_cycle_start,
-                                billing_cycle_end = EXCLUDED.billing_cycle_end",
+                            SELECT 
+                                user_id, usage_type, usage, overage_usage,
+                                year, month, tier, usage_limit,
+                                billing_cycle_start, billing_cycle_end,
+                                NOW(), NOW()
+                            FROM new_data",
                             &[&user_id, &tier],
                         )
                         .await;

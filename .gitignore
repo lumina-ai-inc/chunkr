@@ -161,3 +161,6 @@ crash.*.log
 
 uv.lock
 output_structured_extraction
+
+
+services/yolo
