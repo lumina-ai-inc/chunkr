@@ -56,14 +56,14 @@ common:
       value: "https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}"
     - name: EMAIL__SERVER_URL
       value: "http://{{- .Release.Name }}-emails:8000"
-      
+
 services:
   server:
     enabled: true
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "66cb54bc"
+      tag: "e0d6fe8f"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -79,7 +79,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: "66cb54bc"
+      tag: "e0d6fe8f"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -93,7 +93,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "66cb54bc"
+      tag: "e0d6fe8f"
     imagePullSecrets:
       - name: regcred
     envFrom:

@@ -381,6 +381,27 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 if let Err(e) = res_one {
                                     eprintln!("Error syncing subscriptions/users: {:?}", e);
                                 }
+
+                                if is_tier_upgrade(&current_tier, &new_tier) {
+                                    let user_data = client
+                                        .query_opt(
+                                            "SELECT name, email FROM users WHERE user_id = $1",
+                                            &[&user_id],
+                                        )
+                                        .await;
+
+                                    if let Ok(Some(user_row)) = user_data {
+                                        let name: String = user_row.get("name");
+                                        let email: String = user_row.get("email");
+
+                                        if let Err(e) =
+                                            send_upgrade_email(&name, &email, &new_tier).await
+                                        {
+                                            eprintln!("Failed to send upgrade email: {:?}", e);
+                                        }
+                                    }
+                                }
+
                                 let res_two = client
                                     .execute(
                                         "WITH new_limit AS (
@@ -757,4 +778,34 @@ pub async fn get_billing_portal_session(
         create_stripe_billing_portal_session(&customer_id, &subscription_id, &stripe_config)
             .await?;
     Ok(HttpResponse::Ok().json(session))
+}
+
+async fn send_upgrade_email(
+    name: &str,
+    email: &str,
+    tier: &str,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    use crate::configs::email_config;
+    use crate::utils::services::email::EmailService;
+
+    let email_config = email_config::Config::from_env()?;
+    let email_service = EmailService::new(email_config);
+
+    email_service.send_upgrade_email(name, email, tier).await?;
+
+    Ok(())
+}
+
+fn is_tier_upgrade(current_tier: &str, new_tier: &str) -> bool {
+    let tier_rank = |tier: &str| -> u8 {
+        match tier {
+            "Free" => 0,
+            "Starter" => 1,
+            "Dev" => 2,
+            "Growth" => 3,
+            _ => 0,
+        }
+    };
+
+    tier_rank(new_tier) > tier_rank(current_tier)
 }
