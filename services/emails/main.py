@@ -16,22 +16,25 @@ app = FastAPI()
 
 @app.post("/email/welcome")
 def send_welcome_email(name: str, email: str) -> Dict:
+    cal_url = "https://cal.com/mehulc/30min"
+
     params: resend.Emails.SendParams = {
         "from": "Chunkr <team@chunkr.ai>", 
         "to": [email],
         "subject": "Welcome to Chunkr",
         "html": f"""
-Hello {name},
+<div style="font-family: Arial, sans-serif;">
+    <p>Hello {name},</p>
 
-Welcome to Chunkr! Thank you for signing up. We're excited to have you on board.
+    <p>Welcome to Chunkr! Thank you for signing up. We're excited to have you on board.</p>
 
-To get you started with parsing your first document, you can use our UI at https://chunkr.ai/, our API via curl, or our python SDK.
+    <p>To get you started with parsing your first document, you can use our UI at <a href="https://chunkr.ai/">https://chunkr.ai/</a>, our API via curl, or our python SDK.</p>
 
-You can find your API key at https://chunkr.ai/dashboard.
+    <p>You can find your API key at <a href="https://chunkr.ai/dashboard">https://chunkr.ai/dashboard</a>.</p>
 
-Here's a Python SDK example:
+    <p>Here's a Python SDK example:</p>
 
-<pre>
+    <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
 from chunkr_ai import Chunkr
 
 chunkr = Chunkr(api_key="your_api_key")
@@ -43,24 +46,22 @@ task = chunkr.upload("/path/to/your/file")
 task.html(output_file="output.html")
 
 # Export markdown of document
-task.markdown(output_file="output.md")
-</pre>
+task.markdown(output_file="output.md")</pre>
 
-And here's a cURL example:
+    <p>And here's a cURL example:</p>
 
-<pre>
+    <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
 curl -X POST https://api.chunkr.ai/api/v1/task \\
     -H "Content-Type: multipart/form-data" \\
     -H "Authorization: YOUR_API_KEY" \\
-    -F "file=@/path/to/your/file"
-</pre>
+    -F "file=@/path/to/your/file"</pre>
 
-You can adjust the configuration options further. To learn more about the configuration options, visit our documentation at docs.chunkr.ai
+    <p>You can adjust the configuration options further. To learn more about the configuration options, visit our documentation at <a href="https://docs.chunkr.ai">https://docs.chunkr.ai</a></p>
 
-We'd love to learn more about your use case! Book a call with us at {cal_url} to discuss how we can help you get the most out of Chunkr.
+    <p>We'd love to learn more about your use case! Book a call with us at {cal_url} to discuss how we can help you get the most out of Chunkr.</p>
 
-Best,
-Team Chunkr
+    <p>Best,<br>Team Chunkr</p>
+</div>
         """
     }
     return resend.Emails.send(params)
@@ -96,18 +97,38 @@ def send_upgrade_email(name: str, email: str, tier: str) -> Dict:
 
     tier_info = tier_features.get(tier, tier_features["Starter"])
     
-    params: resend.Emails.SendParams = {
-        "from": "Chunkr <team@chunkr.ai>",
-        "to": [email],
-        "subject": f"Welcome to Chunkr {tier}!",
-        "html": f"""
+    email_template = ""
+    if tier == "Starter":
+        email_template = f"""
+        <div style="font-family: Arial, sans-serif;">
             <h1>Thanks for upgrading, {name}!</h1>
             <p>Welcome to Chunkr-{tier}. You now have access to the following:</p>
             <ul>
                 {"".join(f"<li>{feature}</li>" for feature in tier_info['features'])}
             </ul>
-            <p>Let us know if you need any help getting started with your new features. We're here to help!</p>
+            <p>Let us know if you need any help with getting started or if you run into any issues. We're here to help!</p>
+            <p>Best,<br>Team Chunkr</p>
+        </div>
         """
+    else:
+        email_template = f"""
+        <div style="font-family: Arial, sans-serif;">
+            <h1>Thanks for upgrading, {name}!</h1>
+            <p>Welcome to Chunkr-{tier}. You now have access to the following:</p>
+            <ul>
+                {"".join(f"<li>{feature}</li>" for feature in tier_info['features'])}
+            </ul>
+            <p>If you'd like to setup your dedicated support channels - reply to this email with a small description of how you're using chunkr.</p>
+            <p>Let us know if you need any help with getting started or if you run into any issues. We're here to help!</p>
+            <p>Best,<br>Team Chunkr</p>
+        </div>
+        """
+    
+    params: resend.Emails.SendParams = {
+        "from": "Chunkr <team@chunkr.ai>",
+        "to": [email],
+        "subject": f"Welcome to Chunkr {tier}!",
+        "html": email_template
     }
     return resend.Emails.send(params)
 
@@ -120,6 +141,7 @@ def send_reactivation_email(name: str, email: str, cal_url: str) -> Dict:
         "to": [email],
         "subject": "How has your Chunkr experience been?",
         "html": f"""
+        <div style="font-family: Arial, sans-serif;">
             <h1>Hi {name},</h1>
             <p>We hope you are enjoying Chunkr! Thank you for being a part of our community.</p>
             <p>We'd love to understand your experience better.</p>
@@ -127,6 +149,8 @@ def send_reactivation_email(name: str, email: str, cal_url: str) -> Dict:
             <p>Your feedback is incredibly valuable in helping us build a better product.</p>
             <p>I'd love to hear your thoughts in a quick chat:</p>
             <a href="{cal_url}">Share Your Feedback</a>
+            <p>Best,<br>Team Chunkr</p>
+        </div>
         """
     }
     return resend.Emails.send(params)

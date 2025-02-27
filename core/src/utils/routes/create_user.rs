@@ -123,7 +123,7 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
 
     let usage_limit = client
         .query_one(
-            "SELECT usage_limit FROM monthly_usage WHERE user_id = $1 AND usage_type = $2 ORDER BY billing_cycle_start DESC LIMIT 1",
+            "SELECT usage_limit FROM monthly_usage WHERE user_id = $1 AND usage_type = $2 ORDER BY billing_cycle_end DESC LIMIT 1",
             &[&user_info.user_id, &UsageType::Page.to_string()],
         )
         .await?
