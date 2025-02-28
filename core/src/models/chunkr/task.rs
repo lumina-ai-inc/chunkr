@@ -6,6 +6,7 @@ use crate::models::chunkr::segment_processing::{
 };
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
+use crate::utils::services::email::EmailService;
 use crate::utils::services::file_operations::check_file_type;
 use crate::utils::storage::services::delete_folder;
 use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url, upload_to_s3};
@@ -363,6 +364,25 @@ impl Task {
             Ok(_) => Ok(()),
             Err(e) => {
                 if e.to_string().contains("usage limit exceeded") {
+                    // Get user details from database
+                    let user_details = client
+                        .query_one(
+                            "SELECT name, email FROM users WHERE user_id = $1",
+                            &[&self.user_id],
+                        )
+                        .await?;
+                    let name: String = user_details.get("name");
+                    let email: Option<String> = user_details.get("email");
+
+                    if let Some(email) = email {
+                        let email_service = EmailService::new(
+                            crate::configs::email_config::Config::from_env().unwrap(),
+                        );
+                        if let Err(e) = email_service.send_free_pages_email(&name, &email).await {
+                            log::error!("Failed to send free pages email: {}", e);
+                        }
+                    }
+
                     Box::pin(self.update(
                         Some(Status::Failed),
                         Some("Page limit exceeded".to_string()),
