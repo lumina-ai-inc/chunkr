@@ -26,6 +26,7 @@ def send_welcome_email(name: str, email: str) -> Dict:
         "from": "Chunkr <team@chunkr.ai>", 
         "to": [email],
         "subject": "Welcome to Chunkr",
+        "scheduledAt": "tomorrow at 9am",
         "html": f"""
 <div style="font-family: Arial, sans-serif;">
     <p>Hello {name},</p>
