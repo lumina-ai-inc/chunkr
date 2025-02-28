@@ -91,6 +91,24 @@ impl EmailService {
 
         Ok(response)
     }
+
+    pub async fn send_free_pages_email(
+        &self,
+        name: &str,
+        email: &str,
+    ) -> Result<EmailResponse, Box<dyn Error + Send + Sync>> {
+        let url = format!("{}/email/free-pages", self.config.server_url);
+        let response = self
+            .client
+            .post(&url)
+            .query(&[("name", name), ("email", email)])
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(response)
+    }
 }
 
 pub type SharedEmailService = Arc<EmailService>;

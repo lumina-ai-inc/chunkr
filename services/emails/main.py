@@ -12,7 +12,11 @@ dotenv.load_dotenv()
 resend.api_key = os.environ["RESEND_API_KEY"]
 cal_url = "https://cal.com/mehulc/30min"
 app = FastAPI()
-
+twitter_url = "https://x.com/chunkrai"
+github_url = "https://github.com/lumina-ai-inc/chunkr"
+linkedin_url = "https://www.linkedin.com/company/chunkr"
+discord_url = "https://discord.gg/XzKWFByKzW"
+chunkr_url = "https://chunkr.ai"
 
 @app.post("/email/welcome")
 def send_welcome_email(name: str, email: str) -> Dict:
@@ -60,7 +64,8 @@ curl -X POST https://api.chunkr.ai/api/v1/task \\
 
     <p>We'd love to learn more about your use case! Book a call with us at {cal_url} to discuss how we can help you get the most out of Chunkr.</p>
 
-    <p>Best,<br>Team Chunkr</p>
+    <p>Best,<br>Team Chunkr<br>
+    <a href="{chunkr_url}">Chunkr</a> | <a href="{twitter_url}">Twitter</a> | <a href="{github_url}">GitHub</a> | <a href="{linkedin_url}">LinkedIn</a> | <a href="{discord_url}">Discord</a></p>
 </div>
         """
     }
@@ -107,7 +112,8 @@ def send_upgrade_email(name: str, email: str, tier: str) -> Dict:
                 {"".join(f"<li>{feature}</li>" for feature in tier_info['features'])}
             </ul>
             <p>Let us know if you need any help with getting started or if you run into any issues. We're here to help!</p>
-            <p>Best,<br>Team Chunkr</p>
+            <p>Best,<br>Team Chunkr<br>
+            <a href="{chunkr_url}">Chunkr</a> | <a href="{twitter_url}">Twitter</a> | <a href="{github_url}">GitHub</a> | <a href="{linkedin_url}">LinkedIn</a> | <a href="{discord_url}">Discord</a></p>
         </div>
         """
     else:
@@ -120,7 +126,8 @@ def send_upgrade_email(name: str, email: str, tier: str) -> Dict:
             </ul>
             <p>If you'd like to setup your dedicated support channels - reply to this email with a small description of how you're using chunkr.</p>
             <p>Let us know if you need any help with getting started or if you run into any issues. We're here to help!</p>
-            <p>Best,<br>Team Chunkr</p>
+            <p>Best,<br>Team Chunkr<br>
+            <a href="{chunkr_url}">Chunkr</a> | <a href="{twitter_url}">Twitter</a> | <a href="{github_url}">GitHub</a> | <a href="{linkedin_url}">LinkedIn</a> | <a href="{discord_url}">Discord</a></p>
         </div>
         """
     
@@ -132,24 +139,20 @@ def send_upgrade_email(name: str, email: str, tier: str) -> Dict:
     }
     return resend.Emails.send(params)
 
-        
-        
-@app.post("/email/reactivate")
-def send_reactivation_email(name: str, email: str, cal_url: str) -> Dict:
+@app.post("/email/free-pages")
+def send_free_pages_email(name: str, email: str) -> Dict:
     params: resend.Emails.SendParams = {
         "from": "Chunkr <team@chunkr.ai>",
         "to": [email],
-        "subject": "How has your Chunkr experience been?",
+        "subject": "Chunkr: Page limit reached",
         "html": f"""
         <div style="font-family: Arial, sans-serif;">
             <h1>Hi {name},</h1>
-            <p>We hope you are enjoying Chunkr! Thank you for being a part of our community.</p>
-            <p>We'd love to understand your experience better.</p>
-            <p>What aspects of Chunkr worked well for you? What could we improve to better serve your needs?</p>
-            <p>Your feedback is incredibly valuable in helping us build a better product.</p>
-            <p>I'd love to hear your thoughts in a quick chat:</p>
-            <a href="{cal_url}">Share Your Feedback</a>
-            <p>Best,<br>Team Chunkr</p>
+            <p>We hope you're enjoying Chunkr!</p>
+            <p>We're reaching out to notify you that your free pages for this cycle have been used up. You can upgrade and get access to unlimited pages here by heading to the "Usage" pane in our dashboard and upgrading your plan.</p>
+            <p>Let us know if you need any help with getting started or if you run into any issues. We're here to help!</p>
+            <p><b>Team Chunkr</b><br>
+            <a href="{chunkr_url}">Chunkr</a> | <a href="{twitter_url}">Twitter</a> | <a href="{github_url}">GitHub</a> | <a href="{linkedin_url}">LinkedIn</a> | <a href="{discord_url}">Discord</a></p>
         </div>
         """
     }
