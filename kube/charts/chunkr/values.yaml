@@ -102,7 +102,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: "d4723ac0"
+      tag: "3fed6150"
     port: 8000
     targetPort: 8000
     ingress:
@@ -162,7 +162,7 @@ services:
     useStandardEnv: true
     image:
       repository: task
-      tag: "02096028"
+      tag: "3fed6150"
     envFrom:
       - secretRef:
           name: chunkr-secret
