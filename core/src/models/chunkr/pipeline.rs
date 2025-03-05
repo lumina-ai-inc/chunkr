@@ -34,9 +34,12 @@ impl Pipeline {
     }
 
     pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
+        println!("Initializing pipeline for task: {}", task_payload.task_id);
         let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
         if task.status == Status::Cancelled {
+            println!("Task was cancelled, checking for previous configuration");
             if task_payload.previous_configuration.is_some() {
+                println!("Reverting to previous configuration");
                 task.update(
                     task_payload.previous_status,
                     task_payload.previous_message,
@@ -51,6 +54,7 @@ impl Pipeline {
             return Ok(());
         }
         if task_payload.previous_configuration.is_some() {
+            println!("Previous configuration found, loading artifacts");
             let (input_file, pdf_file, page_images, segment_images, output) =
                 task.get_artifacts().await?;
             self.input_file = Some(Arc::new(input_file));
@@ -68,10 +72,16 @@ impl Pipeline {
                     .await?,
             ));
             self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
-                "application/pdf" => Some(self.input_file.clone().unwrap()),
-                _ => Some(Arc::new(convert_to_pdf(
-                    &self.input_file.as_ref().unwrap(),
-                )?)),
+                "application/pdf" => {
+                    println!("Input is already PDF, using as is");
+                    Some(self.input_file.clone().unwrap())
+                }
+                _ => {
+                    println!("Converting input to PDF");
+                    Some(Arc::new(convert_to_pdf(
+                        &self.input_file.as_ref().unwrap(),
+                    )?))
+                }
             };
             println!("Task initialized with input file");
         }

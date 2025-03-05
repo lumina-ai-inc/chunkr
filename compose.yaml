@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:e0d6fe8f
+    image: luminainc/server:3fed6150
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:e0d6fe8f
+    image: luminainc/task:fb17c8f1
     platform: linux/amd64
     depends_on:
       - postgres
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   web:
@@ -148,7 +148,7 @@ services:
       "
 
   emails:
-    image: luminainc/emails:e0d6fe8f
+    image: luminainc/emails:fb17c8f1
     platform: linux/amd64
     ports:
       - "8009:8000"

@@ -93,8 +93,11 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
         let start_time = std::time::Instant::now();
         for step in orchestrate_task(&mut pipeline)? {
+            println!("Starting step: {}", step);
             execute_step(step, &mut pipeline).await?;
+            println!("Completed step: {}", step);
             if pipeline.get_task()?.status != Status::Processing {
+                println!("Task status changed to: {:?}", pipeline.get_task()?.status);
                 return Ok(());
             }
         }

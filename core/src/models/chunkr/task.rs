@@ -363,24 +363,30 @@ impl Task {
         match client.execute(&query, &[]).await {
             Ok(_) => Ok(()),
             Err(e) => {
+                println!("Postgres error during task update: {}", e);
                 if e.to_string().contains("usage limit exceeded") {
-                    // Get user details from database
                     let user_details = client
                         .query_one(
-                            "SELECT name, email FROM users WHERE user_id = $1",
+                            "SELECT first_name, email FROM users WHERE user_id = $1",
                             &[&self.user_id],
                         )
-                        .await?;
-                    let name: String = user_details.get("name");
-                    let email: Option<String> = user_details.get("email");
+                        .await;
+                    if let Ok(user_details) = user_details {
+                        let name: String = user_details.get::<_, String>("first_name");
+                        let email: Option<String> = user_details.get::<_, Option<String>>("email");
 
-                    if let Some(email) = email {
-                        let email_service = EmailService::new(
-                            crate::configs::email_config::Config::from_env().unwrap(),
-                        );
-                        if let Err(e) = email_service.send_free_pages_email(&name, &email).await {
-                            log::error!("Failed to send free pages email: {}", e);
+                        if let Some(email) = email {
+                            let email_service = EmailService::new(
+                                crate::configs::email_config::Config::from_env().unwrap(),
+                            );
+                            if let Err(e) = email_service.send_free_pages_email(&name, &email).await
+                            {
+                                println!("Failed to send free pages email: {}", e);
+                                log::error!("Failed to send free pages email: {}", e);
+                            }
                         }
+                    } else {
+                        println!("Failed to get user details");
                     }
 
                     Box::pin(self.update(
