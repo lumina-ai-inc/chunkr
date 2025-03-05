@@ -45,6 +45,8 @@ use utils::routes::admin_user::get_or_create_admin_user;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
+const ONE_GB: usize = 1024 * 1024 * 1024; // 1 GB in bytes
+
 fn run_migrations(url: &str) {
     use diesel::prelude::*;
     let mut conn = diesel::pg::PgConnection::establish(url).expect("Failed to connect to database");
@@ -145,11 +147,11 @@ pub fn main() -> std::io::Result<()> {
         }
 
         let max_size: usize = std::env::var("MAX_TOTAL_LIMIT")
-            .unwrap_or_else(|_| "1073741824".to_string())
+            .unwrap_or_else(|_| ONE_GB.to_string())
             .parse()
             .expect("MAX_TOTAL_LIMIT must be a valid usize");
         let max_memory_size: usize = std::env::var("MAX_MEMORY_LIMIT")
-            .unwrap_or_else(|_| "1073741824".to_string())
+            .unwrap_or_else(|_| ONE_GB.to_string())
             .parse()
             .expect("MAX_MEMORY_LIMIT must be a valid usize");
         let timeout: usize = std::env::var("TIMEOUT")
@@ -168,6 +170,7 @@ pub fn main() -> std::io::Result<()> {
                         .memory_limit(max_memory_size)
                         .error_handler(handle_multipart_error),
                 )
+                .app_data(web::JsonConfig::default().limit(max_size))
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))

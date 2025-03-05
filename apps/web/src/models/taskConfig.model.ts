@@ -123,12 +123,13 @@ export interface UploadFormData {
    */
   target_chunk_length?: number;
 
-  /** Pipeline to run after processing */
+  /** Pipeline to use for processing */
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
 }
 
 export enum Pipeline {
   Azure = "Azure",
+  Chunkr = "Chunkr",
 }
 
 const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
@@ -177,5 +178,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   file: new File([], ""),
-  pipeline: undefined as WhenEnabled<"pipeline", Pipeline>, // Default pipeline
+  pipeline: Pipeline.Azure as any as WhenEnabled<"pipeline", Pipeline>,
 };

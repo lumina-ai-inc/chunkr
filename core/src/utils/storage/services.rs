@@ -34,6 +34,7 @@ pub async fn generate_presigned_url(
     external: bool,
     expires_in: Option<Duration>,
     base64_urls: bool,
+    mime_type: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let s3_client = if external {
         clients::get_external_s3_client()
@@ -58,6 +59,7 @@ pub async fn generate_presigned_url(
     let mut get_object = s3_client.get_object().bucket(bucket).key(key);
     get_object = get_object
         .response_content_disposition("inline")
+        .response_content_type(mime_type)
         .response_content_encoding("utf-8");
     let presigned_request = get_object
         .presigned(PresigningConfig::expires_in(expiration)?)
@@ -111,9 +113,11 @@ pub async fn upload_to_s3(
 pub async fn download_to_tempfile(
     location: &str,
     expires_in: Option<Duration>,
+    mime_type: &str,
 ) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
     let reqwest_client = clients::get_reqwest_client();
-    let unsigned_url = generate_presigned_url(location, false, expires_in, false).await?;
+    let unsigned_url =
+        generate_presigned_url(location, false, expires_in, false, mime_type).await?;
     let mut temp_file = NamedTempFile::new()?;
     let content = reqwest_client
         .get(&unsigned_url)
@@ -129,9 +133,11 @@ pub async fn download_to_given_tempfile(
     mut temp_file: &NamedTempFile,
     location: &str,
     expires_in: Option<Duration>,
+    mime_type: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let reqwest_client = clients::get_reqwest_client();
-    let unsigned_url = generate_presigned_url(location, false, expires_in, false).await?;
+    let unsigned_url =
+        generate_presigned_url(location, false, expires_in, false, mime_type).await?;
     let content = reqwest_client
         .get(&unsigned_url)
         .send()

@@ -77,7 +77,7 @@ class Segment(BaseModel):
     html: Optional[str] = None
     image: Optional[str] = None
     markdown: Optional[str] = None
-    ocr: List[OCRResult]
+    ocr: Optional[List[OCRResult]] = Field(default_factory=list)
     page_number: int
     page_width: float
     segment_id: str
@@ -102,6 +102,7 @@ class Model(str, Enum):
 
 class Pipeline(str, Enum):
     AZURE = "Azure"
+    CHUNKR = "Chunkr"
 
 class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = None
