@@ -33,6 +33,7 @@
 - [Table of Contents](#table-of-contents)
 - [(Super) Quick Start](#super-quick-start)
 - [Documentation](#documentation)
+- [LLM Configuration](#llm-configuration)
 - [Self-Hosted Deployment Options](#self-hosted-deployment-options)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
@@ -71,6 +72,15 @@
 ## Documentation
 
 Visit our [docs](https://docs.chunkr.ai) for more information and examples.
+
+## LLM Configuration
+
+You can use any OpenAI API compatible endpoint by setting the following variables in your .env file:
+``` 
+LLM__URL:
+LLM__MODEL:
+LLM__KEY:
+```
 
 ## Self-Hosted Deployment Options
 
