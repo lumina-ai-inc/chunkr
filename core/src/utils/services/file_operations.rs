@@ -41,44 +41,86 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn
 pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<dyn Error>> {
     let output_dir = input_file.path().parent().unwrap();
 
-    let output = Command::new("libreoffice")
-        .args(&[
-            "--headless",
-            "--convert-to",
-            "pdf",
-            "--outdir",
-            output_dir.to_str().unwrap(),
-            input_file.path().to_str().unwrap(),
-        ])
-        .output()?;
+    let (mime_type, _) = check_file_type(input_file)?;
 
-    if !output.status.success() {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("LibreOffice conversion failed: {:?}", output),
-        )));
-    }
+    if mime_type.starts_with("image/") {
+        // Use ImageMagick for image conversion
+        let output_path = output_dir.join(
+            input_file
+                .path()
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string()
+                + ".pdf",
+        );
 
-    let pdf_file_name = input_file
-        .path()
-        .file_stem()
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string()
-        + ".pdf";
+        let output = Command::new("convert")
+            .arg(input_file.path().to_str().unwrap())
+            .arg(output_path.to_str().unwrap())
+            .output()?;
 
-    let pdf_file_path = output_dir.join(pdf_file_name);
+        if !output.status.success() {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("ImageMagick conversion failed: {:?}", output),
+            )));
+        }
 
-    if pdf_file_path.exists() {
-        let temp_file = NamedTempFile::new()?;
-        std::fs::copy(&pdf_file_path, temp_file.path())?;
-        Ok(temp_file)
+        if output_path.exists() {
+            let temp_file = NamedTempFile::new()?;
+            std::fs::copy(&output_path, temp_file.path())?;
+            std::fs::remove_file(output_path)?; // Clean up the temporary file
+            Ok(temp_file)
+        } else {
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Converted PDF file not found in output directory",
+            )))
+        }
     } else {
-        Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "Converted PDF file not found in output directory",
-        )))
+        // Use LibreOffice for document conversion
+        let output = Command::new("libreoffice")
+            .args(&[
+                "--headless",
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                output_dir.to_str().unwrap(),
+                input_file.path().to_str().unwrap(),
+            ])
+            .output()?;
+
+        if !output.status.success() {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("LibreOffice conversion failed: {:?}", output),
+            )));
+        }
+
+        let pdf_file_name = input_file
+            .path()
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string()
+            + ".pdf";
+
+        let pdf_file_path = output_dir.join(pdf_file_name);
+
+        if pdf_file_path.exists() {
+            let temp_file = NamedTempFile::new()?;
+            std::fs::copy(&pdf_file_path, temp_file.path())?;
+            std::fs::remove_file(&pdf_file_path)?; // Clean up the temporary file
+            Ok(temp_file)
+        } else {
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Converted PDF file not found in output directory",
+            )))
+        }
     }
 }
 

@@ -113,7 +113,7 @@ async fn process_ocr(
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     let mut task = pipeline.get_task()?;
     let pdf_file = pipeline.pdf_file.as_ref().unwrap();
-    let scaling_factor = task.configuration.get_scaling_factor()?;
+    let scaling_factor = pipeline.get_scaling_factor()?;
     let pages: Vec<_> = pipeline
         .page_images
         .as_ref()

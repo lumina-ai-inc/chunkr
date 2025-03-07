@@ -1,3 +1,4 @@
+use crate::configs::worker_config;
 use crate::models::chunkr::output::Chunk;
 use crate::models::chunkr::task::{Status, Task, TaskPayload};
 use crate::utils::services::file_operations::convert_to_pdf;
@@ -103,6 +104,31 @@ impl Pipeline {
             .as_ref()
             .ok_or_else(|| "Task payload is not initialized".into())
             .map(|payload| payload.clone())
+    }
+
+    pub fn get_mime_type(&self) -> Result<String, Box<dyn Error>> {
+        Ok(self.get_task()?.mime_type.as_ref().unwrap().clone())
+    }
+
+    pub fn get_scaling_factor(&self) -> Result<f32, Box<dyn Error>> {
+        if self.get_mime_type()?.starts_with("image/") {
+            Ok(1.0)
+        } else {
+            let worker_config = worker_config::Config::from_env()?;
+            if self.get_task()?.configuration.high_resolution {
+                Ok(worker_config.high_res_scaling_factor)
+            } else {
+                Ok(1.0)
+            }
+        }
+    }
+
+    pub fn get_file(&self) -> Result<Arc<NamedTempFile>, Box<dyn Error>> {
+        if self.get_mime_type()?.starts_with("image/") {
+            Ok(self.input_file.as_ref().unwrap().clone())
+        } else {
+            Ok(self.pdf_file.as_ref().unwrap().clone())
+        }
     }
 
     pub async fn complete(
