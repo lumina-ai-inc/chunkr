@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server-azure:4977bc70
+    image: luminainc/server-azure:3fed6150
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task-zure:4977bc70
+    image: luminainc/task-azure:fb17c8f1
     platform: linux/amd64
     depends_on:
       - postgres
@@ -24,11 +24,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 10
+      replicas: 30
     restart: always
 
   web:
-    image: luminainc/web:4977bc70
+    image: luminainc/web:37ab9ae9
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -77,6 +77,7 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     restart: always
+
   postgres:
     build:
       context: ./docker/postgres
@@ -173,6 +174,7 @@ services:
     depends_on:
       - postgres
     restart: always
+    
   rrq:
     image: luminainc/rrq:33cd165
     platform: linux/amd64
@@ -198,7 +200,7 @@ services:
       - "8003:80"
     command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
