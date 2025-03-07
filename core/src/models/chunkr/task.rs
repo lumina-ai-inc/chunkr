@@ -713,17 +713,6 @@ pub struct Configuration {
     pub pipeline: Option<PipelineType>,
 }
 
-impl Configuration {
-    pub fn get_scaling_factor(&self) -> Result<f32, Box<dyn std::error::Error>> {
-        let worker_config = worker_config::Config::from_env()?;
-        if self.high_resolution {
-            Ok(worker_config.high_res_scaling_factor)
-        } else {
-            Ok(1.0)
-        }
-    }
-}
-
 impl<'de> Deserialize<'de> for Configuration {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
