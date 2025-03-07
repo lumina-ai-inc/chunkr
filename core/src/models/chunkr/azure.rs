@@ -660,12 +660,8 @@ fn create_bounding_box(region: &BoundingRegion, unit: Option<&str>) -> BoundingB
     BoundingBox::new(0.0, 0.0, 0.0, 0.0)
 }
 
-fn get_cleaned_cell_content(cell: &Cell) -> String {
-    cell.content
-        .as_deref()
-        .unwrap_or("")
-        .replace(":selected:", "")
-        .replace(":unselected:", "")
+fn get_cell_content(cell: &Cell) -> String {
+    cell.content.as_deref().unwrap_or("").to_string()
 }
 
 fn table_to_text(table: &Table) -> String {
@@ -676,7 +672,7 @@ fn table_to_text(table: &Table) -> String {
             cells
                 .iter()
                 .filter_map(|cell| {
-                    let content: String = get_cleaned_cell_content(cell);
+                    let content: String = get_cell_content(cell);
                     if content.is_empty() {
                         None
                     } else {
@@ -716,7 +712,7 @@ fn table_to_html(table: &Table) -> String {
                 c.row_index.map_or(false, |r| r as usize == row_idx)
                     && c.column_index.map_or(false, |c| c as usize == col_idx)
             }) {
-                let content = get_cleaned_cell_content(cell);
+                let content = get_cell_content(cell);
                 let rowspan = cell.row_span.unwrap_or(1);
                 let colspan = cell.column_span.unwrap_or(1);
 
