@@ -208,6 +208,15 @@ export default function Header({ auth }: HeaderProps) {
             <DropdownMenu.Content className="dropdown-content" sideOffset={5}>
               <DropdownMenu.Item className="dropdown-item">
                 <a
+                  href="https://github.com/lumina-ai-inc/chunkr"
+                  target="_blank"
+                  className="dropdown-link"
+                >
+                  <Text size="2">Github</Text>
+                </a>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item className="dropdown-item">
+                <a
                   href="https://cal.com/mehulc/30min"
                   target="_blank"
                   className="dropdown-link"
