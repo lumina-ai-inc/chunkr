@@ -114,17 +114,6 @@ export default function Header({ auth }: HeaderProps) {
             </Flex>
           </a>
 
-          <a
-            href="https://legacy.chunkr.ai/"
-            target="_blank"
-            style={{ textDecoration: "none" }}
-          >
-            <Flex direction="row" gap="2" py="12px" px="12px" align="center">
-              <Text size="2" weight="medium" className="nav-item">
-                Legacy
-              </Text>
-            </Flex>
-          </a>
           <Flex direction="row" gap="2" py="12px" px="12px" align="center">
             <a
               href="https://cal.com/mehulc/30min"
@@ -219,14 +208,13 @@ export default function Header({ auth }: HeaderProps) {
             <DropdownMenu.Content className="dropdown-content" sideOffset={5}>
               <DropdownMenu.Item className="dropdown-item">
                 <a
-                  href="https://legacy.chunkr.ai/"
+                  href="https://github.com/lumina-ai-inc/chunkr"
                   target="_blank"
                   className="dropdown-link"
                 >
-                  <Text size="2">Legacy</Text>
+                  <Text size="2">Github</Text>
                 </a>
               </DropdownMenu.Item>
-
               <DropdownMenu.Item className="dropdown-item">
                 <a
                   href="https://cal.com/mehulc/30min"
