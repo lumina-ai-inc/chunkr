@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.1.0...v1.2.0) (2025-03-11)
+
+
+### Features
+
+* Added release please for automated releases ([#363](https://github.com/lumina-ai-inc/chunkr/issues/363)) ([d808d4e](https://github.com/lumina-ai-inc/chunkr/commit/d808d4e72464b83590dfab73fe973e2f98b4f7e7))
+
+
+### Bug Fixes
+
+* Await was missing in response ([1ad37d8](https://github.com/lumina-ai-inc/chunkr/commit/1ad37d851ee0379c13ba663fc8bafb3541e409a2))
+* Await was missing in response ([632adce](https://github.com/lumina-ai-inc/chunkr/commit/632adce42c7850a788e0e46817e2498724c76890))
+
 ## [Unreleased]
 
 ### Added
