@@ -35,14 +35,29 @@ pub fn crop_image(
     // Ensure we don't crop outside image bounds
     let left = left.max(0) as u32;
     let top = top.max(0) as u32;
-    let width = target_width.min(image.width() - left);
-    let height = target_height.min(image.height() - top);
+
+    // Use saturating_sub to prevent overflow when calculating dimensions
+    let width = target_width.min(image.width().saturating_sub(left));
+    let height = target_height.min(image.height().saturating_sub(top));
 
     let sub_img = imageops::crop(&mut image, left, top, width, height);
     let output_file = NamedTempFile::new()?;
-    sub_img
-        .to_image()
-        .save_with_format(output_file.path(), ImageFormat::Jpeg)?;
+    let cropped_image = sub_img.to_image();
+
+    // Save to output/images folder for debugging
+    std::fs::create_dir_all("output/images")?;
+    let debug_filename = format!(
+        "output/images/crop_{}_{}_{}_{}_{}.jpg",
+        bbox.left as u32,
+        bbox.top as u32,
+        bbox.width as u32,
+        bbox.height as u32,
+        chrono::Utc::now().timestamp()
+    );
+    cropped_image.save_with_format(&debug_filename, ImageFormat::Jpeg)?;
+
+    // Save to the temp file as before
+    cropped_image.save_with_format(output_file.path(), ImageFormat::Jpeg)?;
 
     Ok(output_file)
 }

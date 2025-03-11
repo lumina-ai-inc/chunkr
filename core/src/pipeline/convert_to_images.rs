@@ -19,8 +19,16 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             None,
         )
         .await?;
-    let scaling_factor = pipeline.get_task()?.configuration.get_scaling_factor()?;
-    let pages = pages_as_images(pipeline.pdf_file.as_ref().unwrap(), scaling_factor)?;
-    pipeline.page_images = Some(pages.into_iter().map(|p| Arc::new(p)).collect());
+
+    let file = pipeline.get_file()?;
+
+    if pipeline.get_mime_type()?.starts_with("image/") {
+        pipeline.page_images = Some(vec![file.clone()]);
+    } else {
+        let scaling_factor = pipeline.get_scaling_factor()?;
+        let pages = pages_as_images(&file, scaling_factor)?;
+        pipeline.page_images = Some(pages.into_iter().map(Arc::new).collect());
+    }
+
     Ok(())
 }

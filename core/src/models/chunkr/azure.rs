@@ -184,13 +184,11 @@ impl AzureAnalysisResponse {
                     if let Some(pages) = &analyze_result.pages {
                         for page in pages {
                             let page_number = page.page_number.unwrap_or(1) as u32;
-                            let (width, height) = match page.unit.as_deref() {
-                                Some("inch") => (
-                                    inches_to_pixels(page.width.unwrap_or(0.0) as f64),
-                                    inches_to_pixels(page.height.unwrap_or(0.0) as f64),
-                                ),
-                                _ => (0.0, 0.0),
-                            };
+                            let unit = page.unit.as_deref();
+                            let (width, height) = (
+                                convert_unit_to_pixels(page.width.unwrap_or(0.0) as f64, unit),
+                                convert_unit_to_pixels(page.height.unwrap_or(0.0) as f64, unit),
+                            );
 
                             let mut ocr_results = Vec::new();
                             if let Some(words) = &page.words {
@@ -198,7 +196,7 @@ impl AzureAnalysisResponse {
                                     if let (Some(polygon), Some(content), Some(confidence)) =
                                         (&word.polygon, &word.content, &word.confidence)
                                     {
-                                        if let Ok(word_bbox) = create_word_bbox(polygon) {
+                                        if let Ok(word_bbox) = create_word_bbox(polygon, unit) {
                                             let ocr_result = OCRResult {
                                                 text: content.clone(),
                                                 confidence: Some(*confidence as f32),
@@ -243,16 +241,21 @@ impl AzureAnalysisResponse {
                                 .iter()
                                 .map(|page| {
                                     let page_number = page.page_number.unwrap_or(1) as u32;
-                                    let (width, height) = match page.unit.as_deref() {
-                                        Some("inch") => (
-                                            inches_to_pixels(page.width.unwrap_or(0.0) as f64),
-                                            inches_to_pixels(page.height.unwrap_or(0.0) as f64),
+                                    let unit = page.unit.as_deref();
+                                    let (width, height, unit) = (
+                                        convert_unit_to_pixels(
+                                            page.width.unwrap_or(0.0) as f64,
+                                            unit,
                                         ),
-                                        _ => (0.0, 0.0),
-                                    };
-                                    (page_number, (width, height))
+                                        convert_unit_to_pixels(
+                                            page.height.unwrap_or(0.0) as f64,
+                                            unit,
+                                        ),
+                                        unit,
+                                    );
+                                    (page_number, (width, height, unit))
                                 })
-                                .collect::<std::collections::HashMap<u32, (f32, f32)>>()
+                                .collect::<std::collections::HashMap<u32, (f32, f32, Option<&str>)>>()
                         } else {
                             std::collections::HashMap::new()
                         };
@@ -279,12 +282,12 @@ impl AzureAnalysisResponse {
                                     if let Some(first_region) = regions.first() {
                                         let page_number =
                                             first_region.page_number.unwrap_or(1) as u32;
-                                        let (page_width, page_height) = page_dimensions
+                                        let (page_width, page_height, unit) = page_dimensions
                                             .get(&page_number)
                                             .copied()
-                                            .unwrap_or((0.0, 0.0));
+                                            .unwrap_or((0.0, 0.0, None));
 
-                                        let bbox = create_bounding_box(first_region);
+                                        let bbox = create_bounding_box(first_region, unit);
                                         let segment = Segment {
                                             bbox,
                                             confidence: None,
@@ -337,12 +340,12 @@ impl AzureAnalysisResponse {
                                 if !figure.bounding_regions.is_empty() {
                                     let first_region = &figure.bounding_regions[0];
                                     let page_number = first_region.page_number.unwrap_or(1) as u32;
-                                    let (page_width, page_height) = page_dimensions
+                                    let (page_width, page_height, unit) = page_dimensions
                                         .get(&page_number)
                                         .copied()
-                                        .unwrap_or((0.0, 0.0));
+                                        .unwrap_or((0.0, 0.0, None));
 
-                                    let bbox = create_bounding_box(first_region);
+                                    let bbox = create_bounding_box(first_region, unit);
                                     let segment = Segment {
                                         bbox,
                                         confidence: None,
@@ -389,12 +392,12 @@ impl AzureAnalysisResponse {
                             if let Some(regions) = &paragraph.bounding_regions {
                                 if let Some(first_region) = regions.first() {
                                     let page_number = first_region.page_number.unwrap_or(1) as u32;
-                                    let (page_width, page_height) = page_dimensions
+                                    let (page_width, page_height, unit) = page_dimensions
                                         .get(&page_number)
                                         .copied()
-                                        .unwrap_or((0.0, 0.0));
+                                        .unwrap_or((0.0, 0.0, None));
 
-                                    let bbox = create_bounding_box(first_region);
+                                    let bbox = create_bounding_box(first_region, unit);
                                     let segment_type = match paragraph.role.as_deref() {
                                         Some("title") => SegmentType::Title,
                                         Some("sectionHeading") => SegmentType::SectionHeader,
@@ -433,13 +436,13 @@ impl AzureAnalysisResponse {
                         if let Some(pages) = &analyze_result.pages {
                             for page in pages {
                                 let page_number = page.page_number.unwrap_or(1) as u32;
-
+                                let unit = page.unit.as_deref();
                                 if let Some(words) = &page.words {
                                     for word in words {
                                         if let (Some(polygon), Some(content), Some(confidence)) =
                                             (&word.polygon, &word.content, &word.confidence)
                                         {
-                                            let word_bbox = create_word_bbox(polygon)?;
+                                            let word_bbox = create_word_bbox(polygon, unit)?;
                                             let mut max_area = 0.0;
                                             let mut best_segment_idx = None;
 
@@ -478,6 +481,74 @@ impl AzureAnalysisResponse {
                                 }
                             }
                         }
+
+                        // Ensure each page has at least one segment
+                        if let Some(pages) = &analyze_result.pages {
+                            let mut pages_with_segments = std::collections::HashMap::new();
+
+                            // Initialize all pages as having no segments
+                            for page in pages {
+                                let page_number = page.page_number.unwrap_or(1) as u32;
+                                pages_with_segments.insert(page_number, false);
+                            }
+
+                            // Mark pages that have segments
+                            for segment in &all_segments {
+                                pages_with_segments.insert(segment.page_number, true);
+                            }
+
+                            // Add full-page segments for pages without segments
+                            for page in pages {
+                                let page_number = page.page_number.unwrap_or(1) as u32;
+                                if !pages_with_segments.get(&page_number).unwrap_or(&true) {
+                                    let (width, height, unit) = page_dimensions
+                                        .get(&page_number)
+                                        .copied()
+                                        .unwrap_or((0.0, 0.0, None));
+
+                                    println!(
+                                        "No segments detected for page {}. Adding full-page segment with dimensions {:?}",
+                                        page_number,
+                                        (width, height, unit)
+                                    );
+
+                                    let mut ocr_results = Vec::new();
+                                    if let Some(words) = &page.words {
+                                        for word in words {
+                                            if let (
+                                                Some(polygon),
+                                                Some(content),
+                                                Some(confidence),
+                                            ) = (&word.polygon, &word.content, &word.confidence)
+                                            {
+                                                if let Ok(word_bbox) =
+                                                    create_word_bbox(polygon, unit)
+                                                {
+                                                    let ocr_result = OCRResult {
+                                                        text: content.clone(),
+                                                        confidence: Some(*confidence as f32),
+                                                        bbox: word_bbox,
+                                                    };
+                                                    ocr_results.push(ocr_result);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    let segment = Segment::new_from_segment_ocr(
+                                        BoundingBox::new(0.0, 0.0, width, height),
+                                        Some(1.0),
+                                        ocr_results,
+                                        height,
+                                        page_number,
+                                        width,
+                                        SegmentType::Page,
+                                    );
+
+                                    all_segments.push(segment);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -494,7 +565,7 @@ fn process_caption(
     caption: &Caption,
     replacements: &mut std::collections::BTreeMap<usize, Vec<Segment>>,
     skip_paragraphs: &mut std::collections::HashSet<usize>,
-    page_dimensions: &std::collections::HashMap<u32, (f32, f32)>,
+    page_dimensions: &std::collections::HashMap<u32, (f32, f32, Option<&str>)>,
 ) {
     if let Some(elements) = &caption.elements {
         if let Some(first_idx) = elements.first().and_then(|e| extract_paragraph_index(e)) {
@@ -507,12 +578,12 @@ fn process_caption(
             if let Some(regions) = &caption.bounding_regions {
                 if let Some(first_region) = regions.first() {
                     let page_number = first_region.page_number.unwrap_or(1) as u32;
-                    let (page_width, page_height) = page_dimensions
+                    let (page_width, page_height, unit) = page_dimensions
                         .get(&page_number)
                         .copied()
-                        .unwrap_or((0.0, 0.0));
+                        .unwrap_or((0.0, 0.0, None));
 
-                    let bbox = create_bounding_box(first_region);
+                    let bbox = create_bounding_box(first_region, unit);
                     let segment = Segment {
                         bbox,
                         confidence: None,
@@ -542,16 +613,26 @@ fn extract_paragraph_index(element: &str) -> Option<usize> {
     element.strip_prefix("/paragraphs/")?.parse::<usize>().ok()
 }
 
-fn inches_to_pixels(inches: f64) -> f32 {
-    (inches * 72.0) as f32
+fn convert_unit_to_pixels(value: f64, unit: Option<&str>) -> f32 {
+    match unit {
+        Some("inch") => (value * 72.0) as f32,
+        Some("pixel") => value as f32,
+        _ => {
+            // If unit is unknown, log it and default to treating as pixels
+            if let Some(unit_str) = unit {
+                println!("Unknown unit: {}", unit_str);
+            }
+            value as f32
+        }
+    }
 }
 
-fn create_bounding_box(region: &BoundingRegion) -> BoundingBox {
+fn create_bounding_box(region: &BoundingRegion, unit: Option<&str>) -> BoundingBox {
     if let Some(polygon) = &region.polygon {
         if polygon.len() >= 8 {
             let points: Vec<f32> = polygon
                 .iter()
-                .map(|&coord| inches_to_pixels(coord))
+                .map(|&coord| convert_unit_to_pixels(coord, unit))
                 .collect();
 
             let left = points
@@ -579,6 +660,10 @@ fn create_bounding_box(region: &BoundingRegion) -> BoundingBox {
     BoundingBox::new(0.0, 0.0, 0.0, 0.0)
 }
 
+fn get_cell_content(cell: &Cell) -> String {
+    cell.content.as_deref().unwrap_or("").to_string()
+}
+
 fn table_to_text(table: &Table) -> String {
     table
         .cells
@@ -586,7 +671,14 @@ fn table_to_text(table: &Table) -> String {
         .map(|cells| {
             cells
                 .iter()
-                .filter_map(|cell| cell.content.as_ref().map(|s| s.clone()))
+                .filter_map(|cell| {
+                    let content: String = get_cell_content(cell);
+                    if content.is_empty() {
+                        None
+                    } else {
+                        Some(content)
+                    }
+                })
                 .collect::<Vec<String>>()
                 .join(" ")
         })
@@ -620,7 +712,7 @@ fn table_to_html(table: &Table) -> String {
                 c.row_index.map_or(false, |r| r as usize == row_idx)
                     && c.column_index.map_or(false, |c| c as usize == col_idx)
             }) {
-                let content = cell.content.as_deref().unwrap_or("");
+                let content = get_cell_content(cell);
                 let rowspan = cell.row_span.unwrap_or(1);
                 let colspan = cell.column_span.unwrap_or(1);
 
@@ -640,7 +732,7 @@ fn table_to_html(table: &Table) -> String {
                 } else {
                     html.push_str("<td>");
                 }
-                html.push_str(content);
+                html.push_str(&content);
                 html.push_str("</td>");
             } else {
                 html.push_str("<td></td>");
@@ -657,11 +749,11 @@ fn table_to_markdown(table: &Table) -> String {
     convert_table_to_markdown(table_to_html(table))
 }
 
-fn create_word_bbox(polygon: &[f64]) -> Result<BoundingBox, Box<dyn Error>> {
+fn create_word_bbox(polygon: &[f64], unit: Option<&str>) -> Result<BoundingBox, Box<dyn Error>> {
     if polygon.len() >= 8 {
         let points: Vec<f32> = polygon
             .iter()
-            .map(|&coord| inches_to_pixels(coord))
+            .map(|&coord| convert_unit_to_pixels(coord, unit))
             .collect();
 
         let left = points
