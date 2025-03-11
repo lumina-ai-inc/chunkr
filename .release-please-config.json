@@ -27,18 +27,6 @@
             "include-component-in-tag": false,
             "extra-files": [
                 {
-                    "type": "regex",
-                    "path": "compose.yaml",
-                    "pattern": "(image: .+:)([^\\s]+)",
-                    "replace": "$1{{version}}"
-                },
-                {
-                    "type": "regex",
-                    "path": "compose-cpu.yaml",
-                    "pattern": "(image: .+:)([^\\s]+)",
-                    "replace": "$1{{version}}"
-                },
-                {
                     "type": "yaml",
                     "path": "kube/charts/chunkr/values.yaml",
                     "jsonpath": "$.services.*.image.tag"
