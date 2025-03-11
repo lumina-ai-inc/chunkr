@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        component: [server, task, web, segmentation, doctr]
+        component: [server, task, web, doctr]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
