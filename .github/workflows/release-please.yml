@@ -28,7 +28,6 @@ jobs:
           echo "Releases created: ${{ steps.release.outputs.releases_created }}"
           echo "Release tag: ${{ steps.release.outputs.tag_name }}"
   
-  # This job runs after a release PR is merged and the release is created
   build-and-publish:
     needs: release-please
     if: ${{ needs.release-please.outputs.releases_created }}
