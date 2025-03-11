@@ -30,7 +30,7 @@ jobs:
   
   build-and-publish:
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created }}
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
