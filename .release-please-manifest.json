@@ -1,0 +1,8 @@
+{
+    "core": "1.1.0",
+    "clients/python-client": "0.0.41",
+    "services": "0.0.0",
+    "apps/web": "0.0.0",
+    "kube/charts/chunkr": "0.0.0",
+    ".": "1.1.0"
+}
