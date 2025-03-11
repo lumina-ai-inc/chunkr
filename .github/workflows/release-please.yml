@@ -16,6 +16,7 @@ jobs:
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       root_version: ${{ steps.get-version.outputs.root_version }}
+      raw_releases: ${{ steps.release.outputs.releases }}
     steps:
       - uses: google-github-actions/release-please-action@v4
         id: release
@@ -23,15 +24,47 @@ jobs:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
       
-      # Extract the root version
+      # Debug release outputs
+      - name: Debug release outputs
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          echo "releases_created: ${{ steps.release.outputs.releases_created }}"
+          echo "raw releases output:"
+          echo '${{ steps.release.outputs.releases }}'
+          echo "---"
+          echo "All outputs from release step:"
+          echo '${{ toJSON(steps.release.outputs) }}'
+      
+      # Extract the root version with additional debugging
       - name: Get root version
         id: get-version
         if: ${{ steps.release.outputs.releases_created }}
         run: |
-          # Extract the root version from the releases JSON
+          echo "Full releases output:"
+          echo '${{ steps.release.outputs.releases }}'
+          # Try to parse it as JSON first to confirm it's valid
+          echo "Is valid JSON?"
+          echo '${{ steps.release.outputs.releases }}' | jq '.'
+          # Extract the root version with verbose output
+          echo "Attempting to extract root version..."
           ROOT_VERSION=$(echo '${{ steps.release.outputs.releases }}' | jq -r '.[] | select(.path == ".") | .version')
+          echo "Extracted value: '$ROOT_VERSION'"
+          # Check if it's empty
+          if [ -z "$ROOT_VERSION" ]; then
+            echo "WARNING: Could not extract root version, using fallback method"
+            # Try alternative approach
+            ROOT_VERSION=$(echo '${{ steps.release.outputs.releases }}' | jq -r 'map(select(.path == ".")) | .[0].version // ""')
+            echo "Alternative extraction result: '$ROOT_VERSION'"
+            # If still empty, try to extract from manifest directly
+            if [ -z "$ROOT_VERSION" ]; then
+              echo "WARNING: Still no version, looking at manifest directly"
+              git checkout main
+              ROOT_VERSION=$(cat .release-please-manifest.json | jq -r '.[""]' || jq -r '.["."]')
+              echo "Manifest extraction result: '$ROOT_VERSION'"
+            fi
+          fi
+          echo "Final root_version=$ROOT_VERSION"
           echo "root_version=$ROOT_VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted root version: $ROOT_VERSION"
   
   # This job runs after a release PR is merged and the release is created
   build-and-publish:
@@ -57,6 +90,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      # Add comprehensive debug step
+      - name: Debug all information
+        run: |
+          echo "releases_created: ${{ needs.release-please.outputs.releases_created }}"
+          echo "root_version: '${{ needs.release-please.outputs.root_version }}'"
+          echo "raw_releases: '${{ needs.release-please.outputs.raw_releases }}'"
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
