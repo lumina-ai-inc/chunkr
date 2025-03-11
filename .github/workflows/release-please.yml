@@ -28,8 +28,38 @@ jobs:
           echo "Releases created: ${{ steps.release.outputs.releases_created }}"
           echo "Release tag: ${{ steps.release.outputs.tag_name }}"
   
-  build-and-publish:
+  update-compose-files:
     needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION="${{ needs.release-please.outputs.release_tag }}"
+          echo "VERSION=${VERSION#v}" >> $GITHUB_OUTPUT
+      
+      - name: Update compose.yaml
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          sed -i -E 's/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
+          sed -i -E 's/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
+          
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add compose.yaml compose-cpu.yaml
+          git commit -m "chore: update compose files to version ${{ steps.get_version.outputs.VERSION }}"
+          git push
+  
+  build-and-publish:
+    needs: [release-please, update-compose-files]
     if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     runs-on: ubuntu-latest
     strategy:
