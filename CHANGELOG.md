@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.2.0...v1.3.0) (2025-03-11)
+
+
+### Features
+
+* Added automation of docker build ([#365](https://github.com/lumina-ai-inc/chunkr/issues/365)) ([f01cb2f](https://github.com/lumina-ai-inc/chunkr/commit/f01cb2fc66c104066f1188149cdbbb8390337169))
+
+
+### Bug Fixes
+
+* Debugging please release ([e574177](https://github.com/lumina-ai-inc/chunkr/commit/e574177cc28c68e86ab08ac5b83328b393b02bf4))
+* Debugging please release with core changes ([558a6f9](https://github.com/lumina-ai-inc/chunkr/commit/558a6f9fd86c5d6e53b770dd48909a3a60e7f110))
+* Docker builds use root version ([82e1768](https://github.com/lumina-ai-inc/chunkr/commit/82e176868e215f550377d9aed91e5b37fd57faba))
+* Docker compose files update separately ([15328a2](https://github.com/lumina-ai-inc/chunkr/commit/15328a23dfd4399b6a56babb18becd04bf7bdf72))
+* Image tag updates not full image ([7b8791f](https://github.com/lumina-ai-inc/chunkr/commit/7b8791f6bdee1e2b5f47496936700de4ddaee537))
+* Only trigger docker build after releases created ([676c280](https://github.com/lumina-ai-inc/chunkr/commit/676c280e975ea37a8a737876854b0e3aa7006fc2))
+
 ## [1.2.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.1.0...v1.2.0) (2025-03-11)
 
 
