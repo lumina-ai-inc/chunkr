@@ -27,14 +27,16 @@
             "include-component-in-tag": false,
             "extra-files": [
                 {
-                    "type": "yaml",
+                    "type": "regex",
                     "path": "compose.yaml",
-                    "jsonpath": "$.services.*.image"
+                    "pattern": "(image: .+:)([^\\s]+)",
+                    "replace": "$1{{version}}"
                 },
                 {
-                    "type": "yaml",
+                    "type": "regex",
                     "path": "compose-cpu.yaml",
-                    "jsonpath": "$.services.*.image"
+                    "pattern": "(image: .+:)([^\\s]+)",
+                    "replace": "$1{{version}}"
                 },
                 {
                     "type": "yaml",
