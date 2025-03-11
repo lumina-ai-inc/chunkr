@@ -24,7 +24,24 @@
         ".": {
             "release-type": "simple",
             "changelog-path": "CHANGELOG.md",
-            "include-component-in-tag": false
+            "include-component-in-tag": false,
+            "extra-files": [
+                {
+                    "type": "yaml",
+                    "path": "compose.yaml",
+                    "jsonpath": "$.services.*.image"
+                },
+                {
+                    "type": "yaml",
+                    "path": "compose-cpu.yaml",
+                    "jsonpath": "$.services.*.image"
+                },
+                {
+                    "type": "yaml",
+                    "path": "kube/charts/chunkr/values.yaml",
+                    "jsonpath": "$.services.*.image.tag"
+                }
+            ]
         }
     },
     "plugins": [

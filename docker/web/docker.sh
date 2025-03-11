@@ -8,22 +8,32 @@ cd ../../
 # Define the Docker image name as a variable
 DOCKER_IMAGE_NAME="luminainc/web"
 
-# Get the current commit SHA
-SHA=$(git rev-parse --short HEAD)
+# Get the current commit SHA if not already set
+SHA=${GIT_SHA:-$(git rev-parse --short HEAD)}
+
+# Get version if available
+TAG=${VERSION:-$SHA}
+
 echo "------------------------"
-echo $SHA
+echo "Using tag: $TAG"
 echo "------------------------"
 
-# Build the Docker image with the SHA tag, using the saved path for the Dockerfile
-docker build --no-cache --platform linux/amd64 -t $DOCKER_IMAGE_NAME:$SHA -f $CURRENT_DIR/Dockerfile .
+# Build the Docker image with the tag
+docker build --no-cache --platform linux/amd64 -t $DOCKER_IMAGE_NAME:$TAG -f $CURRENT_DIR/Dockerfile .
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
-    # Push the Docker image with the SHA tag
-    docker push $DOCKER_IMAGE_NAME:$SHA
+    # Push the Docker image with the tag
+    docker push $DOCKER_IMAGE_NAME:$TAG
+    
+    # If we're building with a version, also tag with SHA for traceability
+    if [ "$TAG" != "$SHA" ]; then
+        docker tag $DOCKER_IMAGE_NAME:$TAG $DOCKER_IMAGE_NAME:$SHA
+        docker push $DOCKER_IMAGE_NAME:$SHA
+    fi
 
-    # Optionally, you can also tag and push as latest
-    docker tag $DOCKER_IMAGE_NAME:$SHA $DOCKER_IMAGE_NAME:latest
+    # Also tag and push as latest
+    docker tag $DOCKER_IMAGE_NAME:$TAG $DOCKER_IMAGE_NAME:latest
     docker push $DOCKER_IMAGE_NAME:latest
 else
     echo "Docker build failed. Skipping push."
