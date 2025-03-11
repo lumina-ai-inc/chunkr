@@ -14,8 +14,10 @@ jobs:
       - name: Installing pnpm
         run: npm i -g pnpm
       - name: Install dependencies
+        working-directory: ./apps/web
         run: pnpm i
       - name: Running Build
+        working-directory: ./apps/web
         run: pnpm build
   lint:
     runs-on: ubuntu-latest
@@ -24,6 +26,8 @@ jobs:
       - name: Installing pnpm
         run: npm i -g pnpm
       - name: Install dependencies
+        working-directory: ./apps/web
         run: pnpm i
       - name: Running lint
+        working-directory: ./apps/web
         run: pnpm lint
