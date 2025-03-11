@@ -114,7 +114,9 @@ docker compose up -d
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
-> **Note**: Requires an NVIDIA CUDA GPU
+> **Important**: 
+> - Requires an NVIDIA CUDA GPU
+> - CPU-only deployment via `compose-cpu.yaml` is currently in development and not recommended for production use
 
 6. Stop the services when done:
 ```bash
