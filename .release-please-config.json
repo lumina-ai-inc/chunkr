@@ -30,6 +30,11 @@
                     "type": "yaml",
                     "path": "kube/charts/chunkr/values.yaml",
                     "jsonpath": "$.services.*.image.tag"
+                },
+                {
+                    "type": "yaml",
+                    "path": "kube/charts/chunkr/Chart.yaml",
+                    "jsonpath": "$.version"
                 }
             ]
         }
