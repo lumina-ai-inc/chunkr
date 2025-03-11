@@ -6,7 +6,6 @@ description: >-
   Bounding Boxes, and Structured HTML and markdown output.
 type: application
 version: 1.3.3
-appVersion: 1.0.0
 maintainers:
   - name: Lumina AI Inc.
     email: akhilesh@lumina.sh
