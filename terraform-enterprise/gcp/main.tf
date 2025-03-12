@@ -479,7 +479,7 @@ output "chunkr_postgresql_url" {
 }
 
 output "keycloak_postgresql_url" {
-  value       = "postgresql://${google_sql_database_instance.postgres.private_ip_address}:5432/${var.keycloak_db}"
+  value       = "jdbc:postgresql://${google_sql_database_instance.postgres.private_ip_address}:5432/${var.keycloak_db}"
   description = "The connection URL for the Keycloak database"
 }
 

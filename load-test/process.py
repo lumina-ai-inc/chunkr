@@ -9,13 +9,13 @@ logging.basicConfig(level=logging.ERROR)
 
 from chunkr_ai import Chunkr
 from chunkr_ai.models import TaskResponse
-from chunkr_ai.models import Configuration, OcrStrategy
+from chunkr_ai.models import Configuration, OcrStrategy, Pipeline
 from redis_utils import RedisManager
 from models import ProcessPayload, WritePayload
 
 async def process_file(chunkr: Chunkr, file_path: str) -> Optional[TaskResponse]:
     try:
-        config = Configuration(ocr_strategy=OcrStrategy.ALL)
+        config = Configuration(ocr_strategy=OcrStrategy.ALL, pipeline=Pipeline.CHUNKR)
         task = await chunkr.upload(file_path, config)
         return task
     except Exception as e:
