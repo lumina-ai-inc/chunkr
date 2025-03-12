@@ -34,10 +34,10 @@ jobs:
   build-and-publish:
     needs: release-please
     if: ${{ needs.release-please.outputs.releases_created == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
-        component: [server, task, web, doctr]
+        component: [server, task, web, segmentation, doctr]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
