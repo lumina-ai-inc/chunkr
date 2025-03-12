@@ -33,6 +33,24 @@ impl Instance {
         let worker_config = worker_config::Config::from_env().unwrap();
         let (page_height, page_width) = (self.image_size.0 as f32, self.image_size.1 as f32);
 
+        if self.boxes.is_empty() {
+            println!(
+                "No segments detected for page {}. Adding full-page segment with dimensions {:?}",
+                page_number,
+                (page_width, page_height)
+            );
+
+            return vec![Segment::new_from_segment_ocr(
+                BoundingBox::new(0.0, 0.0, page_width, page_height),
+                Some(1.0),
+                ocr_results,
+                page_height,
+                page_number,
+                page_width,
+                SegmentType::Page,
+            )];
+        }
+
         let padded_boxes: Vec<_> = self
             .boxes
             .iter()

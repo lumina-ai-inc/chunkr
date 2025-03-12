@@ -80,6 +80,7 @@ pub async fn process_openai_request(
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
+    use_fallback: bool,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
     match retry_with_backoff(|| async {
@@ -103,29 +104,34 @@ pub async fn process_openai_request(
     {
         Ok(response) => Ok(response),
         Err(e) => {
-            let llm_config = LlmConfig::from_env().unwrap();
-            if let Some(fallback_model) = llm_config.fallback_model {
-                println!("Using fallback model: {}", fallback_model);
-                retry_with_backoff(|| async {
-                    rate_limiter
-                        .acquire_token_with_timeout(std::time::Duration::from_secs(
-                            *TOKEN_TIMEOUT.get().unwrap(),
-                        ))
-                        .await?;
-                    open_ai_call(
-                        url.clone(),
-                        key.clone(),
-                        fallback_model.clone(),
-                        messages.clone(),
-                        max_completion_tokens.clone(),
-                        temperature.clone(),
-                        response_format.clone(),
-                    )
+            if use_fallback {
+                let llm_config = LlmConfig::from_env().unwrap();
+                if let Some(fallback_model) = llm_config.fallback_model {
+                    println!("Using fallback model: {}", fallback_model);
+                    retry_with_backoff(|| async {
+                        rate_limiter
+                            .acquire_token_with_timeout(std::time::Duration::from_secs(
+                                *TOKEN_TIMEOUT.get().unwrap(),
+                            ))
+                            .await?;
+                        open_ai_call(
+                            url.clone(),
+                            key.clone(),
+                            fallback_model.clone(),
+                            messages.clone(),
+                            max_completion_tokens.clone(),
+                            temperature.clone(),
+                            response_format.clone(),
+                        )
+                        .await
+                    })
                     .await
-                })
-                .await
+                } else {
+                    println!("No fallback model provided");
+                    Err(e)
+                }
             } else {
-                println!("No fallback model provided");
+                println!("Fallback not enabled");
                 Err(e)
             }
         }
@@ -180,6 +186,7 @@ pub async fn llm_ocr(
     prompt: String,
     temperature: Option<f32>,
     fallback_model: Option<String>,
+    use_fallback: bool,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let message = create_basic_image_message("user".to_string(), prompt, temp_file)
         .map_err(|e| Box::new(LLMError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
@@ -193,6 +200,7 @@ pub async fn llm_ocr(
         None,
         temperature,
         None,
+        use_fallback,
     )
     .await?;
 
@@ -221,19 +229,32 @@ async fn retry_ocr_with_temperature(
     temp_file: &NamedTempFile,
     prompt: String,
     fence_type: Option<&str>,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let worker_config = WorkerConfig::from_env().unwrap();
     let max_retries = worker_config.max_retries;
-
+    let use_fallback = fallback_content.is_some();
     for attempt in 0..max_retries {
         let temperature = (attempt as f32) * 0.2;
         if temperature > 1.0 {
             break;
         }
-        let response = llm_ocr(temp_file, prompt.clone(), Some(temperature), None).await?;
+        let response = llm_ocr(
+            temp_file,
+            prompt.clone(),
+            Some(temperature),
+            None,
+            use_fallback,
+        )
+        .await?;
         if let Some(content) = extract_fenced_content(&response, fence_type) {
             return Ok(content);
         }
+    }
+
+    if let Some(fallback_content) = fallback_content {
+        println!("Using fallback content");
+        return Ok(fallback_content);
     }
 
     Err(Box::new(LLMError(format!(
@@ -246,27 +267,31 @@ async fn retry_ocr_with_temperature(
 pub async fn html_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, Some("html")).await
+    retry_ocr_with_temperature(temp_file, prompt, Some("html"), fallback_content).await
 }
 
 pub async fn markdown_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, Some("markdown")).await
+    retry_ocr_with_temperature(temp_file, prompt, Some("markdown"), fallback_content).await
 }
 
 pub async fn latex_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, Some("latex")).await
+    retry_ocr_with_temperature(temp_file, prompt, Some("latex"), fallback_content).await
 }
 
 pub async fn llm_segment(
     temp_file: &NamedTempFile,
     prompt: String,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, None).await
+    retry_ocr_with_temperature(temp_file, prompt, None, fallback_content).await
 }

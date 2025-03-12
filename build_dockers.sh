@@ -1,7 +1,17 @@
 #!/bin/bash
 echo "Welcome to the docker builder!"
 echo "------------------------"
-echo "The current sha is: $(git rev-parse --short HEAD)"
+
+# Get the latest git tag for versioning
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+# Remove the 'v' prefix
+VERSION=${LATEST_TAG#v}
+# Get the git SHA for when no tag is available
+GIT_SHA=$(git rev-parse --short HEAD)
+
+echo "Latest tag: $LATEST_TAG"
+echo "Version: $VERSION"
+echo "Git SHA: $GIT_SHA"
 echo "------------------------"
 
 # Find all docker.sh files in subdirectories of ./docker
@@ -35,6 +45,10 @@ if [ ${#selected_scripts[@]} -eq 0 ]; then
     echo "No docker builds were selected"
     exit 0
 fi
+
+# Export version variables for docker scripts to use
+export VERSION=$VERSION
+export GIT_SHA=$GIT_SHA
 
 # Start a new tmux session
 tmux new-session -d -s docker_session

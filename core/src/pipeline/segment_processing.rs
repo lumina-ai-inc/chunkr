@@ -150,12 +150,31 @@ impl ContentGenerator for MarkdownGenerator {
     }
 }
 
+fn convert_checkboxes(content: &str) -> String {
+    content
+        .replace(":selected:", "☑")
+        .replace(":unselected:", "☐")
+}
+
+fn convert_checkboxes_html(content: &str) -> String {
+    content
+        .replace(":selected:", "<input type=\"checkbox\" checked>")
+        .replace(":unselected:", "<input type=\"checkbox\">")
+}
+
+fn convert_checkboxes_markdown(content: &str) -> String {
+    content
+        .replace(":selected:", "[x]")
+        .replace(":unselected:", "[ ]")
+}
+
 async fn generate_content<T: ContentGenerator>(
     generator: &T,
     content: &str,
     override_content: String,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if !override_content.is_empty() && generation_strategy == &GenerationStrategy::Auto {
         return Ok(override_content);
@@ -170,12 +189,16 @@ async fn generate_content<T: ContentGenerator>(
             let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
             let result = match (generator.prompt_key(), generator.segment_type()) {
                 (_, SegmentType::Formula) => {
-                    llm::latex_ocr(segment_image.as_ref().unwrap(), prompt).await?
+                    llm::latex_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content)
+                        .await?
                 }
                 (key, _) if key.starts_with("md_") => {
-                    llm::markdown_ocr(segment_image.as_ref().unwrap(), prompt).await?
+                    llm::markdown_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content)
+                        .await?
                 }
-                _ => llm::html_ocr(segment_image.as_ref().unwrap(), prompt).await?,
+                _ => {
+                    llm::html_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content).await?
+                }
             };
 
             Ok(generator.process_llm_result(&result))
@@ -190,6 +213,7 @@ async fn generate_html(
     override_content: String,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator { segment_type };
     Ok(html::clean_img_tags(
@@ -199,6 +223,7 @@ async fn generate_html(
             override_content,
             segment_image,
             generation_strategy,
+            fallback_content,
         )
         .await?,
     ))
@@ -210,6 +235,7 @@ async fn generate_markdown(
     override_content: String,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
+    fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator { segment_type };
     Ok(markdown::clean_img_tags(
@@ -219,6 +245,7 @@ async fn generate_markdown(
             override_content,
             segment_image,
             generation_strategy,
+            fallback_content,
         )
         .await?,
     ))
@@ -228,6 +255,7 @@ async fn generate_llm(
     segment_type: SegmentType,
     segment_image: Option<Arc<NamedTempFile>>,
     llm_prompt: Option<String>,
+    fallback_content: Option<String>,
 ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
     if llm_prompt.is_none() || segment_image.is_none() {
         return Ok(None);
@@ -237,7 +265,8 @@ async fn generate_llm(
     values.insert("segment_type".to_string(), segment_type.to_string());
     values.insert("user_prompt".to_string(), llm_prompt.unwrap());
     let prompt = get_prompt("llm_segment", &values)?;
-    let result = llm::llm_segment(segment_image.as_ref().unwrap(), prompt).await?;
+    let result =
+        llm::llm_segment(segment_image.as_ref().unwrap(), prompt, fallback_content).await?;
 
     Ok(Some(result))
 }
@@ -294,30 +323,43 @@ async fn process_segment(
         }
     };
 
+    let (fallback_html, fallback_markdown, fallback_llm) = match segment.segment_type.clone() {
+        SegmentType::Table => (
+            Some(segment.html.clone()).filter(|s| !s.is_empty()),
+            Some(segment.markdown.clone()).filter(|s| !s.is_empty()),
+            None,
+        ),
+        _ => (None, None, None),
+    };
+
     let (html, markdown, llm) = futures::try_join!(
         generate_html(
             segment.segment_type.clone(),
             segment.content.clone(),
             segment.html.clone(),
             segment_image.clone(),
-            html_strategy
+            html_strategy,
+            fallback_html,
         ),
         generate_markdown(
             segment.segment_type.clone(),
             segment.content.clone(),
             segment.markdown.clone(),
             segment_image.clone(),
-            markdown_strategy
+            markdown_strategy,
+            fallback_markdown,
         ),
         generate_llm(
             segment.segment_type.clone(),
             segment_image.clone(),
-            llm_prompt.clone()
+            llm_prompt.clone(),
+            fallback_llm,
         )
     )?;
 
-    segment.html = html;
-    segment.markdown = markdown;
+    segment.content = convert_checkboxes(&segment.content);
+    segment.html = convert_checkboxes_html(&html);
+    segment.markdown = convert_checkboxes_markdown(&markdown);
     segment.llm = llm;
     Ok(())
 }

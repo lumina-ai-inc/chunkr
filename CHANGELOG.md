@@ -5,7 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.0...v1.4.1) (2025-03-12)
+
+
+### Bug Fixes
+
+* Continue on error on docker build ([aca0b44](https://github.com/lumina-ai-inc/chunkr/commit/aca0b4444875a1b053924a60380e6ee44a4dc005))
+
+## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.5...v1.4.0) (2025-03-12)
+
+
+### Features
+
+* /health return current version ([627e8c9](https://github.com/lumina-ai-inc/chunkr/commit/627e8c9a1160bf4a360f6d0ea0f1376f64344642))
+
+
+### Bug Fixes
+
+* Updated changelog paths ([d20b811](https://github.com/lumina-ai-inc/chunkr/commit/d20b8112fc5043f5eecabf1e72e89412b1b5e7b1))
+
+## [1.3.5](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.4...v1.3.5) (2025-03-12)
+
+
+### Bug Fixes
+
+* Added back segmentation docker with self hosted runner ([0984ba2](https://github.com/lumina-ai-inc/chunkr/commit/0984ba2710fca19a807985e5a92fbf1e185bbb03))
+
+## [1.3.4](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.3...v1.3.4) (2025-03-11)
+
+
+### Bug Fixes
+
+* Removed segmenetation from docker build ([5dc9e6e](https://github.com/lumina-ai-inc/chunkr/commit/5dc9e6e5d1687bbe6ab3555f7df5656856a43f34))
+
+## [1.3.3](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.2...v1.3.3) (2025-03-11)
+
+
+### Bug Fixes
+
+* Updated rust version for docker builds ([e5a3633](https://github.com/lumina-ai-inc/chunkr/commit/e5a3633e970dacae3ce08e42f5d7249aed592fa6))
+
+## [1.3.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.1...v1.3.2) (2025-03-11)
+
+
+### Bug Fixes
+
+* Release-please docker build ([6e1ff43](https://github.com/lumina-ai-inc/chunkr/commit/6e1ff43ad0d5780d2f4a6e67b0b2bcc47d8964f6))
+
+## [1.3.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.0...v1.3.1) (2025-03-11)
+
+
+### Bug Fixes
+
+* Docker compose updated uses pr ([f45abd1](https://github.com/lumina-ai-inc/chunkr/commit/f45abd130d4c643c288c3492bb27f6736059dfbf))
+
+## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.2.0...v1.3.0) (2025-03-11)
+
+
+### Features
+
+* Added automation of docker build ([#365](https://github.com/lumina-ai-inc/chunkr/issues/365)) ([f01cb2f](https://github.com/lumina-ai-inc/chunkr/commit/f01cb2fc66c104066f1188149cdbbb8390337169))
+
+
+### Bug Fixes
+
+* Debugging please release ([e574177](https://github.com/lumina-ai-inc/chunkr/commit/e574177cc28c68e86ab08ac5b83328b393b02bf4))
+* Debugging please release with core changes ([558a6f9](https://github.com/lumina-ai-inc/chunkr/commit/558a6f9fd86c5d6e53b770dd48909a3a60e7f110))
+* Docker builds use root version ([82e1768](https://github.com/lumina-ai-inc/chunkr/commit/82e176868e215f550377d9aed91e5b37fd57faba))
+* Docker compose files update separately ([15328a2](https://github.com/lumina-ai-inc/chunkr/commit/15328a23dfd4399b6a56babb18becd04bf7bdf72))
+* Image tag updates not full image ([7b8791f](https://github.com/lumina-ai-inc/chunkr/commit/7b8791f6bdee1e2b5f47496936700de4ddaee537))
+* Only trigger docker build after releases created ([676c280](https://github.com/lumina-ai-inc/chunkr/commit/676c280e975ea37a8a737876854b0e3aa7006fc2))
+
+## [1.2.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.1.0...v1.2.0) (2025-03-11)
+
+
+### Features
+
+* Added release please for automated releases ([#363](https://github.com/lumina-ai-inc/chunkr/issues/363)) ([d808d4e](https://github.com/lumina-ai-inc/chunkr/commit/d808d4e72464b83590dfab73fe973e2f98b4f7e7))
+
+
+### Bug Fixes
+
+* Await was missing in response ([1ad37d8](https://github.com/lumina-ai-inc/chunkr/commit/1ad37d851ee0379c13ba663fc8bafb3541e409a2))
+* Await was missing in response ([632adce](https://github.com/lumina-ai-inc/chunkr/commit/632adce42c7850a788e0e46817e2498724c76890))
 
 ### Added
 - Added route `POST /task/parse` and `PATCH /task/{task_id}/parse` to parse a task. These routes are exactly the same as the `POST /task` and `PATCH /task/{task_id}` routes, but don't use a multipart request.

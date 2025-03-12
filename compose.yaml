@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:3fed6150
+    image: luminainc/server:1.4.1
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:fb17c8f1
+    image: luminainc/task:1.4.1
     platform: linux/amd64
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:37ab9ae9
+    image: luminainc/web:1.4.1
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -39,7 +39,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:bb950d8d
+    image: luminainc/segmentation:1.4.1
     ports:
       - "8001:8000"
     deploy:
@@ -60,7 +60,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:bbacfb97
+    image: luminainc/doctr:1.4.1
     platform: linux/amd64
     ports:
       - "8002:8000"
@@ -182,7 +182,7 @@ services:
       - postgres
     restart: always
   rrq:
-    image: luminainc/rrq:33cd165
+    image: luminainc/rrq:1.4.1
     platform: linux/amd64
     depends_on:
       - redis

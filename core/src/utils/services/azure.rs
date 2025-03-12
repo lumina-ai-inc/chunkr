@@ -116,7 +116,7 @@ mod tests {
     #[tokio::test]
     async fn test_azure_analysis() {
         initialize().await;
-        let test_file_path = Path::new("./input/test.pdf");
+        let test_file_path = Path::new("./input/test.png");
         let output_dir = Path::new("./output/azure");
         fs::create_dir_all(output_dir).unwrap();
         let temp_file = NamedTempFile::new().unwrap();
@@ -131,7 +131,7 @@ mod tests {
     #[tokio::test]
     async fn test_azure_analysis_high_resolution() {
         initialize().await;
-        let test_file_path = Path::new("./input/test.pdf");
+        let test_file_path = Path::new("./input/test.png");
         let output_dir = Path::new("./output/azure");
         fs::create_dir_all(output_dir).unwrap();
         let temp_file = NamedTempFile::new().unwrap();
@@ -156,7 +156,7 @@ mod tests {
     #[tokio::test]
     async fn test_azure_analysis_page() {
         initialize().await;
-        let test_file_path = Path::new("./input/test.pdf");
+        let test_file_path = Path::new("./input/test.png");
         let output_dir = Path::new("./output/azure");
         fs::create_dir_all(output_dir).unwrap();
         let temp_file = NamedTempFile::new().unwrap();

@@ -69,7 +69,7 @@ fn default_server_url() -> String {
 }
 
 fn default_version() -> String {
-    "1.1.0".to_string()
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 impl Config {
