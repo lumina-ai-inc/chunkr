@@ -39,6 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         component: [server, task, web, segmentation, doctr]
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -68,7 +69,7 @@ jobs:
             luminainc/${{ matrix.component }}:latest
 
   update-compose-files:
-    needs: [release-please, build-and-publish]
+    needs: [release-please]
     if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     runs-on: ubuntu-latest
     permissions:
