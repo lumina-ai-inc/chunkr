@@ -34,8 +34,9 @@ jobs:
   build-and-publish:
     needs: release-please
     if: ${{ needs.release-please.outputs.releases_created == 'true' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         component: [server, task, web, segmentation, doctr]
     steps:
