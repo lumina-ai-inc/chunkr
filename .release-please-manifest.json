@@ -3,6 +3,6 @@
     "clients/python-client": "0.0.42",
     "services": "0.1.0",
     "apps/web": "1.0.0",
-    "kube/charts/chunkr": "1.0.0",
-    ".": "1.4.1"
+    "kube/charts/chunkr": "1.0.1",
+    ".": "1.4.2"
 }
