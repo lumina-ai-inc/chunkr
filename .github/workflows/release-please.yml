@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [server, task, web, segmentation, doctr]
+        component: [server, task, web, segmentation, doctr, server-azure, task-azure]
     continue-on-error: true
     steps:
       - name: Checkout code
