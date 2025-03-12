@@ -36,11 +36,12 @@ services:
     useGPU: true
     labels:
       workload-type: chunkr-gpu
+
   keycloak:
     enabled: true
     image:
       repository: keycloak
-      tag: 1.4.1
+      tag: 25.0.2
       registry: quay.io/keycloak
     port: 8080
     targetPort: 8080
