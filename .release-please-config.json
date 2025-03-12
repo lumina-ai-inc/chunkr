@@ -2,8 +2,7 @@
     "packages": {
         "core": {
             "release-type": "rust",
-            "package-name": "chunkr-core",
-            "changelog-path": "CHANGELOG.md"
+            "package-name": "chunkr-core"
         },
         "clients/python-client": {
             "release-type": "python",
