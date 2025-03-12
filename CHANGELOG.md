@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.5...v1.4.0) (2025-03-12)
+
+
+### Features
+
+* /health return current version ([627e8c9](https://github.com/lumina-ai-inc/chunkr/commit/627e8c9a1160bf4a360f6d0ea0f1376f64344642))
+
+
+### Bug Fixes
+
+* Rmeoved changelog from core ([b658a63](https://github.com/lumina-ai-inc/chunkr/commit/b658a6373baee8cba156d7272a8c91accda0e0e8))
+* Rmeoved changelog from core ([4f7c9c0](https://github.com/lumina-ai-inc/chunkr/commit/4f7c9c0595199ae176c883f230713514b889d9a5))
+* Updated changelog paths ([d20b811](https://github.com/lumina-ai-inc/chunkr/commit/d20b8112fc5043f5eecabf1e72e89412b1b5e7b1))
+
 ## [1.3.5](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.4...v1.3.5) (2025-03-12)
 
 
