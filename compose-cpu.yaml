@@ -1,7 +1,6 @@
-# THIS IS UNDER DEVELOPMENT
 services:
   server:
-    image: luminainc/server:1.4.1
+    image: luminainc/server:e0d6fe8f
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -16,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:1.4.1
+    image: luminainc/task:e0d6fe8f
     platform: linux/amd64
     depends_on:
       - postgres
@@ -40,18 +39,22 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:1.4.1
-    platform: linux/amd64
+    image: luminainc/segmentation-yolo:bd6e0222
     ports:
       - "8001:8000"
     deploy:
       replicas: 1
     volumes:
       - /dev/shm:/dev/shm
+    # environment:
+    #   - MAX_BATCH_SIZE=4
+    #   - BATCH_WAIT_TIME=0.2
+    #   - OVERLAP_THRESHOLD=0.025
+    #   - SCORE_THRESHOLD=0.2
     restart: always
 
   ocr:
-    image: luminainc/doctr:1.4.1
+    image: luminainc/doctr:bbacfb97
     platform: linux/amd64
     ports:
       - "8002:8000"
@@ -60,7 +63,6 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     restart: always
-
   postgres:
     build:
       context: ./docker/postgres
@@ -133,6 +135,16 @@ services:
         /usr/bin/mc anonymous set public myminio/chunkr
       "
 
+  emails:
+    image: luminainc/emails:e0d6fe8f
+    platform: linux/amd64
+    ports:
+      - "8009:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.2
     platform: linux/amd64
@@ -157,8 +169,6 @@ services:
     depends_on:
       - postgres
     restart: always
-
-
   rrq:
     image: luminainc/rrq:1.4.1
     platform: linux/amd64
@@ -177,15 +187,21 @@ services:
       replicas: 1
     restart: always
 
-  embeddings:
-    image: ghcr.io/huggingface/text-embeddings-inference:1.5
-    platform: linux/amd64
-    ports:
-      - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
-    deploy:
-      replicas: 1
-    restart: always
+  # embeddings:
+  #   image: ghcr.io/huggingface/text-embeddings-inference:1.5
+  #   platform: linux/amd64
+  #   ports:
+  #     - "8003:80"
+  #   command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+  #   deploy:
+  #     replicas: 1
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [ gpu ]
+  #   restart: always
 
 volumes:
   postgres_data:
