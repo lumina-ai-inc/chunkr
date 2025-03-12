@@ -2,15 +2,17 @@
 echo "Welcome to the docker builder!"
 echo "------------------------"
 
-# Get the latest git tag for versioning
-LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-# Remove the 'v' prefix
-VERSION=${LATEST_TAG#v}
-# Get the git SHA for when no tag is available
+# Get version from .release-please-manifest.json root entry
+if [ -f ".release-please-manifest.json" ]; then
+    VERSION=$(grep -o '"\.": "[^"]*"' .release-please-manifest.json | cut -d'"' -f4)
+else
+    VERSION="0.0.0"
+fi
+
+# Get the git SHA for reference
 GIT_SHA=$(git rev-parse --short HEAD)
 
-echo "Latest tag: $LATEST_TAG"
-echo "Version: $VERSION"
+echo "Version from manifest: $VERSION"
 echo "Git SHA: $GIT_SHA"
 echo "------------------------"
 

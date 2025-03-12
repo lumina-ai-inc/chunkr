@@ -91,8 +91,9 @@ jobs:
       - name: Update compose.yaml
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          sed -i -E 's/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
-          sed -i -E 's/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
+          # Update all luminainc images except rrq
+          sed -i -E '/luminainc\/rrq/! s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
+          sed -i -E '/luminainc\/rrq/! s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
           
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
