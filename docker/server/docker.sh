@@ -11,7 +11,12 @@ DOCKER_IMAGE_NAME="luminainc/server"
 # Get the current commit SHA if not already set
 SHA=${GIT_SHA:-$(git rev-parse --short HEAD)}
 
-# Get version if available
+# Get root version from manifest if not already set
+if [ -z "$VERSION" ] && [ -f ".release-please-manifest.json" ]; then
+    VERSION=$(grep -o '"\.": "[^"]*"' .release-please-manifest.json | cut -d'"' -f4)
+fi
+
+# Use VERSION or fall back to SHA
 TAG=${VERSION:-$SHA}
 
 echo "------------------------"
@@ -26,7 +31,7 @@ if [ $? -eq 0 ]; then
     # Push the Docker image with the tag
     docker push $DOCKER_IMAGE_NAME:$TAG
     
-    # If we're building with a SHA, also tag with that SHA for traceability
+    # If we're building with a version, also tag with SHA for traceability
     if [ "$TAG" != "$SHA" ]; then
         docker tag $DOCKER_IMAGE_NAME:$TAG $DOCKER_IMAGE_NAME:$SHA
         docker push $DOCKER_IMAGE_NAME:$SHA

@@ -173,7 +173,7 @@ services:
     restart: always
 
   rrq:
-    image: luminainc/rrq:1.4.2
+    image: luminainc/rrq:33cd165
     platform: linux/amd64
     depends_on:
       - redis
@@ -181,6 +181,8 @@ services:
       - "8005:8000"
     environment:
       - REDIS__URL=redis://redis:6379
+      - API_KEY=1234567890
+      - VERSION=1.0.0
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
       interval: 30s

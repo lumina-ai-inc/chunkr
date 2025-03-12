@@ -11,7 +11,12 @@ DOCKER_IMAGE_NAME="luminainc/segmentation"
 # Get the current commit SHA if not already set
 SHA=${GIT_SHA:-$(git rev-parse --short HEAD)}
 
-# Get version if available
+# Get root version from manifest if not already set
+if [ -z "$VERSION" ] && [ -f ".release-please-manifest.json" ]; then
+    VERSION=$(grep -o '"\.": "[^"]*"' .release-please-manifest.json | cut -d'"' -f4)
+fi
+
+# Use VERSION or fall back to SHA
 TAG=${VERSION:-$SHA}
 
 echo "------------------------"
