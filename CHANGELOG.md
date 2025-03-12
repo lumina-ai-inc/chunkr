@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.0...v1.4.1) (2025-03-12)
+
+
+### Bug Fixes
+
+* Continue on error on docker build ([aca0b44](https://github.com/lumina-ai-inc/chunkr/commit/aca0b4444875a1b053924a60380e6ee44a4dc005))
+
 ## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.5...v1.4.0) (2025-03-12)
 
 
