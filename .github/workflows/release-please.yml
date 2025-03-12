@@ -5,7 +5,9 @@ on:
     branches:
       - main
     paths-ignore:
+      - 'compose.yaml'
       - 'compose-enterprise.yaml'
+      - 'compose-cpu.yaml'
 
 permissions:
   contents: write
@@ -22,8 +24,8 @@ jobs:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          config-file: .release-please-config.json
-          manifest-file: .release-please-manifest.json
+          config-file: .release-please-config-enterprise.json
+          manifest-file: .release-please-manifest-enterprise.json
 
       - name: Debug releases created
         run: |
@@ -92,7 +94,7 @@ jobs:
           VERSION=${{ steps.get_version.outputs.VERSION }}
           # Only update images that are part of the matrix (server-azure, task-azure)
           sed -i -E '/luminainc\/(server-azure|task-azure):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-enterprise.yaml
-          
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:

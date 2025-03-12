@@ -1,0 +1,8 @@
+{
+    "core": "1.2.2-enterprise",
+    "clients/python-client": "0.0.42-enterprise",
+    "services": "0.1.0-enterprise",
+    "apps/web": "1.0.0-enterprise",
+    "kube/charts/chunkr": "1.0.1-enterprise",
+    ".": "1.4.2-enterprise"
+}

@@ -1,0 +1,51 @@
+{
+    "packages": {
+        "core": {
+            "release-type": "rust",
+            "package-name": "chunkr-core-enterprise"
+        },
+        "clients/python-client": {
+            "release-type": "python",
+            "package-name": "chunkr-ai-enterprise"
+        },
+        "services": {
+            "release-type": "python",
+            "package-name": "chunkr-services-enterprise"
+        },
+        "apps/web": {
+            "release-type": "node",
+            "package-name": "chunkr-web-enterprise"
+        },
+        "kube/charts/chunkr": {
+            "release-type": "helm",
+            "package-name": "chunkr-chart-enterprise"
+        },
+        ".": {
+            "release-type": "simple",
+            "changelog-path": "CHANGELOG-ENTERPRISE.md",
+            "include-component-in-tag": false,
+            "extra-files": [
+                {
+                    "type": "yaml",
+                    "path": "kube/charts/chunkr/values.yaml",
+                    "jsonpath": "$.services.*.image.tag"
+                },
+                {
+                    "type": "yaml",
+                    "path": "kube/charts/chunkr/values-enterprise.yaml",
+                    "jsonpath": "$.services.*.image.tag"
+                },
+                {
+                    "type": "yaml",
+                    "path": "kube/charts/chunkr/Chart.yaml",
+                    "jsonpath": "$.version"
+                }
+            ]
+        }
+    },
+    "plugins": [
+        "sentence-case"
+    ],
+    "bump-minor-pre-major": true,
+    "bump-patch-for-minor-pre-major": true
+}
