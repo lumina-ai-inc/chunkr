@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.1...v1.4.2) (2025-03-12)
+
+
+### Bug Fixes
+
+* Github action now removes v from version before tagging ([6c77a1f](https://github.com/lumina-ai-inc/chunkr/commit/6c77a1f5f435c362ec62aabb8bd29a78cc7eba1e))
+* Moved infrastructure from values.yaml to infrastructure.yaml ([e4ba284](https://github.com/lumina-ai-inc/chunkr/commit/e4ba284b85c3290f585abce36d97c8c9860bdb9a))
+
 ## [1.4.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.0...v1.4.1) (2025-03-12)
 
 

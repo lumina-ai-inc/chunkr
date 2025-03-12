@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:1.4.1
+    image: luminainc/server:1.4.2
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:1.4.1
+    image: luminainc/task:1.4.2
     platform: linux/amd64
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:1.4.1
+    image: luminainc/web:1.4.2
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -39,7 +39,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:1.4.1
+    image: luminainc/segmentation:1.4.2
     ports:
       - "8001:8000"
     deploy:
@@ -60,7 +60,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:1.4.1
+    image: luminainc/doctr:1.4.2
     platform: linux/amd64
     ports:
       - "8002:8000"
@@ -182,7 +182,7 @@ services:
       - postgres
     restart: always
   rrq:
-    image: luminainc/rrq:1.4.1
+    image: luminainc/rrq:33cd165
     platform: linux/amd64
     depends_on:
       - redis
@@ -190,6 +190,8 @@ services:
       - "8005:8000"
     environment:
       - REDIS__URL=redis://redis:6379
+      - API_KEY=1234567890
+      - VERSION=1.0.0
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
       interval: 30s

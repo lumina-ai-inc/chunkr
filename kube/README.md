@@ -108,6 +108,8 @@ Choose one of the following installation methods:
 **Basic Installation:**
 ```bash
 helm install chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --create-namespace
 ```
@@ -115,6 +117,8 @@ helm install chunkr ./charts/chunkr \
 **Custom Domain Installation with Cloudflare Tunnel:**
 ```bash
 helm install chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --create-namespace \
   --set ingress.subdomains.root=false \
@@ -130,6 +134,8 @@ helm install chunkr ./charts/chunkr \
 **Installation with TLS (Cloudflare):**
 ```bash
 helm install chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --create-namespace \
   --set ingress.tls.enabled=true \
@@ -142,13 +148,18 @@ To update the deployment, use one of the following methods:
 
 **Basic Update:**
 ```bash
-helm upgrade chunkr ./charts/chunkr --namespace chunkr
+helm upgrade chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
+  --namespace chunkr
 ```
 
 **Update with Configuration Changes:**
 ```bash
 # Example: Update domain settings
 helm upgrade chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set ingress.domain=new-domain.com \
   --set "services.web.ingress.subdomain=new-chunkr"
@@ -175,16 +186,22 @@ You can set the storage class during installation or upgrade:
 ```bash
 # For GCP (default)
 helm install chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set global.storageClass=standard
 
 # For AWS
 helm install chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set global.storageClass=gp2
 
 # For Azure
 helm install chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set global.storageClass=managed-premium
 ```
@@ -201,6 +218,8 @@ AWS__ENDPOINT=
 
 # Disable MinIO
 helm upgrade chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set services.minio.enabled=false
 ```
@@ -209,6 +228,8 @@ helm upgrade chunkr ./charts/chunkr \
 
 ```bash
 helm upgrade chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set services.postgres.enabled=false \
   --set "common.standardEnv[4].name=PG__URL" \
@@ -219,6 +240,8 @@ helm upgrade chunkr ./charts/chunkr \
 
 ```bash
 helm upgrade chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set services.redis.enabled=false \
   --set "common.standardEnv[6].name=REDIS__URL" \
@@ -235,6 +258,8 @@ Example upgrade with GPU-specific image tag:
 
 ```bash
 helm upgrade chunkr ./charts/chunkr \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set services.embeddings.image.tag=turing-1.6  # Replace with your GPU-specific tag
 ```
