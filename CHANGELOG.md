@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.5](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.4...v1.3.5) (2025-03-12)
+
+
+### Bug Fixes
+
+* Added back segmentation docker with self hosted runner ([0984ba2](https://github.com/lumina-ai-inc/chunkr/commit/0984ba2710fca19a807985e5a92fbf1e185bbb03))
+
 ## [1.3.4](https://github.com/lumina-ai-inc/chunkr/compare/v1.3.3...v1.3.4) (2025-03-11)
 
 
