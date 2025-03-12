@@ -2,23 +2,28 @@
     "packages": {
         "core": {
             "release-type": "rust",
-            "package-name": "chunkr-core"
+            "package-name": "chunkr-core",
+            "changelog-path": ""
         },
         "clients/python-client": {
             "release-type": "python",
-            "package-name": "chunkr-ai"
+            "package-name": "chunkr-ai",
+            "changelog-path": ""
         },
         "services": {
             "release-type": "python",
-            "package-name": "chunkr-services"
+            "package-name": "chunkr-services",
+            "changelog-path": ""
         },
         "apps/web": {
             "release-type": "node",
-            "package-name": "chunkr-web"
+            "package-name": "chunkr-web",
+            "changelog-path": ""
         },
         "kube/charts/chunkr": {
             "release-type": "helm",
-            "package-name": "chunkr-chart"
+            "package-name": "chunkr-chart",
+            "changelog-path": ""
         },
         ".": {
             "release-type": "simple",
