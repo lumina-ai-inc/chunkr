@@ -14,7 +14,7 @@ BEGIN
             FROM monthly_usage
             ORDER BY user_id, updated_at DESC
         ) mu
-        JOIN users u ON mu.user_id = u.id
+        JOIN users u ON mu.user_id = u.user_id
         JOIN tiers t ON u.tier = t.tier
         WHERE mu.billing_cycle_end <= CURRENT_TIMESTAMP
     LOOP
