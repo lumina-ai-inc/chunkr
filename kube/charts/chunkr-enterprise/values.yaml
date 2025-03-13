@@ -123,18 +123,18 @@ services:
             name: chunkr-secret
             key: VITE_STRIPE_API_KEY
 
-  segmentation:
-    enabled: true
-    image:
-      repository: segmentation-yolo
-      tag: 1.5.1-enterprise
-    imagePullSecrets:
-      - name: regcred
-    port: 8000
-    targetPort: 8000
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu
+  # segmentation:
+  #   enabled: true
+  #   image:
+  #     repository: segmentation-yolo
+  #     tag: 1.5.1-enterprise
+  #   imagePullSecrets:
+  #     - name: regcred
+  #   port: 8000
+  #   targetPort: 8000
+  #   useGPU: true
+  #   labels:
+  #     workload-type: chunkr-gpu
 
   emails:
     enabled: true

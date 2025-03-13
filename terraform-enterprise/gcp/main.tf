@@ -17,6 +17,12 @@ variable "region" {
   default = "us-central1"
 }
 
+variable "zone_suffix" {
+  type        = string
+  description = "The zone suffix to use within the region (e.g., 'a', 'b', 'c')"
+  default     = "b"
+}
+
 variable "base_name" {
   type = string
 }
@@ -221,7 +227,7 @@ resource "google_service_networking_connection" "private_service_connection" {
 ###############################################################
 resource "google_container_cluster" "cluster" {
   name                      = "${var.base_name}-cluster"
-  location                  = "${var.region}-b"
+  location                  = "${var.region}-${var.zone_suffix}"
   remove_default_node_pool  = true
   initial_node_count        = 1
   default_max_pods_per_node = 256
@@ -256,7 +262,7 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "general_purpose_nodes" {
   name       = "general-compute"
-  location   = "${var.region}-b"
+  location   = "${var.region}-${var.zone_suffix}"
   cluster    = google_container_cluster.cluster.name
   node_count = var.general_vm_count
 
@@ -304,7 +310,7 @@ resource "google_container_node_pool" "general_purpose_nodes" {
 
 resource "google_container_node_pool" "gpu_nodes" {
   name       = "gpu-compute"
-  location   = "${var.region}-b"
+  location   = "${var.region}-${var.zone_suffix}"
   cluster    = google_container_cluster.cluster.name
   node_count = var.gpu_vm_count
 
