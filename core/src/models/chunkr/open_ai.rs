@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatCompletion {
@@ -67,11 +68,16 @@ pub struct CompletionTokensDetails {
 pub struct OpenAiResponse {
     pub choices: Vec<Choice>,
     pub created: i64,
+    #[serde(default = "generate_uuid")]
     pub id: String,
     pub model: String,
     pub object: String,
     pub system_fingerprint: Option<String>,
     pub usage: Usage,
+}
+
+fn generate_uuid() -> String {
+    uuid::Uuid::new_v4().to_string()
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
