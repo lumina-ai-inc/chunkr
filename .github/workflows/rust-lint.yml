@@ -31,19 +31,16 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all -- --check
-          working-directory: ./core
+          args: --manifest-path=./core/Cargo.toml --all -- --check
       
       - name: Run clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
-          working-directory: ./core
+          args: --manifest-path=./core/Cargo.toml -- -D warnings
       
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --all-features
-          working-directory: ./core 
+          args: --manifest-path=./core/Cargo.toml --all-features 
