@@ -55,7 +55,10 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
     let overage_pages: i32 = row.get("total_pages");
 
     let rate_row = client
-        .query_one("SELECT overage_rate FROM tiers WHERE tier = $1", &[&user_tier])
+        .query_one(
+            "SELECT overage_rate FROM tiers WHERE tier = $1",
+            &[&user_tier],
+        )
         .await?;
     let overage_rate: f64 = rate_row.get("overage_rate");
 
@@ -82,11 +85,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
         .await?;
 
     if !create_invoice.status().is_success() {
-        return Err(format!(
-            "Failed to create invoice: {}",
-            create_invoice.text().await?
-        )
-        .into());
+        return Err(format!("Failed to create invoice: {}", create_invoice.text().await?).into());
     }
 
     let invoice: serde_json::Value = create_invoice.json().await?;
@@ -106,11 +105,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
         .await?;
 
     if !add_item.status().is_success() {
-        return Err(format!(
-            "Failed to add item to invoice: {}",
-            add_item.text().await?
-        )
-        .into());
+        return Err(format!("Failed to add item to invoice: {}", add_item.text().await?).into());
     }
 
     let finalize = reqwest_client
@@ -123,11 +118,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
         .await?;
 
     if !finalize.status().is_success() {
-        return Err(format!(
-            "Failed to finalize invoice: {}",
-            finalize.text().await?
-        )
-        .into());
+        return Err(format!("Failed to finalize invoice: {}", finalize.text().await?).into());
     } else {
         client
             .execute(

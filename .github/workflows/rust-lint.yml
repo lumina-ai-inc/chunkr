@@ -3,8 +3,13 @@ name: Rust Lint
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'core/**/*.rs'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'core/**/*.rs'
+  workflow_dispatch:  # Allow manual triggering
 
 env:
   CARGO_TERM_COLOR: always
@@ -13,9 +18,6 @@ jobs:
   lint:
     name: Check and Lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./core
     steps:
       - uses: actions/checkout@v3
       
@@ -43,4 +45,39 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --manifest-path=./core/Cargo.toml --all-features 
+          args: --manifest-path=./core/Cargo.toml --all-features
+          
+  format:
+    name: Auto Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+      
+      - name: Format code
+        run: cd core && cargo fmt
+      
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+      
+      - name: Create Pull Request
+        if: steps.git-check.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "style(core): auto-format Rust code with rustfmt"
+          title: "style(core): Auto-format Rust code"
+          body: |
+            This PR was automatically created by the Rust Lint workflow.
+            It applies automatic formatting to the Rust code using `cargo fmt`.
+          branch: auto-format-rust
+          base: main 
