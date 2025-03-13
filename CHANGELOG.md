@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.2...v1.5.0) (2025-03-13)
+
+
+### Features
+
+* **core:** Added compatibility to Google AI Studio ([#380](https://github.com/lumina-ai-inc/chunkr/issues/380)) ([f56b74c](https://github.com/lumina-ai-inc/chunkr/commit/f56b74c23d1bb0faf050c54a74437139dc9a6938))
+
+
+### Bug Fixes
+
+* Fix keycloak tag ([df9efa5](https://github.com/lumina-ai-inc/chunkr/commit/df9efa5e212a517020e47d66c3820e62ca87acf2))
+
 ## [1.4.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.1...v1.4.2) (2025-03-12)
 
 
