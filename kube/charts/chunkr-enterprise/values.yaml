@@ -1,86 +1,93 @@
 ingress:
   enabled: true
-  type: "cloudflare" # can be "cloudflare" or "nginx"
-  className: "cloudflare"
+  type: cloudflare
+  className: cloudflare
   annotations:
     kubernetes.io/ingress.class: nginx
-  domain: "chunkr.ai"
+  domain: chunkr.ai
   subdomains:
     root: true
   tls:
     enabled: false
-    secretName: "tls-secret"
+    secretName: tls-secret
   cloudflare:
     enabled: true
     replicas: 2
     image:
       repository: cloudflare/cloudflared
-      tag: "2025.2.0"
+      tag: 2025.2.0
       pullPolicy: Always
     config:
-      tunnelName: "chunkr"
+      tunnelName: chunkr
       services:
-        - name: "server"
-        - name: "keycloak"
-        - name: "web"
-        - name: "minio"
-        - name: "embeddings"
-        - name: "reranker"
-        - name: "analytics-web"
-        - name: "analytics-server"
-        - name: "sparse-doc-embeddings"
-        - name: "sparse-query-embeddings"
+        - name: server
+        - name: keycloak
+        - name: web
+        - name: minio
+        - name: embeddings
+        - name: reranker
+        - name: analytics-web
+        - name: analytics-server
+        - name: sparse-doc-embeddings
+        - name: sparse-query-embeddings
 common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
-      value: "https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+      value: >-
+        https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
+        .Values.ingress.domain }}
     - name: AWS__ENDPOINT
-      value: 'http://{{- .Release.Name }}-minio:9000'
+      value: http://{{- .Release.Name }}-minio:9000
     - name: AWS__PRESIGNED_URL_ENDPOINT
-      value: 'https://{{ .Values.services.minio.ingress.subdomain }}.{{ .Values.ingress.domain }}'
+      value: >-
+        https://{{ .Values.services.minio.ingress.subdomain }}.{{
+        .Values.ingress.domain }}
     - name: AWS__REGION
-      value: "us-east-1"
+      value: us-east-1
     - name: PG__URL
-      value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
+      value: >-
+        postgresql://{{ .Values.services.postgres.credentials.username }}:{{
+        .Values.services.postgres.credentials.password }}@{{- .Release.Name
+        }}-postgres:5432/chunkr
     - name: RRQ__URL
-      value: "http://{{- .Release.Name }}-rrq:8000"
+      value: http://{{- .Release.Name }}-rrq:8000
     - name: REDIS__URL
-      value: "redis://{{- .Release.Name }}-redis:6379"
+      value: redis://{{- .Release.Name }}-redis:6379
     - name: SEARCH__DENSE_VECTOR_URL
-      value: "http://{{- .Release.Name }}-embeddings:8000"
+      value: http://{{- .Release.Name }}-embeddings:8000
     - name: WORKER__GENERAL_OCR_URL
-      value: "http://{{- .Release.Name }}-ocr:8000"
+      value: http://{{- .Release.Name }}-ocr:8000
     - name: WORKER__SEGMENTATION_URL
-      value: "http://{{- .Release.Name }}-segmentation:8000"
+      value: http://{{- .Release.Name }}-segmentation:8000
     - name: WORKER__SERVER_URL
-      value: "https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+      value: >-
+        https://{{ .Values.services.server.ingress.subdomain }}.{{
+        .Values.ingress.domain }}
     - name: EMAIL__SERVER_URL
-      value: "http://{{- .Release.Name }}-emails:8000"
-
+      value: http://{{- .Release.Name }}-emails:8000
 services:
   server:
     enabled: true
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "3fed6150"
+      tag: 1.6.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "api"
+      subdomain: api
     envFrom:
       - secretRef:
           name: chunkr-secret
-
   task:
     enabled: true
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "fb17c8f1"
+      tag: 1.6.0-enterprise
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -88,59 +95,52 @@ services:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
-        value: "3"
-
+        value: '3'
   web:
     enabled: true
     image:
       repository: web
-      tag: "37ab9ae9"
+      tag: 1.6.0-enterprise
     port: 8000
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "www"
+      subdomain: www
     env:
       - name: VITE_API_URL
-        value: https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}
+        value: >-
+          https://{{ .Values.services.server.ingress.subdomain }}.{{
+          .Values.ingress.domain }}
       - name: VITE_DOCS_URL
         value: https://docs.chunkr.ai
       - name: VITE_FEATURE_FLAG_PIPELINE
-        value: "true"
+        value: 'true'
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
-        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+        value: >-
+          https://{{ .Values.services.web.ingress.subdomain }}.{{
+          .Values.ingress.domain }}
       - name: VITE_KEYCLOAK_REALM
         value: chunkr
       - name: VITE_KEYCLOAK_REDIRECT_URI
-        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}/dashboard
+        value: >-
+          https://{{ .Values.services.web.ingress.subdomain }}.{{
+          .Values.ingress.domain }}/dashboard
       - name: VITE_KEYCLOAK_URL
-        value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
+        value: >-
+          https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
+          .Values.ingress.domain }}
       - name: VITE_STRIPE_API_KEY
         valueFrom:
           secretKeyRef:
             name: chunkr-secret
             key: VITE_STRIPE_API_KEY
-
-  # segmentation:
-  #   enabled: true
-  #   image:
-  #     repository: segmentation-yolo
-  #     tag: 1.5.1-enterprise
-  #   imagePullSecrets:
-  #     - name: regcred
-  #   port: 8000
-  #   targetPort: 8000
-  #   useGPU: true
-  #   labels:
-  #     workload-type: chunkr-gpu
-
   emails:
     enabled: true
     image:
       repository: emails
-      tag: "fb17c8f1"
+      tag: 1.6.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -148,35 +148,35 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
-
   analytics-web:
     enabled: true
     image:
       repository: analytics-web
-      tag: "6e6f5813"
+      tag: 1.6.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "analytics"
+      subdomain: analytics
     env:
       - name: VITE_API_URL
-        value: https://{{ index .Values.services "analytics-server" "ingress" "subdomain" }}.{{ .Values.ingress.domain }}
-
+        value: >-
+          https://{{ index .Values.services "analytics-server" "ingress"
+          "subdomain" }}.{{ .Values.ingress.domain }}
   analytics-server:
     enabled: true
     image:
       repository: analytics-server
-      tag: "95f20d9f"
+      tag: 1.6.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "analytics-api"
+      subdomain: analytics-api
     env:
       - name: API_KEY
         valueFrom:
@@ -188,67 +188,89 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: PG__URL
-  
   embeddings:
     enabled: true
     image:
       repository: text-embeddings-inference
-      tag: "1.5"
+      tag: 1.6.0-enterprise
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
-      subdomain: "embed"
+      subdomain: embed
     port: 8000
     targetPort: 80
-    args: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000", "--max-client-batch-size", "64" ]
+    args:
+      - '--model-id'
+      - BAAI/bge-m3
+      - '--auto-truncate'
+      - '--payload-limit'
+      - '100000000'
+      - '--max-client-batch-size'
+      - '64'
     useGPU: true
     labels:
       workload-type: chunkr-gpu
-
   reranker:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: "1.6"
+      tag: 1.6.0-enterprise
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
-      subdomain: "rerank"
+      subdomain: rerank
     port: 8000
     targetPort: 80
-    args: [ "--model-id", "BAAI/bge-reranker-large", "--auto-truncate", "--payload-limit", "100000000", "--max-client-batch-size", "64" ]
+    args:
+      - '--model-id'
+      - BAAI/bge-reranker-large
+      - '--auto-truncate'
+      - '--payload-limit'
+      - '100000000'
+      - '--max-client-batch-size'
+      - '64'
     useGPU: true
     labels:
       workload-type: chunkr-gpu
-
   sparse-doc-embeddings:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: "1.5"
+      tag: 1.6.0-enterprise
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
-      subdomain: "sparse-doc"
+      subdomain: sparse-doc
     port: 8000
     targetPort: 80
-    args: [ "--model-id", "naver/efficient-splade-VI-BT-large-doc", "--pooling", "splade", "--max-client-batch-size", "64" ]
+    args:
+      - '--model-id'
+      - naver/efficient-splade-VI-BT-large-doc
+      - '--pooling'
+      - splade
+      - '--max-client-batch-size'
+      - '64'
     useGPU: true
     labels:
       workload-type: chunkr-gpu.
-
   sparse-query-embeddings:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: "1.5"
+      tag: 1.6.0-enterprise
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
-      subdomain: "sparse-query"
+      subdomain: sparse-query
     port: 8000
     targetPort: 80
-    args: [ "--model-id", "naver/efficient-splade-VI-BT-large-query", "--pooling", "splade", "--max-client-batch-size", "64" ]
+    args:
+      - '--model-id'
+      - naver/efficient-splade-VI-BT-large-query
+      - '--pooling'
+      - splade
+      - '--max-client-batch-size'
+      - '64'
     useGPU: true
     labels:
       workload-type: chunkr-gpu
