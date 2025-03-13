@@ -1,4 +1,4 @@
-use serde::{ Deserialize, Serialize };
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PublishPayload {
@@ -7,5 +7,5 @@ pub struct PublishPayload {
     pub queue_name: String,
     pub payload: serde_json::Value,
     pub success: bool,
-    pub message: Option<String>
+    pub message: Option<String>,
 }

@@ -7,7 +7,7 @@ use crate::utils::stripe::invoicer::invoice;
 use std::time::Duration;
 use tokio::time;
 
-pub fn run_expiration_job()  {
+pub fn run_expiration_job() {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
         let interval = expiration_config.job_interval;
