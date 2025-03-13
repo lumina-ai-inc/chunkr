@@ -16,6 +16,28 @@ from contextlib import asynccontextmanager
 import gc
 import collections
 from sklearn.cluster import KMeans
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables
+BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_PATH = BASE_DIR / '.env'
+
+load_dotenv(dotenv_path=ENV_PATH)
+
+# Configuration from environment variables
+batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.1))
+max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
+overlap_threshold = float(os.getenv("OVERLAP_THRESHOLD", 0.1))
+score_threshold = float(os.getenv("SCORE_THRESHOLD", 0.15))
+conf_threshold = float(os.getenv("CONF_THRESHOLD", 0.1))
+imgsz = int(os.getenv("IMAGE_SIZE", 1024))
+
+print(f"Max batch size: {max_batch_size}")
+print(f"Overlap threshold: {overlap_threshold}")
+print(f"Score threshold: {score_threshold}")
+print(f"Confidence threshold: {conf_threshold}")
+print(f"Image size: {imgsz}")
 
 # Pydantic models matching server.py
 class BoundingBox(BaseModel):
@@ -242,7 +264,7 @@ def apply_reading_order(boxes, scores, classes, image_size):
     # Process segments
     segments = []
     for i, (box, score, class_id) in enumerate(zip(bbox_outputs, scores, classes)):
-        if score > 0.2:
+        if score > score_threshold:
             is_wide = is_wide_element(box, page_width)
             segments.append({
                 'idx': i,
@@ -317,7 +339,7 @@ def apply_reading_order(boxes, scores, classes, image_size):
 
 def get_reading_order_and_merge(boxes: List[BoundingBox], scores: List[float], classes: List[int], image_size: Tuple[int, int]) -> Tuple[List[BoundingBox], List[float], List[int], Tuple[int, int]]:
     # First merge overlapping predictions
-    merged_boxes, merged_scores, merged_classes = merge_colliding_predictions(boxes, scores, classes)
+    merged_boxes, merged_scores, merged_classes = merge_colliding_predictions(boxes, scores, classes, score_threshold, overlap_threshold)
     
     # Then apply reading order
     ordered_boxes, ordered_scores, ordered_classes, image_size = apply_reading_order(
@@ -343,7 +365,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-async def process_image(image_data: bytes, conf: float = 0.2, imgsz: int = 1024):
+async def process_image(image_data: bytes, conf: float = None, img_size: int = None):
+    if conf is None:
+        conf = conf_threshold
+    if img_size is None:
+        img_size = imgsz
+        
     temp_file = f"temp_{uuid.uuid4()}.jpg"
     with open(temp_file, "wb") as f:
         f.write(image_data)
@@ -353,7 +380,7 @@ async def process_image(image_data: bytes, conf: float = 0.2, imgsz: int = 1024)
         
         det_res = model.predict(
             temp_file,
-            imgsz=imgsz,
+            imgsz=img_size,
             conf=conf,
             device=device,
         )
@@ -431,14 +458,16 @@ async def process_image(image_data: bytes, conf: float = 0.2, imgsz: int = 1024)
             torch.cuda.empty_cache()
             torch.cuda.synchronize()
         gc.collect()
-
 @app.post("/batch_async", response_model=FinalPrediction)
 async def create_od_task(
     file: UploadFile = File(...),
     ocr_data: str = Form(...)
 ):
     image_data = await file.read()
-    _, final_pred = await process_image(image_data)
+    _, final_pred = await process_image(
+        image_data, 
+        conf=conf_threshold, 
+    )
     return final_pred
 
 @app.post("/batch")
@@ -449,7 +478,10 @@ async def batch_od(
     results = []
     for file in files:
         image_data = await file.read()
-        _, final_pred = await process_image(image_data)
+        _, final_pred = await process_image(
+            image_data,
+            conf=conf_threshold,
+        )
         results.append(final_pred)
     
     return results
@@ -459,4 +491,4 @@ async def root():
     return {"message": "YOLO DocLayout API"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

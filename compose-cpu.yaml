@@ -44,7 +44,7 @@ services:
     ports:
       - "8001:8000"
     deploy:
-      replicas: 1
+      replicas: 0
     volumes:
       - /dev/shm:/dev/shm
     # environment:

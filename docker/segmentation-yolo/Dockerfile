@@ -14,7 +14,7 @@ RUN pip install --upgrade pip && \
     pip install wheel setuptools && \
     pip install uv && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
-    pip install opencv-python-headless fastapi uvicorn pydantic huggingface_hub numpy python-multipart scikit-learn && \
+    pip install python-dotenv opencv-python-headless fastapi uvicorn pydantic huggingface_hub numpy python-multipart scikit-learn && \
     pip install ultralytics && \
     pip install doclayout-yolo>=0.0.3
 
