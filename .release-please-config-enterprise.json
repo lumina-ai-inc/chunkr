@@ -32,12 +32,12 @@
             "extra-files": [
                 {
                     "type": "yaml",
-                    "path": "kube/charts/chunkr/values-enterprise.yaml",
+                    "path": "kube/charts/chunkr-enterprise/values.yaml",
                     "jsonpath": "$.services.*.image.tag"
                 },
                 {
                     "type": "yaml",
-                    "path": "kube/charts/chunkr/Chart-enterprise.yaml",
+                    "path": "kube/charts/chunkr-enterprise/Chart.yaml",
                     "jsonpath": "$.version"
                 }
             ]

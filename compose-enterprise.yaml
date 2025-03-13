@@ -41,7 +41,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation-yolo:bb950d8d
+    image: luminainc/segmentation-yolo:1.5.1-enterprise
     ports:
       - "8001:8000"
     deploy:
