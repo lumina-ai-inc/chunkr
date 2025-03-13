@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.0.1...chunkr-chart-v1.0.2) (2025-03-13)
+
+
+### Bug Fixes
+
+* Fix keycloak tag ([df9efa5](https://github.com/lumina-ai-inc/chunkr/commit/df9efa5e212a517020e47d66c3820e62ca87acf2))
+
 ## [1.0.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.0.0...chunkr-chart-v1.0.1) (2025-03-12)
 
 
