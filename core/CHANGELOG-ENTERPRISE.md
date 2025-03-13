@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.3.0-enterprise...chunkr-core-enterprise-v1.4.0-enterprise) (2025-03-13)
+
+
+### Features
+
+* **core:** Added compatibility to Google AI Studio ([#380](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/380)) ([f56b74c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f56b74c23d1bb0faf050c54a74437139dc9a6938))
+
 ## [1.3.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.2.2-enterprise...chunkr-core-enterprise-v1.3.0-enterprise) (2025-03-13)
 
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.5.1-enterprise...v1.6.0-enterprise) (2025-03-13)
+
+
+### Features
+
+* **core:** Added compatibility to Google AI Studio ([#380](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/380)) ([f56b74c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f56b74c23d1bb0faf050c54a74437139dc9a6938))
+* Merge box and reading order yolo ([3e1b734](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/3e1b734fba92550a4e735869a999230962496c80))
+* Reading order on yolo ([0d23470](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0d234707298292a824ed3a3e1f7d801f422ab101))
+
+
+### Bug Fixes
+
+* Added yolo layout analysis to enterprise compose ([a2287c2](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a2287c27804c31fb41977edf3464448578b5dc50))
+* Correct Rust lint workflow configuration ([0b1a1eb](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0b1a1ebdf42a2c22ddfcff52fb7356ebb4216287))
+* Fixed config to update enterprise helm ([d7f2c60](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d7f2c606f4a33660d59d4a5df269a59f356ddbae))
+
 ## [1.5.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.5.0-enterprise...v1.5.1-enterprise) (2025-03-13)
 
 
