@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-runtime
 
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
     libgomp1 ffmpeg libsm6 libxext6 git ninja-build g++ \
