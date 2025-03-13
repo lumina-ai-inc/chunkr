@@ -4,5 +4,5 @@
     "services": "0.1.1-enterprise",
     "apps/web": "1.1.0-enterprise",
     "kube/charts/chunkr": "1.1.0-enterprise",
-    ".": "1.5.0-enterprise"
+    ".": "1.5.1-enterprise"
 }
