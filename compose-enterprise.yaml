@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server-azure:3fed6150
+    image: luminainc/server-azure:1.5.0-enterprise
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task-azure:fb17c8f1
+    image: luminainc/task-azure:1.5.0-enterprise
     platform: linux/amd64
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:37ab9ae9
+    image: luminainc/web:1.5.0-enterprise
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -62,7 +62,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:bbacfb97
+    image: luminainc/doctr:1.5.0-enterprise
     platform: linux/amd64
     ports:
       - "8002:8000"
