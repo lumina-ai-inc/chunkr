@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-init-config
+data:
+  init.sh: |
+    #!/bin/sh
+    set -e
+
+    # Wait for MinIO to be ready
+    until mc alias set myminio http://{{- .Release.Name }}-minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do
+      echo "Waiting for MinIO to be ready..."
+      sleep 2
+    done
+
+    # Create bucket if it doesn't exist
+    mc mb myminio/chunkr --ignore-existing
+
+    # Set bucket policy to public
+    mc anonymous set public myminio/chunkr
+
+    echo "MinIO initialization completed successfully" 

@@ -1,6 +1,6 @@
-### Enterprise Installation
+# Enterprise Installation
 
-# Create Docker registry secret for Docker Hub
+### Create Docker registry secret for Docker Hub
 ```bash
 kubectl create secret docker-registry regcred \
   --docker-server=docker.io \
@@ -16,3 +16,12 @@ helm install chunkr ./charts/chunkr \
   --create-namespace \
   -f ./charts/chunkr/values-enterprise.yaml
 ``` 
+
+### Must use the enterprise version of the chart
+```bash
+helm install chunkr ./charts/chunkr-enterprise \
+  --namespace chunkr \
+  --create-namespace \
+  -f ./charts/chunkr/values.yaml \
+  -f ./charts/chunkr/infrastructure.yaml \
+  -f ./charts/chunkr-enterprise/values.yaml

@@ -170,6 +170,7 @@ services:
         value: '100'
     labels:
       workload-type: chunkr-gpu
+
   segmentation:
     enabled: true
     image:
@@ -189,6 +190,7 @@ services:
         value: '0.025'
       - name: SCORE_THRESHOLD
         value: '0.2'
+        
   redis:
     enabled: true
     image:
