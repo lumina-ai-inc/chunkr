@@ -127,7 +127,7 @@ services:
     enabled: true
     image:
       repository: segmentation-yolo
-      tag: bd6e0222
+      tag: 1.5.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
