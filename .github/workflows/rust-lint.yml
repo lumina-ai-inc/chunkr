@@ -13,6 +13,9 @@ jobs:
   lint:
     name: Check and Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./core
     steps:
       - uses: actions/checkout@v3
       
@@ -29,15 +32,18 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
+          working-directory: ./core
       
       - name: Run clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
+          working-directory: ./core
       
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --all-features 
+          args: --all-features
+          working-directory: ./core 
