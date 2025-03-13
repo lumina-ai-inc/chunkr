@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.5.0-enterprise...v1.5.1-enterprise) (2025-03-13)
+
+
+### Bug Fixes
+
+* Updated rust version in dockers ([e20aa51](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e20aa516b395e7312823001efb4061ba4fccd209))
+
 ## [1.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.4.2-enterprise...v1.5.0-enterprise) (2025-03-13)
 
 
