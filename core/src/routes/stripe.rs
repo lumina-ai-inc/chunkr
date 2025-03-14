@@ -8,7 +8,7 @@ use crate::utils::stripe::invoicer::create_and_send_invoice;
 use crate::utils::stripe::stripe_utils::{
     create_customer_session, create_stripe_billing_portal_session, create_stripe_checkout_session,
     create_stripe_customer, create_stripe_setup_intent, get_stripe_checkout_session,
-    update_invoice_status,
+    set_customer_default_payment_method, update_invoice_status,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use log::info;
@@ -298,6 +298,13 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                     if let Err(e) = res_two {
                         eprintln!("Error syncing monthly_usage: {:?}", e);
                     }
+
+                    // Set default payment method for invoices
+                    if let Err(e) =
+                        set_default_payment_method_for_customer(&sub.customer, &stripe_config).await
+                    {
+                        eprintln!("Error setting default payment method: {:?}", e);
+                    }
                 }
             }
         }
@@ -473,6 +480,16 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                             }
                                         }
                                     }
+                                }
+
+                                // Set default payment method for invoices
+                                if let Err(e) = set_default_payment_method_for_customer(
+                                    &sub.customer,
+                                    &stripe_config,
+                                )
+                                .await
+                                {
+                                    eprintln!("Error setting default payment method: {:?}", e);
                                 }
                             }
                         }
@@ -806,4 +823,19 @@ fn is_tier_upgrade(current_tier: &str, new_tier: &str) -> bool {
     };
 
     tier_rank(new_tier) > tier_rank(current_tier)
+}
+
+/// Helper function to set the most recent payment method as default for a customer
+async fn set_default_payment_method_for_customer(
+    customer_expandable: &stripe::Expandable<stripe::Customer>,
+    stripe_config: &Config,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let customer_id = match customer_expandable {
+        stripe::Expandable::Id(id) => id.to_string(),
+        stripe::Expandable::Object(customer) => customer.id.to_string(),
+    };
+
+    set_customer_default_payment_method(&customer_id, stripe_config).await?;
+
+    Ok(())
 }

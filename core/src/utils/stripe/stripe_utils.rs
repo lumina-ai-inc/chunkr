@@ -379,3 +379,52 @@ pub async fn update_subscription_billing_cycle(
     let updated_subscription: serde_json::Value = stripe_response.json().await?;
     Ok(updated_subscription)
 }
+
+/// Gets the customer's payment methods and sets the most recent one as default for invoices
+pub async fn set_customer_default_payment_method(
+    customer_id: &str,
+    config: &StripeConfig,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let client = ReqwestClient::new();
+
+    // Step 1: List customer's payment methods
+    let url = format!(
+        "https://api.stripe.com/v1/customers/{}/payment_methods",
+        customer_id
+    );
+
+    let response = client
+        .get(&url)
+        .header("Authorization", format!("Bearer {}", config.api_key))
+        .query(&[("limit", "5"), ("type", "card")])
+        .send()
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
+
+    // Find the most recent payment method
+    if let Some(data) = response.get("data").and_then(|d| d.as_array()) {
+        if let Some(payment_method) = data.first() {
+            if let Some(payment_method_id) = payment_method.get("id").and_then(|id| id.as_str()) {
+                // Step 2: Update customer to set default payment method
+                let update_url = format!("https://api.stripe.com/v1/customers/{}", customer_id);
+
+                let params = [(
+                    "invoice_settings[default_payment_method]",
+                    payment_method_id,
+                )];
+
+                client
+                    .post(&update_url)
+                    .header("Authorization", format!("Bearer {}", config.api_key))
+                    .form(&params)
+                    .send()
+                    .await?;
+
+                return Ok(());
+            }
+        }
+    }
+
+    Err("No payment methods found for customer".into())
+}
