@@ -22,6 +22,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ $name }}
     spec:
+      {{- if $.Values.global.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml $.Values.global.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if $service.useGPU }}
       affinity:
         {{- toYaml $.Values.global.gpuWorkload.affinity | nindent 8 }}
