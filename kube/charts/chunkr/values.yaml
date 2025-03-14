@@ -65,7 +65,7 @@ global:
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: ScheduleAnyway
+      whenUnsatisfiable: DoNotSchedule
       labelSelector:
         matchExpressions:
           - key: app.kubernetes.io/name
@@ -173,6 +173,7 @@ services:
     port: 8000
     targetPort: 8000
     useGPU: true
+    enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
         value: '100'
@@ -187,6 +188,7 @@ services:
     port: 8000
     targetPort: 8000
     useGPU: true
+    enableTopologySpreadConstraints: true
     labels:
       workload-type: chunkr-gpu
     env:

@@ -22,7 +22,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ $name }}
     spec:
-      {{- if $.Values.global.topologySpreadConstraints }}
+      {{- if and $.Values.global.topologySpreadConstraints (eq ($service.enableTopologySpreadConstraints | default false) true) }}
       topologySpreadConstraints:
         {{- toYaml $.Values.global.topologySpreadConstraints | nindent 8 }}
       {{- end }}
