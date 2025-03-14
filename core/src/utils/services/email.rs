@@ -2,19 +2,19 @@ use crate::configs::email_config;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::fmt;
+// use std::fmt;
 use std::sync::Arc;
 
-#[derive(Debug)]
-struct EmailError(String);
+// #[derive(Debug)]
+// struct EmailError(String);
 
-impl fmt::Display for EmailError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
+// impl fmt::Display for EmailError {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{}", self.0)
+//     }
+// }
 
-impl Error for EmailError {}
+// impl Error for EmailError {}
 
 #[derive(Debug)]
 pub struct EmailService {
@@ -98,6 +98,24 @@ impl EmailService {
         email: &str,
     ) -> Result<EmailResponse, Box<dyn Error + Send + Sync>> {
         let url = format!("{}/email/free-pages", self.config.server_url);
+        let response = self
+            .client
+            .post(&url)
+            .query(&[("name", name), ("email", email)])
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(response)
+    }
+
+    pub async fn send_unpaid_invoice_email(
+        &self,
+        name: &str,
+        email: &str,
+    ) -> Result<EmailResponse, Box<dyn Error + Send + Sync>> {
+        let url = format!("{}/email/unpaid_invoice", self.config.server_url);
         let response = self
             .client
             .post(&url)
