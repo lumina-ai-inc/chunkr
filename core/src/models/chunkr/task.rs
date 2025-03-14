@@ -399,6 +399,42 @@ impl Task {
                         None,
                     ))
                     .await
+                } else if e.to_string().contains("blocked") {
+                    let user_details = client
+                        .query_one(
+                            "SELECT first_name, email FROM users WHERE user_id = $1",
+                            &[&self.user_id],
+                        )
+                        .await;
+                    if let Ok(user_details) = user_details {
+                        let name: String = user_details.get::<_, String>("first_name");
+                        let email: Option<String> = user_details.get::<_, Option<String>>("email");
+
+                        if let Some(email) = email {
+                            let email_service = EmailService::new(
+                                crate::configs::email_config::Config::from_env().unwrap(),
+                            );
+                            if let Err(e) =
+                                email_service.send_unpaid_invoice_email(&name, &email).await
+                            {
+                                println!("Failed to send unpaid invoice email: {}", e);
+                                log::error!("Failed to send unpaid invoice email: {}", e);
+                            }
+                        }
+                    } else {
+                        println!("Failed to get user details");
+                    }
+
+                    Box::pin(self.update(
+                        Some(Status::Failed),
+                        Some("Usage blocked due to unpaid invoice".to_string()),
+                        None,
+                        None,
+                        None,
+                        None,
+                        None,
+                    ))
+                    .await
                 } else {
                     Err(Box::new(e))
                 }

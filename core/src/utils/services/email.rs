@@ -109,6 +109,24 @@ impl EmailService {
 
         Ok(response)
     }
+
+    pub async fn send_unpaid_invoice_email(
+        &self,
+        name: &str,
+        email: &str,
+    ) -> Result<EmailResponse, Box<dyn Error + Send + Sync>> {
+        let url = format!("{}/email/unpaid_invoice", self.config.server_url);
+        let response = self
+            .client
+            .post(&url)
+            .query(&[("name", name), ("email", email)])
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(response)
+    }
 }
 
 pub type SharedEmailService = Arc<EmailService>;

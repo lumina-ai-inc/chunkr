@@ -159,6 +159,33 @@ def send_free_pages_email(name: str, email: str) -> Dict:
     }
     return resend.Emails.send(params)
 
+@app.post("/email/unpaid_invoice")
+def send_unpaid_invoice_email(name: str, email: str) -> Dict:
+    params: resend.Emails.SendParams = {
+        "from": "Chunkr <team@chunkr.ai>",
+        "to": [email],
+        "subject": "Chunkr: Action Required - Unpaid Invoice",
+        "html": f"""
+        <div style="font-family: Arial, sans-serif;">
+            <h1>Hi {name},</h1>
+            <p>We hope you're doing well!</p>
+            <p>We wanted to let you know that your Chunkr usage is currently blocked due to an outstanding invoice that hasn't been paid yet.</p>
+            <p>To resolve this issue and resume your service, please follow these steps:</p>
+            <ol>
+                <li>Go to your profile card in the Chunkr dashboard</li>
+                <li>Click on "Manage Billing"</li>
+                <li>View and pay any open invoices listed on the billing page</li>
+            </ol>
+            <p>Once your payment is processed, your service will be automatically restored.</p>
+            <p>If you have any questions or need assistance with the payment process, please don't hesitate to reply to this email.</p>
+            <p>Thank you for your prompt attention to this matter.</p>
+            <p>Best regards,<br>Team Chunkr<br>
+            <a href="{chunkr_url}">Chunkr</a> | <a href="{twitter_url}">Twitter</a> | <a href="{github_url}">GitHub</a> | <a href="{linkedin_url}">LinkedIn</a> | <a href="{discord_url}">Discord</a></p>
+        </div>
+        """
+    }
+    return resend.Emails.send(params)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
