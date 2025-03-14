@@ -304,7 +304,6 @@ pub async fn get_stripe_checkout_session(
 
 pub async fn create_stripe_billing_portal_session(
     customer_id: &str,
-    subscription_id: &str,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();

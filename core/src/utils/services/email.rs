@@ -2,19 +2,19 @@ use crate::configs::email_config;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::fmt;
+// use std::fmt;
 use std::sync::Arc;
 
-#[derive(Debug)]
-struct EmailError(String);
+// #[derive(Debug)]
+// struct EmailError(String);
 
-impl fmt::Display for EmailError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
+// impl fmt::Display for EmailError {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{}", self.0)
+//     }
+// }
 
-impl Error for EmailError {}
+// impl Error for EmailError {}
 
 #[derive(Debug)]
 pub struct EmailService {

@@ -1,6 +1,6 @@
 use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::user::{InvoiceStatus, Tier};
+use crate::models::chunkr::user::InvoiceStatus;
 use crate::utils::clients::get_pg_client;
 use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
@@ -785,13 +785,11 @@ pub async fn get_billing_portal_session(
     let customer_id = row
         .get::<_, Option<String>>("customer_id")
         .ok_or_else(|| actix_web::error::ErrorBadRequest("No customer ID found for user"))?;
-    let subscription_id = row
-        .get::<_, Option<String>>("stripe_subscription_id")
-        .ok_or_else(|| actix_web::error::ErrorBadRequest("No subscription ID found for user"))?;
+    // let subscription_id = row
+    //     .get::<_, Option<String>>("stripe_subscription_id")
+    //     .ok_or_else(|| actix_web::error::ErrorBadRequest("No subscription ID found for user"))?;
 
-    let session =
-        create_stripe_billing_portal_session(&customer_id, &subscription_id, &stripe_config)
-            .await?;
+    let session = create_stripe_billing_portal_session(&customer_id, &stripe_config).await?;
     Ok(HttpResponse::Ok().json(session))
 }
 

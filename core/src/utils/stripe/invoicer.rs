@@ -1,7 +1,7 @@
 use crate::configs::postgres_config::Client;
 use crate::configs::stripe_config::Config as StripeConfig;
 use crate::utils::clients::get_pg_client;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use reqwest::Client as ReqwestClient;
 
 pub async fn invoice() -> Result<(), Box<dyn std::error::Error>> {
@@ -50,7 +50,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
     let row = &rows[0];
     let stripe_customer_id: String = row.get("customer_id");
     let amount_due: f64 = row.get("amount_due");
-    let user_tier: String = row.get("tier");
+    // let user_tier: String = row.get("tier");
 
     let stripe_config = StripeConfig::from_env()?;
     let reqwest_client = ReqwestClient::new();
