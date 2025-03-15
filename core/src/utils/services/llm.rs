@@ -72,6 +72,7 @@ pub async fn open_ai_call(
 
 /// Process an OpenAI request with rate limiting and retrying on failure.
 /// If the request fails, it will retry with the fallback model if provided.
+/// If the response finish_reason is "length", it will retry with increased max_completion_tokens.
 pub async fn process_openai_request(
     url: String,
     key: String,
@@ -83,7 +84,9 @@ pub async fn process_openai_request(
     use_fallback: bool,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
-    match retry_with_backoff(|| async {
+
+    // First attempt
+    let response = match retry_with_backoff(|| async {
         rate_limiter
             .acquire_token_with_timeout(std::time::Duration::from_secs(
                 *TOKEN_TIMEOUT.get().unwrap(),
@@ -102,7 +105,7 @@ pub async fn process_openai_request(
     })
     .await
     {
-        Ok(response) => Ok(response),
+        Ok(response) => response,
         Err(e) => {
             if use_fallback {
                 let llm_config = LlmConfig::from_env().unwrap();
@@ -125,17 +128,62 @@ pub async fn process_openai_request(
                         )
                         .await
                     })
-                    .await
+                    .await?
                 } else {
                     println!("No fallback model provided");
-                    Err(e)
+                    return Err(e);
                 }
             } else {
                 println!("Fallback not enabled");
-                Err(e)
+                return Err(e);
             }
         }
+    };
+
+    // Check if the finish reason was "length" and retry with more tokens if needed
+    if !response.choices.is_empty() && response.choices[0].finish_reason == "length" {
+        println!("Response was truncated (finish_reason: length).");
+
+        // Try up to 3 times
+        let mut current_response = response;
+
+        for retry_count in 1..=3 {
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
+                .await?;
+
+            println!("Attempt {} of 3", retry_count);
+
+            current_response = open_ai_call(
+                url.clone(),
+                key.clone(),
+                model.clone(),
+                messages.clone(),
+                max_completion_tokens.clone(),
+                temperature.clone(),
+                response_format.clone(),
+            )
+            .await?;
+
+            // If we got a complete response, break out of the loop
+            if current_response.choices.is_empty()
+                || current_response.choices[0].finish_reason != "length"
+            {
+                println!("Received complete response on retry {}", retry_count);
+                break;
+            }
+
+            if retry_count < 3 {
+                println!("Response still truncated, continuing to retry");
+            }
+        }
+
+        return Ok(current_response);
     }
+
+    Ok(response)
 }
 
 pub fn create_basic_message(role: String, prompt: String) -> Result<Message, Box<dyn Error>> {

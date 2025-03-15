@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.6.0-enterprise...v1.6.1-enterprise) (2025-03-14)
+
+
+### Bug Fixes
+
+* LLM retry when stop reason is length ([e8b3e7c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e8b3e7cccb65874afbb00cd24ec0524ead9a1f0c))
+
 ## [1.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.5.1-enterprise...v1.6.0-enterprise) (2025-03-13)
 
 

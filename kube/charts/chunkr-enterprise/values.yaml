@@ -71,7 +71,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.6.0-enterprise
+      tag: 1.6.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -87,7 +87,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 1.6.0-enterprise
+      tag: 1.6.1-enterprise
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -100,7 +100,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.6.0-enterprise
+      tag: 1.6.1-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -140,7 +140,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: 1.6.0-enterprise
+      tag: 1.6.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -152,7 +152,7 @@ services:
     enabled: true
     image:
       repository: analytics-web
-      tag: 1.6.0-enterprise
+      tag: 1.6.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -169,7 +169,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: 1.6.0-enterprise
+      tag: 1.6.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -188,12 +188,11 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: PG__URL
-
   embeddings:
     enabled: true
     image:
       repository: text-embeddings-inference
-      tag: 1.6.0-enterprise
+      tag: 1.5
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
@@ -215,7 +214,7 @@ services:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: 1.6.0-enterprise
+      tag: 1.5
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
@@ -237,7 +236,7 @@ services:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: 1.6.0-enterprise
+      tag: 1.5
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
@@ -258,7 +257,7 @@ services:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: 1.6.0-enterprise
+      tag: 1.5
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
