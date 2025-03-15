@@ -61,7 +61,7 @@ variable "general_max_vm_count" {
 }
 
 variable "general_machine_type" {
-  default = "c2d-highcpu-16"
+  default = "c4-standard-16"
 }
 
 variable "gpu_vm_count" {
@@ -273,7 +273,7 @@ resource "google_container_node_pool" "general_purpose_nodes" {
 
   node_config {
     preemptible  = false
-    machine_type = var.general_machine_type
+    machine_type = "n2-standard-16"
 
     resource_labels = {
       "goog-gke-node-pool-provisioning-model" = "on-demand"
