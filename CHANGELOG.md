@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.5.0...v1.5.1) (2025-03-15)
+
+
+### Bug Fixes
+
+* Added retry when finish reason is length ([#383](https://github.com/lumina-ai-inc/chunkr/issues/383)) ([a8dd777](https://github.com/lumina-ai-inc/chunkr/commit/a8dd77791d7294e7166a430776a329e53b0a8103))
+* Correct Rust lint workflow configuration ([0b1a1eb](https://github.com/lumina-ai-inc/chunkr/commit/0b1a1ebdf42a2c22ddfcff52fb7356ebb4216287))
+
 ## [1.5.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.4.2...v1.5.0) (2025-03-13)
 
 
