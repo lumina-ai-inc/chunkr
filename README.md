@@ -99,6 +99,7 @@ cp .env.example .env
 # Configure your environment variables
 # Required: LLM_KEY as your OpenAI API key
 ```
+For more information on how to set up LLMs, see [here](#llm-configuration).
 
 4. Start the services:
    
