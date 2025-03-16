@@ -65,6 +65,57 @@ common:
         .Values.ingress.domain }}
     - name: EMAIL__SERVER_URL
       value: http://{{- .Release.Name }}-emails:8000
+
+global:
+  image:
+    registry: luminainc
+    pullPolicy: Always
+  storageClass: standard
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: Exists
+  gpuWorkload:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: workload-type
+                    operator: In
+                    values:
+                      - chunkr-gpu
+              topologyKey: kubernetes.io/hostname
+    tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+      requests:
+        nvidia.com/gpu: 1
+    volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 5Gi
+    volumeMounts:
+      - name: dshm
+        mountPath: /dev/shm
+
+nvidia:
+  timeSlicing:
+    enabled: true
+    replicas: 8
+    timeSlice: 2ms
+
 services:
   server:
     enabled: true
@@ -82,6 +133,7 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
+
   task:
     enabled: true
     useStandardEnv: true
@@ -96,6 +148,7 @@ services:
     env:
       - name: PG__POOL__MAX_SIZE
         value: '3'
+
   web:
     enabled: true
     image:
@@ -136,6 +189,34 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: VITE_STRIPE_API_KEY
+
+  ocr:
+    enabled: true
+    image:
+      repository: doctr
+      tag: 1.6.1-enterprise
+    port: 8000
+    targetPort: 8000
+    useGPU: true
+    enableTopologySpreadConstraints: true
+    env:
+      - name: MAX_BATCH_SIZE
+        value: '100'
+    labels:
+      workload-type: chunkr-gpu
+  
+  segmentation:
+    enabled: true
+    image:
+      repository: segmentation-yolo
+      tag: 1.6.1-enterprise
+    port: 8000
+    targetPort: 8000
+    useGPU: true
+    enableTopologySpreadConstraints: true
+    labels:
+      workload-type: chunkr-gpu
+
   emails:
     enabled: true
     image:
@@ -148,6 +229,7 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
+
   analytics-web:
     enabled: true
     image:
@@ -165,6 +247,7 @@ services:
         value: >-
           https://{{ index .Values.services "analytics-server" "ingress"
           "subdomain" }}.{{ .Values.ingress.domain }}
+
   analytics-server:
     enabled: true
     image:
@@ -188,89 +271,4 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: PG__URL
-  embeddings:
-    enabled: true
-    image:
-      repository: text-embeddings-inference
-      tag: 1.5
-      registry: ghcr.io/huggingface
-    ingress:
-      enabled: false
-      subdomain: embed
-    port: 8000
-    targetPort: 80
-    args:
-      - '--model-id'
-      - BAAI/bge-m3
-      - '--auto-truncate'
-      - '--payload-limit'
-      - '100000000'
-      - '--max-client-batch-size'
-      - '64'
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu
-  reranker:
-    enabled: false
-    image:
-      repository: text-embeddings-inference
-      tag: 1.5
-      registry: ghcr.io/huggingface
-    ingress:
-      enabled: false
-      subdomain: rerank
-    port: 8000
-    targetPort: 80
-    args:
-      - '--model-id'
-      - BAAI/bge-reranker-large
-      - '--auto-truncate'
-      - '--payload-limit'
-      - '100000000'
-      - '--max-client-batch-size'
-      - '64'
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu
-  sparse-doc-embeddings:
-    enabled: false
-    image:
-      repository: text-embeddings-inference
-      tag: 1.5
-      registry: ghcr.io/huggingface
-    ingress:
-      enabled: false
-      subdomain: sparse-doc
-    port: 8000
-    targetPort: 80
-    args:
-      - '--model-id'
-      - naver/efficient-splade-VI-BT-large-doc
-      - '--pooling'
-      - splade
-      - '--max-client-batch-size'
-      - '64'
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu.
-  sparse-query-embeddings:
-    enabled: false
-    image:
-      repository: text-embeddings-inference
-      tag: 1.5
-      registry: ghcr.io/huggingface
-    ingress:
-      enabled: false
-      subdomain: sparse-query
-    port: 8000
-    targetPort: 80
-    args:
-      - '--model-id'
-      - naver/efficient-splade-VI-BT-large-query
-      - '--pooling'
-      - splade
-      - '--max-client-batch-size'
-      - '64'
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu
+

@@ -47,6 +47,7 @@ services:
       - name: realm-config
         mountPath: /opt/keycloak/data/import/realm-export.json
         subPath: realm-export.json
+
   redis:
     enabled: true
     image:
@@ -111,7 +112,7 @@ services:
       periodSeconds: 5
 
   minio:
-    enabled: true
+    enabled: false
     image:
       repository: minio/minio
       tag: latest
@@ -167,7 +168,7 @@ services:
       periodSeconds: 5
 
   minio-init:
-    enabled: true
+    enabled: false
     type: job
     backoffLimit: 4
     image:

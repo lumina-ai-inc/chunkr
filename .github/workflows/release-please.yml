@@ -5,9 +5,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'compose.yaml'
       - 'compose-enterprise.yaml'
-      - 'compose-cpu.yaml'
 
 permissions:
   contents: write
@@ -39,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [server-azure, task-azure, emails, analytics-server, analytics-web, segmentation-yolo]
+        component: [server-azure, task-azure, web, emails, analytics-server, analytics-web, segmentation-yolo, doctr]
     continue-on-error: true
     steps:
       - name: Checkout code
