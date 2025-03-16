@@ -23,7 +23,6 @@ pub enum OcrStrategy {
     Auto,
 }
 
-
 #[derive(
     Serialize,
     Deserialize,
@@ -46,7 +45,6 @@ pub enum SegmentationStrategy {
     LayoutAnalysis,
     Page,
 }
-
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, IntoParams)]
 pub struct CreateForm {

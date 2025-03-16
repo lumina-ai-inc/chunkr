@@ -68,10 +68,6 @@ pub async fn get_tasks(
         }
     });
 
-    let task_responses = try_join_all(futures)
-        .await?
-        .into_iter()
-        .flatten()
-        .collect();
+    let task_responses = try_join_all(futures).await?.into_iter().flatten().collect();
     Ok(task_responses)
 }

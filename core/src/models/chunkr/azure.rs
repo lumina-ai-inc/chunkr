@@ -599,10 +599,7 @@ fn process_caption(
                         segment_id: uuid::Uuid::new_v4().to_string(),
                         segment_type: SegmentType::Caption,
                     };
-                    replacements
-                        .entry(first_idx)
-                        .or_default()
-                        .push(segment);
+                    replacements.entry(first_idx).or_default().push(segment);
                 }
             }
         }

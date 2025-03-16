@@ -30,7 +30,6 @@ pub struct OutputResponse {
     pub extracted_json: Option<serde_json::Value>,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     #[serde(default = "generate_uuid")]

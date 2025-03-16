@@ -14,7 +14,6 @@ pub async fn get_task(
     if expires_at.is_some() && expires_at.unwrap() < Utc::now() {
         return Err("Task expired".into());
     }
-    task
-        .to_task_response(task_query.include_chunks, task_query.base64_urls)
+    task.to_task_response(task_query.include_chunks, task_query.base64_urls)
         .await
 }
