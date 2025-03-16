@@ -56,10 +56,10 @@ impl Instance {
             .iter()
             .map(|bbox| {
                 let mut bbox = bbox.clone();
-                bbox.top = bbox.top - worker_config.segmentation_padding;
-                bbox.left = bbox.left - worker_config.segmentation_padding;
-                bbox.width = bbox.width + worker_config.segmentation_padding * 2.0;
-                bbox.height = bbox.height + worker_config.segmentation_padding * 2.0;
+                bbox.top -= worker_config.segmentation_padding;
+                bbox.left -= worker_config.segmentation_padding;
+                bbox.width += worker_config.segmentation_padding * 2.0;
+                bbox.height += worker_config.segmentation_padding * 2.0;
                 bbox
             })
             .collect();

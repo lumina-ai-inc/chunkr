@@ -132,16 +132,16 @@ fn create_segmentation_timeout() -> Option<u64> {
 }
 
 pub fn init_throttle() {
-    POOL.get_or_init(|| create_redis_pool());
+    POOL.get_or_init(create_redis_pool);
     TOKEN_TIMEOUT.get_or_init(|| 10000);
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
         create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
     });
-    GENERAL_OCR_TIMEOUT.get_or_init(|| create_general_ocr_timeout());
+    GENERAL_OCR_TIMEOUT.get_or_init(create_general_ocr_timeout);
     SEGMENTATION_RATE_LIMITER.get_or_init(|| {
         create_segmentation_rate_limiter(POOL.get().unwrap().clone(), "segmentation")
     });
-    SEGMENTATION_TIMEOUT.get_or_init(|| create_segmentation_timeout());
+    SEGMENTATION_TIMEOUT.get_or_init(create_segmentation_timeout);
     let llm_config = LlmConfig::from_env().unwrap();
     let llm_ocr_url = llm_config.ocr_url.unwrap_or(llm_config.url);
     let domain_name = llm_ocr_url
@@ -153,10 +153,10 @@ pub fn init_throttle() {
                 .next()
                 .ok_or("Invalid URL format: missing domain")
         })
-        .unwrap_or_else(|_| "localhost");
+        .unwrap_or("localhost");
     LLM_RATE_LIMITER
         .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
-    LLM_OCR_TIMEOUT.get_or_init(|| create_llm_ocr_timeout());
+    LLM_OCR_TIMEOUT.get_or_init(create_llm_ocr_timeout);
 }
 
 #[cfg(test)]
@@ -194,7 +194,7 @@ mod tests {
         let pool = create_pool();
         let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
 
-        for _ in 0..(2000) {
+        for _ in 0..2000 {
             let _ = rate_limiter.acquire_token().await;
         }
 
@@ -208,7 +208,7 @@ mod tests {
         let pool = create_pool();
         let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
 
-        let futures: Vec<_> = (0..(2000)).map(|_| rate_limiter.acquire_token()).collect();
+        let futures: Vec<_> = (0..2000).map(|_| rate_limiter.acquire_token()).collect();
         let _ = futures::future::join_all(futures).await;
 
         let result = rate_limiter
@@ -334,7 +334,7 @@ mod tests {
     #[tokio::test]
     async fn test_open_ai_rate_limit_with_retry() -> Result<(), Box<dyn Error>> {
         let start_time = std::time::Instant::now();
-        let futures: Vec<_> = (0..(10000))
+        let futures: Vec<_> = (0..10000)
             .map(|_| async { send_request_with_retry().await })
             .collect();
 
@@ -368,7 +368,7 @@ mod tests {
         let start_time = std::time::Instant::now();
         let pool = create_pool();
         let rate_limiter = RateLimiter::new(pool, 200.0, "rate_limiter");
-        let futures: Vec<_> = (0..(10000))
+        let futures: Vec<_> = (0..10000)
             .map(|_| async {
                 if let Ok(true) = rate_limiter
                     .acquire_token_with_timeout(Duration::from_secs(30))

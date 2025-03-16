@@ -96,7 +96,7 @@ pub async fn perform_azure_analysis(
             .collect()
     });
 
-    Ok(retry_with_backoff(|| async {
+    retry_with_backoff(|| async {
         azure_analysis(
             temp_file,
             features_str.clone(),
@@ -104,7 +104,7 @@ pub async fn perform_azure_analysis(
         )
         .await
     })
-    .await?)
+    .await
 }
 
 #[cfg(test)]

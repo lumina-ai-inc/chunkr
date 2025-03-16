@@ -98,7 +98,7 @@ pub fn convert_table_to_markdown(html: String) -> String {
         if let Some(first_row) = rows.first() {
             if let Some(row) = first_row.get(1) {
                 for col_match in TD_REGEX.captures_iter(row.as_str()) {
-                    if let Some(_) = col_match.get(3) {
+                    if col_match.get(3).is_some() {
                         let colspan = col_match
                             .get(1)
                             .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
@@ -211,7 +211,7 @@ pub fn convert_table_to_markdown(html: String) -> String {
                     }
                 }
             });
-            markdown.push_str("\n");
+            markdown.push('\n');
         });
         Ok(())
     })();

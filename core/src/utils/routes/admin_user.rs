@@ -20,7 +20,7 @@ pub async fn get_or_create_admin_user() -> Result<User, Box<dyn std::error::Erro
                 println!("IMPORTANT: The admin user details will only be displayed once upon creation. Please save the API key securely as it won't be shown again.");
                 return Ok(user);
             } else {
-                return Err(e.into());
+                return Err(e);
             }
         }
     };
