@@ -56,11 +56,15 @@ pub fn hierarchical_chunking(
                     && !segment_paired
                 {
                     let next_is_caption = segments
-                        .get(i + 1).is_some_and(|s| s.segment_type == SegmentType::Caption);
+                        .get(i + 1)
+                        .is_some_and(|s| s.segment_type == SegmentType::Caption);
                     let caption_word_count = segments
                         .get(i + 1)
                         .map_or(0, |s| s.content.split_whitespace().count() as i32);
-                    if next_is_caption && current_word_count + segment_word_count + caption_word_count > target_length {
+                    if next_is_caption
+                        && current_word_count + segment_word_count + caption_word_count
+                            > target_length
+                    {
                         finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                         current_segments.push(segment.clone());
                         current_word_count = segment_word_count;
@@ -76,7 +80,10 @@ pub fn hierarchical_chunking(
                     let asset_word_count = segments
                         .get(i + 1)
                         .map_or(0, |s| s.content.split_whitespace().count() as i32);
-                    if next_is_asset && current_word_count + segment_word_count + asset_word_count > target_length {
+                    if next_is_asset
+                        && current_word_count + segment_word_count + asset_word_count
+                            > target_length
+                    {
                         finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                         current_segments.push(segment.clone());
                         current_word_count = segment_word_count;
@@ -313,7 +320,8 @@ mod tests {
 
     #[test]
     fn test_complex_pairing_sequences() {
-        let test_cases = [(
+        let test_cases = [
+            (
                 // Case 1: Multiple sequential pairs
                 vec![
                     create_segment("Caption 1", SegmentType::Caption),
@@ -352,7 +360,8 @@ mod tests {
                     create_segment("Picture 2", SegmentType::Picture),
                 ],
                 vec![(1, 2)], // Caption 2 + Picture 1
-            )];
+            ),
+        ];
 
         for (case_index, (segments, expected_pairs)) in test_cases.iter().enumerate() {
             println!("\nTesting case {}", case_index + 1);
@@ -420,7 +429,8 @@ mod tests {
 
     #[test]
     fn test_edge_cases() {
-        let test_cases = [(
+        let test_cases = [
+            (
                 // Case 1: Empty document
                 vec![],
                 0, // Expected chunks
@@ -448,7 +458,8 @@ mod tests {
                     create_segment("Picture 2", SegmentType::Picture),
                 ],
                 1,
-            )];
+            ),
+        ];
 
         for (case_index, (segments, expected_chunk_count)) in test_cases.iter().enumerate() {
             let chunks = hierarchical_chunking(segments.clone(), 1000, true).unwrap();
