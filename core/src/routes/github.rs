@@ -6,7 +6,7 @@ use serde_json::Value;
 pub async fn get_github_repo_info() -> Result<HttpResponse, Box<dyn std::error::Error>> {
     let config = Config::from_env().unwrap();
     let client = Client::new();
-    let url = format!("https://api.github.com/repos/lumina-ai-inc/chunkr");
+    let url = "https://api.github.com/repos/lumina-ai-inc/chunkr".to_string();
     let mut request = client
         .get(url)
         .header(

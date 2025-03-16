@@ -21,6 +21,12 @@ pub struct Pipeline {
     pub task_payload: Option<TaskPayload>,
 }
 
+impl Default for Pipeline {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Pipeline {
     pub fn new() -> Self {
         Self {
@@ -56,7 +62,7 @@ impl Pipeline {
                 task.get_artifacts().await?;
             self.input_file = Some(Arc::new(input_file));
             self.pdf_file = Some(Arc::new(pdf_file));
-            self.page_images = Some(page_images.into_iter().map(|file| Arc::new(file)).collect());
+            self.page_images = Some(page_images.into_iter().map(Arc::new).collect());
             self.segment_images = segment_images
                 .into_iter()
                 .map(|(k, v)| (k, Arc::new(v)))
@@ -71,7 +77,7 @@ impl Pipeline {
             self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
                 "application/pdf" => Some(self.input_file.clone().unwrap()),
                 _ => Some(Arc::new(convert_to_pdf(
-                    &self.input_file.as_ref().unwrap(),
+                    self.input_file.as_ref().unwrap(),
                 )?)),
             };
             println!("Task initialized with input file");
@@ -95,15 +101,13 @@ impl Pipeline {
     pub fn get_task(&self) -> Result<Task, Box<dyn Error>> {
         self.task
             .as_ref()
-            .ok_or_else(|| "Task is not initialized".into())
-            .map(|task| task.clone())
+            .ok_or_else(|| "Task is not initialized".into()).cloned()
     }
 
     pub fn get_task_payload(&self) -> Result<TaskPayload, Box<dyn Error>> {
         self.task_payload
             .as_ref()
-            .ok_or_else(|| "Task payload is not initialized".into())
-            .map(|payload| payload.clone())
+            .ok_or_else(|| "Task payload is not initialized".into()).cloned()
     }
 
     pub fn get_mime_type(&self) -> Result<String, Box<dyn Error>> {
@@ -201,7 +205,7 @@ impl Pipeline {
                     expires_at,
                 )
                 .await?;
-                return Ok(());
+                Ok(())
             } else {
                 return revert_to_previous(&mut task, &task_payload).await;
             }

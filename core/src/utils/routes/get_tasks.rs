@@ -23,7 +23,7 @@ pub async fn get_tasks(
     let pagination = match (task_query.page, task_query.limit) {
         (Some(p), Some(l)) => Ok(format!("OFFSET {} LIMIT {}", (p - 1) * l, l)),
         (None, Some(l)) => Ok(format!("LIMIT {}", l)),
-        (Some(_), None) => Err(format!("Limit is required when page is provided")),
+        (Some(_), None) => Err("Limit is required when page is provided".to_string()),
         _ => Ok("".to_string()),
     };
 
@@ -71,7 +71,7 @@ pub async fn get_tasks(
     let task_responses = try_join_all(futures)
         .await?
         .into_iter()
-        .filter_map(|x| x)
+        .flatten()
         .collect();
     Ok(task_responses)
 }

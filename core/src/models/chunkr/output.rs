@@ -15,6 +15,7 @@ fn generate_content() -> String {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 /// The processed results of a document analysis task
+#[derive(Default)]
 pub struct OutputResponse {
     /// Collection of document chunks, where each chunk contains one or more segments
     pub chunks: Vec<Chunk>,
@@ -29,17 +30,6 @@ pub struct OutputResponse {
     pub extracted_json: Option<serde_json::Value>,
 }
 
-impl Default for OutputResponse {
-    fn default() -> Self {
-        Self {
-            chunks: vec![],
-            file_name: None,
-            page_count: None,
-            pdf_url: None,
-            extracted_json: None,
-        }
-    }
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
