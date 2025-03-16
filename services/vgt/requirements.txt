@@ -16,7 +16,7 @@ Shapely==2.0.5
 transformers==4.40.2
 pdf2image==1.17.0
 lxml==5.2.2
-lightgbm==4.5.0
+lightgbm==4.6.0
 huggingface_hub==0.24.3
 setuptools==72.1.0
 roman==4.2
