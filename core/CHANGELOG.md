@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.0...chunkr-core-v1.3.1) (2025-03-16)
+
+
+### Bug Fixes
+
+* Added retry when finish reason is length ([#383](https://github.com/lumina-ai-inc/chunkr/issues/383)) ([a8dd777](https://github.com/lumina-ai-inc/chunkr/commit/a8dd77791d7294e7166a430776a329e53b0a8103))
+
 ## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.2.2...chunkr-core-v1.3.0) (2025-03-13)
 
 

@@ -111,7 +111,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     ingress:
@@ -124,7 +124,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     ingress:
@@ -158,7 +158,7 @@ services:
     useStandardEnv: true
     image:
       repository: task
-      tag: 1.5.0
+      tag: 1.5.1
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -169,7 +169,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -179,12 +179,11 @@ services:
         value: '100'
     labels:
       workload-type: chunkr-gpu
-
   segmentation:
     enabled: true
     image:
       repository: segmentation
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -200,12 +199,11 @@ services:
         value: '0.025'
       - name: SCORE_THRESHOLD
         value: '0.2'
-        
   redis:
     enabled: true
     image:
       repository: redis
-      tag: 1.5.0
+      tag: 1.5.1
       registry: docker.io
     port: 6379
     targetPort: 6379
@@ -267,7 +265,7 @@ services:
     enabled: true
     image:
       repository: minio/minio
-      tag: 1.5.0
+      tag: 1.5.1
       registry: docker.io
     port: 9000
     consolePort: 9001
@@ -324,7 +322,7 @@ services:
     backoffLimit: 4
     image:
       repository: minio/mc
-      tag: 1.5.0
+      tag: 1.5.1
       registry: docker.io
     command:
       - /bin/sh
@@ -353,7 +351,7 @@ services:
     enabled: false
     image:
       repository: postgres
-      tag: 1.5.0
+      tag: 1.5.1
       registry: docker.io
     port: 5432
     targetPort: 5432
