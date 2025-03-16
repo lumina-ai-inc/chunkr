@@ -507,10 +507,7 @@ impl Task {
                     self.image_folder_location, "pages", idx
                 );
                 let s3_key = s3_key.clone();
-                async move {
-                    download_to_tempfile(&s3_key, None, "image/jpeg")
-                        .await
-                }
+                async move { download_to_tempfile(&s3_key, None, "image/jpeg").await }
             })
             .collect();
 
