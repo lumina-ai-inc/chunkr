@@ -2,9 +2,9 @@
 echo "Welcome to the docker builder!"
 echo "------------------------"
 
-# Get version from .release-please-manifest.json root entry
-if [ -f ".release-please-manifest.json" ]; then
-    VERSION=$(grep -o '"\.": "[^"]*"' .release-please-manifest.json | cut -d'"' -f4)
+# Get version from .release-please-manifest-enterprise.json root entry
+if [ -f ".release-please-manifest-enterprise.json" ]; then
+    VERSION=$(grep -o '"\.": "[^"]*"' .release-please-manifest-enterprise.json | cut -d'"' -f4)
 else
     VERSION="0.0.0"
 fi

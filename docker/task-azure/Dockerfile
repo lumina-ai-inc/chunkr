@@ -30,10 +30,12 @@ RUN apt-get update -y; \
     libreoffice \
     file \
     curl \
+    imagemagick \
     ; \
     mkdir -p /app/tmp && \
     curl -fsSLO https://subtrace.dev/download/latest/$(uname -s)/$(uname -m)/subtrace && \
-    chmod +x ./subtrace
+    chmod +x ./subtrace && \
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
 
 COPY --from=builder /app/target/release/task /app/task
 COPY subtrace.yaml .
