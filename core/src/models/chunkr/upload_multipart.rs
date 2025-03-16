@@ -70,7 +70,7 @@ impl CreateFormMultipart {
         self.ocr_strategy
             .as_ref()
             .map(|e| e.0.clone())
-            .unwrap_or(OcrStrategy::default())
+            .unwrap_or_default()
     }
 
     fn get_segment_processing(&self) -> SegmentProcessing {
@@ -124,7 +124,7 @@ impl CreateFormMultipart {
         self.segmentation_strategy
             .as_ref()
             .map(|e| e.0.clone())
-            .unwrap_or(SegmentationStrategy::default())
+            .unwrap_or_default()
     }
 
     #[cfg(feature = "azure")]

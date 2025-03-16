@@ -97,8 +97,8 @@ pub async fn process_openai_request(
             key.clone(),
             model.clone(),
             messages.clone(),
-            max_completion_tokens.clone(),
-            temperature.clone(),
+            max_completion_tokens,
+            temperature,
             response_format.clone(),
         )
         .await
@@ -122,8 +122,8 @@ pub async fn process_openai_request(
                             key.clone(),
                             fallback_model.clone(),
                             messages.clone(),
-                            max_completion_tokens.clone(),
-                            temperature.clone(),
+                            max_completion_tokens,
+                            temperature,
                             response_format.clone(),
                         )
                         .await
@@ -161,8 +161,8 @@ pub async fn process_openai_request(
                 key.clone(),
                 model.clone(),
                 messages.clone(),
-                max_completion_tokens.clone(),
-                temperature.clone(),
+                max_completion_tokens,
+                temperature,
                 response_format.clone(),
             )
             .await?;

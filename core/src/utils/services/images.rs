@@ -8,7 +8,7 @@ pub fn get_image_dimensions(
     let img = ImageReader::open(image.path())?
         .with_guessed_format()?
         .decode()?;
-    Ok((img.width() as u32, img.height() as u32))
+    Ok((img.width(), img.height()))
 }
 
 pub fn crop_image(

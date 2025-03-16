@@ -11,7 +11,7 @@ static S3_EXTERNAL_CLIENT: OnceCell<S3Client> = OnceCell::new();
 static PG_POOL: OnceCell<Pool> = OnceCell::new();
 
 pub async fn initialize() {
-    REQWEST_CLIENT.get_or_init(|| ReqwestClient::new());
+    REQWEST_CLIENT.get_or_init(ReqwestClient::new);
     S3_CLIENT.get_or_init(|| {
         async { create_client().await.unwrap() }
             .now_or_never()
@@ -40,5 +40,5 @@ pub fn get_external_s3_client() -> &'static S3Client {
 }
 
 pub async fn get_pg_client() -> Result<deadpool_postgres::Client, deadpool_postgres::PoolError> {
-    Ok(PG_POOL.get().unwrap().get().await?)
+    PG_POOL.get().unwrap().get().await
 }
