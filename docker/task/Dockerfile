@@ -27,8 +27,10 @@ RUN apt-get update -y; \
     ca-certificates \
     libreoffice \
     file \
+    imagemagick \
     ; \
-    mkdir -p /app/tmp
+    mkdir -p /app/tmp && \
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
 
 COPY --from=builder /app/target/release/task /app/task
 
