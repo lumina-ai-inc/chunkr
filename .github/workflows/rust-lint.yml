@@ -81,3 +81,38 @@ jobs:
             It applies automatic formatting to the Rust code using `cargo fmt`.
           branch: auto-format-rust
           base: main 
+
+  clippy-fix:
+    name: Auto Fix Clippy Warnings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+      
+      - name: Fix clippy warnings
+        run: cd core && cargo clippy --fix --allow-dirty --allow-staged
+      
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+      
+      - name: Create Pull Request
+        if: steps.git-check.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "fix(core): auto-fix clippy warnings"
+          title: "fix(core): Auto-fix clippy warnings"
+          body: |
+            This PR was automatically created by the Rust Lint workflow.
+            It applies automatic fixes to Rust code using `cargo clippy --fix`.
+          branch: auto-fix-clippy
+          base: main 
