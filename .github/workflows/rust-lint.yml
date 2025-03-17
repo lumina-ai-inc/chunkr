@@ -97,7 +97,7 @@ jobs:
           components: clippy
       
       - name: Fix clippy warnings
-        run: cd core && cargo clippy --fix --allow-dirty --allow-staged
+        run: cd core && cargo clippy --fix --allow-dirty --allow-staged -- -D warnings
       
       - name: Check for changes
         id: git-check
