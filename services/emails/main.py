@@ -25,6 +25,7 @@ def send_welcome_email(name: str, email: str) -> Dict:
     params: resend.Emails.SendParams = {
         "from": "Chunkr <team@chunkr.ai>", 
         "to": [email],
+        "reply_to": ["ishaan@chunkr.ai", "mehul@chunkr.ai"],
         "subject": "Welcome to Chunkr",
         "scheduledAt": "tomorrow at 9am",
         "html": f"""
@@ -135,6 +136,7 @@ def send_upgrade_email(name: str, email: str, tier: str) -> Dict:
     params: resend.Emails.SendParams = {
         "from": "Chunkr <team@chunkr.ai>",
         "to": [email],
+        "reply_to": ["ishaan@chunkr.ai", "mehul@chunkr.ai"],
         "subject": f"Welcome to Chunkr {tier}!",
         "html": email_template
     }
@@ -145,6 +147,7 @@ def send_free_pages_email(name: str, email: str) -> Dict:
     params: resend.Emails.SendParams = {
         "from": "Chunkr <team@chunkr.ai>",
         "to": [email],
+        "reply_to": ["ishaan@chunkr.ai", "mehul@chunkr.ai"],
         "subject": "Chunkr: Page limit reached",
         "html": f"""
         <div style="font-family: Arial, sans-serif;">
@@ -164,6 +167,7 @@ def send_unpaid_invoice_email(name: str, email: str) -> Dict:
     params: resend.Emails.SendParams = {
         "from": "Chunkr <team@chunkr.ai>",
         "to": [email],
+        "reply_to": ["ishaan@chunkr.ai", "mehul@chunkr.ai"],
         "subject": "Chunkr: Action Required - Unpaid Invoice",
         "html": f"""
         <div style="font-family: Arial, sans-serif;">
