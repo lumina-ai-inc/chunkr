@@ -67,7 +67,7 @@ pub async fn perform_segmentation_batch(
     ocr_results: Vec<Vec<OCRResult>>,
     page_offset: usize,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn Error + Send + Sync>> {
-    Ok(retry_with_backoff(|| async {
+    retry_with_backoff(|| async {
         SEGMENTATION_RATE_LIMITER
             .get()
             .unwrap()
@@ -75,5 +75,5 @@ pub async fn perform_segmentation_batch(
             .await?;
         vgt_segmentation_batch(&temp_files, ocr_results.clone(), page_offset).await
     })
-    .await?)
+    .await
 }

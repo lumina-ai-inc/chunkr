@@ -113,7 +113,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     ingress:
@@ -140,7 +140,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     ingress:
@@ -169,12 +169,23 @@ services:
         value: >-
           https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
           .Values.ingress.domain }}
- 
+  task:
+    enabled: true
+    useStandardEnv: true
+    image:
+      repository: task
+      tag: 1.5.1
+    envFrom:
+      - secretRef:
+          name: chunkr-secret
+    env:
+      - name: PG__POOL__MAX_SIZE
+        value: '3'
   ocr:
     enabled: true
     image:
       repository: doctr
-      tag: 1.5.0
+      tag: 1.5.1
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -184,7 +195,6 @@ services:
         value: '100'
     labels:
       workload-type: chunkr-gpu
-
   segmentation:
     enabled: true
     image:
@@ -205,5 +215,218 @@ services:
         value: '0.025'
       - name: SCORE_THRESHOLD
         value: '0.2'
-        
-  
+  redis:
+    enabled: true
+    image:
+      repository: redis
+      tag: 1.5.1
+      registry: docker.io
+    port: 6379
+    targetPort: 6379
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 200m
+      limits:
+        memory: 1Gi
+        cpu: 1500m
+    args:
+      - redis-server
+      - '--appendonly'
+      - 'yes'
+      - '--maxmemory'
+      - 900mb
+      - '--maxmemory-policy'
+      - allkeys-lru
+      - '--save'
+      - '900'
+      - '1'
+      - '--save'
+      - '300'
+      - '10'
+      - '--save'
+      - '60'
+      - '10000'
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 999
+      fsGroup: 999
+      fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      name: redis-data
+      enabled: true
+      size: 1Gi
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        helm.sh/resource-policy: keep
+    volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-data
+    volumeMounts:
+      - name: redis-data
+        mountPath: /data
+    livenessProbe:
+      tcpSocket:
+        port: 6379
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      tcpSocket:
+        port: 6379
+      initialDelaySeconds: 5
+      periodSeconds: 5
+  minio:
+    enabled: true
+    image:
+      repository: minio/minio
+      tag: 1.5.1
+      registry: docker.io
+    port: 9000
+    consolePort: 9001
+    targetPort: 9000
+    ingress:
+      enabled: true
+      subdomain: s3
+    env:
+      - name: MINIO_ROOT_USER
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__ACCESS_KEY
+      - name: MINIO_ROOT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__SECRET_KEY
+    args:
+      - server
+      - /data
+      - '--console-address'
+      - ':9001'
+    persistence:
+      name: minio-data
+      enabled: true
+      size: 100Gi
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        helm.sh/resource-policy: keep
+    volumes:
+      - name: minio-data
+        persistentVolumeClaim:
+          claimName: minio-data
+    volumeMounts:
+      - name: minio-data
+        mountPath: /data
+    livenessProbe:
+      httpGet:
+        path: /minio/health/live
+        port: 9000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /minio/health/live
+        port: 9000
+      initialDelaySeconds: 5
+      periodSeconds: 5
+  minio-init:
+    enabled: true
+    type: job
+    backoffLimit: 4
+    image:
+      repository: minio/mc
+      tag: 1.5.1
+      registry: docker.io
+    command:
+      - /bin/sh
+      - /config/init.sh
+    env:
+      - name: MINIO_ROOT_USER
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__ACCESS_KEY
+      - name: MINIO_ROOT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__SECRET_KEY
+    volumes:
+      - name: init-script
+        configMap:
+          name: minio-init-config
+    volumeMounts:
+      - name: init-script
+        mountPath: /config
+    podSpec:
+      restartPolicy: OnFailure
+  postgres:
+    enabled: false
+    image:
+      repository: postgres
+      tag: 1.5.1
+      registry: docker.io
+    port: 5432
+    targetPort: 5432
+    credentials:
+      username: postgres
+      password: postgres
+    env:
+      - name: POSTGRES_USER
+        value: '{{ .Values.services.postgres.credentials.username }}'
+      - name: POSTGRES_PASSWORD
+        value: '{{ .Values.services.postgres.credentials.password }}'
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 1000m
+      limits:
+        memory: 4Gi
+        cpu: 6000m
+    persistence:
+      name: postgres-data
+      enabled: true
+      size: 10Gi
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        helm.sh/resource-policy: keep
+    volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-data
+      - name: postgres-init
+        configMap:
+          name: postgres-init-config
+    volumeMounts:
+      - name: postgres-data
+        mountPath: /var/lib/postgresql/data
+      - name: postgres-init
+        mountPath: /docker-entrypoint-initdb.d/init.sql
+        subPath: init.sql
+    securityContext:
+      runAsUser: 0
+      fsGroup: 0
+      fsGroupChangePolicy: OnRootMismatch
+    livenessProbe:
+      tcpSocket:
+        port: 5432
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      tcpSocket:
+        port: 5432
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    lifecycle:
+      preStop:
+        exec:
+          command:
+            - /bin/sh
+            - '-c'
+            - pg_ctl -D /var/lib/postgresql/data -w -t 60 -m fast stop

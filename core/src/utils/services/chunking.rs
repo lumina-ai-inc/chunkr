@@ -57,40 +57,38 @@ pub fn hierarchical_chunking(
                 {
                     let next_is_caption = segments
                         .get(i + 1)
-                        .map_or(false, |s| s.segment_type == SegmentType::Caption);
+                        .is_some_and(|s| s.segment_type == SegmentType::Caption);
                     let caption_word_count = segments
                         .get(i + 1)
                         .map_or(0, |s| s.content.split_whitespace().count() as i32);
-                    if next_is_caption {
-                        if current_word_count + segment_word_count + caption_word_count
+                    if next_is_caption
+                        && current_word_count + segment_word_count + caption_word_count
                             > target_length
-                        {
-                            finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
-                            current_segments.push(segment.clone());
-                            current_word_count = segment_word_count;
-                            default_chunk_behavior = false;
-                            segment_paired = true; // Caption is paired with picture or table
-                        }
+                    {
+                        finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                        current_segments.push(segment.clone());
+                        current_word_count = segment_word_count;
+                        default_chunk_behavior = false;
+                        segment_paired = true; // Caption is paired with picture or table
                     }
                 }
                 if segment.segment_type == SegmentType::Caption && !segment_paired {
-                    let next_is_asset = segments.get(i + 1).map_or(false, |s| {
+                    let next_is_asset = segments.get(i + 1).is_some_and(|s| {
                         s.segment_type == SegmentType::Picture
                             || s.segment_type == SegmentType::Table
                     });
                     let asset_word_count = segments
                         .get(i + 1)
                         .map_or(0, |s| s.content.split_whitespace().count() as i32);
-                    if next_is_asset {
-                        if current_word_count + segment_word_count + asset_word_count
+                    if next_is_asset
+                        && current_word_count + segment_word_count + asset_word_count
                             > target_length
-                        {
-                            finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
-                            current_segments.push(segment.clone());
-                            current_word_count = segment_word_count;
-                            default_chunk_behavior = false;
-                            segment_paired = true; // Picture or table is paired with caption
-                        }
+                    {
+                        finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                        current_segments.push(segment.clone());
+                        current_word_count = segment_word_count;
+                        default_chunk_behavior = false;
+                        segment_paired = true; // Picture or table is paired with caption
                     }
                 }
                 if default_chunk_behavior {
@@ -322,7 +320,7 @@ mod tests {
 
     #[test]
     fn test_complex_pairing_sequences() {
-        let test_cases = vec![
+        let test_cases = [
             (
                 // Case 1: Multiple sequential pairs
                 vec![
@@ -431,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_edge_cases() {
-        let test_cases = vec![
+        let test_cases = [
             (
                 // Case 1: Empty document
                 vec![],

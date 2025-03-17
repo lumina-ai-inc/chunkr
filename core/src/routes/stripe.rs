@@ -195,7 +195,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
     let payload_str = std::str::from_utf8(&payload)
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid payload"))?;
 
-    let event = stripe::Webhook::construct_event(payload_str, &sig_header, &endpoint_secret)
+    let event = stripe::Webhook::construct_event(payload_str, sig_header, &endpoint_secret)
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid webhook signature"))?;
 
     let client = get_pg_client().await.map_err(|e| {
@@ -214,7 +214,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         "active" | "trialing" => "True",
                         _ => "False",
                     };
-                    let tier = if let Some(item) = sub.items.data.get(0) {
+                    let tier = if let Some(item) = sub.items.data.first() {
                         if let Some(price) = &item.price {
                             match price.id.as_str() {
                                 x if x == stripe_config.starter_price_id => "Starter",
@@ -316,8 +316,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                 info!("Found user_id: {:?}", user_id_opt);
 
                 if let Some(user_id) = user_id_opt {
-                    if let Some(item) = sub.items.data.get(0) {
-                        info!("Found subscription item: {:?}", item);
+                    if let Some(item) = sub.items.data.first() {
                         if let Some(price) = &item.price {
                             info!("Price ID: {:?}", price.id);
                             let new_tier = match price.id.as_str() {

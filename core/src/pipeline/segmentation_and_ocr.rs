@@ -36,7 +36,7 @@ async fn ocr_pages_batch(
     let batch_size = throttle_config.general_ocr_batch_size;
     let results: Vec<Vec<Vec<OCRResult>>> =
         try_join_all(pages.iter().chunks(batch_size).into_iter().map(|chunk| {
-            let chunk_vec = chunk.map(|x| *x).collect::<Vec<_>>();
+            let chunk_vec = chunk.copied().collect::<Vec<_>>();
             ocr::perform_general_ocr(chunk_vec)
         }))
         .await?;
@@ -53,7 +53,7 @@ async fn segmentation_pages_batch(
     let mut page_offset = 0;
     let results: Vec<Vec<Vec<Segment>>> =
         try_join_all(pages.iter().chunks(batch_size).into_iter().map(|chunk| {
-            let chunk_vec = chunk.map(|x| *x).collect::<Vec<_>>();
+            let chunk_vec = chunk.copied().collect::<Vec<_>>();
             let current_offset = page_offset;
             page_offset += chunk_vec.len();
             segmentation::perform_segmentation_batch(chunk_vec, ocr_results.clone(), current_offset)

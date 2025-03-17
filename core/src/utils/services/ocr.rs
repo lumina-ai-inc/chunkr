@@ -21,7 +21,7 @@ impl Error for OcrError {}
 pub async fn perform_general_ocr(
     temp_files: Vec<&NamedTempFile>,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error + Send + Sync>> {
-    Ok(retry_with_backoff(|| async {
+    retry_with_backoff(|| async {
         GENERAL_OCR_RATE_LIMITER
             .get()
             .unwrap()
@@ -29,7 +29,7 @@ pub async fn perform_general_ocr(
             .await?;
         doctr_ocr(&temp_files).await
     })
-    .await?)
+    .await
 }
 
 pub async fn doctr_ocr(

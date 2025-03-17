@@ -17,7 +17,7 @@ where
     F: Fn(QueuePayload) -> Fut + Sync + 'static,
     Fut: std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>,
 {
-    let _ = match health().await {
+    match health().await {
         Ok(_) => (),
         Err(e) => {
             println!("Error checking health: {}", e);

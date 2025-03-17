@@ -121,7 +121,7 @@ impl Task {
                     &message,
                     &mime_type,
                     &output_location,
-                    &(0 as i32),
+                    &0_i32,
                     &pdf_location,
                     &status.to_string(),
                     &task_id,
@@ -265,7 +265,7 @@ impl Task {
                 .segment_processing
                 .picture
                 .clone()
-                .ok_or(format!("Picture generation config not found"))?;
+                .ok_or("Picture generation config not found".to_string())?;
             async fn process(
                 segment: &mut Segment,
                 picture_generation_config: &PictureGenerationConfig,
@@ -569,11 +569,7 @@ impl Task {
                     self.image_folder_location, "pages", idx
                 );
                 let s3_key = s3_key.clone();
-                async move {
-                    download_to_tempfile(&s3_key, None, "image/jpeg")
-                        .await
-                        .map_err(|e| e.into())
-                }
+                async move { download_to_tempfile(&s3_key, None, "image/jpeg").await }
             })
             .collect();
 

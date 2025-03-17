@@ -24,8 +24,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .chunks
         .clone()
         .into_iter()
-        .map(|c| c.segments)
-        .flatten()
+        .flat_map(|c| c.segments)
         .collect();
 
     let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();

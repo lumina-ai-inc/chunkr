@@ -82,7 +82,7 @@ pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<d
     } else {
         // Use LibreOffice for document conversion
         let output = Command::new("libreoffice")
-            .args(&[
+            .args([
                 "--headless",
                 "--convert-to",
                 "pdf",
@@ -155,7 +155,7 @@ pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<
                         if !last_segment.is_empty() {
                             filename = Some(
                                 urlencoding::decode(last_segment)
-                                    .unwrap_or_else(|_| std::borrow::Cow::Borrowed(last_segment))
+                                    .unwrap_or(std::borrow::Cow::Borrowed(last_segment))
                                     .into_owned(),
                             );
                         }

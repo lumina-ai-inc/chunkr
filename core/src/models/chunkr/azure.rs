@@ -186,8 +186,8 @@ impl AzureAnalysisResponse {
                             let page_number = page.page_number.unwrap_or(1) as u32;
                             let unit = page.unit.as_deref();
                             let (width, height) = (
-                                convert_unit_to_pixels(page.width.unwrap_or(0.0) as f64, unit),
-                                convert_unit_to_pixels(page.height.unwrap_or(0.0) as f64, unit),
+                                convert_unit_to_pixels(page.width.unwrap_or(0.0), unit),
+                                convert_unit_to_pixels(page.height.unwrap_or(0.0), unit),
                             );
 
                             let mut ocr_results = Vec::new();
@@ -244,11 +244,11 @@ impl AzureAnalysisResponse {
                                     let unit = page.unit.as_deref();
                                     let (width, height, unit) = (
                                         convert_unit_to_pixels(
-                                            page.width.unwrap_or(0.0) as f64,
+                                            page.width.unwrap_or(0.0),
                                             unit,
                                         ),
                                         convert_unit_to_pixels(
-                                            page.height.unwrap_or(0.0) as f64,
+                                            page.height.unwrap_or(0.0),
                                             unit,
                                         ),
                                         unit,
@@ -307,7 +307,7 @@ impl AzureAnalysisResponse {
                                         if min_paragraph_idx != usize::MAX {
                                             replacements
                                                 .entry(min_paragraph_idx)
-                                                .or_insert_with(Vec::new)
+                                                .or_default()
                                                 .push(segment);
                                         }
                                     }
@@ -365,7 +365,7 @@ impl AzureAnalysisResponse {
                                     if min_paragraph_idx != usize::MAX {
                                         replacements
                                             .entry(min_paragraph_idx)
-                                            .or_insert_with(Vec::new)
+                                            .or_default()
                                             .push(segment);
                                     }
                                 }
@@ -599,10 +599,7 @@ fn process_caption(
                         segment_id: uuid::Uuid::new_v4().to_string(),
                         segment_type: SegmentType::Caption,
                     };
-                    replacements
-                        .entry(first_idx)
-                        .or_insert_with(Vec::new)
-                        .push(segment);
+                    replacements.entry(first_idx).or_default().push(segment);
                 }
             }
         }
@@ -709,8 +706,8 @@ fn table_to_html(table: &Table) -> String {
             }
 
             if let Some(cell) = cells.iter().find(|c| {
-                c.row_index.map_or(false, |r| r as usize == row_idx)
-                    && c.column_index.map_or(false, |c| c as usize == col_idx)
+                c.row_index.is_some_and(|r| r as usize == row_idx)
+                    && c.column_index.is_some_and(|c| c as usize == col_idx)
             }) {
                 let content = get_cell_content(cell);
                 let rowspan = cell.row_span.unwrap_or(1);

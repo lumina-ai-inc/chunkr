@@ -15,16 +15,12 @@ use utoipa::{IntoParams, ToSchema};
 /// Controls the Optical Character Recognition (OCR) strategy.
 /// - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
 /// - `Auto`: Selectively applies OCR only to pages with missing or low-quality text. When text layer is present the bounding boxes from the text layer are used.
+#[derive(Default)]
 pub enum OcrStrategy {
+    #[default]
     All,
     #[serde(alias = "Off")]
     Auto,
-}
-
-impl Default for OcrStrategy {
-    fn default() -> Self {
-        OcrStrategy::All
-    }
 }
 
 #[derive(
@@ -43,15 +39,11 @@ impl Default for OcrStrategy {
 /// Controls the segmentation strategy:
 /// - `LayoutAnalysis`: Analyzes pages for layout elements (e.g., `Table`, `Picture`, `Formula`, etc.) using bounding boxes. Provides fine-grained segmentation and better chunking. (Latency penalty: ~TBD seconds per page).
 /// - `Page`: Treats each page as a single segment. Faster processing, but without layout element detection and only simple chunking.
+#[derive(Default)]
 pub enum SegmentationStrategy {
+    #[default]
     LayoutAnalysis,
     Page,
-}
-
-impl Default for SegmentationStrategy {
-    fn default() -> Self {
-        SegmentationStrategy::LayoutAnalysis
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, IntoParams)]

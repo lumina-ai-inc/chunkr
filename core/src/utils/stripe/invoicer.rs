@@ -91,7 +91,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
     }
 
     let finalize = reqwest_client
-        .post(&format!(
+        .post(format!(
             "https://api.stripe.com/v1/invoices/{}/finalize",
             stripe_invoice_id
         ))

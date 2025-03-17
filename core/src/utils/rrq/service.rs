@@ -37,7 +37,7 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
     let mut responses = Vec::new();
     for chunk in items.chunks(120) {
         let response = CLIENT
-            .post(&format!("{}/produce", cfg.url))
+            .post(format!("{}/produce", cfg.url))
             .header("X-API-Key", &cfg.api_key)
             .timeout(Duration::from_secs(10))
             .json(chunk)
@@ -63,7 +63,7 @@ pub async fn consume(
 ) -> Result<Vec<ConsumeResponse>, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
     let response = CLIENT
-        .post(&format!("{}/consume", cfg.url))
+        .post(format!("{}/consume", cfg.url))
         .header("X-API-Key", &cfg.api_key)
         .timeout(Duration::from_secs(5))
         .json(&payload)
@@ -84,7 +84,7 @@ pub async fn consume(
 pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
     let response = CLIENT
-        .post(&format!("{}/complete", cfg.url))
+        .post(format!("{}/complete", cfg.url))
         .header("X-API-Key", &cfg.api_key)
         .timeout(Duration::from_secs(60))
         .json(&payloads)
