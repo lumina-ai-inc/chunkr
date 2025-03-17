@@ -169,18 +169,6 @@ services:
         value: >-
           https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
           .Values.ingress.domain }}
-  task:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: task
-      tag: 1.5.1
-    envFrom:
-      - secretRef:
-          name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: '3'
   ocr:
     enabled: true
     image:
