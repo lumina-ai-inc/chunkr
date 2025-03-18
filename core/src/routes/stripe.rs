@@ -386,7 +386,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                     eprintln!("Error syncing subscriptions/users: {:?}", e);
                                 }
 
-                                if is_tier_upgrade(&current_tier, &new_tier) {
+                                if is_tier_upgrade(&current_tier, new_tier) {
                                     let user_data = client
                                         .query_opt(
                                             "SELECT name, email FROM users WHERE user_id = $1",
@@ -399,7 +399,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                         let email: String = user_row.get("email");
 
                                         if let Err(e) =
-                                            send_upgrade_email(&name, &email, &new_tier).await
+                                            send_upgrade_email(&name, &email, new_tier).await
                                         {
                                             eprintln!("Failed to send upgrade email: {:?}", e);
                                         }
