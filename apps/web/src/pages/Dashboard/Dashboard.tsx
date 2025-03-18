@@ -295,7 +295,7 @@ export default function Dashboard() {
 
   const handleContactClick = (type: "email" | "calendar") => {
     if (type === "email") {
-      navigator.clipboard.writeText("team@chunkr.ai");
+      navigator.clipboard.writeText("mehul@chunkr.ai");
       toast.success("Email copied to clipboard!");
     } else {
       window.open("https://cal.com/mehulc/30min", "_blank");
