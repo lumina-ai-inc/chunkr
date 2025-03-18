@@ -104,24 +104,35 @@ export const SegmentChunk = memo(
       ref
     ) => {
       const [segmentDisplayModes, setSegmentDisplayModes] = useState<{
-        [key: string]: { showJson: boolean; showLLM: boolean };
+        [key: string]: {
+          showJson: boolean;
+          showLLM: boolean;
+          showImage: boolean;
+        };
       }>({});
 
       const handleSegmentDisplayMode = useCallback(
-        (segmentId: string, mode: "json" | "llm") => {
+        (segmentId: string, mode: "json" | "llm" | "image") => {
           setSegmentDisplayModes((prev) => {
             const current = prev[segmentId] || {
               showJson: false,
               showLLM: false,
+              showImage: false,
             };
             const updated = { ...current };
 
             if (mode === "json") {
               updated.showJson = !current.showJson;
               updated.showLLM = false;
-            } else {
+              updated.showImage = false;
+            } else if (mode === "llm") {
               updated.showLLM = !current.showLLM;
               updated.showJson = false;
+              updated.showImage = false;
+            } else if (mode === "image") {
+              updated.showImage = !current.showImage;
+              updated.showJson = false;
+              updated.showLLM = false;
             }
 
             return { ...prev, [segmentId]: updated };
@@ -139,6 +150,8 @@ export const SegmentChunk = memo(
             textToCopy = JSON.stringify(segment, null, 2);
           } else if (mode?.showLLM) {
             textToCopy = segment.llm || "";
+          } else if (mode?.showImage) {
+            textToCopy = segment.image || "";
           } else {
             textToCopy =
               selectedView === "html"
@@ -163,6 +176,16 @@ export const SegmentChunk = memo(
 
           if (mode?.showLLM && segment.llm) {
             return <MemoizedMarkdown content={segment.llm} />;
+          }
+
+          if (mode?.showImage && segment.image) {
+            return (
+              <img
+                src={segment.image}
+                alt="Cropped segment"
+                style={{ maxWidth: "100%" }}
+              />
+            );
           }
 
           // Handle table images
@@ -254,16 +277,26 @@ export const SegmentChunk = memo(
                   className="latex-content"
                   dangerouslySetInnerHTML={{
                     __html: segment.llm
-                      .replace(/\n\n/g, "<br/><br/>") // Convert double newlines to line breaks
+                      .replace(/\n\n/g, "<br/><br/>")
                       .replace(
                         /([a-zA-Z])<sub>([^<]+)<\/sub>/g,
                         "$1<sub>$2</sub>"
-                      ) // Preserve subscripts
+                      )
                       .replace(
                         /([a-zA-Z])<sup>([^<]+)<\/sup>/g,
                         "$1<sup>$2</sup>"
-                      ), // Preserve superscripts
+                      ),
                   }}
+                />
+              );
+            }
+
+            if (mode?.showImage && segment.image) {
+              return (
+                <img
+                  src={segment.image}
+                  alt="Cropped segment"
+                  style={{ maxWidth: "100%" }}
                 />
               );
             }
@@ -287,7 +320,10 @@ export const SegmentChunk = memo(
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onSegmentClick?.(chunkId, segment.segment_id);
+                // Only call onSegmentClick if this segment is not already active
+                if (!isActive) {
+                  onSegmentClick?.(chunkId, segment.segment_id);
+                }
               }}
               style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
             >
@@ -316,7 +352,7 @@ export const SegmentChunk = memo(
                       Copy
                     </Text>
                   </BetterButton>
-                  {mode?.showJson || mode?.showLLM ? (
+                  {mode?.showJson || mode?.showLLM || mode?.showImage ? (
                     <BetterButton
                       onClick={() => {
                         setSegmentDisplayModes((prev) => ({
@@ -324,6 +360,7 @@ export const SegmentChunk = memo(
                           [segment.segment_id]: {
                             showJson: false,
                             showLLM: false,
+                            showImage: false,
                           },
                         }));
                       }}
@@ -414,6 +451,39 @@ export const SegmentChunk = memo(
                           </Flex>
                         </BetterButton>
                       )}
+                      {segment.image && (
+                        <BetterButton
+                          active={mode?.showImage}
+                          onClick={() =>
+                            handleSegmentDisplayMode(
+                              segment.segment_id,
+                              "image"
+                            )
+                          }
+                        >
+                          <Flex align="center" gap="2">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM13.96 12.29L11.21 15.83L9.25 13.47L6.5 17H17.5L13.96 12.29Z"
+                                fill="#FFFFFF"
+                              />
+                            </svg>
+                            <Text
+                              size="1"
+                              weight="medium"
+                              style={{ color: "rgba(255, 255, 255, 0.95)" }}
+                            >
+                              Cropped Image
+                            </Text>
+                          </Flex>
+                        </BetterButton>
+                      )}
                     </>
                   )}
                 </Flex>
@@ -432,7 +502,11 @@ export const SegmentChunk = memo(
           if (activeSegment?.segmentId !== segment.segment_id) {
             setSegmentDisplayModes((prev) => ({
               ...prev,
-              [segment.segment_id]: { showJson: false, showLLM: false },
+              [segment.segment_id]: {
+                showJson: false,
+                showLLM: false,
+                showImage: false,
+              },
             }));
           }
         });
