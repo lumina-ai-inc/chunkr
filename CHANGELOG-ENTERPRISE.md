@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.6.1-enterprise...v1.6.2-enterprise) (2025-03-19)
+
+
+### Bug Fixes
+
+* Added imagemagick to docker images ([d3ac921](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d3ac9215f0c570269ba16f3855512da606fd3d4c))
+* Added imagemagick to docker images ([ced4342](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ced4342bbfbc734d4c59296804f159efc87d7a26))
+* **core:** Auto-fix clippy warnings ([#28](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/28)) ([9fe6d9f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/9fe6d9f2d3dbbe3cf284f39c077f18c0fc902171))
+* **core:** Auto-fix clippy warnings ([#386](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/386)) ([ccb56f9](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ccb56f95212e5840d931893929c6dec648123e34))
+* Downgraded cuda version for doctr ([36db353](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/36db353079aaf56fd4613ea13b3c88e7d678e897))
+* Downgraded cuda version to 11.8 ([97b3e0b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/97b3e0bc15bfaa8f0e848f642fdf752c6f13d1b5))
+* **helm:** Entreprise chart is now independent ([c360eb4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/c360eb4eb80c28dacdef83425726c8a3165dc353))
+* **helm:** Update web and doctr too ([2e1601b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/2e1601b7a1cfd6e0b3e2db0f2d6a883256bfbb5e))
+* Remove chunkr chart updates from git action ([f3809db](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f3809db247a8bc77b58ff9a124c126eda6d2e96b))
+
 ## [1.6.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.6.0-enterprise...v1.6.1-enterprise) (2025-03-14)
 
 
