@@ -50,7 +50,7 @@ jobs:
       - name: Prepare Helm registry login
         if: ${{ steps.release.outputs.release_created }}
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | helm registry login registry-1.docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          helm registry login registry-1.docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Set version variable
         if: ${{ steps.release.outputs.release_created }}
@@ -66,19 +66,13 @@ jobs:
           sed -i "s/^version:.*/version: ${CHART_VERSION}-enterprise/" kube/charts/chunkr-enterprise/Chart.yaml
           sed -i "s/^appVersion:.*/appVersion: ${APP_VERSION}/" kube/charts/chunkr-enterprise/Chart.yaml
       
-      - name: Package and Push Chunkr Chart
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          cd kube/charts/chunkr
-          helm package .
-          helm push *.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/charts
-      
       - name: Package and Push Chunkr Enterprise Chart
         if: ${{ steps.release.outputs.release_created }}
         run: |
           cd kube/charts/chunkr-enterprise
           helm package .
-          helm push *.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/charts
+          export HELM_EXPERIMENTAL_OCI=1
+          helm push *.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/chunkr-enterprise
 
   build-and-publish:
     needs: release-please
