@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to build (without v prefix)'
+        description: 'Tag to build'
         required: true
         type: string
 
@@ -22,21 +22,21 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_dispatch' }}
     outputs:
-      releases_created: ${{ steps.release.outputs.releases_created }}
-      release_tag: ${{ steps.release.outputs.tag_name }}
+      releases_created: ${{ steps.release.outputs.releases_created || github.event_name == 'workflow_dispatch' }}
+      release_tag: ${{ steps.release.outputs.tag_name || format('{0}', github.event.inputs.tag) }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         with:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
 
       - name: Debug releases created
         run: |
-          echo "Releases created: ${{ steps.release.outputs.releases_created }}"
-          echo "Release tag: ${{ steps.release.outputs.tag_name }}"
+          echo "Releases created: ${{ steps.release.outputs.releases_created || github.event_name == 'workflow_dispatch' }}"
+          echo "Release tag: ${{ steps.release.outputs.tag_name || format('{0}', github.event.inputs.tag) }}"
   
   build-and-publish:
     needs: [release-please]
