@@ -1,0 +1,144 @@
+name: Docker Build and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g., v1.2.3)'
+        required: true
+      releases_created:
+        description: 'Set to "true" to indicate this is a new release'
+        required: true
+        default: 'true'
+  workflow_run:
+    workflows: ["Release Please"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  get-release-info:
+    if: |
+      (github.event_name == 'workflow_dispatch') || 
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.set-outputs.outputs.releases_created }}
+      release_tag: ${{ steps.set-outputs.outputs.release_tag }}
+    steps:
+      - name: Set outputs based on trigger
+        id: set-outputs
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "releases_created=${{ github.event.inputs.releases_created }}" >> $GITHUB_OUTPUT
+            echo "release_tag=${{ github.event.inputs.release_tag }}" >> $GITHUB_OUTPUT
+          else
+            # Download artifact from the Release Please workflow
+            gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+            
+            # Find the artifact containing the release info
+            run_id="${{ github.event.workflow_run.id }}"
+            
+            # Download and extract workflow output
+            mkdir -p artifacts
+            gh api "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts" -q '.artifacts[] | select(.name=="release-info") | .id' | xargs -I{} \
+              gh api "repos/${{ github.repository }}/actions/artifacts/{}/zip" --method GET -H "Accept: application/vnd.github+json" > artifacts/release-info.zip
+            
+            # If artifact exists, extract it; otherwise, set default values
+            if [ -f artifacts/release-info.zip ]; then
+              unzip -o artifacts/release-info.zip -d artifacts/
+              if [ -f artifacts/release-info.json ]; then
+                releases_created=$(jq -r '.releases_created' artifacts/release-info.json)
+                release_tag=$(jq -r '.release_tag' artifacts/release-info.json)
+                echo "releases_created=${releases_created}" >> $GITHUB_OUTPUT
+                echo "release_tag=${release_tag}" >> $GITHUB_OUTPUT
+              else
+                echo "releases_created=false" >> $GITHUB_OUTPUT
+                echo "release_tag=" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "releases_created=false" >> $GITHUB_OUTPUT
+              echo "release_tag=" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  build-and-publish:
+    needs: get-release-info
+    if: ${{ needs.get-release-info.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [server, task, web, doctr]
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Extract version without 'v' prefix
+        id: version
+        run: |
+          TAG="${{ needs.get-release-info.outputs.release_tag }}"
+          echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/${{ matrix.component }}/Dockerfile
+          push: true
+          tags: |
+            luminainc/${{ matrix.component }}:${{ steps.version.outputs.VERSION }}
+            luminainc/${{ matrix.component }}:latest
+
+  update-compose-files:
+    needs: [get-release-info]
+    if: ${{ needs.get-release-info.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION="${{ needs.get-release-info.outputs.release_tag }}"
+          echo "VERSION=${VERSION#v}" >> $GITHUB_OUTPUT
+      
+      - name: Update compose.yaml
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          # Only update images that are part of the matrix (server, task, web, doctr)
+          sed -i -E '/luminainc\/(server|task|web|doctr):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
+          sed -i -E '/luminainc\/(server|task|web|doctr):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
+          
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "chore: update compose files to version ${{ steps.get_version.outputs.VERSION }}"
+          title: "chore: update compose files to version ${{ steps.get_version.outputs.VERSION }}"
+          body: |
+            This PR updates the Docker image versions in compose files to match the latest release.
+            
+            Auto-generated by Docker Publish workflow.
+          branch: update-compose-files-${{ steps.get_version.outputs.VERSION }}
+          base: main
+          delete-branch: true 
