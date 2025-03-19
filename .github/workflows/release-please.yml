@@ -6,6 +6,12 @@ on:
       - main
     paths-ignore:
       - 'compose-enterprise.yaml'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (without v prefix)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -15,6 +21,7 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       release_tag: ${{ steps.release.outputs.tag_name }}
@@ -75,8 +82,8 @@ jobs:
           helm push *.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/chunkr-enterprise
 
   build-and-publish:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    needs: [release-please]
+    if: ${{ (github.event_name == 'workflow_dispatch') || (needs.release-please.outputs.releases_created == 'true') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -99,8 +106,12 @@ jobs:
       - name: Extract version without 'v' prefix
         id: version
         run: |
-          TAG="${{ needs.release-please.outputs.release_tag }}"
-          echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            TAG="${{ needs.release-please.outputs.release_tag }}"
+            echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
+          fi
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -114,7 +125,7 @@ jobs:
 
   update-compose-files:
     needs: [release-please]
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    if: ${{ (github.event_name == 'workflow_dispatch') || (needs.release-please.outputs.releases_created == 'true') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -128,8 +139,12 @@ jobs:
       - name: Extract version from tag
         id: get_version
         run: |
-          VERSION="${{ needs.release-please.outputs.release_tag }}"
-          echo "VERSION=${VERSION#v}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            VERSION="${{ needs.release-please.outputs.release_tag }}"
+            echo "VERSION=${VERSION#v}" >> $GITHUB_OUTPUT
+          fi
       
       - name: Update compose.yaml
         run: |
