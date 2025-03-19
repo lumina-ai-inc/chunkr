@@ -1,0 +1,23 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an AI assistant that converts math formulas in images to LaTeX code."
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Convert the following formula image to LaTeX. Wrap your output in a code block like ```latex ... ```."
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "file://{{formula_image_path}}"
+          }
+        }
+      ]
+    }
+  ]
+} 
