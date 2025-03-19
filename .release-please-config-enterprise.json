@@ -20,7 +20,7 @@
             "package-name": "chunkr-web-enterprise",
             "changelog-path": "CHANGELOG-ENTERPRISE.md"
         },
-        "kube/charts/chunkr": {
+        "kube/charts/chunkr-enterprise": {
             "release-type": "helm",
             "package-name": "chunkr-chart-enterprise",
             "changelog-path": "CHANGELOG-ENTERPRISE.md"
