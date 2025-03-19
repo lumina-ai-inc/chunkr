@@ -20,7 +20,7 @@ import { UploadForm } from "../../models/upload.model";
 import { getEnvConfig, WhenEnabled } from "../../config/env.config";
 import { toast } from "react-hot-toast";
 
-const DOCS_URL = import.meta.env.VITE_DOCS_URL || 'https://docs.chunkr.ai';
+const DOCS_URL = import.meta.env.VITE_DOCS_URL || "https://docs.chunkr.ai";
 
 interface UploadMainProps {
   isAuthenticated: boolean;
