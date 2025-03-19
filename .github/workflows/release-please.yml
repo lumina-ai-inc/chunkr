@@ -63,9 +63,6 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         run: |
           # Update version in Chart.yaml files
-          sed -i "s/^version:.*/version: ${CHART_VERSION}/" kube/charts/chunkr/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: ${APP_VERSION}/" kube/charts/chunkr/Chart.yaml
-          
           sed -i "s/^version:.*/version: ${CHART_VERSION}-enterprise/" kube/charts/chunkr-enterprise/Chart.yaml
           sed -i "s/^appVersion:.*/appVersion: ${APP_VERSION}/" kube/charts/chunkr-enterprise/Chart.yaml
       
