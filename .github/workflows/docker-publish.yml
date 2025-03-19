@@ -37,30 +37,27 @@ jobs:
             echo "releases_created=${{ github.event.inputs.releases_created }}" >> $GITHUB_OUTPUT
             echo "release_tag=${{ github.event.inputs.release_tag }}" >> $GITHUB_OUTPUT
           else
-            # Download artifact from the Release Please workflow
+            # For workflow_run event, fetch release info from the upstream workflow
             gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
             
-            # Find the artifact containing the release info
+            # Find the release-please job in the workflow run
             run_id="${{ github.event.workflow_run.id }}"
             
-            # Download and extract workflow output
-            mkdir -p artifacts
-            gh api "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts" -q '.artifacts[] | select(.name=="release-info") | .id' | xargs -I{} \
-              gh api "repos/${{ github.repository }}/actions/artifacts/{}/zip" --method GET -H "Accept: application/vnd.github+json" > artifacts/release-info.zip
+            # Get workflow information and check for outputs
+            workflow_info=$(gh api repos/${{ github.repository }}/actions/runs/$run_id/jobs)
             
-            # If artifact exists, extract it; otherwise, set default values
-            if [ -f artifacts/release-info.zip ]; then
-              unzip -o artifacts/release-info.zip -d artifacts/
-              if [ -f artifacts/release-info.json ]; then
-                releases_created=$(jq -r '.releases_created' artifacts/release-info.json)
-                release_tag=$(jq -r '.release_tag' artifacts/release-info.json)
-                echo "releases_created=${releases_created}" >> $GITHUB_OUTPUT
-                echo "release_tag=${release_tag}" >> $GITHUB_OUTPUT
-              else
-                echo "releases_created=false" >> $GITHUB_OUTPUT
-                echo "release_tag=" >> $GITHUB_OUTPUT
-              fi
+            # Find the release-please job and extract its ID
+            release_job_id=$(echo "$workflow_info" | jq -r '.jobs[] | select(.name == "release-please") | .id')
+            
+            if [ -n "$release_job_id" ]; then
+              job_info=$(gh api repos/${{ github.repository }}/actions/jobs/$release_job_id)
+              releases_created=$(echo "$job_info" | jq -r '.outputs.releases_created // "false"')
+              release_tag=$(echo "$job_info" | jq -r '.outputs.release_tag // ""')
+              
+              echo "releases_created=${releases_created}" >> $GITHUB_OUTPUT
+              echo "release_tag=${release_tag}" >> $GITHUB_OUTPUT
             else
+              echo "No release-please job found, setting defaults"
               echo "releases_created=false" >> $GITHUB_OUTPUT
               echo "release_tag=" >> $GITHUB_OUTPUT
             fi
