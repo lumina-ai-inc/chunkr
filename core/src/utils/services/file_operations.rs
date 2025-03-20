@@ -1,6 +1,9 @@
+use crate::configs::worker_config::{Config as WorkerConfig, FileUrlFormat};
 use crate::utils::clients;
+use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::error::Error;
+use std::io::Read;
 use std::process::Command;
 use tempfile::NamedTempFile;
 use url;
@@ -14,7 +17,6 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn
         .output()?;
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
-    println!("mime_type: {:?}", mime_type);
     match mime_type.as_str() {
         "application/pdf" => Ok((mime_type, "pdf".to_string())),
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
@@ -166,7 +168,48 @@ pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<
 
         Ok((response.bytes().await?.to_vec(), filename))
     } else {
-        let decoded = STANDARD.decode(&input)?;
-        Ok((decoded, None))
+        if input.starts_with("data:") && input.contains(";base64,") {
+            let base64_content = input.split(";base64,").nth(1).ok_or_else(|| {
+                std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "Invalid base64 data URL format",
+                )
+            })?;
+
+            let decoded = STANDARD.decode(base64_content)?;
+            Ok((decoded, None))
+        } else {
+            let decoded = STANDARD.decode(&input)?;
+            Ok((decoded, None))
+        }
+    }
+}
+
+pub async fn get_file_url(
+    temp_file: &NamedTempFile,
+    s3_location: &str,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let config = WorkerConfig::from_env()?;
+    let (mime_type, _) = check_file_type(&temp_file)
+        .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
+    match config.file_url_format {
+        FileUrlFormat::Base64 => {
+            let mut buffer = Vec::new();
+            let mut file = temp_file.reopen()?;
+            file.read_to_end(&mut buffer)?;
+            let base64_data = STANDARD.encode(&buffer);
+            Ok(format!("data:{};base64,{}", mime_type, base64_data))
+        }
+        FileUrlFormat::Url => {
+            upload_to_s3(s3_location, temp_file.path())
+                .await
+                .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
+
+            let presigned_url = generate_presigned_url(s3_location, true, None, false, &mime_type)
+                .await
+                .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
+
+            Ok(presigned_url)
+        }
     }
 }

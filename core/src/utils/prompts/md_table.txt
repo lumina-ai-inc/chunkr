@@ -1,1 +1,0 @@
-Analyze this image and convert the table to markdown format maintaining the original structure. If the image provided is not a table, then represent the information (maintain all the text exactly as it is) but structure it gracefully into markdown. Output the table directly in ```markdown``` tags.

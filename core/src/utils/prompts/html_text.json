@@ -1,0 +1,17 @@
+[
+  {
+    "role": "user",
+    "content": "Convert the following text segment to HTML. Return only the HTML with no explanation text. Preserve the all the text content.\nNo styling. Basic HTML tags only. Represent the text, do not add any text of your own at all.\nFor formulas found inline in the text segment represent them as \"<span class=\"formula\">{formula_in_latex}</span>\"\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
+  }
+]

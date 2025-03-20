@@ -1,10 +1,11 @@
-use crate::configs::llm_config::get_prompt;
+use crate::configs::llm_config::create_messages_from_template;
 use crate::models::chunkr::output::{Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
 };
 use crate::models::chunkr::task::{Configuration, Status};
+use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -24,7 +25,7 @@ trait ContentGenerator {
             .to_string()
     }
     fn generate_auto(&self, content: &str) -> String;
-    fn prompt_key(&self) -> &'static str;
+    fn template_key(&self) -> &'static str;
     fn process_llm_result(&self, content: &str) -> String {
         content.to_string()
     }
@@ -61,7 +62,7 @@ impl ContentGenerator for HtmlGenerator {
         }
     }
 
-    fn prompt_key(&self) -> &'static str {
+    fn template_key(&self) -> &'static str {
         match self.segment_type {
             SegmentType::Caption => "html_caption",
             SegmentType::Footnote => "html_footnote",
@@ -121,7 +122,7 @@ impl ContentGenerator for MarkdownGenerator {
         }
     }
 
-    fn prompt_key(&self) -> &'static str {
+    fn template_key(&self) -> &'static str {
         match self.segment_type {
             SegmentType::Caption => "md_caption",
             SegmentType::Footnote => "md_footnote",
@@ -169,60 +170,71 @@ fn convert_checkboxes_markdown(content: &str) -> String {
 }
 
 async fn generate_content<T: ContentGenerator>(
+    segment_id: &str,
+    image_folder_location: &str,
     generator: &T,
-    content: &str,
-    override_content: String,
+    auto_content: &str,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
-    fallback_content: Option<String>,
+    override_auto: String,
+    llm_fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if !override_content.is_empty() && generation_strategy == &GenerationStrategy::Auto {
-        return Ok(override_content);
+    if !override_auto.is_empty() && generation_strategy == &GenerationStrategy::Auto {
+        return Ok(override_auto);
     }
 
     if segment_image.is_none() {
-        return Ok(generator.generate_auto(content));
+        return Ok(generator.generate_auto(auto_content));
     }
 
     match generation_strategy {
         GenerationStrategy::LLM => {
-            let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
-            let result = match (generator.prompt_key(), generator.segment_type()) {
+            let mut values = HashMap::new();
+            let file_url = get_file_url(
+                segment_image.as_ref().unwrap(),
+                &format!("{}/{}.jpg", image_folder_location, segment_id),
+            )
+            .await?;
+            values.insert("image_url".to_string(), file_url);
+            let messages = create_messages_from_template(generator.template_key(), &values)?;
+            let result = match (generator.template_key(), generator.segment_type()) {
                 (_, SegmentType::Formula) => {
-                    llm::latex_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content)
-                        .await?
+                    llm::try_extract_from_llm(messages, Some("latex"), llm_fallback_content).await?
                 }
                 (key, _) if key.starts_with("md_") => {
-                    llm::markdown_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content)
+                    llm::try_extract_from_llm(messages, Some("markdown"), llm_fallback_content)
                         .await?
                 }
                 _ => {
-                    llm::html_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content).await?
+                    llm::try_extract_from_llm(messages, Some("html"), llm_fallback_content).await?
                 }
             };
 
             Ok(generator.process_llm_result(&result))
         }
-        GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
+        GenerationStrategy::Auto => Ok(generator.generate_auto(auto_content)),
     }
 }
 
 async fn generate_html(
-    segment_type: SegmentType,
-    content: String,
-    override_content: String,
+    segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
+    image_folder_location: &str,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = HtmlGenerator { segment_type };
+    let generator = HtmlGenerator {
+        segment_type: segment.segment_type.clone(),
+    };
     Ok(html::clean_img_tags(
         &generate_content(
+            &segment.segment_id,
+            image_folder_location,
             &generator,
-            &content,
-            override_content,
+            &segment.content.clone(),
             segment_image,
             generation_strategy,
+            segment.html.clone(),
             fallback_content,
         )
         .await?,
@@ -230,21 +242,24 @@ async fn generate_html(
 }
 
 async fn generate_markdown(
-    segment_type: SegmentType,
-    content: String,
-    override_content: String,
+    segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
+    image_folder_location: &str,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = MarkdownGenerator { segment_type };
+    let generator = MarkdownGenerator {
+        segment_type: segment.segment_type.clone(),
+    };
     Ok(markdown::clean_img_tags(
         &generate_content(
+            &segment.segment_id,
+            image_folder_location,
             &generator,
-            &content,
-            override_content,
+            &segment.content.clone(),
             segment_image,
             generation_strategy,
+            segment.markdown.clone(),
             fallback_content,
         )
         .await?,
@@ -252,21 +267,28 @@ async fn generate_markdown(
 }
 
 async fn generate_llm(
-    segment_type: SegmentType,
+    segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     llm_prompt: Option<String>,
-    fallback_content: Option<String>,
+    llm_fallback_content: Option<String>,
+    image_folder_location: &str,
 ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
     if llm_prompt.is_none() || segment_image.is_none() {
         return Ok(None);
     }
 
     let mut values = HashMap::new();
-    values.insert("segment_type".to_string(), segment_type.to_string());
+    let file_url = get_file_url(
+        segment_image.as_ref().unwrap(),
+        &format!("{}/{}.jpg", image_folder_location, segment.segment_id),
+    )
+    .await?;
+    values.insert("segment_type".to_string(), segment.segment_type.to_string());
     values.insert("user_prompt".to_string(), llm_prompt.unwrap());
-    let prompt = get_prompt("llm_segment", &values)?;
-    let result =
-        llm::llm_segment(segment_image.as_ref().unwrap(), prompt, fallback_content).await?;
+    values.insert("image_url".to_string(), file_url);
+
+    let messages = create_messages_from_template("llm_segment", &values)?;
+    let result = llm::try_extract_from_llm(messages, None, llm_fallback_content).await?;
 
     Ok(Some(result))
 }
@@ -275,6 +297,7 @@ async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
     segment_image: Option<Arc<NamedTempFile>>,
+    image_folder_location: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (html_strategy, markdown_strategy, llm_prompt) = match segment.segment_type.clone() {
         SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
@@ -334,26 +357,25 @@ async fn process_segment(
 
     let (html, markdown, llm) = futures::try_join!(
         generate_html(
-            segment.segment_type.clone(),
-            segment.content.clone(),
-            segment.html.clone(),
+            segment,
             segment_image.clone(),
             html_strategy,
             fallback_html,
+            image_folder_location,
         ),
         generate_markdown(
-            segment.segment_type.clone(),
-            segment.content.clone(),
-            segment.markdown.clone(),
+            segment,
             segment_image.clone(),
             markdown_strategy,
             fallback_markdown,
+            image_folder_location,
         ),
         generate_llm(
-            segment.segment_type.clone(),
+            segment,
             segment_image.clone(),
             llm_prompt.clone(),
             fallback_llm,
+            image_folder_location,
         )
     )?;
 
@@ -369,19 +391,17 @@ async fn process_segment(
 /// This function will generate the html, llm and markdown fields for all the segments in parallel.
 /// Depending on the configuration, each segment will either be processed using heuristic or by a LLM.
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
-    pipeline
-        .get_task()?
-        .update(
-            Some(Status::Processing),
-            Some("Processing segments".to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-        .await?;
-
+    let mut task = pipeline.get_task()?;
+    task.update(
+        Some(Status::Processing),
+        Some("Processing segments".to_string()),
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    .await?;
     let configuration = pipeline.get_task()?.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
     let futures: Vec<_> = pipeline
@@ -393,6 +413,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
                     segment,
                     &configuration,
                     segment_images.get(&segment.segment_id).map(|r| r.clone()),
+                    &task.image_folder_location,
                 )
             })
         })

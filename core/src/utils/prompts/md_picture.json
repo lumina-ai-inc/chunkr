@@ -1,0 +1,17 @@
+[
+  {
+    "role": "user",
+    "content": "Convert the following image to markdown. Return only the markdown with no explanation text. Represent the image content appropriately based on its type:\n\n- For charts/graphs: Convert to a markdown table with the data\n- For tables: Convert to a markdown table maintaining the original structure\n- For diagrams/illustrations: Provide a detailed text description \n- For photos/artwork: Provide a detailed text description\n- For text-heavy images: Extract and structure the text content semantically and include the hierarchy and structure in markdown\n\nReturn ONLY the markdown enclosed in ```markdown``` tags. Do not include any explanations."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
+  }
+]
