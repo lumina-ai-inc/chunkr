@@ -34,7 +34,7 @@ pub struct SegmentProcessing {
     #[serde(rename = "PageFooter", alias = "page_footer")]
     pub page_footer: Option<AutoGenerationConfig>,
     #[serde(rename = "Page", alias = "page")]
-    pub page: Option<AutoGenerationConfig>,
+    pub page: Option<LlmGenerationConfig>,
 }
 
 impl Default for SegmentProcessing {
@@ -51,7 +51,7 @@ impl Default for SegmentProcessing {
             footnote: Some(AutoGenerationConfig::default()),
             page_header: Some(AutoGenerationConfig::default()),
             page_footer: Some(AutoGenerationConfig::default()),
-            page: Some(AutoGenerationConfig::default()),
+            page: Some(LlmGenerationConfig::default()),
         }
     }
 }
@@ -113,13 +113,13 @@ pub struct PictureGenerationConfig {
     #[serde(default = "default_picture_cropping_strategy")]
     #[schema(value_type = PictureCroppingStrategy, default = "All")]
     pub crop_image: PictureCroppingStrategy,
-    #[serde(default = "default_auto_generation_strategy")]
-    #[schema(default = "Auto")]
+    #[serde(default = "default_llm_generation_strategy")]
+    #[schema(default = "LLM")]
     pub html: GenerationStrategy,
     /// Prompt for the LLM model
     pub llm: Option<String>,
-    #[serde(default = "default_auto_generation_strategy")]
-    #[schema(default = "Auto")]
+    #[serde(default = "default_llm_generation_strategy")]
+    #[schema(default = "LLM")]
     pub markdown: GenerationStrategy,
 }
 

@@ -140,49 +140,6 @@ pub async fn process_openai_request(
         }
     };
 
-    // Check if the finish reason was "length" and retry with more tokens if needed
-    if !response.choices.is_empty() && response.choices[0].finish_reason == "length" {
-        println!("Response was truncated (finish_reason: length).");
-
-        // Try up to 3 times
-        let mut current_response = response;
-
-        for retry_count in 1..=3 {
-            rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(
-                    *TOKEN_TIMEOUT.get().unwrap(),
-                ))
-                .await?;
-
-            println!("Attempt {} of 3", retry_count);
-
-            current_response = open_ai_call(
-                url.clone(),
-                key.clone(),
-                model.clone(),
-                messages.clone(),
-                max_completion_tokens,
-                temperature,
-                response_format.clone(),
-            )
-            .await?;
-
-            // If we got a complete response, break out of the loop
-            if current_response.choices.is_empty()
-                || current_response.choices[0].finish_reason != "length"
-            {
-                println!("Received complete response on retry {}", retry_count);
-                break;
-            }
-
-            if retry_count < 3 {
-                println!("Response still truncated, continuing to retry");
-            }
-        }
-
-        return Ok(current_response);
-    }
-
     Ok(response)
 }
 
@@ -282,11 +239,15 @@ async fn retry_ocr_with_temperature(
     let worker_config = WorkerConfig::from_env().unwrap();
     let max_retries = worker_config.max_retries;
     let use_fallback = fallback_content.is_some();
+
+    // Main loop for temperature-based retries
     for attempt in 0..max_retries {
         let temperature = (attempt as f32) * 0.2;
         if temperature > 1.0 {
             break;
         }
+
+        // Get initial response
         let response = llm_ocr(
             temp_file,
             prompt.clone(),
@@ -295,6 +256,14 @@ async fn retry_ocr_with_temperature(
             use_fallback,
         )
         .await?;
+
+        // Check for truncation but don't retry for that specifically
+        if response.contains("finish_reason: length") || response.ends_with("...") {
+            println!("OCR response was truncated (finish_reason: length), continuing with next temperature");
+            continue; // Skip to next temperature attempt
+        }
+
+        // Try to extract content
         if let Some(content) = extract_fenced_content(&response, fence_type) {
             return Ok(content);
         }
@@ -342,4 +311,20 @@ pub async fn llm_segment(
     fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     retry_ocr_with_temperature(temp_file, prompt, None, fallback_content).await
+}
+
+pub async fn agent_segment(
+    temp_file: &NamedTempFile,
+    prompt: String,
+    fallback_content: Option<String>,
+) -> Result<bool, Box<dyn Error + Send + Sync>> {
+    let response = retry_ocr_with_temperature(temp_file, prompt, None, fallback_content).await?;
+
+    // Parse the string response to a boolean
+    response.trim().to_lowercase().parse::<bool>().map_err(|e| {
+        Box::new(LLMError(format!(
+            "Failed to parse response {} as boolean: {}",
+            response, e
+        ))) as Box<dyn Error + Send + Sync>
+    })
 }

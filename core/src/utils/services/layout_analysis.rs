@@ -62,7 +62,7 @@ async fn vgt_segmentation_batch(
     Ok(segments_batch)
 }
 
-pub async fn perform_segmentation_batch(
+pub async fn perform_layout_analysis_batch(
     temp_files: Vec<&NamedTempFile>,
     ocr_results: Vec<Vec<OCRResult>>,
     page_offset: usize,

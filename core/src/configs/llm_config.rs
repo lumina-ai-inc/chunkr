@@ -53,6 +53,7 @@ macro_rules! prompt_templates {
 }
 
 const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
+    "agent-segmentation",
     "formula",
     "html_caption",
     "html_footnote",
@@ -77,8 +78,6 @@ const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "md_table",
     "md_text",
     "md_title",
-    "structured_extraction_system",
-    "structured_extraction_user"
 ];
 
 fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
