@@ -175,6 +175,7 @@ impl AzureAnalysisResponse {
     pub fn to_chunks(
         &self,
         segmentation_strategy: SegmentationStrategy,
+        page_segmentation_indexes: Vec<usize>,
     ) -> Result<Vec<Chunk>, Box<dyn Error>> {
         match segmentation_strategy {
             SegmentationStrategy::Page => {
@@ -482,69 +483,102 @@ impl AzureAnalysisResponse {
                             }
                         }
 
-                        // Ensure each page has at least one segment
-                        if let Some(pages) = &analyze_result.pages {
-                            let mut pages_with_segments = std::collections::HashMap::new();
+                        // Handle page segmentation indexes - replace segments on specific pages with full-page segments
+                        if !page_segmentation_indexes.is_empty() {
+                            let target_pages: Vec<u32> = page_segmentation_indexes
+                                .iter()
+                                .map(|&idx| (idx + 1) as u32)
+                                .collect();
 
-                            // Initialize all pages as having no segments
-                            for page in pages {
-                                let page_number = page.page_number.unwrap_or(1) as u32;
-                                pages_with_segments.insert(page_number, false);
+                            // Find the first index of each target page's segments
+                            let mut page_to_first_index: std::collections::HashMap<u32, usize> =
+                                std::collections::HashMap::new();
+                            for (idx, segment) in all_segments.iter().enumerate() {
+                                if target_pages.contains(&segment.page_number) {
+                                    page_to_first_index
+                                        .entry(segment.page_number)
+                                        .or_insert(idx);
+                                }
                             }
 
-                            // Mark pages that have segments
-                            for segment in &all_segments {
-                                pages_with_segments.insert(segment.page_number, true);
-                            }
+                            // Create page segments for target pages
+                            let mut page_replacements: std::collections::HashMap<u32, Segment> =
+                                std::collections::HashMap::new();
+                            if let Some(pages) = &analyze_result.pages {
+                                for page in pages {
+                                    let page_number = page.page_number.unwrap_or(1) as u32;
+                                    if target_pages.contains(&page_number) {
+                                        let (width, height, unit) = page_dimensions
+                                            .get(&page_number)
+                                            .copied()
+                                            .unwrap_or((0.0, 0.0, None));
 
-                            // Add full-page segments for pages without segments
-                            for page in pages {
-                                let page_number = page.page_number.unwrap_or(1) as u32;
-                                if !pages_with_segments.get(&page_number).unwrap_or(&true) {
-                                    let (width, height, unit) = page_dimensions
-                                        .get(&page_number)
-                                        .copied()
-                                        .unwrap_or((0.0, 0.0, None));
-
-                                    println!(
-                                        "No segments detected for page {}. Adding full-page segment with dimensions {:?}",
-                                        page_number,
-                                        (width, height, unit)
-                                    );
-
-                                    let mut ocr_results = Vec::new();
-                                    if let Some(words) = &page.words {
-                                        for word in words {
-                                            if let (
-                                                Some(polygon),
-                                                Some(content),
-                                                Some(confidence),
-                                            ) = (&word.polygon, &word.content, &word.confidence)
-                                            {
-                                                if let Ok(word_bbox) =
-                                                    create_word_bbox(polygon, unit)
+                                        let mut ocr_results = Vec::new();
+                                        if let Some(words) = &page.words {
+                                            for word in words {
+                                                if let (
+                                                    Some(polygon),
+                                                    Some(content),
+                                                    Some(confidence),
+                                                ) =
+                                                    (&word.polygon, &word.content, &word.confidence)
                                                 {
-                                                    let ocr_result = OCRResult {
-                                                        text: content.clone(),
-                                                        confidence: Some(*confidence as f32),
-                                                        bbox: word_bbox,
-                                                    };
-                                                    ocr_results.push(ocr_result);
+                                                    if let Ok(word_bbox) =
+                                                        create_word_bbox(polygon, unit)
+                                                    {
+                                                        let ocr_result = OCRResult {
+                                                            text: content.clone(),
+                                                            confidence: Some(*confidence as f32),
+                                                            bbox: word_bbox,
+                                                        };
+                                                        ocr_results.push(ocr_result);
+                                                    }
                                                 }
                                             }
                                         }
+
+                                        let segment = Segment::new_from_segment_ocr(
+                                            BoundingBox::new(0.0, 0.0, width, height),
+                                            Some(1.0),
+                                            ocr_results,
+                                            height,
+                                            page_number,
+                                            width,
+                                            SegmentType::Page,
+                                        );
+
+                                        page_replacements.insert(page_number, segment);
                                     }
+                                }
+                            }
 
-                                    let segment = Segment::new_from_segment_ocr(
-                                        BoundingBox::new(0.0, 0.0, width, height),
-                                        Some(1.0),
-                                        ocr_results,
-                                        height,
-                                        page_number,
-                                        width,
-                                        SegmentType::Page,
-                                    );
+                            // Replace segments in-place while maintaining order
+                            let mut i = 0;
+                            while i < all_segments.len() {
+                                let page_number = all_segments[i].page_number;
+                                if target_pages.contains(&page_number) {
+                                    // If this is the first segment for this page, replace it
+                                    if page_to_first_index.get(&page_number) == Some(&i) {
+                                        if let Some(replacement) =
+                                            page_replacements.remove(&page_number)
+                                        {
+                                            all_segments[i] = replacement;
+                                            i += 1;
+                                        }
+                                    } else {
+                                        // Remove other segments of the target page
+                                        all_segments.remove(i);
+                                        // Don't increment i since we've removed an element
+                                    }
+                                } else {
+                                    i += 1;
+                                }
+                            }
 
+                            // Add any page replacements that didn't have existing segments
+                            for (page_number, segment) in page_replacements {
+                                // If we didn't find any segments for this page earlier
+                                if !page_to_first_index.contains_key(&page_number) {
                                     all_segments.push(segment);
                                 }
                             }

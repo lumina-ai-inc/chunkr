@@ -14,6 +14,7 @@ async fn azure_analysis(
     temp_file: &NamedTempFile,
     features: Option<Vec<String>>,
     segmentation_strategy: SegmentationStrategy,
+    page_segmentation_indexes: Vec<usize>,
 ) -> Result<Vec<Chunk>, Box<dyn Error>> {
     let azure_config = azure_config::Config::from_env()?;
     let api_version = azure_config.api_version;
@@ -69,7 +70,8 @@ async fn azure_analysis(
 
             match azure_response.status.as_str() {
                 "succeeded" => {
-                    let chunks = azure_response.to_chunks(segmentation_strategy)?;
+                    let chunks = azure_response
+                        .to_chunks(segmentation_strategy, page_segmentation_indexes)?;
                     return Ok(chunks);
                 }
                 "failed" => return Err("Analysis failed".into()),
@@ -89,6 +91,7 @@ pub async fn perform_azure_analysis(
     temp_file: &NamedTempFile,
     features: Option<Vec<DocumentAnalysisFeature>>,
     segmentation_strategy: SegmentationStrategy,
+    page_segmentation_indexes: Vec<usize>,
 ) -> Result<Vec<Chunk>, Box<dyn Error>> {
     let features_str = features.map(|f| {
         f.into_iter()
@@ -101,6 +104,7 @@ pub async fn perform_azure_analysis(
             temp_file,
             features_str.clone(),
             segmentation_strategy.clone(),
+            page_segmentation_indexes.clone(),
         )
         .await
     })
@@ -121,9 +125,14 @@ mod tests {
         fs::create_dir_all(output_dir).unwrap();
         let temp_file = NamedTempFile::new().unwrap();
         fs::copy(test_file_path, temp_file.path()).unwrap();
-        let result = azure_analysis(&temp_file, None, SegmentationStrategy::LayoutAnalysis)
-            .await
-            .expect("Azure analysis failed");
+        let result = azure_analysis(
+            &temp_file,
+            None,
+            SegmentationStrategy::LayoutAnalysis,
+            Vec::new(),
+        )
+        .await
+        .expect("Azure analysis failed");
         let json = serde_json::to_string_pretty(&result).unwrap();
         fs::write(output_dir.join("azure-analysis-response.json"), json).unwrap();
     }
@@ -142,6 +151,7 @@ mod tests {
                 .as_str()
                 .to_string()]),
             SegmentationStrategy::LayoutAnalysis,
+            Vec::new(),
         )
         .await
         .expect("Azure analysis failed");
@@ -161,7 +171,7 @@ mod tests {
         fs::create_dir_all(output_dir).unwrap();
         let temp_file = NamedTempFile::new().unwrap();
         fs::copy(test_file_path, temp_file.path()).unwrap();
-        let result = azure_analysis(&temp_file, None, SegmentationStrategy::Page)
+        let result = azure_analysis(&temp_file, None, SegmentationStrategy::Page, Vec::new())
             .await
             .unwrap();
         let json = serde_json::to_string_pretty(&result).unwrap();
