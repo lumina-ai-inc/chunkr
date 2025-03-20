@@ -56,7 +56,7 @@ async fn layout_analysis_segmentation(
         let prompt = get_prompt("agent-segmentation", &HashMap::new()).unwrap();
 
         async move {
-            let run_layout_analysis = llm::agent_segment(page, prompt, None).await?;
+            let run_layout_analysis = !llm::agent_segment(page, prompt, None).await?;
 
             if run_layout_analysis {
                 println!("Running layout analysis for page {}", idx + 1);
