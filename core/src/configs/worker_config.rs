@@ -3,7 +3,15 @@ use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum FileUrlFormat {
+    Base64,
+    Url,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
+    #[serde(default = "default_file_url_format")]
+    pub file_url_format: FileUrlFormat,
     #[serde(default = "default_general_ocr_url")]
     pub general_ocr_url: Option<String>,
     #[serde(default = "default_high_res_scaling_factor")]
@@ -26,6 +34,10 @@ pub struct Config {
     pub server_url: String,
     #[serde(default = "default_version")]
     pub version: String,
+}
+
+fn default_file_url_format() -> FileUrlFormat {
+    FileUrlFormat::Base64
 }
 
 fn default_general_ocr_url() -> Option<String> {

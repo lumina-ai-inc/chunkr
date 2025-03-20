@@ -1,0 +1,17 @@
+[
+  {
+    "role": "user",
+    "content": "Convert the provided image of a formula into a latex formula.\nWrap your output in a code block like ```latex ... ```."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
+  }
+]

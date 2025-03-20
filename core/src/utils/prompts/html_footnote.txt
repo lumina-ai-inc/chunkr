@@ -1,5 +1,0 @@
-Convert the following footnote to HTML. Return only the HTML with no explanation text. Do not exclude any content from the footnote.
-
-
-Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.
-
