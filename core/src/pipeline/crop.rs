@@ -15,10 +15,11 @@ async fn crop_segment(
     segment: &Segment,
 ) -> Result<Option<NamedTempFile>, Box<dyn Error>> {
     let should_crop = match segment.segment_type {
-        SegmentType::Table | SegmentType::Formula => {
+        SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
             let config = match segment.segment_type {
                 SegmentType::Table => &configuration.segment_processing.table,
                 SegmentType::Formula => &configuration.segment_processing.formula,
+                SegmentType::Page => &configuration.segment_processing.page,
                 _ => unreachable!(),
             };
             match config {
@@ -57,7 +58,6 @@ async fn crop_segment(
                 SegmentType::Footnote => &configuration.segment_processing.footnote,
                 SegmentType::PageHeader => &configuration.segment_processing.page_header,
                 SegmentType::PageFooter => &configuration.segment_processing.page_footer,
-                SegmentType::Page => &configuration.segment_processing.page,
                 _ => unreachable!(),
             };
             match config {
