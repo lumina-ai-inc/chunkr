@@ -1,0 +1,6 @@
+[
+  {
+    "role": "user",
+    "content": "Convert the following PDF page to HTML. Return only the HTML with no explanation text. Do not exclude any content from the page.\nIF there are visuals, describe the visual. If there is a table, convert it to an HTML table. If there is a chart, describe the chart.\nIf there is a formula, convert it to an HTML formula. If there is a text-heavy image, describe the image. If there is a diagram, describe the diagram.\n\nDo not mixx any textwithin the table.\nUse simple and minimal HTML. No CSS or styling.\n\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.\n\n"
+  }
+]

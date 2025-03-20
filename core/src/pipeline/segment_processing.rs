@@ -1,4 +1,4 @@
-use crate::configs::llm_config::get_prompt;
+use crate::configs::llm_config::create_messages_from_template;
 use crate::models::chunkr::output::{Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::segment_processing::{
@@ -24,7 +24,7 @@ trait ContentGenerator {
             .to_string()
     }
     fn generate_auto(&self, content: &str) -> String;
-    fn prompt_key(&self) -> &'static str;
+    fn template_key(&self) -> &'static str;
     fn process_llm_result(&self, content: &str) -> String {
         content.to_string()
     }
@@ -61,7 +61,7 @@ impl ContentGenerator for HtmlGenerator {
         }
     }
 
-    fn prompt_key(&self) -> &'static str {
+    fn template_key(&self) -> &'static str {
         match self.segment_type {
             SegmentType::Caption => "html_caption",
             SegmentType::Footnote => "html_footnote",
@@ -121,7 +121,7 @@ impl ContentGenerator for MarkdownGenerator {
         }
     }
 
-    fn prompt_key(&self) -> &'static str {
+    fn template_key(&self) -> &'static str {
         match self.segment_type {
             SegmentType::Caption => "md_caption",
             SegmentType::Footnote => "md_footnote",
@@ -170,59 +170,51 @@ fn convert_checkboxes_markdown(content: &str) -> String {
 
 async fn generate_content<T: ContentGenerator>(
     generator: &T,
-    content: &str,
-    override_content: String,
+    auto_content: &str,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
-    fallback_content: Option<String>,
+    override_auto: String,
+    llm_fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if !override_content.is_empty() && generation_strategy == &GenerationStrategy::Auto {
-        return Ok(override_content);
+    if !override_auto.is_empty() && generation_strategy == &GenerationStrategy::Auto {
+        return Ok(override_auto);
     }
 
     if segment_image.is_none() {
-        return Ok(generator.generate_auto(content));
+        return Ok(generator.generate_auto(auto_content));
     }
 
     match generation_strategy {
         GenerationStrategy::LLM => {
-            let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
-            let result = match (generator.prompt_key(), generator.segment_type()) {
-                (_, SegmentType::Formula) => {
-                    llm::latex_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content)
-                        .await?
-                }
-                (key, _) if key.starts_with("md_") => {
-                    llm::markdown_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content)
-                        .await?
-                }
-                _ => {
-                    llm::html_ocr(segment_image.as_ref().unwrap(), prompt, fallback_content).await?
-                }
+            // let prompt = create_messages_from_template(generator.template_key(), &HashMap::new())?;
+            let result = match (generator.template_key(), generator.segment_type()) {
+                (_, SegmentType::Formula) => "".to_string(),
+                (key, _) if key.starts_with("md_") => "".to_string(),
+                _ => "".to_string(),
             };
 
             Ok(generator.process_llm_result(&result))
         }
-        GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
+        GenerationStrategy::Auto => Ok(generator.generate_auto(auto_content)),
     }
 }
 
 async fn generate_html(
-    segment_type: SegmentType,
-    content: String,
-    override_content: String,
+    segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = HtmlGenerator { segment_type };
+    let generator = HtmlGenerator {
+        segment_type: segment.segment_type.clone(),
+    };
     Ok(html::clean_img_tags(
         &generate_content(
             &generator,
-            &content,
-            override_content,
+            &segment.content.clone(),
             segment_image,
             generation_strategy,
+            segment.html.clone(),
             fallback_content,
         )
         .await?,
@@ -230,21 +222,21 @@ async fn generate_html(
 }
 
 async fn generate_markdown(
-    segment_type: SegmentType,
-    content: String,
-    override_content: String,
+    segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = MarkdownGenerator { segment_type };
+    let generator = MarkdownGenerator {
+        segment_type: segment.segment_type.clone(),
+    };
     Ok(markdown::clean_img_tags(
         &generate_content(
             &generator,
-            &content,
-            override_content,
+            &segment.content.clone(),
             segment_image,
             generation_strategy,
+            segment.markdown.clone(),
             fallback_content,
         )
         .await?,
@@ -252,21 +244,20 @@ async fn generate_markdown(
 }
 
 async fn generate_llm(
-    segment_type: SegmentType,
+    segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     llm_prompt: Option<String>,
-    fallback_content: Option<String>,
+    llm_fallback_content: Option<String>,
 ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
     if llm_prompt.is_none() || segment_image.is_none() {
         return Ok(None);
     }
 
     let mut values = HashMap::new();
-    values.insert("segment_type".to_string(), segment_type.to_string());
+    values.insert("segment_type".to_string(), segment.segment_type.to_string());
     values.insert("user_prompt".to_string(), llm_prompt.unwrap());
-    let prompt = get_prompt("llm_segment", &values)?;
-    let result =
-        llm::llm_segment(segment_image.as_ref().unwrap(), prompt, fallback_content).await?;
+    // let prompt = create_messages_from_template("llm_segment", &values)?;
+    let result = "".to_string();
 
     Ok(Some(result))
 }
@@ -333,24 +324,15 @@ async fn process_segment(
     };
 
     let (html, markdown, llm) = futures::try_join!(
-        generate_html(
-            segment.segment_type.clone(),
-            segment.content.clone(),
-            segment.html.clone(),
-            segment_image.clone(),
-            html_strategy,
-            fallback_html,
-        ),
+        generate_html(segment, segment_image.clone(), html_strategy, fallback_html),
         generate_markdown(
-            segment.segment_type.clone(),
-            segment.content.clone(),
-            segment.markdown.clone(),
+            segment,
             segment_image.clone(),
             markdown_strategy,
             fallback_markdown,
         ),
         generate_llm(
-            segment.segment_type.clone(),
+            segment,
             segment_image.clone(),
             llm_prompt.clone(),
             fallback_llm,

@@ -1,3 +1,4 @@
+use crate::models::chunkr::open_ai::Message;
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
@@ -46,7 +47,7 @@ macro_rules! prompt_templates {
     ($($name:expr),* $(,)?) => {
         &[
             $(
-                ($name, include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/utils/prompts/", $name, ".txt")))
+                ($name, include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/utils/prompts/", $name, ".json")))
             ),*
         ]
     };
@@ -77,11 +78,9 @@ const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "md_table",
     "md_text",
     "md_title",
-    "structured_extraction_system",
-    "structured_extraction_user"
 ];
 
-fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
+fn load_prompt_template(prompt_name: &str) -> Result<String, std::io::Error> {
     PROMPT_TEMPLATES
         .iter()
         .find(|&&(name, _)| name == prompt_name)
@@ -94,60 +93,89 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
         })
 }
 
-fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
-    let mut result = template.to_string();
+fn substitute_template_placeholders(
+    template_json: &str,
+    values: &HashMap<String, String>,
+) -> Result<String, serde_json::Error> {
+    let mut template = template_json.to_string();
 
-    result = result.replace("\\{", r"\u005c\u007b");
-    result = result.replace("\\}", r"\u005c\u007d");
-
+    // Replace all placeholder values in the JSON string
     for (key, value) in values {
-        result = result.replace(&format!("{{{}}}", key), value);
-    }
-    result = result.replace(r"\u005c\u007b", "{");
-    result = result.replace(r"\u005c\u007d", "}");
+        // Escape any special characters in the value for JSON compatibility
+        let escaped_value = serde_json::to_string(value)?;
+        // Remove the surrounding quotes that to_string adds
+        let escaped_value = &escaped_value[1..escaped_value.len() - 1];
 
-    result
+        template = template.replace(&format!("{{{}}}", key), escaped_value);
+    }
+
+    Ok(template)
 }
 
-pub fn get_prompt(
-    prompt_name: &str,
+pub fn create_messages_from_template(
+    template_name: &str,
     values: &HashMap<String, String>,
-) -> Result<String, std::io::Error> {
-    let template = get_template(prompt_name)?;
-    let filled_prompt = fill_prompt(&template, values);
-    Ok(filled_prompt)
+) -> Result<Vec<Message>, Box<dyn std::error::Error>> {
+    let template_json = load_prompt_template(template_name)?;
+    let filled_json = substitute_template_placeholders(&template_json, values)?;
+    let messages: Vec<Message> = serde_json::from_str(&filled_json)?;
+    Ok(messages)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
+
+    // Test template JSON that we can use directly in tests
+    const TEST_TEMPLATE_JSON: &str = r#"[
+        {
+            "role": "system",
+            "content": "You are a helpful AI assistant for {purpose}."
+        },
+        {
+            "role": "user",
+            "content": "Please process this {content_type} data: {data}"
+        }
+    ]"#;
+
+    // Helper function to create a test template without file dependencies
+    fn get_test_template() -> String {
+        TEST_TEMPLATE_JSON.to_string()
+    }
+
     #[tokio::test]
-    async fn test_get_template() -> Result<(), std::io::Error> {
-        let prompt = get_template("structured_extraction").unwrap();
-        println!("Prompt: {}", prompt);
+    async fn test_load_template() -> Result<(), Box<dyn std::error::Error>> {
+        let prompt = load_prompt_template("formula")?;
+        println!("Template JSON: {}", prompt);
         Ok(())
     }
 
     #[tokio::test]
-    async fn test_fill_prompt_with_values() -> Result<(), std::io::Error> {
+    async fn test_substitute_template_placeholders() -> Result<(), Box<dyn std::error::Error>> {
         let mut values = HashMap::new();
-        values.insert("name".to_string(), "Invoice Number".to_string());
-        values.insert(
-            "description".to_string(),
-            "The unique identifier for this invoice".to_string(),
-        );
-        values.insert("field_type".to_string(), "string".to_string());
-        values.insert("context".to_string(), "Invoice #12345...".to_string());
-        let filled_prompt = get_prompt("structured_extraction", &values)?;
-        println!("{}", filled_prompt);
+        values.insert("purpose".to_string(), "data extraction".to_string());
+        values.insert("content_type".to_string(), "table".to_string());
+        values.insert("data".to_string(), "Row 1: 42, Row 2: 73".to_string());
+
+        let template = get_test_template();
+        let filled_json = substitute_template_placeholders(&template, &values)?;
+        println!("Filled template: {}", filled_json);
+
+        // Parse to verify it's valid JSON
+        let parsed: Vec<Message> = serde_json::from_str(&filled_json)?;
+        assert_eq!(parsed.len(), 2);
         Ok(())
     }
 
     #[tokio::test]
-    async fn test_fill_prompt_with_values_table() -> Result<(), std::io::Error> {
-        let filled_prompt = get_prompt("table", &HashMap::new())?;
-        println!("{}", filled_prompt);
+    async fn test_create_messages_from_template() -> Result<(), Box<dyn std::error::Error>> {
+        let mut values = HashMap::new();
+        values.insert(
+            "image_url".to_string(),
+            "https://example.com/image.jpg".to_string(),
+        );
+        let messages = create_messages_from_template("md_table", &values)?;
+        println!("Message: {:?}", messages);
         Ok(())
     }
 }
