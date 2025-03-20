@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.2-enterprise...chunkr-core-enterprise-v1.4.3-enterprise) (2025-03-20)
+
+
+### Bug Fixes
+
+* **core:** Update default generation strategies for Picture and Page segments ([5316485](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5316485aeec2f923f6fb24f9ab1fcab18e275299))
+
 ## [1.4.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.1-enterprise...chunkr-core-enterprise-v1.4.2-enterprise) (2025-03-19)
 
 

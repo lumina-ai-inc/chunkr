@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.6.2-enterprise...v1.7.0-enterprise) (2025-03-20)
+
+
+### Features
+
+* Added new cropped image viewing, updated upload component defaults for image VLM processing, and some bug fixes for segment highlighting + JSON viewing ([#388](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/388)) ([6115ee0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6115ee08b785e94ed8432e4c75da98e32a42bea9))
+
+
+### Bug Fixes
+
+* **core:** Update default generation strategies for Picture and Page segments ([5316485](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5316485aeec2f923f6fb24f9ab1fcab18e275299))
+
 ## [1.6.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.6.1-enterprise...v1.6.2-enterprise) (2025-03-19)
 
 
