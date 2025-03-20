@@ -17,7 +17,6 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn
         .output()?;
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
-    println!("mime_type: {:?}", mime_type);
     match mime_type.as_str() {
         "application/pdf" => Ok((mime_type, "pdf".to_string())),
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
