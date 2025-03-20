@@ -3,11 +3,8 @@ use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
-use base64::{engine::general_purpose, Engine as _};
 use std::error::Error;
 use std::fmt;
-use std::io::Read;
-use tempfile::NamedTempFile;
 
 #[derive(Debug)]
 struct LLMError(String);

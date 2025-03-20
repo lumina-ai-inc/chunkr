@@ -8,7 +8,6 @@
     "content": [
       {
         "type": "image_url",
-        "text": null,
         "image_url": {
           "url": "{image_url}"
         }

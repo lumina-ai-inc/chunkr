@@ -2,5 +2,16 @@
   {
     "role": "user",
     "content": "Convert the following page footer to HTML. Return only the HTML with no explanation text. Do not exclude any content from the footer.\n\n\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
   }
 ]

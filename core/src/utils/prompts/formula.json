@@ -5,6 +5,13 @@
   },
   {
     "role": "user",
-    "image_url": "{{image_url}}"
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
   }
 ]

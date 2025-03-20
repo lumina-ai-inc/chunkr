@@ -115,7 +115,7 @@ fn substitute_template_placeholders(
 pub fn create_messages_from_template(
     template_name: &str,
     values: &HashMap<String, String>,
-) -> Result<Vec<Message>, Box<dyn std::error::Error>> {
+) -> Result<Vec<Message>, Box<dyn std::error::Error + Send + Sync>> {
     let template_json = load_prompt_template(template_name)?;
     let filled_json = substitute_template_placeholders(&template_json, values)?;
     let messages: Vec<Message> = serde_json::from_str(&filled_json)?;
@@ -126,7 +126,6 @@ pub fn create_messages_from_template(
 mod tests {
     use super::*;
 
-    // Test template JSON that we can use directly in tests
     const TEST_TEMPLATE_JSON: &str = r#"[
         {
             "role": "system",
@@ -138,7 +137,6 @@ mod tests {
         }
     ]"#;
 
-    // Helper function to create a test template without file dependencies
     fn get_test_template() -> String {
         TEST_TEMPLATE_JSON.to_string()
     }
@@ -168,7 +166,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_create_messages_from_template() -> Result<(), Box<dyn std::error::Error>> {
+    async fn test_md_table_template() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut values = HashMap::new();
         values.insert(
             "image_url".to_string(),
@@ -176,6 +174,20 @@ mod tests {
         );
         let messages = create_messages_from_template("md_table", &values)?;
         println!("Message: {:?}", messages);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_all_templates() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let mut values = HashMap::new();
+        values.insert(
+            "image_url".to_string(),
+            "https://example.com/image.jpg".to_string(),
+        );
+        for &(template_name, _) in PROMPT_TEMPLATES {
+            let messages = create_messages_from_template(template_name, &values)?;
+            println!("Message: {:?}", messages);
+        }
         Ok(())
     }
 }
