@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.1...chunkr-core-v1.3.2) (2025-03-20)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#386](https://github.com/lumina-ai-inc/chunkr/issues/386)) ([ccb56f9](https://github.com/lumina-ai-inc/chunkr/commit/ccb56f95212e5840d931893929c6dec648123e34))
+* **core:** Update default generation strategies for Picture and Page segments ([5316485](https://github.com/lumina-ai-inc/chunkr/commit/5316485aeec2f923f6fb24f9ab1fcab18e275299))
+
 ## [1.3.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.0...chunkr-core-v1.3.1) (2025-03-16)
 
 
