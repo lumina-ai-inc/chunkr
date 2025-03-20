@@ -277,10 +277,11 @@ async fn process_segment(
     segment_image: Option<Arc<NamedTempFile>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (html_strategy, markdown_strategy, llm_prompt) = match segment.segment_type.clone() {
-        SegmentType::Table | SegmentType::Formula => {
+        SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
             let config: &LlmGenerationConfig = match segment.segment_type {
                 SegmentType::Table => configuration.segment_processing.table.as_ref().unwrap(),
                 SegmentType::Formula => configuration.segment_processing.formula.as_ref().unwrap(),
+                SegmentType::Page => configuration.segment_processing.page.as_ref().unwrap(),
                 _ => unreachable!(),
             };
             (&config.html, &config.markdown, &config.llm)
@@ -316,7 +317,6 @@ async fn process_segment(
                     .page_footer
                     .as_ref()
                     .unwrap(),
-                SegmentType::Page => configuration.segment_processing.page.as_ref().unwrap(),
                 _ => unreachable!(),
             };
             (&config.html, &config.markdown, &config.llm)
