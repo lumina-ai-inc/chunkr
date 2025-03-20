@@ -1,2 +1,0 @@
-Task: Convert the provided image of a formula into a latex formula.
-Wrap your output in a code block like ```latex ... ```.

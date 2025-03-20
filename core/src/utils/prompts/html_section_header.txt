@@ -1,5 +1,0 @@
-Convert the following section header to HTML. Return only the HTML with no explanation text. Do not exclude any content from the header.
-
-Sometimes this content may not be a section header. If it is not a section header, analyze and convert the content appropriately to HTML format while maintaining the original structure and content. If there is a table, convert it to HTML table format. If there are images, describe them in text within the HTML.
-If it is a section header, put it in a <h2> tag. 
-Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.

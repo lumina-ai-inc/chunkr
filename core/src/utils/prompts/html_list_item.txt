@@ -1,6 +1,0 @@
-Convert the following list item to HTML. Return only the HTML with no explanation text. Do not exclude any content from the list item.
-
-Sometimes this list item contains a table, image, text-heavy image, or other content. If it is not a list item, analyze and convert the content appropriately to HTML format while maintaining the original structure and content. If there is a table, convert it to HTML table format. If there are images, describe them in text within the HTML.
-You must transcribe all the text.
-Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.
-
