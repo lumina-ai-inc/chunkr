@@ -1,5 +1,6 @@
 use crate::configs::worker_config::{Config as WorkerConfig, FileUrlFormat};
 use crate::utils::clients;
+use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::error::Error;
@@ -9,7 +10,10 @@ use tempfile::NamedTempFile;
 use url;
 use urlencoding;
 
-pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn Error>> {
+pub fn check_file_type(
+    file: &NamedTempFile,
+    original_file_extension: Option<String>,
+) -> Result<(String, String), Box<dyn Error>> {
     let output = Command::new("file")
         .arg("--mime-type")
         .arg("-b")
@@ -19,6 +23,31 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
     match mime_type.as_str() {
         "application/pdf" => Ok((mime_type, "pdf".to_string())),
+        "application/octet-stream" => {
+            if let Some(ext) = original_file_extension {
+                if ext == "pdf" {
+                    println!("Detected PDF file by extension");
+                    match count_pages(file) {
+                        Ok(pages) => {
+                            println!("Detected {} pages in PDF file", pages);
+                            return Ok(("application/pdf".to_string(), "pdf".to_string()));
+                        }
+                        Err(e) => {
+                            println!("Error counting pages in PDF file: {}", e);
+                            return Err(Box::new(std::io::Error::new(
+                                std::io::ErrorKind::Other,
+                                format!("Unsupported file type: {}", mime_type),
+                            )));
+                        }
+                    }
+                }
+            }
+
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("Unsupported file type: {}", mime_type),
+            )))
+        }
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
             Ok((mime_type, "docx".to_string()))
         }
@@ -40,10 +69,13 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn
     }
 }
 
-pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<dyn Error>> {
+pub fn convert_to_pdf(
+    input_file: &NamedTempFile,
+    original_file_extension: Option<String>,
+) -> Result<NamedTempFile, Box<dyn Error>> {
     let output_dir = input_file.path().parent().unwrap();
 
-    let (mime_type, _) = check_file_type(input_file)?;
+    let (mime_type, _) = check_file_type(input_file, original_file_extension)?;
 
     if mime_type.starts_with("image/") {
         // Use ImageMagick for image conversion
@@ -167,21 +199,19 @@ pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<
         }
 
         Ok((response.bytes().await?.to_vec(), filename))
-    } else {
-        if input.starts_with("data:") && input.contains(";base64,") {
-            let base64_content = input.split(";base64,").nth(1).ok_or_else(|| {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "Invalid base64 data URL format",
-                )
-            })?;
+    } else if input.starts_with("data:") && input.contains(";base64,") {
+        let base64_content = input.split(";base64,").nth(1).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid base64 data URL format",
+            )
+        })?;
 
-            let decoded = STANDARD.decode(base64_content)?;
-            Ok((decoded, None))
-        } else {
-            let decoded = STANDARD.decode(&input)?;
-            Ok((decoded, None))
-        }
+        let decoded = STANDARD.decode(base64_content)?;
+        Ok((decoded, None))
+    } else {
+        let decoded = STANDARD.decode(&input)?;
+        Ok((decoded, None))
     }
 }
 
@@ -190,7 +220,7 @@ pub async fn get_file_url(
     s3_location: &str,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let config = WorkerConfig::from_env()?;
-    let (mime_type, _) = check_file_type(&temp_file)
+    let (mime_type, _) = check_file_type(temp_file, None)
         .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
     match config.file_url_format {
         FileUrlFormat::Base64 => {

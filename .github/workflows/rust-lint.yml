@@ -110,7 +110,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "fix(core): auto-fix clippy warnings"
-          title: "fix(core): Auto-fix clippy warnings"
+          title: "refactor(core): Auto-fix clippy warnings"
           body: |
             This PR was automatically created by the Rust Lint workflow.
             It applies automatic fixes to Rust code using `cargo clippy --fix`.

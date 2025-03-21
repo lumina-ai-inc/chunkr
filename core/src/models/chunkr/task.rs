@@ -67,7 +67,13 @@ impl Task {
         file: &NamedTempFile,
         file_name: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let (mime_type, extension) = check_file_type(file)?;
+        let name = file_name.clone().unwrap_or_default();
+        let original_extension = name
+            .split('.')
+            .last()
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_string());
+        let (mime_type, extension) = check_file_type(file, original_extension)?;
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
