@@ -1,0 +1,65 @@
+name: Publish Python Client to PyPI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'clients/python-client/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  detect-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.python_client_release_created }}
+      version: ${{ steps.release.outputs.python_client_version }}
+    steps:
+      - uses: actions/checkout@v4
+        
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+          command: manifest-pr
+          
+      - name: Debug release outputs
+        run: |
+          echo "Python client release created: ${{ steps.release.outputs.python_client_release_created }}"
+          echo "Python client version: ${{ steps.release.outputs.python_client_version }}"
+
+  build-and-publish:
+    needs: detect-release
+    if: ${{ needs.detect-release.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          
+      - name: Build package with uv
+        working-directory: ./clients/python-client
+        run: |
+          uv pip install build
+          uv build
+          
+      - name: Publish to PyPI
+        working-directory: ./clients/python-client
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          uv pip install twine
+          uv publish --username __token__ --password $PYPI_TOKEN 
