@@ -122,3 +122,48 @@ jobs:
           branch: update-compose-files-${{ steps.get_version.outputs.VERSION }}
           base: main
           delete-branch: true
+
+  publish-python-client:
+    needs: [release-please]
+    if: ${{ (github.event_name == 'workflow_dispatch') || (needs.release-please.outputs.releases_created == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check if python client was updated
+        id: check-python
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "PUBLISH_PYTHON=true" >> $GITHUB_OUTPUT
+          else
+            # Parse the release outputs to check if python client was updated
+            RELEASE_OUTPUT='${{ steps.release.outputs.releases_created }}'
+            if [[ $RELEASE_OUTPUT == *"clients/python-client"* ]]; then
+              echo "PUBLISH_PYTHON=true" >> $GITHUB_OUTPUT
+            else
+              echo "PUBLISH_PYTHON=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      - name: Set up Python
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install uv
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        run: pip install uv
+      
+      - name: Build package
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        working-directory: ./clients/python-client
+        run: uv build
+      
+      - name: Publish to PyPI
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        working-directory: ./clients/python-client
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish --token $PYPI_TOKEN
