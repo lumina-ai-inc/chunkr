@@ -4,6 +4,7 @@ from pydantic import BaseModel, PrivateAttr
 import asyncio
 import json
 import os
+import httpx
 
 from .configuration import Configuration, OutputConfiguration, OutputResponse, Status
 from .protocol import ChunkrClientProtocol
@@ -51,8 +52,12 @@ class TaskResponse(BaseModel, Generic[T]):
             )
             r.raise_for_status()
             return r.json()
-        except (ConnectionError, TimeoutError, OSError) as e:
-            print(f"Connection error while polling the task: {str(e)}, retrying...")
+        except (ConnectionError, TimeoutError, OSError, 
+                httpx.ReadTimeout, httpx.ConnectTimeout, 
+                httpx.WriteTimeout, httpx.PoolTimeout,
+                httpx.ConnectError, httpx.ReadError, 
+                httpx.NetworkError) as e:
+            print(f"Connection error while polling the task: {str(e)}\nretrying...")
             await asyncio.sleep(0.5)
             return await self._poll_request() 
         except Exception as e:
