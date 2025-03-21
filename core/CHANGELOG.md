@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.3](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.2...chunkr-core-v1.3.3) (2025-03-21)
+
+
+### Bug Fixes
+
+* **core:** Allow PDFs based on extension if the pages can be counted ([#396](https://github.com/lumina-ai-inc/chunkr/issues/396)) ([cfbfd01](https://github.com/lumina-ai-inc/chunkr/commit/cfbfd0155f5fcfb6245acc7dbedb1baa0b12df0b))
+* **core:** Auto-fix clippy warnings ([#393](https://github.com/lumina-ai-inc/chunkr/issues/393)) ([0605227](https://github.com/lumina-ai-inc/chunkr/commit/06052278229f0fe1c6feec44172e9048bf09ecc1))
+* Fixed prompts and retries for LLMs ([#394](https://github.com/lumina-ai-inc/chunkr/issues/394)) ([4b31588](https://github.com/lumina-ai-inc/chunkr/commit/4b3158889747214abc00ee35c634659491e1c07d))
+
 ## [1.3.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.1...chunkr-core-v1.3.2) (2025-03-20)
 
 
