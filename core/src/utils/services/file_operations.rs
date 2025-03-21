@@ -199,21 +199,19 @@ pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<
         }
 
         Ok((response.bytes().await?.to_vec(), filename))
-    } else {
-        if input.starts_with("data:") && input.contains(";base64,") {
-            let base64_content = input.split(";base64,").nth(1).ok_or_else(|| {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "Invalid base64 data URL format",
-                )
-            })?;
+    } else if input.starts_with("data:") && input.contains(";base64,") {
+        let base64_content = input.split(";base64,").nth(1).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid base64 data URL format",
+            )
+        })?;
 
-            let decoded = STANDARD.decode(base64_content)?;
-            Ok((decoded, None))
-        } else {
-            let decoded = STANDARD.decode(&input)?;
-            Ok((decoded, None))
-        }
+        let decoded = STANDARD.decode(base64_content)?;
+        Ok((decoded, None))
+    } else {
+        let decoded = STANDARD.decode(&input)?;
+        Ok((decoded, None))
     }
 }
 
@@ -222,7 +220,7 @@ pub async fn get_file_url(
     s3_location: &str,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let config = WorkerConfig::from_env()?;
-    let (mime_type, _) = check_file_type(&temp_file, None)
+    let (mime_type, _) = check_file_type(temp_file, None)
         .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
     match config.file_url_format {
         FileUrlFormat::Base64 => {
