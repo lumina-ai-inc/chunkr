@@ -87,7 +87,7 @@ impl Config {
         let download_url = match std::env::consts::OS {
             "windows" => "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-windows-x64.tgz",
             "linux" => "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz",
-            "macos" => "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-mac-x64.tgz",
+            "macos" => "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-mac-arm64.tgz",
             _ => return Err(PdfiumError::DownloadError("Unsupported platform".to_string())),
         };
 

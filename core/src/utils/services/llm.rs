@@ -1,5 +1,5 @@
 use crate::configs::llm_config::Config as LlmConfig;
-use crate::configs::worker_config::Config as WorkerConfig;
+// use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
@@ -164,35 +164,30 @@ pub async fn try_extract_from_llm(
     fence_type: Option<&str>,
     fallback_content: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let worker_config = WorkerConfig::from_env().unwrap();
+    // let worker_config = WorkerConfig::from_env().unwrap();
     let llm_config = LlmConfig::from_env().unwrap();
-    let max_retries = worker_config.max_retries;
-    for attempt in 0..max_retries {
-        let temperature = (attempt as f32) * 0.2;
-        if temperature > 1.0 {
-            break;
-        }
-        let response = process_openai_request(
-            llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
-            llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
-            llm_config
-                .ocr_model
-                .clone()
-                .unwrap_or(llm_config.model.clone()),
-            messages.clone(),
-            None,
-            Some(temperature),
-            None,
-            fallback_content.is_some(),
-        )
-        .await?;
-        if !response.choices.is_empty() && response.choices[0].finish_reason == "length" {
-            println!("Response was truncated (finish_reason: length).");
-            continue;
-        }
+
+    let response = process_openai_request(
+        llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
+        llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
+        llm_config
+            .ocr_model
+            .clone()
+            .unwrap_or(llm_config.model.clone()),
+        messages.clone(),
+        None,
+        None,
+        None,
+        fallback_content.is_some(),
+    )
+    .await?;
+
+    if !response.choices.is_empty() && response.choices[0].finish_reason != "length" {
         if let Some(content) = extract_fenced_content(&get_llm_content(response)?, fence_type) {
             return Ok(content);
         }
+    } else if !response.choices.is_empty() {
+        println!("Response was truncated (finish_reason: length).");
     }
 
     if let Some(fallback_content) = fallback_content {
@@ -201,8 +196,7 @@ pub async fn try_extract_from_llm(
     }
 
     Err(Box::new(LLMError(format!(
-        "No valid content found after {} attempts | fence_type: {}",
-        max_retries,
+        "No valid content found | fence_type: {}",
         fence_type.unwrap_or("")
     ))))
 }
