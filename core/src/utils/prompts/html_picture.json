@@ -1,7 +1,7 @@
 [
   {
     "role": "user",
-    "content": "Convert the following image to HTML. Return only the HTML with no explanation text. Represent the image content appropriately based on its type:\n\n- For charts/graphs: Convert to an accessible HTML table with the data\n- Sometimes the image is a table - convert it to an HTML table with the following prompt:\n    \"Analyze this image and convert the table to HTML format maintaining the original structure. If the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.\n        Output the table directly in ```html``` tags.\"\n- For diagrams/illustrations: Provide a detailed text description \n- For photos/artwork: Provide a detailed text description\n- For text-heavy images: Extract and structure the text content semantically and include the heirarchy and structure of the image in html\nNo CSS or styling.\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.\n"
+    "content": "Describe the image provided in text. Be detailed, include any visable text. Use HTML (<p> or <table>) to structure the text. Output the text directly in ```html``` tags."
   },
   {
     "role": "user",
