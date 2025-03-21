@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.3-enterprise...chunkr-core-enterprise-v1.4.4-enterprise) (2025-03-21)
+
+
+### Bug Fixes
+
+* Fixed prompts and retries for LLMs ([#394](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/394)) ([4b31588](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/4b3158889747214abc00ee35c634659491e1c07d))
+
 ## [1.4.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.2-enterprise...chunkr-core-enterprise-v1.4.3-enterprise) (2025-03-20)
 
 

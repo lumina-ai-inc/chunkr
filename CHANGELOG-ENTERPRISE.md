@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.7.0-enterprise...v1.7.1-enterprise) (2025-03-21)
+
+
+### Bug Fixes
+
+* Fixed prompts and retries for LLMs ([#394](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/394)) ([4b31588](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/4b3158889747214abc00ee35c634659491e1c07d))
+
 ## [1.7.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.6.2-enterprise...v1.7.0-enterprise) (2025-03-20)
 
 

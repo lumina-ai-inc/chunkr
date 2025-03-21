@@ -119,7 +119,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -135,7 +135,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -148,7 +148,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -188,7 +188,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -213,7 +213,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -225,7 +225,7 @@ services:
     enabled: true
     image:
       repository: analytics-web
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -242,7 +242,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: 1.7.0-enterprise
+      tag: 1.7.1-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
