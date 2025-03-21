@@ -130,6 +130,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
         
       - name: Check if python client was updated
         id: check-python
@@ -137,11 +139,16 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "PUBLISH_PYTHON=true" >> $GITHUB_OUTPUT
           else
-            # Parse the release outputs to check if python client was updated
-            RELEASE_OUTPUT='${{ steps.release.outputs.releases_created }}'
-            if [[ $RELEASE_OUTPUT == *"clients/python-client"* ]]; then
+            # Get the previous tag to compare changes
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 --exclude=${{ needs.release-please.outputs.release_tag }} $(git rev-list --tags --max-count=1))
+            echo "Comparing changes between $PREVIOUS_TAG and ${{ needs.release-please.outputs.release_tag }}"
+            
+            # Check if pyproject.toml was modified
+            if git diff --name-only $PREVIOUS_TAG ${{ needs.release-please.outputs.release_tag }} | grep -q "clients/python-client/pyproject.toml"; then
+              echo "Python client pyproject.toml was updated"
               echo "PUBLISH_PYTHON=true" >> $GITHUB_OUTPUT
             else
+              echo "Python client pyproject.toml was not updated"
               echo "PUBLISH_PYTHON=false" >> $GITHUB_OUTPUT
             fi
           fi
