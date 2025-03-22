@@ -69,7 +69,7 @@ Replace `<workflow-name>` with the name of the workflow you want to run, and `<b
 **Release Please workflow:**
 
 ```bash
-gh workflow run "Release Please" --ref main
+gh workflow run "Release Please" --ref main -F tag=1.6.1
 ```
 
 **Rust Lint workflow:** 

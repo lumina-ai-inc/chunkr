@@ -119,10 +119,14 @@ jobs:
       - name: Package Helm chart
         run: |
           helm package kube/charts/chunkr --app-version ${{ steps.version.outputs.VERSION }} --version ${{ steps.version.outputs.VERSION }}
+          ls -la *.tgz
+          # Get the actual filename
+          CHART_FILENAME=$(ls -1 *.tgz)
+          echo "CHART_FILENAME=${CHART_FILENAME}" >> $GITHUB_ENV
       
       - name: Push Helm chart to Docker Hub
         run: |
-          helm push chunkr-${{ steps.version.outputs.VERSION }}.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/charts
+          helm push ${CHART_FILENAME} oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/charts
 
   update-compose-files:
     needs: [release-please]
