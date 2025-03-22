@@ -111,13 +111,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
+      - name: Configure Helm for OCI support
+        run: |
+          echo "Adding OCI registry config to Helm"
+          helm registry login registry-1.docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      
       - name: Package Helm chart
         run: |
           helm package kube/charts/chunkr --app-version ${{ steps.version.outputs.VERSION }} --version ${{ steps.version.outputs.VERSION }}
       
       - name: Push Helm chart to Docker Hub
         run: |
-          helm push chunkr-chart-${{ steps.version.outputs.VERSION }}.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/charts
+          helm push chunkr-${{ steps.version.outputs.VERSION }}.tgz oci://registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/charts
 
   update-compose-files:
     needs: [release-please]
