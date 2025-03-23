@@ -100,18 +100,10 @@ jobs:
             echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
           fi
       
-      - name: Update Helm chart version
-        run: |
-          # Update version in Chart.yaml
-          cd kube/charts/chunkr
-          sed -i "s/^version:.*/version: ${{ steps.version.outputs.VERSION }}/" Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: ${{ steps.version.outputs.VERSION }}/" Chart.yaml
-          cat Chart.yaml
-
       - name: Push Helm chart to Docker Hub
         uses: appany/helm-oci-chart-releaser@v0.3.0
         with:
-          name: chunkr
+          name: chunkr-chart
           repository: ${{ secrets.DOCKERHUB_USERNAME }}/charts
           tag: ${{ steps.version.outputs.VERSION }}
           registry: registry-1.docker.io
