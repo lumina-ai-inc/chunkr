@@ -100,22 +100,24 @@ jobs:
             echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
           fi
       
-      - name: Prepare charts directory structure
+      - name: Update Helm chart version
         run: |
-          # Create charts directory structure if it doesn't exist
-          mkdir -p charts/chunkr
-          # Copy chart files to the format expected by the action
-          cp -r kube/charts/chunkr/* charts/chunkr/
-          # Update the version in Chart.yaml to match the release
-          sed -i "s/^version:.*/version: ${{ steps.version.outputs.VERSION }}/" charts/chunkr/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: ${{ steps.version.outputs.VERSION }}/" charts/chunkr/Chart.yaml
-      
-      - name: Publish Helm chart to GitHub Pages
-        uses: J12934/helm-gh-pages-action@master
+          # Update version in Chart.yaml
+          cd kube/charts/chunkr
+          sed -i "s/^version:.*/version: ${{ steps.version.outputs.VERSION }}/" Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: ${{ steps.version.outputs.VERSION }}/" Chart.yaml
+          cat Chart.yaml
+
+      - name: Push Helm chart to Docker Hub
+        uses: appany/helm-oci-chart-releaser@v0.3.0
         with:
-          access-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-branch: gh-pages
-          charts-folder: charts
+          name: chunkr
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/charts
+          tag: ${{ steps.version.outputs.VERSION }}
+          registry: registry-1.docker.io
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
+          path: kube/charts/chunkr
 
   update-compose-files:
     needs: [release-please]
