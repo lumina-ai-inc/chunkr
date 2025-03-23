@@ -1,5 +1,5 @@
 apiVersion: v2
-name: chunkr-chart
+name: chunkr
 description: >-
   A self-hostable API for converting pdf, pptx, docx, and excel files into
   RAG/LLM ready data. Features 11 semantic tags for layout analysis, OCR +
