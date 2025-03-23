@@ -104,7 +104,7 @@ jobs:
         uses: appany/helm-oci-chart-releaser@v0.3.0
         with:
           name: chunkr-chart
-          repository: ${{ secrets.DOCKERHUB_USERNAME }}/charts
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/chart
           tag: ${{ steps.version.outputs.VERSION }}
           registry: registry-1.docker.io
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
