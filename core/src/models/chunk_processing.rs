@@ -1,5 +1,6 @@
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
+use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
@@ -14,6 +15,9 @@ pub struct ChunkProcessing {
     #[schema(value_type = i32, default = 512)]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
     pub target_length: i32,
+    /// The tokenizer to use for the chunking process.
+    #[schema(value_type = TokenizerType, default = "Word")]
+    pub tokenizer: TokenizerType,
 }
 
 impl ChunkProcessing {
@@ -21,6 +25,7 @@ impl ChunkProcessing {
         Self {
             ignore_headers_and_footers: default_ignore_headers_and_footers(),
             target_length: default_target_length(),
+            tokenizer: TokenizerType::Enum(Tokenizer::default()),
         }
     }
 }
@@ -31,4 +36,93 @@ pub fn default_target_length() -> i32 {
 
 pub fn default_ignore_headers_and_footers() -> bool {
     true
+}
+
+#[derive(
+    Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default, Display, EnumString,
+)]
+/// Common tokenizers used for text processing.
+///
+/// These values represent standard tokenization approaches and popular pre-trained
+/// tokenizers from the Hugging Face ecosystem.
+pub enum Tokenizer {
+    /// Split text by word boundaries
+    #[strum(serialize = "whitespace")]
+    Word,
+    /// For OpenAI models (e.g. GPT-3.5, GPT-4, text-embedding-ada-002)
+    #[default]
+    #[strum(serialize = "cl100k_base")]
+    Cl100kBase,
+    /// For RoBERTa-based multilingual models
+    #[strum(serialize = "xlm-roberta-base")]
+    XlmRobertaBase,
+    /// BERT base uncased tokenizer
+    #[strum(serialize = "bert-base-uncased")]
+    BertBaseUncased,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+/// Specifies which tokenizer to use for the chunking process.
+///
+/// This type supports two ways of specifying a tokenizer:
+/// 1. Using a predefined tokenizer from the `Tokenizer` enum
+/// 2. Using any Hugging Face tokenizer by providing its model ID as a string
+///    (e.g. "facebook/bart-large", "Qwen/Qwen-tokenizer", etc.)
+///
+/// When using a string, any valid Hugging Face tokenizer ID can be specified,
+/// which will be loaded using the Hugging Face tokenizers library.
+pub enum TokenizerType {
+    /// Use one of the predefined tokenizer types
+    Enum(Tokenizer),
+    /// Use any Hugging Face tokenizer by specifying its model ID
+    /// Examples: "gpt2", "bert-base-uncased", "facebook/bart-large"
+    String(String),
+}
+
+// Manual implementation of ToSql and FromSql for TokenizerType
+impl ToSql for TokenizerType {
+    fn to_sql(
+        &self,
+        ty: &postgres_types::Type,
+        out: &mut postgres_types::private::BytesMut,
+    ) -> Result<postgres_types::IsNull, Box<dyn std::error::Error + Sync + Send>> {
+        let s = match self {
+            TokenizerType::Enum(t) => format!("enum:{}", t),
+            TokenizerType::String(s) => format!("string:{}", s),
+        };
+        s.to_sql(ty, out)
+    }
+
+    fn accepts(ty: &postgres_types::Type) -> bool {
+        <String as ToSql>::accepts(ty)
+    }
+
+    postgres_types::to_sql_checked!();
+}
+
+impl<'a> FromSql<'a> for TokenizerType {
+    fn from_sql(
+        ty: &postgres_types::Type,
+        raw: &'a [u8],
+    ) -> Result<Self, Box<dyn std::error::Error + Sync + Send>> {
+        let s = String::from_sql(ty, raw)?;
+        if s.starts_with("enum:") {
+            let tokenizer_str = &s[5..];
+            let tokenizer = tokenizer_str
+                .parse::<Tokenizer>()
+                .map_err(|e| Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))?;
+            Ok(TokenizerType::Enum(tokenizer))
+        } else if s.starts_with("string:") {
+            Ok(TokenizerType::String(s[7..].to_string()))
+        } else {
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid TokenizerType format",
+            )))
+        }
+    }
+
+    fn accepts(ty: &postgres_types::Type) -> bool {
+        <String as FromSql>::accepts(ty)
+    }
 }
