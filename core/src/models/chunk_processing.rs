@@ -16,7 +16,7 @@ pub struct ChunkProcessing {
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
     pub target_length: u32,
     /// The tokenizer to use for the chunking process.
-    #[schema(value_type = TokenizerType, default = "Word")]
+    #[schema( value_type = TokenizerType, default = "Word")]
     #[serde(default)]
     pub tokenizer: TokenizerType,
 }
