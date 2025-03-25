@@ -216,7 +216,10 @@ impl Task {
         let configuration = match serde_json::from_str(&config_str) {
             Ok(config) => config,
             Err(e) => {
-                println!("Error deserializing configuration: {:?}", e);
+                println!(
+                    "Error deserializing configuration for task {}: {:?}",
+                    task_id, e
+                );
                 println!("Configuration string: {:?}", config_str);
                 return Err(format!("Error deserializing configuration: {:?}", e).into());
             }
@@ -746,7 +749,7 @@ pub struct Configuration {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
-    pub target_chunk_length: Option<i32>,
+    pub target_chunk_length: Option<u32>,
     #[cfg(feature = "azure")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<PipelineType>,
@@ -774,7 +777,7 @@ impl<'de> Deserialize<'de> for Configuration {
             segment_processing: Option<SegmentProcessing>,
             #[serde(default)]
             segmentation_strategy: Option<SegmentationStrategy>,
-            target_chunk_length: Option<i32>,
+            target_chunk_length: Option<u32>,
             #[cfg(feature = "azure")]
             pipeline: Option<PipelineType>,
         }

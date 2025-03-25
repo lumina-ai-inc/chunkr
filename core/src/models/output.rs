@@ -1,9 +1,20 @@
-use crate::models::search::SimpleChunk;
+use crate::models::chunkr::{
+    chunk_processing::TokenizerType, search::SimpleChunk, segment_processing::EmbedSource,
+    task::Configuration,
+};
+use once_cell::sync::Lazy;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::error::Error;
+use std::sync::{Arc, Mutex};
 use strum_macros::{Display, EnumString};
+use tiktoken_rs::cl100k_base;
+use tokenizers::tokenizer::Tokenizer;
 use utoipa::ToSchema;
+
+static WORD_COUNT_CACHE: Lazy<Arc<Mutex<HashMap<String, u32>>>> =
+    Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
 fn generate_uuid() -> String {
     uuid::Uuid::new_v4().to_string()
@@ -57,27 +68,19 @@ impl Chunk {
         }
     }
 
-    pub fn generate_embed_text(&mut self) {
+    pub fn generate_embed_text(&mut self, configuration: &Configuration) {
         self.embed = Some(
             self.segments
                 .iter()
-                .map(|s| {
-                    if !s.markdown.is_empty() {
-                        s.markdown.clone()
-                    } else if !s.html.is_empty() {
-                        s.html.clone()
-                    } else {
-                        s.content.clone()
-                    }
-                })
+                .map(|s| s.get_embed_content(configuration))
                 .collect::<Vec<String>>()
-                .join(" "),
+                .join("\n"),
         );
         self.chunk_length = self.embed.as_ref().unwrap().split_whitespace().count() as u32;
     }
 
     /// Converts this Chunk into a SimpleChunk, containing just the ID and embed content
-    pub fn to_simple(&self) -> Result<SimpleChunk, Box<dyn Error + Send + Sync>> {
+    pub fn to_simple(&self) -> std::result::Result<SimpleChunk, Box<dyn Error + Send + Sync>> {
         if self.embed.is_none() {
             return Err("Embed is not generated".into());
         }
@@ -185,6 +188,190 @@ impl Segment {
             }
         }
     }
+
+    fn get_embed_content(&self, configuration: &Configuration) -> String {
+        let embed_sources = match self.segment_type {
+            SegmentType::Title => configuration
+                .segment_processing
+                .title
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::SectionHeader => configuration
+                .segment_processing
+                .section_header
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Text => configuration
+                .segment_processing
+                .text
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::ListItem => configuration
+                .segment_processing
+                .list_item
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Table => configuration
+                .segment_processing
+                .table
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Picture => configuration
+                .segment_processing
+                .picture
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Caption => configuration
+                .segment_processing
+                .caption
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Formula => configuration
+                .segment_processing
+                .formula
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Footnote => configuration
+                .segment_processing
+                .footnote
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::PageHeader => configuration
+                .segment_processing
+                .page_header
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::PageFooter => configuration
+                .segment_processing
+                .page_footer
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+            SegmentType::Page => configuration
+                .segment_processing
+                .page
+                .as_ref()
+                .unwrap()
+                .embed_sources
+                .clone(),
+        };
+
+        let mut embed_parts = Vec::new();
+        for source in &embed_sources {
+            match source {
+                EmbedSource::HTML => {
+                    if !self.html.is_empty() {
+                        embed_parts.push(self.html.clone());
+                    }
+                }
+                EmbedSource::Markdown => {
+                    if !self.markdown.is_empty() {
+                        embed_parts.push(self.markdown.clone());
+                    }
+                }
+                EmbedSource::LLM => {
+                    if let Some(llm_content) = &self.llm {
+                        if !llm_content.is_empty() {
+                            embed_parts.push(llm_content.clone());
+                        }
+                    }
+                }
+                EmbedSource::Content => {
+                    if !self.content.is_empty() {
+                        embed_parts.push(self.content.clone());
+                    }
+                }
+            }
+        }
+
+        embed_parts.join("\n")
+    }
+
+    fn count_with_huggingface_tokenizer(
+        content: &str,
+        model_name: &str,
+    ) -> std::result::Result<u32, Box<dyn Error>> {
+        let tokenizer = match Tokenizer::from_pretrained(model_name, None) {
+            Ok(tokenizer) => tokenizer,
+            Err(e) => return Err(e.to_string().into()),
+        };
+
+        let tokens = tokenizer.encode(content, true).map_err(|e| e.to_string())?;
+        Ok(tokens.len() as u32)
+    }
+
+    pub fn count_embed_words(
+        &self,
+        configuration: &Configuration,
+    ) -> std::result::Result<u32, Box<dyn Error>> {
+        let cache_key = format!(
+            "{}-{:?}",
+            self.segment_id, configuration.chunk_processing.tokenizer
+        );
+
+        {
+            if let Ok(cache) = WORD_COUNT_CACHE.lock() {
+                if let Some(count) = cache.get(&cache_key) {
+                    return Ok(*count);
+                }
+            }
+        }
+
+        let content = self.get_embed_content(configuration);
+
+        let result: Result<u32, Box<dyn Error>> = match &configuration.chunk_processing.tokenizer {
+            TokenizerType::Enum(tokenizer) => match tokenizer {
+                crate::models::chunkr::chunk_processing::Tokenizer::Word => {
+                    // Simple whitespace tokenization
+                    let count = content.split_whitespace().count();
+                    Ok(count as u32)
+                }
+                crate::models::chunkr::chunk_processing::Tokenizer::Cl100kBase => {
+                    let bpe = cl100k_base().unwrap();
+                    let tokens = bpe.encode_with_special_tokens(&content);
+                    Ok(tokens.len() as u32)
+                }
+                _ => {
+                    // For other enum tokenizers, use the HuggingFace tokenizer
+                    let tokenizer_name = tokenizer.to_string();
+                    Self::count_with_huggingface_tokenizer(&content, &tokenizer_name)
+                }
+            },
+            TokenizerType::String(model_name) => {
+                // Use the specified model name with the HuggingFace tokenizer
+                Self::count_with_huggingface_tokenizer(&content, model_name)
+            }
+        };
+
+        if let Ok(count) = result {
+            if let Ok(mut cache) = WORD_COUNT_CACHE.lock() {
+                cache.insert(cache_key, count);
+            }
+        }
+
+        result
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -287,4 +474,106 @@ pub enum SegmentType {
     Table,
     Text,
     Title,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::chunkr::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
+    use crate::models::chunkr::segment_processing::{EmbedSource, SegmentProcessing};
+    use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
+
+    fn create_test_segment() -> Segment {
+        Segment {
+            bbox: BoundingBox::new(0.0, 0.0, 100.0, 100.0),
+            confidence: Some(0.9),
+            content: "This is content text".to_string(),
+            html: "<p>This is HTML text</p>".to_string(),
+            image: None,
+            llm: Some("This is LLM text".to_string()),
+            markdown: "This is *Markdown* text".to_string(),
+            ocr: None,
+            page_height: 1000.0,
+            page_width: 800.0,
+            page_number: 1,
+            segment_id: "test-id".to_string(),
+            segment_type: SegmentType::Table,
+        }
+    }
+
+    fn create_test_config() -> Configuration {
+        let mut config = Configuration {
+            chunk_processing: ChunkProcessing {
+                ignore_headers_and_footers: true,
+                target_length: 512,
+                tokenizer: TokenizerType::Enum(Tokenizer::Cl100kBase),
+            },
+            expires_in: None,
+            high_resolution: false,
+            input_file_url: None,
+            json_schema: None,
+            model: None,
+            ocr_strategy: OcrStrategy::All,
+            segment_processing: SegmentProcessing::default(),
+            segmentation_strategy: SegmentationStrategy::LayoutAnalysis,
+            target_chunk_length: None,
+        };
+
+        config
+            .segment_processing
+            .table
+            .as_mut()
+            .unwrap()
+            .embed_sources = vec![EmbedSource::HTML, EmbedSource::Markdown];
+
+        config
+    }
+
+    #[test]
+    fn test_get_embed_content() {
+        let segment = create_test_segment();
+        let config = create_test_config();
+
+        // Test with all sources enabled
+        let content = segment.get_embed_content(&config);
+        println!("Content: {}", content);
+        assert!(content.contains("This is HTML text"));
+        assert!(content.contains("This is *Markdown* text"));
+    }
+
+    #[test]
+    fn test_count_embed_words() {
+        let segment = create_test_segment();
+        let config = create_test_config();
+
+        // When using the Word tokenizer, we should get the word count
+        let word_count = segment.count_embed_words(&config).unwrap();
+        println!("Word count: {}", word_count);
+        // The exact count will depend on the whitespace tokenizer, but it should be reasonable
+        // Expected to be the sum of words from content, HTML, markdown, and LLM
+        assert!(word_count > 0);
+    }
+
+    #[test]
+    fn test_count_embed_words_with_many_tokenizers() {
+        let segment = create_test_segment();
+        let mut config = create_test_config();
+        let identifiers = vec![
+            TokenizerType::Enum(Tokenizer::Word),
+            TokenizerType::Enum(Tokenizer::Cl100kBase),
+            TokenizerType::Enum(Tokenizer::XlmRobertaBase),
+            TokenizerType::Enum(Tokenizer::BertBaseUncased),
+            TokenizerType::String("Qwen/Qwen-tokenizer".to_string()),
+            TokenizerType::String("facebook/bart-large".to_string()),
+        ];
+
+        for identifier in identifiers {
+            config.chunk_processing.tokenizer = identifier.clone();
+            let word_count = segment.count_embed_words(&config).unwrap();
+            println!("Word count for {:?}: {}", identifier, word_count);
+            // The exact count will depend on the whitespace tokenizer, but it should be reasonable
+            // Expected to be the sum of words from content, HTML, markdown, and LLM
+            assert!(word_count > 0);
+        }
+    }
 }

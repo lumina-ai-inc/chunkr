@@ -12,11 +12,12 @@ pub struct ChunkProcessing {
     /// This is recommended as headers and footers break reading order across pages.
     pub ignore_headers_and_footers: bool,
     #[serde(default = "default_target_length")]
-    #[schema(value_type = i32, default = 512)]
+    #[schema(value_type = u32, default = 512)]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
-    pub target_length: i32,
+    pub target_length: u32,
     /// The tokenizer to use for the chunking process.
     #[schema(value_type = TokenizerType, default = "Word")]
+    #[serde(default)]
     pub tokenizer: TokenizerType,
 }
 
@@ -30,7 +31,7 @@ impl ChunkProcessing {
     }
 }
 
-pub fn default_target_length() -> i32 {
+pub fn default_target_length() -> u32 {
     512
 }
 
@@ -47,11 +48,9 @@ pub fn default_ignore_headers_and_footers() -> bool {
 /// tokenizers from the Hugging Face ecosystem.
 pub enum Tokenizer {
     /// Split text by word boundaries
-    #[strum(serialize = "whitespace")]
+    #[default]
     Word,
     /// For OpenAI models (e.g. GPT-3.5, GPT-4, text-embedding-ada-002)
-    #[default]
-    #[strum(serialize = "cl100k_base")]
     Cl100kBase,
     /// For RoBERTa-based multilingual models
     #[strum(serialize = "xlm-roberta-base")]
@@ -61,7 +60,7 @@ pub enum Tokenizer {
     BertBaseUncased,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display)]
 /// Specifies which tokenizer to use for the chunking process.
 ///
 /// This type supports two ways of specifying a tokenizer:
@@ -75,8 +74,15 @@ pub enum TokenizerType {
     /// Use one of the predefined tokenizer types
     Enum(Tokenizer),
     /// Use any Hugging Face tokenizer by specifying its model ID
-    /// Examples: "gpt2", "bert-base-uncased", "facebook/bart-large"
+    /// Examples: "Qwen/Qwen-tokenizer", "facebook/bart-large"
     String(String),
+}
+
+// Add Default implementation for TokenizerType
+impl Default for TokenizerType {
+    fn default() -> Self {
+        TokenizerType::Enum(Tokenizer::default())
+    }
 }
 
 // Manual implementation of ToSql and FromSql for TokenizerType

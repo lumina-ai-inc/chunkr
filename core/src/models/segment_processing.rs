@@ -106,8 +106,8 @@ pub struct AutoGenerationConfig {
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub markdown: GenerationStrategy,
-
     #[serde(default = "default_embed_sources")]
+    #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
 }
 
@@ -163,6 +163,7 @@ pub struct LlmGenerationConfig {
     #[schema(default = "LLM")]
     pub markdown: GenerationStrategy,
     #[serde(default = "default_embed_sources")]
+    #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
 }
 
@@ -202,6 +203,7 @@ pub struct PictureGenerationConfig {
     #[schema(default = "LLM")]
     pub markdown: GenerationStrategy,
     #[serde(default = "default_embed_sources")]
+    #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
 }
 
