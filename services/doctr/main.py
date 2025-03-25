@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
 from doctr.io import DocumentFile
-from doctr.models import ocr_predictor, db_resnet50, parseq
+from doctr.models import ocr_predictor
 import dotenv
 from fastapi import FastAPI, File, UploadFile
 import numpy as np
@@ -20,17 +20,35 @@ dotenv.load_dotenv(override=True)
 
 batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.25))
 max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 50))
-detection_model = db_resnet50(pretrained=True).eval()
-recognition_model = parseq(pretrained=True).eval()
+detection_model_name = os.getenv('OCR_DETECTION_MODEL', 'db_resnet50')
+recognition_model_name = os.getenv('OCR_RECOGNITION_MODEL', 'parseq')
+
+if detection_model_name == 'db_resnet50':
+    from doctr.models import db_resnet50
+    detection_model = db_resnet50(pretrained=True).eval()
+else:
+    detection_module = __import__('doctr.models', fromlist=[detection_model_name])
+    detection_model = getattr(detection_module, detection_model_name)(pretrained=True).eval()
+
+if recognition_model_name == 'parseq':
+    from doctr.models import parseq
+    recognition_model = parseq(pretrained=True).eval()
+else:
+    recognition_module = __import__('doctr.models', fromlist=[recognition_model_name])
+    recognition_model = getattr(recognition_module, recognition_model_name)(pretrained=True).eval()
 
 predictor = ocr_predictor(detection_model, recognition_model, pretrained=True, 
                          export_as_straight_boxes=True)
 if torch.cuda.is_available():
     print(f"Using GPU: {torch.cuda.get_device_name(0)}")
     print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+    print(f"Using detection model: {detection_model_name}")
+    print(f"Using recognition model: {recognition_model_name}")
     print("Using GPU")
     predictor = predictor.cuda()
 else:
+    print(f"Using detection model: {detection_model_name}")
+    print(f"Using recognition model: {recognition_model_name}")
     print("Using CPU")
 
 os.environ['USE_TORCH'] = 'YES'

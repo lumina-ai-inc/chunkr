@@ -55,10 +55,7 @@ pub async fn open_ai_call(
     let response: OpenAiResponse = match serde_json::from_str(&text) {
         Ok(parsed) => parsed,
         Err(e) => {
-            println!(
-                "Model: {}\nError parsing JSON: {:?}\nRaw response: {}",
-                model, e, text
-            );
+            println!("Model: {}\nError parsing JSON: {:?}", model, e);
             return Err(Box::new(LLMError("Error parsing JSON".to_string())));
         }
     };
