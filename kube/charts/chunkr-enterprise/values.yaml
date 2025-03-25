@@ -30,6 +30,7 @@ ingress:
         - name: analytics-server
         - name: sparse-doc-embeddings
         - name: sparse-query-embeddings
+        
 common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
