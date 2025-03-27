@@ -155,9 +155,10 @@ pub async fn process(
                         .await?;
                     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                 } else {
-                    let message: String = format!("Task failed after {} retries", retries);
-                    println!("{}: {}", message, e);
-                    pipeline.complete(Status::Failed, Some(message)).await?;
+                    println!("Task failed with error: {}", e);
+                    pipeline
+                        .complete(Status::Failed, Some("Task failed".to_string()))
+                        .await?;
                     return Err(e);
                 }
             }
