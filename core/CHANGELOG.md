@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.3...chunkr-core-v1.4.0) (2025-03-27)
+
+
+### Features
+
+* **core:** Remove rrq dependency and improve memory management ([92b70dc](https://github.com/lumina-ai-inc/chunkr/commit/92b70dceb1188cec926e415ff295127a3fb085cc))
+* New picture prompts ([#405](https://github.com/lumina-ai-inc/chunkr/issues/405)) ([d161fa0](https://github.com/lumina-ai-inc/chunkr/commit/d161fa0820fc03ffaf9bdbbf58c124179548a31a))
+
 ## [1.3.3](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.2...chunkr-core-v1.3.3) (2025-03-21)
 
 

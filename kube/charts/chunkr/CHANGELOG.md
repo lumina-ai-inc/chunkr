@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.0.2...chunkr-chart-v1.1.0) (2025-03-27)
+
+
+### Features
+
+* **core:** Remove rrq dependency and improve memory management ([92b70dc](https://github.com/lumina-ai-inc/chunkr/commit/92b70dceb1188cec926e415ff295127a3fb085cc))
+
 ## [1.0.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.0.1...chunkr-chart-v1.0.2) (2025-03-13)
 
 
