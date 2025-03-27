@@ -1,7 +1,7 @@
-use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::search::ChunkContent;
-use crate::models::chunkr::structured_extraction::StructuredExtractionRequest;
-use crate::models::chunkr::task::Status;
+use crate::models::pipeline::Pipeline;
+use crate::models::search::ChunkContent;
+use crate::models::structured_extraction::StructuredExtractionRequest;
+use crate::models::task::Status;
 use crate::utils::services::structured_extraction::perform_structured_extraction;
 use std::error::Error;
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {

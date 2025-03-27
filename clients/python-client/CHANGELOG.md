@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.43](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.42...chunkr-ai-v0.0.43) (2025-03-21)
+
+
+### Bug Fixes
+
+* **client:** Polling would error out on httpx.ReadTimeout ([#400](https://github.com/lumina-ai-inc/chunkr/issues/400)) ([aea1255](https://github.com/lumina-ai-inc/chunkr/commit/aea125533063de8bbddb36741aed5c1c07ba693b))
+
 ## [0.0.42](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.41...chunkr-ai-v0.0.42) (2025-03-11)
 
 

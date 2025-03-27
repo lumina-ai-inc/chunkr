@@ -1,7 +1,7 @@
 use crate::configs::postgres_config::Client;
 use crate::configs::user_config::Config as UserConfig;
-use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
+use crate::models::auth::UserInfo;
+use crate::models::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};

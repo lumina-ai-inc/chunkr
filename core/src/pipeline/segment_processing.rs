@@ -1,10 +1,10 @@
 use crate::configs::llm_config::create_messages_from_template;
-use crate::models::chunkr::output::{Segment, SegmentType};
-use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::segment_processing::{
+use crate::models::output::{Segment, SegmentType};
+use crate::models::pipeline::Pipeline;
+use crate::models::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
 };
-use crate::models::chunkr::task::{Configuration, Status};
+use crate::models::task::{Configuration, Status};
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;

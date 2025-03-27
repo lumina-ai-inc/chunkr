@@ -79,6 +79,44 @@ jobs:
             luminainc/${{ matrix.component }}:${{ steps.version.outputs.VERSION }}
             luminainc/${{ matrix.component }}:latest
 
+  publish-helm-chart:
+    needs: [release-please]
+    if: ${{ (github.event_name == 'workflow_dispatch') || (needs.release-please.outputs.releases_created == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Extract version without 'v' prefix
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            TAG="${{ needs.release-please.outputs.release_tag }}"
+            echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Package Helm chart
+        run: |
+          helm package kube/charts/chunkr --version ${{ steps.version.outputs.VERSION }}
+          
+      - name: Push Helm chart to GitHub Container Registry
+        run: |
+          helm push chunkr-${{ steps.version.outputs.VERSION }}.tgz oci://ghcr.io/${{ github.repository_owner }}/charts
+
   update-compose-files:
     needs: [release-please]
     if: ${{ (github.event_name == 'workflow_dispatch') || (needs.release-please.outputs.releases_created == 'true') }}
@@ -120,3 +158,55 @@ jobs:
           branch: update-compose-files-${{ steps.get_version.outputs.VERSION }}
           base: main
           delete-branch: true
+
+  publish-python-client:
+    needs: [release-please]
+    if: ${{ (github.event_name == 'workflow_dispatch') || (needs.release-please.outputs.releases_created == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        
+      - name: Check if python client was updated
+        id: check-python
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "PUBLISH_PYTHON=true" >> $GITHUB_OUTPUT
+          else
+            # Get the previous tag to compare changes
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 --exclude=${{ needs.release-please.outputs.release_tag }} $(git rev-list --tags --max-count=1))
+            echo "Comparing changes between $PREVIOUS_TAG and ${{ needs.release-please.outputs.release_tag }}"
+            
+            # Check if pyproject.toml was modified
+            if git diff --name-only $PREVIOUS_TAG ${{ needs.release-please.outputs.release_tag }} | grep -q "clients/python-client/pyproject.toml"; then
+              echo "Python client pyproject.toml was updated"
+              echo "PUBLISH_PYTHON=true" >> $GITHUB_OUTPUT
+            else
+              echo "Python client pyproject.toml was not updated"
+              echo "PUBLISH_PYTHON=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      - name: Set up Python
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install uv
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        run: pip install uv
+      
+      - name: Build package
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        working-directory: ./clients/python-client
+        run: uv build
+      
+      - name: Publish to PyPI
+        if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
+        working-directory: ./clients/python-client
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish --token $PYPI_TOKEN

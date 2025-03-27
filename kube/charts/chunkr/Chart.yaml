@@ -1,11 +1,11 @@
 apiVersion: v2
-name: chunkr-chart
+name: chunkr
 description: >-
   A self-hostable API for converting pdf, pptx, docx, and excel files into
   RAG/LLM ready data. Features 11 semantic tags for layout analysis, OCR +
   Bounding Boxes, and Structured HTML and markdown output.
 type: application
-version: 1.6.0
+version: 1.7.0
 maintainers:
   - name: Lumina AI Inc.
     email: akhilesh@lumina.sh

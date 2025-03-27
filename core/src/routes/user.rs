@@ -1,5 +1,5 @@
 use crate::configs::email_config;
-use crate::models::chunkr::auth::UserInfo;
+use crate::models::auth::UserInfo;
 use crate::utils::routes::{create_user::create_user, get_user::get_user};
 use crate::utils::services::email::EmailService;
 use actix_web::{web, Error, HttpResponse};

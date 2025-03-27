@@ -2,9 +2,9 @@ use crate::configs::{
     llm_config::{get_prompt, Config as LlmConfig},
     search_config::Config as SearchConfig,
 };
-use crate::models::chunkr::open_ai::MessageContent;
-use crate::models::chunkr::search::{Search, SearchResult};
-use crate::models::chunkr::structured_extraction::{
+use crate::models::open_ai::MessageContent;
+use crate::models::search::{Search, SearchResult};
+use crate::models::structured_extraction::{
     StructuredExtractionRequest, StructuredExtractionResponse,
 };
 use crate::utils::services::llm::{create_basic_message, process_openai_request};
@@ -141,8 +141,8 @@ pub async fn perform_structured_extraction(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::search::{ChunkContent, SimpleChunk};
-    use crate::models::chunkr::structured_extraction::{
+    use crate::models::search::{ChunkContent, SimpleChunk};
+    use crate::models::structured_extraction::{
         ExtractionType, JsonSchema, StructuredExtraction,
     };
     use crate::utils::clients;
