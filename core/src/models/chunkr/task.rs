@@ -1,10 +1,10 @@
 use crate::configs::worker_config;
-use crate::models::chunk_processing::ChunkProcessing;
-use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
-use crate::models::segment_processing::{
+use crate::models::chunkr::chunk_processing::ChunkProcessing;
+use crate::models::chunkr::output::{Chunk, OutputResponse, Segment, SegmentType};
+use crate::models::chunkr::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
-use crate::models::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
 use crate::utils::storage::services::delete_folder;
@@ -34,20 +34,6 @@ pub struct TaskDetails {
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub status: String,
 }
-
-#[derive(Debug)]
-pub struct TimeoutError {
-    pub message: String,
-}
-
-impl std::fmt::Display for TimeoutError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl std::error::Error for TimeoutError {}
-
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Task {
     pub api_key: Option<String>,
@@ -337,29 +323,6 @@ impl Task {
         expires_at: Option<DateTime<Utc>>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let client = get_pg_client().await?;
-
-        // Check if the task is in a timeout state
-        let row = client
-            .query_opt(
-                "SELECT message FROM tasks WHERE task_id = $1 AND user_id = $2",
-                &[&self.task_id, &self.user_id],
-            )
-            .await?;
-
-        if let Some(row) = row {
-            let current_message: Option<String> = row.get("message");
-            if let Some(msg) = current_message {
-                if msg.to_lowercase().contains("timeout")
-                    || msg.to_lowercase().contains("timed out")
-                {
-                    self.message = Some(msg.clone());
-                    return Err(Box::new(TimeoutError {
-                        message: format!("Task has timed out and cannot be updated"),
-                    }));
-                }
-            }
-        }
-
         let mut update_parts = vec![];
         if let Some(status) = status {
             update_parts.push(format!("status = '{:?}'", status));

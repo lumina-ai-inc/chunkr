@@ -1,7 +1,7 @@
 use crate::configs::azure_config;
-use crate::models::azure::{AzureAnalysisResponse, DocumentAnalysisFeature};
-use crate::models::output::Chunk;
-use crate::models::upload::SegmentationStrategy;
+use crate::models::chunkr::azure::{AzureAnalysisResponse, DocumentAnalysisFeature};
+use crate::models::chunkr::output::Chunk;
+use crate::models::chunkr::upload::SegmentationStrategy;
 use crate::utils::clients;
 use crate::utils::retry::retry_with_backoff;
 use base64::{engine::general_purpose, Engine as _};

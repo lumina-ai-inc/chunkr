@@ -1,6 +1,6 @@
-use crate::models::auth::UserInfo;
-use crate::models::task::{Configuration, Task, TaskResponse};
-use crate::utils::services::payload::queue_task_payload;
+use crate::models::chunkr::auth::UserInfo;
+use crate::models::chunkr::task::{Configuration, Task, TaskResponse};
+use crate::utils::services::payload::produce_extraction_payloads;
 use std::error::Error;
 use tempfile::NamedTempFile;
 
@@ -19,7 +19,7 @@ pub async fn create_task(
     )
     .await?;
     let extraction_payload = task.to_task_payload(None, None, None, None);
-    queue_task_payload(extraction_payload).await?;
+    produce_extraction_payloads(extraction_payload).await?;
     let task_response: TaskResponse = task.to_task_response(false, false).await?;
     Ok(task_response)
 }

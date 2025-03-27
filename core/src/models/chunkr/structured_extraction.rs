@@ -1,4 +1,4 @@
-use crate::models::search::ChunkContent;
+use crate::models::chunkr::search::ChunkContent;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;

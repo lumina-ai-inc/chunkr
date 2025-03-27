@@ -1,4 +1,4 @@
-use crate::models::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
+use crate::models::chunkr::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
 use crate::utils::services::html::convert_table_to_markdown;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

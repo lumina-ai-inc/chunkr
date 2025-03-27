@@ -28,16 +28,9 @@ RUN apt-get update -y; \
     libreoffice \
     file \
     imagemagick \
-    curl \
     ; \
     mkdir -p /app/tmp && \
     sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
-
-# Download and extract PDFium binary
-RUN mkdir -p /app/pdfium-binaries && \
-    curl -L https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz | \
-    tar -xz -C /tmp && \
-    cp /tmp/lib/libpdfium.so /app/pdfium-binaries/
 
 COPY --from=builder /app/target/release/core /app/core
 

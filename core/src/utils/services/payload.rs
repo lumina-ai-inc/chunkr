@@ -1,41 +1,22 @@
 use crate::configs::worker_config::Config as WorkerConfig;
-use crate::models::task::TaskPayload;
-use crate::utils::clients::get_redis_pool;
-use deadpool_redis::redis::cmd;
+use crate::models::chunkr::task::TaskPayload;
+use crate::models::rrq::produce::ProducePayload;
+use crate::utils::rrq::service::produce;
+use std::error::Error;
+use uuid::Uuid;
 
-pub async fn queue_task_payload(
-    task_payload: TaskPayload,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let pool = get_redis_pool();
-    let mut conn = pool.get().await.unwrap();
-    let worker_config = WorkerConfig::from_env().expect("Failed to load worker config");
-    match cmd("RPUSH")
-        .arg(&worker_config.queue_task)
-        .arg(serde_json::to_string(&task_payload).expect("Failed to serialize task payload"))
-        .query_async::<i64>(&mut conn)
-        .await
-    {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e.to_string().into()),
-    }
-}
+pub async fn produce_extraction_payloads(
+    extraction_payload: TaskPayload,
+) -> Result<(), Box<dyn Error>> {
+    let worker_config = WorkerConfig::from_env().unwrap();
+    let produce_payload = ProducePayload {
+        queue_name: worker_config.queue_task,
+        publish_channel: None,
+        payload: serde_json::to_value(extraction_payload).unwrap(),
+        max_attempts: Some(worker_config.max_retries),
+        item_id: Uuid::new_v4().to_string(),
+    };
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::utils::clients::initialize;
-
-    #[tokio::test]
-    async fn test_queue_task_payload() {
-        initialize().await;
-        let task_payload = TaskPayload {
-            previous_configuration: None,
-            previous_message: None,
-            previous_status: None,
-            previous_version: None,
-            task_id: "test_task_id".to_string(),
-            user_id: "test_user_id".to_string(),
-        };
-        queue_task_payload(task_payload).await.unwrap();
-    }
+    produce(vec![produce_payload]).await?;
+    Ok(())
 }

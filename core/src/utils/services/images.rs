@@ -1,4 +1,4 @@
-use crate::models::output::BoundingBox;
+use crate::models::chunkr::output::BoundingBox;
 use image::*;
 use tempfile::NamedTempFile;
 

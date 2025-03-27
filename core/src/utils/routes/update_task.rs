@@ -1,5 +1,5 @@
-use crate::models::task::{Configuration, Status, Task, TaskResponse};
-use crate::utils::services::payload::queue_task_payload;
+use crate::models::chunkr::task::{Configuration, Status, Task, TaskResponse};
+use crate::utils::services::payload::produce_extraction_payloads;
 use std::error::Error;
 
 pub async fn update_task(
@@ -29,7 +29,7 @@ pub async fn update_task(
         )
         .await?;
 
-    queue_task_payload(previous_task.to_task_payload(
+    produce_extraction_payloads(previous_task.to_task_payload(
         Some(previous_configuration.clone()),
         Some(previous_status),
         previous_message,

@@ -1,10 +1,10 @@
 use crate::configs::job_config;
-use crate::models::chunk_processing::ChunkProcessing;
-use crate::models::segment_processing::SegmentProcessing;
-use crate::models::task::Configuration;
+use crate::models::chunkr::chunk_processing::ChunkProcessing;
+use crate::models::chunkr::segment_processing::SegmentProcessing;
+use crate::models::chunkr::task::Configuration;
 #[cfg(feature = "azure")]
-use crate::models::task::PipelineType;
-use crate::models::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::chunkr::task::PipelineType;
+use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use utoipa::{IntoParams, ToSchema};

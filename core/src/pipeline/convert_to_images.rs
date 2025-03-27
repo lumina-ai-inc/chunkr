@@ -1,5 +1,5 @@
-use crate::models::pipeline::Pipeline;
-use crate::models::task::Status;
+use crate::models::chunkr::pipeline::Pipeline;
+use crate::models::chunkr::task::Status;
 use crate::utils::services::pdf::pages_as_images;
 use std::sync::Arc;
 

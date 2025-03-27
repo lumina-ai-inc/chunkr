@@ -1,5 +1,5 @@
 use crate::configs::worker_config;
-use crate::models::output::{BoundingBox, OCRResult, Segment, SegmentType};
+use crate::models::chunkr::output::{BoundingBox, OCRResult, Segment, SegmentType};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 

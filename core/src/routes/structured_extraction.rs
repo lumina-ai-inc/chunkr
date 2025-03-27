@@ -1,4 +1,4 @@
-use crate::models::structured_extraction::{
+use crate::models::chunkr::structured_extraction::{
     StructuredExtractionRequest, StructuredExtractionResponse,
 };
 use crate::utils::services::structured_extraction::perform_structured_extraction;

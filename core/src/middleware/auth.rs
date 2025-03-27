@@ -1,5 +1,5 @@
 use crate::configs::auth_config::Config;
-use crate::models::auth::UserInfo;
+use crate::models::chunkr::auth::UserInfo;
 use crate::utils::clients::get_pg_client;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},

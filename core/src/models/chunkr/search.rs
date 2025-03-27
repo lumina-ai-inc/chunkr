@@ -1,5 +1,5 @@
 use crate::configs::search_config;
-use crate::models::output::Chunk;
+use crate::models::chunkr::output::Chunk;
 use crate::utils::clients::get_reqwest_client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;

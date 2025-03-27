@@ -1,4 +1,4 @@
-use crate::models::open_ai::Message;
+use crate::models::chunkr::open_ai::Message;
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};

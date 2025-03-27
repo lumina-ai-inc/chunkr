@@ -1,6 +1,6 @@
 use super::{create_user::create_user, get_user::get_user};
-use crate::models::auth::UserInfo;
-use crate::models::user::User;
+use crate::models::chunkr::auth::UserInfo;
+use crate::models::chunkr::user::User;
 
 pub async fn get_or_create_admin_user() -> Result<User, Box<dyn std::error::Error>> {
     let user_info = UserInfo {
