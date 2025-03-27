@@ -40,6 +40,7 @@ services:
 
   segmentation:
     image: luminainc/segmentation:1.4.2
+    platform: linux/amd64
     ports:
       - "8001:8000"
     deploy:
@@ -120,6 +121,7 @@ services:
 
   minio:
     image: minio/minio:latest
+    platform: linux/amd64
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -137,6 +139,7 @@ services:
 
   minio-init:
     image: minio/mc
+    platform: linux/amd64
     depends_on:
       minio:
         condition: service_healthy
