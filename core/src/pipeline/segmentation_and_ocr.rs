@@ -1,8 +1,8 @@
 use crate::configs::throttle_config::Config as ThrottleConfig;
-use crate::models::chunkr::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
-use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::task::{Status, Task};
-use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
+use crate::models::pipeline::Pipeline;
+use crate::models::task::{Status, Task};
+use crate::models::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::services::images;
 use crate::utils::services::ocr;
 use crate::utils::services::pdf;

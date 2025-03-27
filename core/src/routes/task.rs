@@ -1,7 +1,7 @@
-use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::task::{Task, TaskQuery, TaskResponse};
-use crate::models::chunkr::upload;
-use crate::models::chunkr::upload_multipart;
+use crate::models::auth::UserInfo;
+use crate::models::task::{Task, TaskQuery, TaskResponse};
+use crate::models::upload;
+use crate::models::upload_multipart;
 use crate::utils::routes::cancel_task::cancel_task;
 use crate::utils::routes::create_task;
 use crate::utils::routes::delete_task::delete_task;

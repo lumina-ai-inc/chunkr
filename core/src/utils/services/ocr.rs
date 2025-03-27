@@ -1,6 +1,6 @@
 use crate::configs::worker_config::Config as WorkerConfig;
-use crate::models::chunkr::general_ocr::DoctrResponse;
-use crate::models::chunkr::output::OCRResult;
+use crate::models::general_ocr::DoctrResponse;
+use crate::models::output::OCRResult;
 use crate::utils::rate_limit::{GENERAL_OCR_RATE_LIMITER, GENERAL_OCR_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
