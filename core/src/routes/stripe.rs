@@ -1,6 +1,6 @@
 use crate::configs::stripe_config::Config;
-use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::user::InvoiceStatus;
+use crate::models::auth::UserInfo;
+use crate::models::user::InvoiceStatus;
 use crate::utils::clients::get_pg_client;
 use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};

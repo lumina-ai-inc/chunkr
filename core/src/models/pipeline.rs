@@ -1,6 +1,6 @@
 use crate::configs::worker_config;
-use crate::models::chunkr::output::Chunk;
-use crate::models::chunkr::task::{Status, Task, TaskPayload};
+use crate::models::output::Chunk;
+use crate::models::task::{Status, Task, TaskPayload};
 use crate::utils::services::file_operations::convert_to_pdf;
 use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
