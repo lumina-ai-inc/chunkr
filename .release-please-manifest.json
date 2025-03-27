@@ -1,8 +1,8 @@
 {
-    "core": "1.4.0",
+    "core": "1.5.0",
     "clients/python-client": "0.0.43",
-    "services": "0.1.0",
+    "services": "0.1.1",
     "apps/web": "1.1.0",
-    "kube/charts/chunkr": "1.1.0",
-    ".": "1.7.0"
+    "kube/charts/chunkr": "1.2.0",
+    ".": "1.8.0"
 }
