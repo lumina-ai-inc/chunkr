@@ -106,6 +106,7 @@ services:
 
   minio:
     image: minio/minio:latest
+    platform: linux/amd64
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -123,6 +124,7 @@ services:
 
   minio-init:
     image: minio/mc
+    platform: linux/amd64
     depends_on:
       minio:
         condition: service_healthy
