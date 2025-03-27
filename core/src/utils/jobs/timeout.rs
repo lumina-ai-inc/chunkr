@@ -7,7 +7,7 @@ pub async fn timeout(timeout: u32) -> Result<(), Box<dyn std::error::Error>> {
         .execute(
             "UPDATE tasks SET status = 'Failed', message = 'Task timed out' 
              WHERE (status = 'Starting' AND created_at < NOW() - INTERVAL '1 second' * $1::float8)
-             OR (status = 'Processing' AND started_at < NOW() - INTERVAL '1 second' * $1::float8)",
+             OR (status = 'Processing' AND COALESCE(started_at, created_at) < NOW() - INTERVAL '1 second' * $1::float8)",
             &[&(timeout as f64)],
         )
         .await?;
