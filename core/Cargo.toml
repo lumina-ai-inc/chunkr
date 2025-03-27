@@ -72,6 +72,7 @@ utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web", "vendored"] }
 uuid = { version = "1.8.0", features = ["v4", "v5"] }
 url = "2.5.4"
 urlencoding = "2.1.3"
+libc = "0.2.171"
 
 [dev-dependencies]
 rand = "0.9.0"

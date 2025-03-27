@@ -1,19 +1,23 @@
-use crate::configs::redis_config::{Pipeline, RedisResult};
 use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::task::TaskPayload;
 use crate::utils::clients::get_redis_pool;
+use deadpool_redis::redis::cmd;
 
-pub async fn queue_task_payload(task_payload: TaskPayload) -> RedisResult<()> {
+pub async fn queue_task_payload(
+    task_payload: TaskPayload,
+) -> Result<(), Box<dyn std::error::Error>> {
     let pool = get_redis_pool();
     let mut conn = pool.get().await.unwrap();
     let worker_config = WorkerConfig::from_env().expect("Failed to load worker config");
-    let mut pipe = Pipeline::new();
-    pipe.rpush(
-        worker_config.queue_task,
-        serde_json::to_string(&task_payload).expect("Failed to serialize task payload"),
-    );
-    pipe.atomic().query_async(&mut conn).await?;
-    Ok(())
+    match cmd("RPUSH")
+        .arg(&worker_config.queue_task)
+        .arg(serde_json::to_string(&task_payload).expect("Failed to serialize task payload"))
+        .query_async::<i64>(&mut conn)
+        .await
+    {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string().into()),
+    }
 }
 
 #[cfg(test)]

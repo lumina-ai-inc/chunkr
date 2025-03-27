@@ -1,8 +1,9 @@
 use crate::configs::postgres_config::{create_pool, Pool};
-use crate::configs::redis_config::{create_pool as create_redis_pool, Pool as RedisPool};
+use crate::configs::redis_config::create_pool as create_redis_pool;
 use crate::configs::s3_config::{create_client, create_external_client};
 use crate::utils::rate_limit::init_throttle;
 use aws_sdk_s3::Client as S3Client;
+use deadpool_redis::Pool as RedisPool;
 use futures::FutureExt;
 use once_cell::sync::OnceCell;
 use reqwest::Client as ReqwestClient;

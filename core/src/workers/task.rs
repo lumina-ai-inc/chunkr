@@ -83,68 +83,89 @@ fn orchestrate_task(
 }
 
 #[cfg_attr(feature = "memory_profiling", track_mem)]
-pub async fn process(task_payload: TaskPayload) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn process(
+    task_payload: TaskPayload,
+    max_retries: u32,
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut pipeline = Pipeline::new();
-    let result: Result<(), Box<dyn std::error::Error>> = (async {
-        pipeline.init(task_payload).await?;
-        if pipeline.get_task()?.status != Status::Processing {
-            println!(
-                "Skipping task as status is {:?}",
-                pipeline.get_task()?.status
-            );
-            return Ok(());
-        }
-        let start_time = std::time::Instant::now();
-        for step in orchestrate_task(&mut pipeline)? {
-            execute_step(step, &mut pipeline).await?;
+    let mut retries = 0;
+    let mut last_error = None;
+
+    while retries <= max_retries {
+        let result: Result<(), Box<dyn std::error::Error>> = (async {
+            // Reset pipeline if this is a retry
+            if retries > 0 {
+                pipeline = Pipeline::new();
+            }
+
+            pipeline.init(task_payload.clone()).await?;
             if pipeline.get_task()?.status != Status::Processing {
+                println!(
+                    "Skipping task as status is {:?}",
+                    pipeline.get_task()?.status
+                );
                 return Ok(());
             }
-        }
-        let end_time = std::time::Instant::now();
-        println!(
-            "Task took {:?} to complete with page count {:?}",
-            end_time.duration_since(start_time),
-            pipeline.get_task()?.page_count.unwrap_or(0)
-        );
+            let start_time = std::time::Instant::now();
+            for step in orchestrate_task(&mut pipeline)? {
+                execute_step(step, &mut pipeline).await?;
+                if pipeline.get_task()?.status != Status::Processing {
+                    return Ok(());
+                }
+            }
+            let end_time = std::time::Instant::now();
+            println!(
+                "Task took {:?} to complete with page count {:?}",
+                end_time.duration_since(start_time),
+                pipeline.get_task()?.page_count.unwrap_or(0)
+            );
 
-        pipeline
-            .complete(Status::Succeeded, Some("Task succeeded".to_string()))
-            .await?;
-        Ok(())
-    })
-    .await;
+            pipeline
+                .complete(Status::Succeeded, Some("Task succeeded".to_string()))
+                .await?;
+            Ok(())
+        })
+        .await;
 
-    match result {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            let message = "Task failed".to_string();
-            pipeline.complete(Status::Failed, Some(message)).await?;
-            // match task_payload.attempt >= task_payload.max_attempts {
-            //     true => {
-            //         let message = "Task failed".to_string();
-            //         pipeline.complete(Status::Failed, Some(message)).await?;
-            //     }
-            //     false => {
-            //         let message =
-            //             format!("Retrying task {}/{}", payload.attempt, payload.max_attempts);
-            //         pipeline
-            //             .get_task()?
-            //             .update(
-            //                 Some(Status::Processing),
-            //                 Some(message),
-            //                 None,
-            //                 None,
-            //                 None,
-            //                 None,
-            //                 None,
-            //             )
-            //             .await?;
-            //     }
-            // };
-            Err(e)
+        match result {
+            Ok(_) => return Ok(()),
+            Err(e) => {
+                if retries < max_retries {
+                    println!(
+                        "Task failed, retrying {}/{}: {}",
+                        retries + 1,
+                        max_retries,
+                        e
+                    );
+                    retries += 1;
+                    last_error = Some(e);
+                    pipeline
+                        .get_task()?
+                        .update(
+                            Some(Status::Processing),
+                            Some(format!(
+                                "Task failed | retrying {}/{}",
+                                retries, max_retries
+                            )),
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        .await?;
+                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                } else {
+                    let message = format!("Task failed after {} retries", retries);
+                    println!("{}: {}", message, last_error.as_ref().unwrap());
+                    pipeline.complete(Status::Failed, Some(message)).await?;
+                    return Err(last_error.unwrap());
+                }
+            }
         }
     }
+
+    unreachable!("Loop should have returned already");
 }
 
 #[tokio::main]
@@ -154,6 +175,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     PdfiumConfig::from_env()?.ensure_binary().await?;
     initialize().await;
     println!("Listening for tasks on queue: {}", &config.queue_task);
+
     loop {
         let mut conn = get_redis_pool().get().await.unwrap();
         let result: Option<(String, String)> = redis::cmd("BRPOP")
@@ -163,13 +185,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .await?;
 
         if let Some((_, task_json)) = result {
-            match serde_json::from_str::<TaskPayload>(&task_json) {
-                Ok(payload) => match process(payload).await {
-                    Ok(_) => println!("Task processed successfully"),
-                    Err(e) => eprintln!("Error processing task: {}", e),
-                },
-                Err(e) => eprintln!("Failed to parse task: {}", e),
+            {
+                match serde_json::from_str::<TaskPayload>(&task_json) {
+                    Ok(payload) => match process(payload, config.max_retries).await {
+                        Ok(_) => println!("Task processed successfully"),
+                        Err(e) => eprintln!("Error processing task: {}", e),
+                    },
+                    Err(e) => eprintln!("Failed to parse task: {}", e),
+                }
+
+                // Force a minor GC via MALLOC_TRIM (requires libc feature)
+                #[cfg(target_os = "linux")]
+                unsafe {
+                    // This tells glibc to release free memory back to the OS
+                    libc::malloc_trim(0);
+                    #[cfg(feature = "memory_profiling")]
+                    println!("Memory trimmed");
+                }
             }
+
+            // Create a small delay to give the OS time to reclaim memory
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
         }
     }
 }
