@@ -10,10 +10,10 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json --bin "task" --features azure
+RUN cargo chef cook --release --recipe-path recipe.json --bin "task" --features "azure memory_profiling"
 # Build application
 COPY core/ .
-RUN cargo build --release --bin "task" --features azure
+RUN cargo build --release --bin "task" --features "azure memory_profiling"
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
@@ -36,6 +36,12 @@ RUN apt-get update -y; \
     curl -fsSLO https://subtrace.dev/download/latest/$(uname -s)/$(uname -m)/subtrace && \
     chmod +x ./subtrace && \
     sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+
+# Download and extract PDFium binary
+RUN mkdir -p /app/pdfium-binaries && \
+    curl -L https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz | \
+    tar -xz -C /tmp && \
+    cp /tmp/lib/libpdfium.so /app/pdfium-binaries/
 
 COPY --from=builder /app/target/release/task /app/task
 COPY subtrace.yaml .
