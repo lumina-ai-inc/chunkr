@@ -3,6 +3,7 @@ use core::configs::worker_config::Config as WorkerConfig;
 use core::models::pipeline::Pipeline;
 use core::models::task::Status;
 use core::models::task::TaskPayload;
+use core::models::task::TimeoutError;
 use core::utils::clients::get_redis_pool;
 
 #[cfg(feature = "azure")]
@@ -89,7 +90,6 @@ pub async fn process(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut pipeline = Pipeline::new();
     let mut retries = 0;
-    let mut last_error = None;
 
     while retries <= max_retries {
         let result: Result<(), Box<dyn std::error::Error>> = (async {
@@ -130,7 +130,7 @@ pub async fn process(
         match result {
             Ok(_) => return Ok(()),
             Err(e) => {
-                if retries < max_retries {
+                if retries < max_retries && !e.is::<TimeoutError>() {
                     println!(
                         "Task failed, retrying {}/{}: {}",
                         retries + 1,
@@ -138,7 +138,6 @@ pub async fn process(
                         e
                     );
                     retries += 1;
-                    last_error = Some(e);
                     pipeline
                         .get_task()?
                         .update(
@@ -156,16 +155,16 @@ pub async fn process(
                         .await?;
                     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                 } else {
-                    let message = format!("Task failed after {} retries", retries);
-                    println!("{}: {}", message, last_error.as_ref().unwrap());
+                    let message: String = format!("Task failed after {} retries", retries);
+                    println!("{}: {}", message, e);
                     pipeline.complete(Status::Failed, Some(message)).await?;
-                    return Err(last_error.unwrap());
+                    return Err(e);
                 }
             }
         }
     }
 
-    unreachable!("Loop should have returned already");
+    Err("Unexpected end of process function".into())
 }
 
 #[tokio::main]
