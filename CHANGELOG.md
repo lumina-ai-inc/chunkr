@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.8.0...v1.8.1) (2025-03-27)
+
+
+### Bug Fixes
+
+* Fixed timeout query ([97950e5](https://github.com/lumina-ai-inc/chunkr/commit/97950e54aaa9c10cc5ce42f75600603c27d73168))
+
+## [1.8.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.7.0...v1.8.0) (2025-03-27)
+
+
+### Features
+
+* Added doctr small dockers ([#407](https://github.com/lumina-ai-inc/chunkr/issues/407)) ([9b8a56e](https://github.com/lumina-ai-inc/chunkr/commit/9b8a56e273f39aa15d3001c6f7ccb707900dd584))
+
 ## [1.7.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.6.1...v1.7.0) (2025-03-27)
 
 

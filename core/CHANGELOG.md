@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.0...chunkr-core-v1.5.1) (2025-03-27)
+
+
+### Bug Fixes
+
+* Fixed timeout query ([97950e5](https://github.com/lumina-ai-inc/chunkr/commit/97950e54aaa9c10cc5ce42f75600603c27d73168))
+
+## [1.5.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.4.0...chunkr-core-v1.5.0) (2025-03-27)
+
+
+### Features
+
+* Added doctr small dockers ([#407](https://github.com/lumina-ai-inc/chunkr/issues/407)) ([9b8a56e](https://github.com/lumina-ai-inc/chunkr/commit/9b8a56e273f39aa15d3001c6f7ccb707900dd584))
+
 ## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.3...chunkr-core-v1.4.0) (2025-03-27)
 
 

@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [server-azure, task-azure, web, emails, analytics-server, analytics-web, segmentation-yolo, doctr]
+        component: [server-azure, task-azure, web, emails, analytics-server, analytics-web, segmentation-yolo, doctr, doctr-small]
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -143,8 +143,8 @@ jobs:
       - name: Update compose.yaml
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          # Only update images that are part of the matrix (server-azure, task-azure, web, emails, analytics-server, analytics-web, segmentation-yolo, doctr)
-          sed -i -E '/luminainc\/(server-azure|task-azure|web|emails|analytics-server|analytics-web|segmentation-yolo|doctr):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-enterprise.yaml
+          # Only update images that are part of the matrix (server-azure, task-azure, web, emails, analytics-server, analytics-web, segmentation-yolo, doctr, doctr-small)
+          sed -i -E '/luminainc\/(server-azure|task-azure|web|emails|analytics-server|analytics-web|segmentation-yolo|doctr|doctr-small):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-enterprise.yaml
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
