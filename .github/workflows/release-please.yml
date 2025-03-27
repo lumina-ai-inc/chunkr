@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [server, task, web, doctr]
+        component: [server, task, web, doctr, doctr-small]
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -144,9 +144,9 @@ jobs:
       - name: Update compose.yaml
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          # Only update images that are part of the matrix (server, task, web, doctr)
-          sed -i -E '/luminainc\/(server|task|web|doctr):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
-          sed -i -E '/luminainc\/(server|task|web|doctr):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
+          # Only update images that are part of the matrix (server, task, web, doctr, doctr-small)
+          sed -i -E '/luminainc\/(server|task|web|doctr|doctr-small):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
+          sed -i -E '/luminainc\/(server|task|web|doctr|doctr-small):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
           
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
