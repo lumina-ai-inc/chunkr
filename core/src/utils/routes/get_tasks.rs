@@ -1,5 +1,5 @@
-use crate::models::chunkr::task::{Task, TaskResponse};
-use crate::models::chunkr::tasks::TasksQuery;
+use crate::models::task::{Task, TaskResponse};
+use crate::models::tasks::TasksQuery;
 use crate::utils::clients::get_pg_client;
 use futures::future::try_join_all;
 

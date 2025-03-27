@@ -1,6 +1,6 @@
-use crate::models::chunkr::azure::DocumentAnalysisFeature;
-use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::task::Status;
+use crate::models::azure::DocumentAnalysisFeature;
+use crate::models::pipeline::Pipeline;
+use crate::models::task::Status;
 use crate::utils::services::azure::perform_azure_analysis;
 use rayon::prelude::*;
 

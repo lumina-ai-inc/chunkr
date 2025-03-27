@@ -1,6 +1,6 @@
 use crate::configs::llm_config::Config as LlmConfig;
-use crate::configs::redis_config::{create_pool as create_redis_pool, Pool};
 use crate::configs::throttle_config::Config as ThrottleConfig;
+use crate::utils::clients::get_redis_pool;
 use deadpool_redis::redis::{RedisError, RedisResult};
 use once_cell::sync::OnceCell;
 use std::time::Duration;
@@ -9,28 +9,25 @@ pub static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static GENERAL_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static LLM_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
-pub static POOL: OnceCell<Pool> = OnceCell::new();
 pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static SEGMENTATION_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
 
 pub struct RateLimiter {
-    pool: Pool,
     tokens_per_second: f32,
     bucket_name: String,
 }
 
 impl RateLimiter {
-    pub fn new(pool: Pool, tokens_per_second: f32, bucket_name: &str) -> Self {
+    pub fn new(tokens_per_second: f32, bucket_name: &str) -> Self {
         RateLimiter {
-            pool,
             tokens_per_second,
             bucket_name: bucket_name.to_string(),
         }
     }
 
     pub async fn acquire_token(&self) -> RedisResult<bool> {
-        let mut conn = match self.pool.get().await {
+        let mut conn = match get_redis_pool().get().await {
             Ok(conn) => conn,
             Err(e) => {
                 println!("Error getting connection: {:?}", e);
@@ -101,9 +98,9 @@ impl RateLimiter {
     }
 }
 
-fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+fn create_general_ocr_rate_limiter(bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
-    RateLimiter::new(pool, throttle_config.general_ocr_rate_limit, bucket_name)
+    RateLimiter::new(throttle_config.general_ocr_rate_limit, bucket_name)
 }
 
 fn create_general_ocr_timeout() -> Option<u64> {
@@ -111,9 +108,9 @@ fn create_general_ocr_timeout() -> Option<u64> {
     throttle_config.general_ocr_timeout
 }
 
-fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+fn create_llm_rate_limiter(bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
-    RateLimiter::new(pool, throttle_config.llm_ocr_rate_limit, bucket_name)
+    RateLimiter::new(throttle_config.llm_ocr_rate_limit, bucket_name)
 }
 
 fn create_llm_ocr_timeout() -> Option<u64> {
@@ -121,9 +118,9 @@ fn create_llm_ocr_timeout() -> Option<u64> {
     throttle_config.llm_ocr_timeout
 }
 
-fn create_segmentation_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+fn create_segmentation_rate_limiter(bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
-    RateLimiter::new(pool, throttle_config.segmentation_rate_limit, bucket_name)
+    RateLimiter::new(throttle_config.segmentation_rate_limit, bucket_name)
 }
 
 fn create_segmentation_timeout() -> Option<u64> {
@@ -132,15 +129,10 @@ fn create_segmentation_timeout() -> Option<u64> {
 }
 
 pub fn init_throttle() {
-    POOL.get_or_init(create_redis_pool);
     TOKEN_TIMEOUT.get_or_init(|| 10000);
-    GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
-        create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
-    });
+    GENERAL_OCR_RATE_LIMITER.get_or_init(|| create_general_ocr_rate_limiter("general_ocr"));
     GENERAL_OCR_TIMEOUT.get_or_init(create_general_ocr_timeout);
-    SEGMENTATION_RATE_LIMITER.get_or_init(|| {
-        create_segmentation_rate_limiter(POOL.get().unwrap().clone(), "segmentation")
-    });
+    SEGMENTATION_RATE_LIMITER.get_or_init(|| create_segmentation_rate_limiter("segmentation"));
     SEGMENTATION_TIMEOUT.get_or_init(create_segmentation_timeout);
     let llm_config = LlmConfig::from_env().unwrap();
     let llm_ocr_url = llm_config.ocr_url.unwrap_or(llm_config.url);
@@ -154,8 +146,7 @@ pub fn init_throttle() {
                 .ok_or("Invalid URL format: missing domain")
         })
         .unwrap_or("localhost");
-    LLM_RATE_LIMITER
-        .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
+    LLM_RATE_LIMITER.get_or_init(|| create_llm_rate_limiter(domain_name));
     LLM_OCR_TIMEOUT.get_or_init(create_llm_ocr_timeout);
 }
 
@@ -163,8 +154,8 @@ pub fn init_throttle() {
 mod tests {
     use super::*;
     use crate::configs::llm_config::Config as LlmConfig;
-    use crate::configs::redis_config::create_pool;
-    use crate::models::chunkr::open_ai::{ContentPart, Message, MessageContent};
+    use crate::models::open_ai::{ContentPart, Message, MessageContent};
+    use crate::utils::clients::initialize;
     use crate::utils::services::llm::open_ai_call;
     use rand::Rng;
     use std::error::Error;
@@ -173,16 +164,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_acquire_token() {
-        let pool = create_pool();
-        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
+        initialize().await;
+        let rate_limiter = create_llm_rate_limiter("test_bucket");
         let result = rate_limiter.acquire_token().await;
         println!("result: {:?}", result);
     }
 
     #[tokio::test]
     async fn test_acquire_token_with_timeout() {
-        let pool = create_pool();
-        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
+        initialize().await;
+        let rate_limiter = create_llm_rate_limiter("test_bucket");
         let result = rate_limiter
             .acquire_token_with_timeout(Duration::from_secs(1))
             .await;
@@ -191,8 +182,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_hit_rate_limit() {
-        let pool = create_pool();
-        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
+        initialize().await;
+        let rate_limiter = create_llm_rate_limiter("test_bucket");
 
         for _ in 0..2000 {
             let _ = rate_limiter.acquire_token().await;
@@ -205,8 +196,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_hit_rate_limit_with_timeout() {
-        let pool = create_pool();
-        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
+        initialize().await;
+        let rate_limiter = create_llm_rate_limiter("test_bucket");
 
         let futures: Vec<_> = (0..2000).map(|_| rate_limiter.acquire_token()).collect();
         let _ = futures::future::join_all(futures).await;
@@ -224,6 +215,7 @@ mod tests {
     }
 
     async fn send_request() -> Result<(), Box<dyn Error>> {
+        initialize().await;
         let llm_config = LlmConfig::from_env().unwrap();
         let url = llm_config.url;
         let key = llm_config.key;
@@ -255,6 +247,7 @@ mod tests {
     }
 
     async fn send_request_with_retry() -> Result<(), Box<dyn Error>> {
+        initialize().await;
         let llm_config = LlmConfig::from_env().unwrap();
         let url = llm_config.url;
         let key = llm_config.key;
@@ -365,9 +358,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_open_ai_rate_limit_rate_limiter() -> Result<(), Box<dyn Error>> {
+        initialize().await;
         let start_time = std::time::Instant::now();
-        let pool = create_pool();
-        let rate_limiter = RateLimiter::new(pool, 200.0, "rate_limiter");
+        let rate_limiter = RateLimiter::new(200.0, "rate_limiter");
         let futures: Vec<_> = (0..10000)
             .map(|_| async {
                 if let Ok(true) = rate_limiter

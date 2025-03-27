@@ -1,4 +1,4 @@
-use crate::models::chunkr::output::{Chunk, Segment, SegmentType};
+use crate::models::output::{Chunk, Segment, SegmentType};
 
 fn get_hierarchy_level(segment_type: &SegmentType) -> i32 {
     match segment_type {
@@ -116,7 +116,7 @@ pub fn hierarchical_chunking(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
+    use crate::models::output::{BoundingBox, Segment, SegmentType};
 
     fn create_segment(content: &str, segment_type: SegmentType) -> Segment {
         Segment {

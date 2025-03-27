@@ -1,4 +1,4 @@
-use crate::models::chunkr::search::SimpleChunk;
+use crate::models::search::SimpleChunk;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use std::error::Error;

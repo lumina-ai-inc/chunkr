@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 10
+      replicas: 30
     restart: always
 
   web:
@@ -170,26 +170,6 @@ services:
       retries: 3
     depends_on:
       - postgres
-    restart: always
-
-  rrq:
-    image: luminainc/rrq:33cd165
-    platform: linux/amd64
-    depends_on:
-      - redis
-    ports:
-      - "8005:8000"
-    environment:
-      - REDIS__URL=redis://redis:6379
-      - API_KEY=1234567890
-      - VERSION=1.0.0
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      replicas: 1
     restart: always
 
   embeddings:

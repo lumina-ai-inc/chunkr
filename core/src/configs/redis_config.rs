@@ -1,9 +1,5 @@
 use config::{Config as ConfigTrait, ConfigError};
-pub use deadpool_redis::{
-    redis::{Pipeline, RedisError, RedisResult},
-    Connection, Pool,
-};
-use deadpool_redis::{Config as RedisConfig, Runtime};
+use deadpool_redis::{Config as RedisConfig, Pool, Runtime};
 use dotenvy::dotenv;
 use serde::Deserialize;
 
