@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.3-enterprise...chunkr-services-enterprise-v0.1.4-enterprise) (2025-03-27)
+
+
+### Features
+
+* Added doctr small dockers ([#407](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/407)) ([9b8a56e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/9b8a56e273f39aa15d3001c6f7ccb707900dd584))
+
 ## [0.1.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.2-enterprise...chunkr-services-enterprise-v0.1.3-enterprise) (2025-03-27)
 
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.5.0-enterprise...chunkr-core-enterprise-v1.6.0-enterprise) (2025-03-27)
+
+
+### Features
+
+* Added doctr small dockers ([#407](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/407)) ([9b8a56e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/9b8a56e273f39aa15d3001c6f7ccb707900dd584))
+
+
+### Bug Fixes
+
+* **core:** Handle null started_at values with COALESCE in timeout job ([d068be8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d068be82b972a6cd830234448e4bbfe5ebb5245a))
+* Fixed timeout query ([97950e5](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/97950e54aaa9c10cc5ce42f75600603c27d73168))
+
 ## [1.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.5-enterprise...chunkr-core-enterprise-v1.5.0-enterprise) (2025-03-27)
 
 
