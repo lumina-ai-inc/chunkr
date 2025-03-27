@@ -1,4 +1,4 @@
-use crate::models::chunkr::task::{Task, TaskQuery, TaskResponse};
+use crate::models::task::{Task, TaskQuery, TaskResponse};
 use chrono::{DateTime, Utc};
 
 pub async fn get_task(

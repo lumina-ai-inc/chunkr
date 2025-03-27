@@ -1,4 +1,4 @@
-use crate::models::chunkr::task::Task;
+use crate::models::task::Task;
 
 pub async fn delete_task(
     task_id: String,

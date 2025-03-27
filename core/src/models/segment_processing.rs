@@ -1,4 +1,4 @@
-use crate::models::chunkr::cropping::{CroppingStrategy, PictureCroppingStrategy};
+use crate::models::cropping::{CroppingStrategy, PictureCroppingStrategy};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};

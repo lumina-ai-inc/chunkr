@@ -1,6 +1,6 @@
-use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::task::TaskResponse;
-use crate::models::chunkr::tasks::TasksQuery;
+use crate::models::auth::UserInfo;
+use crate::models::task::TaskResponse;
+use crate::models::tasks::TasksQuery;
 use crate::utils::routes::get_tasks::get_tasks;
 use actix_web::{web, Error, HttpResponse};
 

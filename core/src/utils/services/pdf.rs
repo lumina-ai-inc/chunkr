@@ -1,5 +1,5 @@
 use crate::configs::pdfium_config::Config as PdfiumConfig;
-use crate::models::chunkr::output::{BoundingBox, OCRResult};
+use crate::models::output::{BoundingBox, OCRResult};
 use image::ImageFormat;
 use pdfium_render::prelude::*;
 use std::error::Error;

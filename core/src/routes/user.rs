@@ -1,4 +1,4 @@
-use crate::models::chunkr::auth::UserInfo;
+use crate::models::auth::UserInfo;
 use crate::utils::routes::{create_user::create_user, get_user::get_user};
 use actix_web::{web, Error, HttpResponse};
 
