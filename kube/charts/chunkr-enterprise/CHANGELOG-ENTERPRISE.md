@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.0.0...chunkr-chart-enterprise-v1.0.1) (2025-03-27)
+
+
+### Bug Fixes
+
+* Removed rrq from kube and docker compose ([a84284f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a84284f097965239db90d3b24872fffe2c096590))
+
 ## 1.0.0 (2025-03-19)
 
 

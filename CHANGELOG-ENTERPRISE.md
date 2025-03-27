@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.8.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.7.2-enterprise...v1.8.0-enterprise) (2025-03-27)
+
+
+### Features
+
+* Added force replytos and disabled team inbox ([efd854e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/efd854ed5af4db0ff1f2da47693c69e4428f6023))
+* **core:** Remove rrq dependency and improve memory management ([92b70dc](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/92b70dceb1188cec926e415ff295127a3fb085cc))
+* New picture prompts ([#405](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/405)) ([d161fa0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d161fa0820fc03ffaf9bdbbf58c124179548a31a))
+
+
+### Bug Fixes
+
+* **client:** Polling would error out on httpx.ReadTimeout ([#400](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/400)) ([aea1255](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/aea125533063de8bbddb36741aed5c1c07ba693b))
+* Removed rrq from kube and docker compose ([a84284f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a84284f097965239db90d3b24872fffe2c096590))
+
 ## [1.7.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.7.1-enterprise...v1.7.2-enterprise) (2025-03-21)
 
 

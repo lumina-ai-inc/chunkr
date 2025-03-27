@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.2-enterprise...chunkr-services-enterprise-v0.1.3-enterprise) (2025-03-27)
+
+
+### Features
+
+* Added force replytos and disabled team inbox ([efd854e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/efd854ed5af4db0ff1f2da47693c69e4428f6023))
+* Added force replytos and disabled team inbox ([eeeff64](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/eeeff64ebff603aa0963ebf7f3d0e168295f93a3))
+* Auto set default payment method ([f1545c7](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f1545c7948c738453a4bc192411abe5e946356b1))
+
 ## [0.1.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.1-enterprise...chunkr-services-enterprise-v0.1.2-enterprise) (2025-03-13)
 
 

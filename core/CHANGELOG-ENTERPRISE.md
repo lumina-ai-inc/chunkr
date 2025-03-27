@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.5-enterprise...chunkr-core-enterprise-v1.5.0-enterprise) (2025-03-27)
+
+
+### Features
+
+* **core:** Remove rrq dependency and improve memory management ([92b70dc](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/92b70dceb1188cec926e415ff295127a3fb085cc))
+* New picture prompts ([#405](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/405)) ([d161fa0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d161fa0820fc03ffaf9bdbbf58c124179548a31a))
+
 ## [1.4.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.4.4-enterprise...chunkr-core-enterprise-v1.4.5-enterprise) (2025-03-21)
 
 
