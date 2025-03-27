@@ -1,5 +1,5 @@
 use crate::configs::postgres_config::Client;
-use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::models::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use std::str::FromStr;
 

@@ -1,8 +1,8 @@
-use crate::models::chunkr::cropping::{CroppingStrategy, PictureCroppingStrategy};
-use crate::models::chunkr::output::{Segment, SegmentType};
-use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::segment_processing::GenerationStrategy;
-use crate::models::chunkr::task::{Configuration, Status};
+use crate::models::cropping::{CroppingStrategy, PictureCroppingStrategy};
+use crate::models::output::{Segment, SegmentType};
+use crate::models::pipeline::Pipeline;
+use crate::models::segment_processing::GenerationStrategy;
+use crate::models::task::{Configuration, Status};
 use crate::utils::services::images::crop_image;
 use rayon::prelude::*;
 use std::error::Error;

@@ -1,22 +1,37 @@
+use crate::configs::redis_config::{Pipeline, RedisResult};
 use crate::configs::worker_config::Config as WorkerConfig;
-use crate::models::chunkr::task::TaskPayload;
-use crate::models::rrq::produce::ProducePayload;
-use crate::utils::rrq::service::produce;
-use std::error::Error;
-use uuid::Uuid;
+use crate::models::task::TaskPayload;
+use crate::utils::clients::get_redis_pool;
 
-pub async fn produce_extraction_payloads(
-    extraction_payload: TaskPayload,
-) -> Result<(), Box<dyn Error>> {
-    let worker_config = WorkerConfig::from_env().unwrap();
-    let produce_payload = ProducePayload {
-        queue_name: worker_config.queue_task,
-        publish_channel: None,
-        payload: serde_json::to_value(extraction_payload).unwrap(),
-        max_attempts: Some(worker_config.max_retries),
-        item_id: Uuid::new_v4().to_string(),
-    };
-
-    produce(vec![produce_payload]).await?;
+pub async fn queue_task_payload(task_payload: TaskPayload) -> RedisResult<()> {
+    let pool = get_redis_pool();
+    let mut conn = pool.get().await.unwrap();
+    let worker_config = WorkerConfig::from_env().expect("Failed to load worker config");
+    let mut pipe = Pipeline::new();
+    pipe.rpush(
+        worker_config.queue_task,
+        serde_json::to_string(&task_payload).expect("Failed to serialize task payload"),
+    );
+    pipe.atomic().query_async(&mut conn).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::utils::clients::initialize;
+
+    #[tokio::test]
+    async fn test_queue_task_payload() {
+        initialize().await;
+        let task_payload = TaskPayload {
+            previous_configuration: None,
+            previous_message: None,
+            previous_status: None,
+            previous_version: None,
+            task_id: "test_task_id".to_string(),
+            user_id: "test_user_id".to_string(),
+        };
+        queue_task_payload(task_payload).await.unwrap();
+    }
 }

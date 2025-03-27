@@ -1,6 +1,6 @@
 use crate::configs::worker_config::Config as WorkerConfig;
-use crate::models::chunkr::output::{OCRResult, Segment};
-use crate::models::chunkr::segmentation::ObjectDetectionResponse;
+use crate::models::output::{OCRResult, Segment};
+use crate::models::segmentation::ObjectDetectionResponse;
 use crate::utils::clients;
 use crate::utils::rate_limit::{SEGMENTATION_RATE_LIMITER, SEGMENTATION_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;

@@ -1,9 +1,9 @@
 use core::configs::pdfium_config::Config as PdfiumConfig;
 use core::configs::worker_config::Config as WorkerConfig;
-use core::models::chunkr::pipeline::Pipeline;
-use core::models::chunkr::task::Status;
-use core::models::chunkr::task::TaskPayload;
-use core::models::rrq::queue::QueuePayload;
+use core::models::pipeline::Pipeline;
+use core::models::task::Status;
+use core::models::task::TaskPayload;
+use core::utils::clients::get_redis_pool;
 
 #[cfg(feature = "azure")]
 use core::pipeline::azure;
@@ -14,9 +14,12 @@ use core::pipeline::segment_processing;
 use core::pipeline::segmentation_and_ocr;
 // use core::pipeline::structured_extraction;
 use core::utils::clients::initialize;
-use core::utils::rrq::consumer::consumer;
+
+#[cfg(feature = "memory_profiling")]
+use memtrack::track_mem;
 
 /// Execute a step in the pipeline
+#[cfg_attr(feature = "memory_profiling", track_mem)]
 async fn execute_step(
     step: &str,
     pipeline: &mut Pipeline,
@@ -54,7 +57,7 @@ fn orchestrate_task(
     #[cfg(feature = "azure")]
     {
         match pipeline.get_task()?.configuration.pipeline.clone() {
-            Some(core::models::chunkr::task::PipelineType::Azure) => steps.push("azure"),
+            Some(core::models::task::PipelineType::Azure) => steps.push("azure"),
             _ => steps.push("segmentation_and_ocr"),
         }
     }
@@ -79,10 +82,10 @@ fn orchestrate_task(
     Ok(steps)
 }
 
-pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
+#[cfg_attr(feature = "memory_profiling", track_mem)]
+pub async fn process(task_payload: TaskPayload) -> Result<(), Box<dyn std::error::Error>> {
     let mut pipeline = Pipeline::new();
     let result: Result<(), Box<dyn std::error::Error>> = (async {
-        let task_payload: TaskPayload = serde_json::from_value(payload.payload)?;
         pipeline.init(task_payload).await?;
         if pipeline.get_task()?.status != Status::Processing {
             println!(
@@ -115,28 +118,30 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => Ok(()),
         Err(e) => {
-            match payload.attempt >= payload.max_attempts {
-                true => {
-                    let message = "Task failed".to_string();
-                    pipeline.complete(Status::Failed, Some(message)).await?;
-                }
-                false => {
-                    let message =
-                        format!("Retrying task {}/{}", payload.attempt, payload.max_attempts);
-                    pipeline
-                        .get_task()?
-                        .update(
-                            Some(Status::Processing),
-                            Some(message),
-                            None,
-                            None,
-                            None,
-                            None,
-                            None,
-                        )
-                        .await?;
-                }
-            };
+            let message = "Task failed".to_string();
+            pipeline.complete(Status::Failed, Some(message)).await?;
+            // match task_payload.attempt >= task_payload.max_attempts {
+            //     true => {
+            //         let message = "Task failed".to_string();
+            //         pipeline.complete(Status::Failed, Some(message)).await?;
+            //     }
+            //     false => {
+            //         let message =
+            //             format!("Retrying task {}/{}", payload.attempt, payload.max_attempts);
+            //         pipeline
+            //             .get_task()?
+            //             .update(
+            //                 Some(Status::Processing),
+            //                 Some(message),
+            //                 None,
+            //                 None,
+            //                 None,
+            //                 None,
+            //                 None,
+            //             )
+            //             .await?;
+            //     }
+            // };
             Err(e)
         }
     }
@@ -148,6 +153,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = WorkerConfig::from_env()?;
     PdfiumConfig::from_env()?.ensure_binary().await?;
     initialize().await;
-    consumer(process, config.queue_task, 1, 2400).await?;
-    Ok(())
+    println!("Listening for tasks on queue: {}", &config.queue_task);
+    loop {
+        let mut conn = get_redis_pool().get().await.unwrap();
+        let result: Option<(String, String)> = redis::cmd("BRPOP")
+            .arg(&config.queue_task)
+            .arg(0) // 0 = block indefinitely
+            .query_async(&mut conn)
+            .await?;
+
+        if let Some((_, task_json)) = result {
+            match serde_json::from_str::<TaskPayload>(&task_json) {
+                Ok(payload) => match process(payload).await {
+                    Ok(_) => println!("Task processed successfully"),
+                    Err(e) => eprintln!("Error processing task: {}", e),
+                },
+                Err(e) => eprintln!("Failed to parse task: {}", e),
+            }
+        }
+    }
 }

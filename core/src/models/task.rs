@@ -1,10 +1,10 @@
 use crate::configs::worker_config;
-use crate::models::chunkr::chunk_processing::ChunkProcessing;
-use crate::models::chunkr::output::{Chunk, OutputResponse, Segment, SegmentType};
-use crate::models::chunkr::segment_processing::{
+use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
+use crate::models::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
-use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
 use crate::utils::storage::services::delete_folder;
