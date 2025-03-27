@@ -1,7 +1,7 @@
 # THIS IS UNDER DEVELOPMENT
 services:
   server:
-    image: luminainc/server:1.6.0
+    image: luminainc/server:1.7.0
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -16,7 +16,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:1.6.0
+    image: luminainc/task:1.7.0
     platform: linux/amd64
     depends_on:
       - postgres
@@ -29,7 +29,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:1.6.0
+    image: luminainc/web:1.7.0
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -51,7 +51,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:1.6.0
+    image: luminainc/doctr:1.7.0
     platform: linux/amd64
     ports:
       - "8002:8000"
