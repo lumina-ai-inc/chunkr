@@ -1,21 +1,4 @@
 services:
-  rrq:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: rrq
-      tag: 9326b10
-    port: 8000
-    targetPort: 8000
-    ingress:
-      enabled: false
-      subdomain: rrq-api
-    env:
-      - name: API_KEY
-        value: '1234567890'
-      - name: VERSION
-        value: 1.0.5
-
   keycloak:
     enabled: true
     image:

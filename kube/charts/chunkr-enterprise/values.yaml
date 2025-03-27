@@ -50,8 +50,6 @@ common:
         postgresql://{{ .Values.services.postgres.credentials.username }}:{{
         .Values.services.postgres.credentials.password }}@{{- .Release.Name
         }}-postgres:5432/chunkr
-    - name: RRQ__URL
-      value: http://{{- .Release.Name }}-rrq:8000
     - name: REDIS__URL
       value: redis://{{- .Release.Name }}-redis:6379
     - name: SEARCH__DENSE_VECTOR_URL
