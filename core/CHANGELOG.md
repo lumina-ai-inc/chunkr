@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.1...chunkr-core-v1.5.2) (2025-03-27)
+
+
+### Bug Fixes
+
+* **core:** Handle null started_at values with COALESCE in timeout job ([d068be8](https://github.com/lumina-ai-inc/chunkr/commit/d068be82b972a6cd830234448e4bbfe5ebb5245a))
+
 ## [1.5.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.0...chunkr-core-v1.5.1) (2025-03-27)
 
 

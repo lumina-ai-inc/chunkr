@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.8.1...v1.8.2) (2025-03-27)
+
+
+### Bug Fixes
+
+* **core:** Handle null started_at values with COALESCE in timeout job ([d068be8](https://github.com/lumina-ai-inc/chunkr/commit/d068be82b972a6cd830234448e4bbfe5ebb5245a))
+
 ## [1.8.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.8.0...v1.8.1) (2025-03-27)
 
 
