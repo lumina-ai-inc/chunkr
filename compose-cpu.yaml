@@ -158,16 +158,6 @@ services:
       - postgres
     restart: always
 
-  embeddings:
-    image: ghcr.io/huggingface/text-embeddings-inference:1.5
-    platform: linux/amd64
-    ports:
-      - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
-    deploy:
-      replicas: 1
-    restart: always
-
 volumes:
   postgres_data:
   redis_data:
