@@ -68,10 +68,12 @@ fn run_migrations(url: &str) {
     paths(
         routes::health::health_check,
         routes::task::create_task_route,
+        routes::task::create_task_route_multipart,
         routes::task::get_task_route,
         routes::task::delete_task_route,
         routes::task::cancel_task_route,
         routes::task::update_task_route,
+        routes::task::update_task_route_multipart,
         routes::tasks::get_tasks_route,
     ),
     components(

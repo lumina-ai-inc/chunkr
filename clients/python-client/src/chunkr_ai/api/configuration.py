@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
-from typing import Any, List, Optional, Union
-from pydantic import field_validator
+from typing import Any, List, Optional
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -11,18 +10,11 @@ class CroppingStrategy(str, Enum):
     ALL = "All"
     AUTO = "Auto"
 
-class EmbedSource(str, Enum):
-    HTML = "HTML"
-    MARKDOWN = "Markdown"
-    LLM = "LLM"
-    CONTENT = "Content"
-
 class GenerationConfig(BaseModel):
     html: Optional[GenerationStrategy] = None
     llm: Optional[str] = None
     markdown: Optional[GenerationStrategy] = None
     crop_image: Optional[CroppingStrategy] = None
-    embed_sources: Optional[List[EmbedSource]] = Field(default_factory=lambda: [EmbedSource.MARKDOWN])
 
 class SegmentProcessing(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=str.title)
@@ -40,83 +32,9 @@ class SegmentProcessing(BaseModel):
     text: Optional[GenerationConfig] = Field(default=None, alias="Text")
     title: Optional[GenerationConfig] = Field(default=None, alias="Title")
 
-class Tokenizer(str, Enum):
-    WORD = "Word"
-    CL100K_BASE = "Cl100kBase"
-    XLM_ROBERTA_BASE = "XlmRobertaBase"
-    BERT_BASE_UNCASED = "BertBaseUncased"
-
-class TokenizerType(BaseModel):
-    enum_value: Optional[Tokenizer] = None
-    string_value: Optional[str] = None
-
-    @classmethod
-    def from_enum(cls, enum_value: Tokenizer) -> "TokenizerType":
-        return cls(enum_value=enum_value)
-    
-    @classmethod
-    def from_string(cls, string_value: str) -> "TokenizerType":
-        return cls(string_value=string_value)
-    
-    def __str__(self) -> str:
-        if self.enum_value is not None:
-            return f"enum:{self.enum_value.value}"
-        elif self.string_value is not None:
-            return f"string:{self.string_value}"
-        return ""
-    
-    model_config = ConfigDict(
-        json_encoders={
-            'TokenizerType': lambda v: v.model_dump()
-        }
-    )
-    
-    def model_dump(self, **kwargs):
-        if self.enum_value is not None:
-            return {"Enum": self.enum_value.value}
-        elif self.string_value is not None:
-            return {"String": self.string_value}
-        return {}
-
 class ChunkProcessing(BaseModel):
-    ignore_headers_and_footers: Optional[bool] = True
+    ignore_headers_and_footers: Optional[bool] = None
     target_length: Optional[int] = None
-    tokenizer: Optional[Union[TokenizerType, Tokenizer, str]] = None
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-        json_encoders={
-            TokenizerType: lambda v: v.model_dump()
-        }
-    )
-
-    @field_validator('tokenizer', mode='before')
-    def validate_tokenizer(cls, v):
-        if v is None:
-            return None
-        
-        if isinstance(v, TokenizerType):
-            return v
-        
-        if isinstance(v, Tokenizer):
-            return TokenizerType(enum_value=v)
-        
-        if isinstance(v, dict):
-            if "Enum" in v:
-                try:
-                    return TokenizerType(enum_value=Tokenizer(v["Enum"]))
-                except ValueError:
-                    return TokenizerType(string_value=v["Enum"])
-            elif "String" in v:
-                return TokenizerType(string_value=v["String"])
-            
-        if isinstance(v, str):
-            try:
-                return TokenizerType(enum_value=Tokenizer(v))
-            except ValueError:
-                return TokenizerType(string_value=v)
-                
-        raise ValueError(f"Cannot convert {v} to TokenizerType")
 
 class OcrStrategy(str, Enum):
     ALL = "All"
