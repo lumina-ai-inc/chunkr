@@ -2,19 +2,22 @@ use crate::models::{
     chunk_processing::TokenizerType, search::SimpleChunk, segment_processing::EmbedSource,
     task::Configuration,
 };
+use lru::LruCache;
 use once_cell::sync::Lazy;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::error::Error;
+use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 use strum_macros::{Display, EnumString};
 use tiktoken_rs::cl100k_base;
 use tokenizers::tokenizer::Tokenizer;
 use utoipa::ToSchema;
 
-static WORD_COUNT_CACHE: Lazy<Arc<Mutex<HashMap<String, u32>>>> =
-    Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
+static WORD_COUNT_CACHE: Lazy<Arc<Mutex<LruCache<String, u32>>>> = Lazy::new(|| {
+    let cache_size = NonZeroUsize::new(10000).unwrap();
+    Arc::new(Mutex::new(LruCache::new(cache_size)))
+});
 
 fn generate_uuid() -> String {
     uuid::Uuid::new_v4().to_string()
@@ -318,7 +321,7 @@ impl Segment {
         );
 
         {
-            if let Ok(cache) = WORD_COUNT_CACHE.lock() {
+            if let Ok(mut cache) = WORD_COUNT_CACHE.lock() {
                 if let Some(count) = cache.get(&cache_key) {
                     return Ok(*count);
                 }
@@ -353,7 +356,7 @@ impl Segment {
 
         if let Ok(count) = result {
             if let Ok(mut cache) = WORD_COUNT_CACHE.lock() {
-                cache.insert(cache_key, count);
+                cache.put(cache_key, count);
             }
         }
 
