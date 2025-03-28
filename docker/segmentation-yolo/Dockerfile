@@ -7,8 +7,11 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 
 WORKDIR /app
 
+COPY services/yolo/download_model.py ./download_model.py
 COPY services/yolo/main.py ./main.py
 COPY services/yolo/pyproject.toml ./pyproject.toml
+COPY services/yolo/models.py ./models.py
+COPY services/yolo/prediction.py ./prediction.py
 
 RUN pip install --upgrade pip && \
     pip install wheel setuptools && \
@@ -21,5 +24,7 @@ RUN pip install --upgrade pip && \
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
+
+RUN uv run download_model.py
 
 ENTRYPOINT ["uv", "run", "main.py"]

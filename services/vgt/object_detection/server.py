@@ -624,6 +624,7 @@ async def create_od_task(
     )
     
     return final_pred
+
 @app.post("/batch")
 async def batch_od(
     files: List[UploadFile] = File(...),
