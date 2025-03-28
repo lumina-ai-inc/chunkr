@@ -4,7 +4,6 @@ from .api.configuration import (
     ChunkProcessing,
     Configuration,
     CroppingStrategy,
-    EmbedSource,
     GenerationStrategy,
     GenerationConfig,
     Model,
@@ -17,8 +16,6 @@ from .api.configuration import (
     SegmentationStrategy,
     Status,
     Pipeline,
-    Tokenizer,
-    TokenizerType,
 )
 from .api.task_response import TaskResponse
 
@@ -28,7 +25,6 @@ __all__ = [
     "ChunkProcessing",
     "Configuration",
     "CroppingStrategy",
-    "EmbedSource",
     "GenerationConfig",
     "GenerationStrategy",
     "Model",
@@ -42,6 +38,5 @@ __all__ = [
     "Status",
     "TaskResponse",
     "Pipeline",
-    "Tokenizer",
-    "TokenizerType",
 ]
+
