@@ -52,12 +52,12 @@ async fn execute_step(
 ///
 /// This function defines the order of the steps in the pipeline.
 fn orchestrate_task(
-    _pipeline: &mut Pipeline,
+    pipeline: &mut Pipeline,
 ) -> Result<Vec<&'static str>, Box<dyn std::error::Error>> {
     let mut steps = vec!["convert_to_images"];
     #[cfg(feature = "azure")]
     {
-        match _pipeline.get_task()?.configuration.pipeline.clone() {
+        match pipeline.get_task()?.configuration.pipeline.clone() {
             Some(core::models::task::PipelineType::Azure) => steps.push("azure"),
             _ => steps.push("segmentation_and_ocr"),
         }
@@ -66,9 +66,12 @@ fn orchestrate_task(
     {
         steps.push("segmentation_and_ocr");
     }
+    let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();
+    if chunk_processing.target_length > 1 {
+        steps.push("chunking");
+    }
     steps.push("crop");
     steps.push("segment_processing");
-    steps.push("chunking");
     // let structured_extraction = pipeline
     //     .get_task()?
     //     .configuration

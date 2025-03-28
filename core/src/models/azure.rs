@@ -207,13 +207,13 @@ impl AzureAnalysisResponse {
                                     }
                                 }
                             }
-                            let segment = Segment::new(
+                            let segment = Segment::new_from_segment_ocr(
                                 BoundingBox::new(0.0, 0.0, width, height),
                                 Some(1.0),
                                 ocr_results,
                                 height,
-                                width,
                                 page_number,
+                                width,
                                 SegmentType::Page,
                             );
 
@@ -482,19 +482,6 @@ impl AzureAnalysisResponse {
                             }
                         }
 
-                        // Update segment content fields to reflect their OCR results
-                        for segment in &mut all_segments {
-                            if let Some(ocr_results) = &segment.ocr {
-                                if !ocr_results.is_empty() {
-                                    segment.content = ocr_results
-                                        .iter()
-                                        .map(|ocr_result| ocr_result.text.clone())
-                                        .collect::<Vec<String>>()
-                                        .join(" ");
-                                }
-                            }
-                        }
-
                         // Ensure each page has at least one segment
                         if let Some(pages) = &analyze_result.pages {
                             let mut pages_with_segments = std::collections::HashMap::new();
@@ -548,13 +535,13 @@ impl AzureAnalysisResponse {
                                         }
                                     }
 
-                                    let segment = Segment::new(
+                                    let segment = Segment::new_from_segment_ocr(
                                         BoundingBox::new(0.0, 0.0, width, height),
                                         Some(1.0),
                                         ocr_results,
                                         height,
-                                        width,
                                         page_number,
+                                        width,
                                         SegmentType::Page,
                                     );
 

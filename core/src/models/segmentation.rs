@@ -40,13 +40,13 @@ impl Instance {
                 (page_width, page_height)
             );
 
-            return vec![Segment::new(
+            return vec![Segment::new_from_segment_ocr(
                 BoundingBox::new(0.0, 0.0, page_width, page_height),
                 Some(1.0),
                 ocr_results,
                 page_height,
-                page_width,
                 page_number,
+                page_width,
                 SegmentType::Page,
             )];
         }
@@ -102,13 +102,13 @@ impl Instance {
                     .collect();
 
                 self.get_segment_type(idx).map(|segment_type| {
-                    Segment::new(
+                    Segment::new_from_segment_ocr(
                         bbox.clone(),
                         Some(confidence),
                         segment_ocr,
                         page_height,
-                        page_width,
                         page_number,
+                        page_width,
                         segment_type,
                     )
                 })
