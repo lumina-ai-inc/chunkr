@@ -58,7 +58,7 @@ fn orchestrate_task(
     #[cfg(feature = "azure")]
     {
         match _pipeline.get_task()?.configuration.pipeline.clone() {
-            Some(core::models::chunkr::task::PipelineType::Azure) => steps.push("azure"),
+            Some(core::models::task::PipelineType::Azure) => steps.push("azure"),
             _ => steps.push("segmentation_and_ocr"),
         }
     }

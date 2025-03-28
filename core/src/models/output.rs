@@ -156,26 +156,6 @@ impl Segment {
         }
     }
 
-    pub fn new_from_segment_ocr(
-        bbox: BoundingBox,
-        confidence: Option<f32>,
-        segment_ocr: Vec<OCRResult>,
-        page_height: f32,
-        page_number: u32,
-        page_width: f32,
-        segment_type: SegmentType,
-    ) -> Self {
-        Self::new(
-            bbox,
-            confidence,
-            segment_ocr,
-            page_height,
-            page_width,
-            page_number,
-            segment_type,
-        )
-    }
-
     pub fn scale(&mut self, scaling_factor: f32) {
         self.bbox.scale(scaling_factor);
 

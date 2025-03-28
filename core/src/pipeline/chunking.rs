@@ -20,7 +20,10 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     .await?;
 
     let mut chunks = pipeline.chunks.clone();
-
+    println!(
+        "Tokenizer: {:?}",
+        task.configuration.chunk_processing.tokenizer
+    );
     if task.configuration.chunk_processing.target_length > 0 {
         let segments = chunks
             .clone()

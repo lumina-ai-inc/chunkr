@@ -2,6 +2,7 @@ use crate::models::{
     output::{Chunk, Segment, SegmentType},
     task::Configuration,
 };
+use rayon::prelude::*;
 
 fn get_hierarchy_level(segment_type: &SegmentType) -> u32 {
     match segment_type {
@@ -30,6 +31,13 @@ pub fn hierarchical_chunking(
 
     let mut prev_hierarchy_level = 1;
     let mut segment_paired = false;
+
+    // Makes the chunking faster by calculating the word count in parallel
+    segments.par_iter().for_each(|segment| {
+        if let Err(e) = segment.count_embed_words(&configuration) {
+            println!("Error: {}", e);
+        }
+    });
 
     for (i, segment) in segments.iter().enumerate() {
         let segment_word_count = segment.count_embed_words(&configuration)?;
