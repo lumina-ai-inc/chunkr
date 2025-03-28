@@ -1,4 +1,5 @@
 from chunkr_ai import Chunkr
+from chunkr_ai.models import Tokenizer, ChunkProcessing
 import asyncio
 import multiprocessing
 import time
@@ -98,22 +99,29 @@ def save_base64_to_file():
 
 if __name__ == "__main__":
     
-    task = chunkr.upload("./files/test.pdf")
+    # task = chunkr.upload("./files/test.pdf")
+    # task.markdown("./output/markdown.md")
+    # print(task.output.chunks[1].embed)
+    # print(task.output.chunks[0].segments[0].confidence)
+    tokenizers = [Tokenizer.WORD, Tokenizer.CL100K_BASE, Tokenizer.XLM_ROBERTA_BASE, "Qwen/Qwen-tokenizer", "Word"]
+    for tokenizer in tokenizers:
+        print(tokenizer)
+        chunk_processing = ChunkProcessing(
+            target_length=500,
+            tokenizer=tokenizer
+        )
+        print(chunk_processing)
+        print(chunk_processing.model_dump_json())
+        print("\n")
+
+    tokenizer = tokenizers[1]
+    print(tokenizer)
+    chunk_processing = ChunkProcessing(
+        tokenizer=tokenizer
+    )
+    task = chunkr.upload("./files/test.pdf", chunk_processing)
     task.markdown("./output/markdown.md")
     print(task.output.chunks[1].embed)
-    print(task.output.chunks[0].segments[0].confidence)
-
-    # task = chunkr.get_task("c70efb21-c6c6-4dc6-807b-909235e2dc2a")
-    # print(task.output.chunks[0].segments[0].llm)
-
-    # save_base64_to_file()
-    
-    # upload_file_sync("./files/test.pdf")
-    # Test async concurrency
-    # asyncio.run(test_async_concurrent())
-    
-    # # Test multiprocessing
-    # test_multiprocessing()
-    
-    # # Test multiprocessing with async concurrency
-    # test_multiprocess_with_async()
+    print(task.configuration.chunk_processing)
+    print(task.configuration.chunk_processing.tokenizer)
+    assert task.configuration.chunk_processing.tokenizer == tokenizer
