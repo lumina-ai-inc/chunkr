@@ -1,4 +1,4 @@
-use crate::models::chunkr::{
+use crate::models::{
     output::{Chunk, Segment, SegmentType},
     task::Configuration,
 };
@@ -124,10 +124,10 @@ pub fn hierarchical_chunking(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
-    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
-    use crate::models::chunkr::segment_processing::{EmbedSource, SegmentProcessing};
-    use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
+    use crate::models::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
+    use crate::models::output::{BoundingBox, Segment, SegmentType};
+    use crate::models::segment_processing::{EmbedSource, SegmentProcessing};
+    use crate::models::upload::{OcrStrategy, SegmentationStrategy};
 
     fn create_segment(content: &str, segment_type: SegmentType) -> Segment {
         Segment {

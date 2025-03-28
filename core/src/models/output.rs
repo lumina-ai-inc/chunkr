@@ -1,4 +1,4 @@
-use crate::models::chunkr::{
+use crate::models::{
     chunk_processing::TokenizerType, search::SimpleChunk, segment_processing::EmbedSource,
     task::Configuration,
 };
@@ -342,12 +342,12 @@ impl Segment {
 
         let result: Result<u32, Box<dyn Error>> = match &configuration.chunk_processing.tokenizer {
             TokenizerType::Enum(tokenizer) => match tokenizer {
-                crate::models::chunkr::chunk_processing::Tokenizer::Word => {
+                crate::models::chunk_processing::Tokenizer::Word => {
                     // Simple whitespace tokenization
                     let count = content.split_whitespace().count();
                     Ok(count as u32)
                 }
-                crate::models::chunkr::chunk_processing::Tokenizer::Cl100kBase => {
+                crate::models::chunk_processing::Tokenizer::Cl100kBase => {
                     let bpe = cl100k_base().unwrap();
                     let tokens = bpe.encode_with_special_tokens(&content);
                     Ok(tokens.len() as u32)
@@ -479,9 +479,9 @@ pub enum SegmentType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
-    use crate::models::chunkr::segment_processing::{EmbedSource, SegmentProcessing};
-    use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
+    use crate::models::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
+    use crate::models::segment_processing::{EmbedSource, SegmentProcessing};
+    use crate::models::upload::{OcrStrategy, SegmentationStrategy};
 
     fn create_test_segment() -> Segment {
         Segment {
