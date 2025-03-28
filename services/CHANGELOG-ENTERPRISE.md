@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.4-enterprise...chunkr-services-enterprise-v0.1.5-enterprise) (2025-03-28)
+
+
+### Bug Fixes
+
+* **services:** YOLO layout analysis 400 error fixed ([#45](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/45)) ([93ea81c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/93ea81c883cd55cfbcd035e9770021d3840afd9d))
+
 ## [0.1.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.3-enterprise...chunkr-services-enterprise-v0.1.4-enterprise) (2025-03-27)
 
 
