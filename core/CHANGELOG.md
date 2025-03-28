@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.2...chunkr-core-v1.6.0) (2025-03-28)
+
+
+### Features
+
+* Chunking can now be configured using `embed_sources` in `segment_processing.{segment_type}` configuration and allows the choice of pre-configured tokenizers or any huggingface tokenizer by setting the `tokenizer` field in `chunk_processing` ([#420](https://github.com/lumina-ai-inc/chunkr/issues/420)) ([d88ac64](https://github.com/lumina-ai-inc/chunkr/commit/d88ac646ece3935f1c7fcd028bb6c5df0b7d00d3))
+
+
+### Bug Fixes
+
+* Updated hashmap to lru for caching ([d868c76](https://github.com/lumina-ai-inc/chunkr/commit/d868c76dd16a6751e3baab43190b81e827e26395))
+
 ## [1.5.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.1...chunkr-core-v1.5.2) (2025-03-27)
 
 
