@@ -23,16 +23,27 @@ async def process_file(chunkr: Chunkr, file_path: str) -> Optional[TaskResponse]
         #         ),
         #         pipeline=Pipeline.CHUNKR
         #     )
+        # config = Configuration(
+        #         segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS,
+        #         ocr_strategy=OcrStrategy.ALL,
+        #         segment_processing=SegmentProcessing(
+        #             Page=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
+        #             Picture=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
+        #             Table=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
+        #         ),
+        #         pipeline=Pipeline.CHUNKR
+        #     )      
         config = Configuration(
                 segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS,
-                ocr_strategy=OcrStrategy.ALL,
+                ocr_strategy=OcrStrategy.AUTO,
                 segment_processing=SegmentProcessing(
                     Page=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
                     Picture=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
                     Table=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
                 ),
                 pipeline=Pipeline.CHUNKR
-            )          
+            )         
+        print(f"Processing file {file_path} with config {config}")
         task = await chunkr.upload(file_path, config)
         return task
     except Exception as e:

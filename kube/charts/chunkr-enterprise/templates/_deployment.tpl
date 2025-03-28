@@ -22,9 +22,14 @@ spec:
       labels:
         app.kubernetes.io/name: {{ $name }}
     spec:
-      {{- if and $.Values.global.topologySpreadConstraints (eq ($service.enableTopologySpreadConstraints | default false) true) }}
+      {{- if eq ($service.enableTopologySpreadConstraints | default false) true }}
       topologySpreadConstraints:
-        {{- toYaml $.Values.global.topologySpreadConstraints | nindent 8 }}
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ $name }}
       {{- end }}
       {{- if $service.useGPU }}
       affinity:

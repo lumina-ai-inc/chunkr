@@ -68,14 +68,6 @@ global:
     registry: luminainc
     pullPolicy: Always
   storageClass: standard
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: Exists
   gpuWorkload:
     affinity:
       podAntiAffinity:
