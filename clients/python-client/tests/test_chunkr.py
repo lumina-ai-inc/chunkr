@@ -15,6 +15,8 @@ from chunkr_ai.models import (
     SegmentProcessing,
     ChunkProcessing,
     TaskResponse,
+    EmbedSource,
+    Tokenizer,
 )
 
 @pytest.fixture
@@ -33,6 +35,90 @@ def sample_url():
 def client():
     client = Chunkr()
     yield client
+
+@pytest.fixture
+def markdown_embed_config():
+    return Configuration(
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM,
+                embed_sources=[EmbedSource.MARKDOWN]
+            )
+        ),
+    )
+
+@pytest.fixture
+def html_embed_config():
+    return Configuration(
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM,
+                embed_sources=[EmbedSource.HTML]
+            )
+        ),
+    )
+
+@pytest.fixture
+def multiple_embed_config():
+    return Configuration(
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM,
+                llm="Generate a summary of this content",
+                embed_sources=[EmbedSource.MARKDOWN, EmbedSource.LLM, EmbedSource.HTML]
+            )
+        ),
+    )
+    
+@pytest.fixture
+def word_tokenizer_string_config():
+    return Configuration(
+        chunk_processing=ChunkProcessing(
+            tokenizer="Word"
+        ),
+    )
+
+@pytest.fixture
+def word_tokenizer_config():
+    return Configuration(
+        chunk_processing=ChunkProcessing(
+            tokenizer=Tokenizer.WORD
+        ),
+    )
+
+@pytest.fixture
+def cl100k_tokenizer_config():
+    return Configuration(
+        chunk_processing=ChunkProcessing(
+            tokenizer=Tokenizer.CL100K_BASE
+        ),
+    )
+
+@pytest.fixture
+def custom_tokenizer_config():
+    return Configuration(
+        chunk_processing=ChunkProcessing(
+            tokenizer="Qwen/Qwen-tokenizer"
+        ),
+    )
+
+@pytest.fixture
+def xlm_roberta_with_html_content_config():
+    return Configuration(
+        chunk_processing=ChunkProcessing(
+            tokenizer=Tokenizer.XLM_ROBERTA_BASE
+        ),
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM,
+                embed_sources=[EmbedSource.HTML, EmbedSource.CONTENT]
+            )
+        ),
+    )
 
 @pytest.mark.asyncio
 async def test_send_file_path(client, sample_path):
@@ -242,6 +328,15 @@ async def test_send_base64_file(client, sample_path):
     assert response.output is not None
 
 @pytest.mark.asyncio
+async def test_send_base64_file_with_data_url(client, sample_path):
+    with open(sample_path, "rb") as f:
+        base64_content = base64.b64encode(f.read()).decode('utf-8')
+    response = await client.upload(f"data:application/pdf;base64,{base64_content}")
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
 async def test_send_base64_file_with_filename(client, sample_path):
     # Read file and convert to base64
     with open(sample_path, "rb") as f:
@@ -290,3 +385,61 @@ async def test_output_files_with_dirs(client, sample_path, tmp_path):
     assert md_file.exists()
     assert content_file.exists()
     assert json_file.exists()
+
+@pytest.mark.asyncio
+async def test_embed_sources_markdown_only(client, sample_path, markdown_embed_config):
+    response = await client.upload(sample_path, markdown_embed_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    # Check the first chunk to verify embed exists
+    if response.output.chunks:
+        chunk = response.output.chunks[0]
+        assert chunk.embed is not None
+
+@pytest.mark.asyncio
+async def test_embed_sources_html_only(client, sample_path, html_embed_config):
+    response = await client.upload(sample_path, html_embed_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_embed_sources_multiple(client, sample_path, multiple_embed_config):
+    response = await client.upload(sample_path, multiple_embed_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_tokenizer_word(client, sample_path, word_tokenizer_config):
+    response = await client.upload(sample_path, word_tokenizer_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    if response.output.chunks:
+        for chunk in response.output.chunks:
+            # Word tokenizer should result in chunks with length close to target
+            assert chunk.chunk_length > 0
+            assert chunk.chunk_length <= 600  # Allow some flexibility
+
+@pytest.mark.asyncio
+async def test_tokenizer_cl100k(client, sample_path, cl100k_tokenizer_config):
+    response = await client.upload(sample_path, cl100k_tokenizer_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_tokenizer_custom_string(client, sample_path, custom_tokenizer_config):
+    response = await client.upload(sample_path, custom_tokenizer_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_embed_sources_with_different_tokenizer(client, sample_path, xlm_roberta_with_html_content_config):
+    response = await client.upload(sample_path, xlm_roberta_with_html_content_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None

@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.6.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.2...chunkr-core-v1.6.0) (2025-03-28)
+
+
+### Features
+
+* Chunking can now be configured using `embed_sources` in `segment_processing.{segment_type}` configuration and allows the choice of pre-configured tokenizers or any huggingface tokenizer by setting the `tokenizer` field in `chunk_processing` ([#420](https://github.com/lumina-ai-inc/chunkr/issues/420)) ([d88ac64](https://github.com/lumina-ai-inc/chunkr/commit/d88ac646ece3935f1c7fcd028bb6c5df0b7d00d3))
+
+
+### Bug Fixes
+
+* Updated hashmap to lru for caching ([d868c76](https://github.com/lumina-ai-inc/chunkr/commit/d868c76dd16a6751e3baab43190b81e827e26395))
+
+## [1.5.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.1...chunkr-core-v1.5.2) (2025-03-27)
+
+
+### Bug Fixes
+
+* **core:** Handle null started_at values with COALESCE in timeout job ([d068be8](https://github.com/lumina-ai-inc/chunkr/commit/d068be82b972a6cd830234448e4bbfe5ebb5245a))
+
+## [1.5.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.0...chunkr-core-v1.5.1) (2025-03-27)
+
+
+### Bug Fixes
+
+* Fixed timeout query ([97950e5](https://github.com/lumina-ai-inc/chunkr/commit/97950e54aaa9c10cc5ce42f75600603c27d73168))
+
+## [1.5.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.4.0...chunkr-core-v1.5.0) (2025-03-27)
+
+
+### Features
+
+* Added doctr small dockers ([#407](https://github.com/lumina-ai-inc/chunkr/issues/407)) ([9b8a56e](https://github.com/lumina-ai-inc/chunkr/commit/9b8a56e273f39aa15d3001c6f7ccb707900dd584))
+
 ## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.3.3...chunkr-core-v1.4.0) (2025-03-27)
 
 
