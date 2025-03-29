@@ -24,7 +24,6 @@ ingress:
         - name: keycloak
         - name: web
         - name: minio
-        
 common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
@@ -99,20 +98,18 @@ global:
     volumeMounts:
       - name: dshm
         mountPath: /dev/shm
-        
 nvidia:
   timeSlicing:
     enabled: true
     replicas: 8
     timeSlice: 2ms
-    
 services:
   server:
     enabled: true
     useStandardEnv: true
     image:
       repository: server
-      tag: 1.7.0
+      tag: 1.9.0
     port: 8000
     targetPort: 8000
     ingress:
@@ -126,19 +123,18 @@ services:
     useStandardEnv: true
     image:
       repository: task
-      tag: 1.7.0
+      tag: 1.9.0
     envFrom:
       - secretRef:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
         value: '3'
-        
   web:
     enabled: true
     image:
       repository: web
-      tag: 1.7.0
+      tag: 1.9.0
     port: 8000
     targetPort: 8000
     ingress:
@@ -171,7 +167,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 1.7.0
+      tag: 1.9.0
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -181,7 +177,6 @@ services:
         value: '100'
     labels:
       workload-type: chunkr-gpu
-      
   segmentation:
     enabled: true
     image:
