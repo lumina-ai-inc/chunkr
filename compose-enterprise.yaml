@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server-azure:1.9.0-enterprise
+    image: luminainc/server-azure:1.10.0-enterprise
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -16,7 +16,7 @@ services:
     profiles: ["default"]
 
   task:
-    image: luminainc/task-azure:1.9.0-enterprise
+    image: luminainc/task-azure:1.10.0-enterprise
     platform: linux/amd64
     depends_on:
       - postgres
@@ -30,7 +30,7 @@ services:
     profiles: ["default"]
 
   web:
-    image: luminainc/web:1.9.0-enterprise
+    image: luminainc/web:1.10.0-enterprise
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -44,7 +44,7 @@ services:
     profiles: ["dev", "default"]
 
   segmentation:
-    image: luminainc/segmentation-yolo:1.9.0-enterprise
+    image: luminainc/segmentation-yolo:1.10.0-enterprise
     ports:
       - "8001:8001"
     deploy:
@@ -66,7 +66,7 @@ services:
     profiles: ["dev", "default"]
 
   ocr:
-    image: luminainc/doctr:1.9.0-enterprise
+    image: luminainc/doctr:1.10.0-enterprise
     platform: linux/amd64
     ports:
       - "8002:8000"
