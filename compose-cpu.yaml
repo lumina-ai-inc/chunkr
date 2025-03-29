@@ -62,6 +62,7 @@ services:
     restart: always
 
   postgres:
+    platform: linux/amd64
     build:
       context: ./docker/postgres
       dockerfile: Dockerfile
@@ -83,6 +84,7 @@ services:
 
   adminer:
     image: adminer:latest
+    platform: linux/amd64
     ports:
       - "8082:8080"
     depends_on:
@@ -91,6 +93,7 @@ services:
 
   redis:
     image: redis:latest
+    platform: linux/amd64
     ports:
       - "6379:6379"
     volumes:
