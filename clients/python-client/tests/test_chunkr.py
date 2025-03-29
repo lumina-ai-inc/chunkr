@@ -329,6 +329,15 @@ async def test_send_base64_file(client, sample_path):
     assert response.output is not None
 
 @pytest.mark.asyncio
+async def test_send_base64_file_with_data_url(client, sample_path):
+    with open(sample_path, "rb") as f:
+        base64_content = base64.b64encode(f.read()).decode('utf-8')
+    response = await client.upload(f"data:application/pdf;base64,{base64_content}")
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
 async def test_send_base64_file_with_filename(client, sample_path):
     # Read file and convert to base64
     with open(sample_path, "rb") as f:
