@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.9.1-enterprise...v1.10.0-enterprise) (2025-03-29)
+
+
+### Features
+
+* Added dev profile to docker compose ([347a3d0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/347a3d0e108d2868213c090676abe8db5ea77219))
+* Chunking can now be configured using `embed_sources` in `segment_processing.{segment_type}` configuration and allows the choice of pre-configured tokenizers or any huggingface tokenizer by setting the `tokenizer` field in `chunk_processing` ([#420](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/420)) ([d88ac64](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d88ac646ece3935f1c7fcd028bb6c5df0b7d00d3))
+
+
+### Bug Fixes
+
+* Updated hashmap to lru for caching ([d868c76](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d868c76dd16a6751e3baab43190b81e827e26395))
+
 ## [1.9.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.9.0-enterprise...v1.9.1-enterprise) (2025-03-28)
 
 
