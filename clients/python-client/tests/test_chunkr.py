@@ -16,7 +16,6 @@ from chunkr_ai.models import (
     ChunkProcessing,
     TaskResponse,
     EmbedSource,
-    TokenizerType,
     Tokenizer,
 )
 
