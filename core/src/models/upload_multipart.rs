@@ -146,6 +146,7 @@ impl CreateFormMultipart {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
+            error_handling: None,
         }
     }
 }
@@ -265,6 +266,7 @@ impl UpdateFormMultipart {
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
+            error_handling: None,
         }
     }
 }
