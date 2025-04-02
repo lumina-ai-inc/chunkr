@@ -6,7 +6,7 @@ The attached notices are provided for information only.
 
 ## VGT
 
-#### Note: We are currently using the apache-2.0 liscenced [vgt](https://github.com/AlibabaResearch/AdvancedLiterateMachinery/tree/main/DocumentUnderstanding/VGT) library as a part of our services.
+#### Note: We are currently using the apache-2.0 licenced [vgt](https://github.com/AlibabaResearch/AdvancedLiterateMachinery/tree/main/DocumentUnderstanding/VGT) library as a part of our services.
 
 
 
