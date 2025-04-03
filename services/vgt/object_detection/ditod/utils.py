@@ -24,7 +24,7 @@ def visual_badcase(image_path, pred_list, label_list, output_dir="visual_badcase
     """
     img = cv2.imread(image_path) if os.path.exists(image_path) is not None else None
     if img is None:
-        print("--> Warning: skip, given iamge NOT exists: {}".format(image_path))
+        print("--> Warning: skip, given image NOT exists: {}".format(image_path))
         return None
 
     if not os.path.exists(output_dir):
