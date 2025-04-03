@@ -24,7 +24,7 @@ cp .env.example .env
 cargo run
 
 # Start the workers
-## Each wokrer is 1 task
+## Each worker is 1 task
 cargo run --bin task
 ```
 
