@@ -51,7 +51,7 @@ impl CreateFormMultipart {
         self.chunk_processing
             .as_ref()
             .map(|mp_json| mp_json.0.clone())
-            .unwrap_or(ChunkProcessing::default())
+            .unwrap_or_default()
     }
 
     fn get_expires_in(&self) -> Option<i32> {
