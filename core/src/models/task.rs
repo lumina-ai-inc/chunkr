@@ -711,7 +711,17 @@ pub enum Status {
 
 #[cfg(feature = "azure")]
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Clone,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Display,
+    EnumString,
+    Default,
 )]
 pub enum PipelineType {
     Azure,
