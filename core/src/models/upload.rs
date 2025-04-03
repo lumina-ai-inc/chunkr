@@ -73,9 +73,7 @@ pub struct CreateForm {
 
 impl CreateForm {
     fn get_chunk_processing(&self) -> ChunkProcessing {
-        self.chunk_processing
-            .clone()
-            .unwrap_or(ChunkProcessing::default())
+        self.chunk_processing.clone().unwrap_or_default()
     }
 
     fn get_expires_in(&self) -> Option<i32> {

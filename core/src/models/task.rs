@@ -711,18 +711,22 @@ pub enum Status {
 
 #[cfg(feature = "azure")]
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Clone,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Display,
+    EnumString,
+    Default,
 )]
 pub enum PipelineType {
+    #[default]
     Azure,
     Chunkr,
-}
-
-#[cfg(feature = "azure")]
-impl Default for PipelineType {
-    fn default() -> Self {
-        PipelineType::Azure
-    }
 }
 
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
@@ -788,11 +792,10 @@ impl<'de> Deserialize<'de> for Configuration {
         // create a default ChunkProcessing with the specified target length
         let chunk_processing = match (helper.chunk_processing, helper.target_chunk_length) {
             (Some(cp), _) => cp,
-            (None, Some(target_length)) => {
-                let mut cp = ChunkProcessing::default();
-                cp.target_length = target_length;
-                cp
-            }
+            (None, Some(target_length)) => ChunkProcessing {
+                target_length,
+                ..ChunkProcessing::default()
+            },
             (None, None) => ChunkProcessing::default(),
         };
 
