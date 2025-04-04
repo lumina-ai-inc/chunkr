@@ -114,6 +114,9 @@ docker compose up -d
 > **Important**: 
 > - Requires an NVIDIA CUDA GPU
 > - CPU-only deployment via `compose-cpu.yaml` is currently in development and not recommended for use
+> - To use a CPU version run ```docker compose --profile default -f compose-cpu.yaml up -d```
+
+
 
 6. Stop the services when done:
 ```bash
