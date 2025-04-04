@@ -25,7 +25,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 5
     restart: always
     profiles: ["default"]
 
