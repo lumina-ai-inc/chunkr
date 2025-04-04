@@ -10,12 +10,11 @@ use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString, Default
 )]
 /// Controls the Optical Character Recognition (OCR) strategy.
 /// - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
 /// - `Auto`: Selectively applies OCR only to pages with missing or low-quality text. When text layer is present the bounding boxes from the text layer are used.
-#[derive(Default)]
 pub enum OcrStrategy {
     #[default]
     All,
@@ -35,15 +34,38 @@ pub enum OcrStrategy {
     ToSql,
     FromSql,
     ToSchema,
+    Default,
 )]
 /// Controls the segmentation strategy:
 /// - `LayoutAnalysis`: Analyzes pages for layout elements (e.g., `Table`, `Picture`, `Formula`, etc.) using bounding boxes. Provides fine-grained segmentation and better chunking. (Latency penalty: ~TBD seconds per page).
 /// - `Page`: Treats each page as a single segment. Faster processing, but without layout element detection and only simple chunking.
-#[derive(Default)]
 pub enum SegmentationStrategy {
     #[default]
     LayoutAnalysis,
     Page,
+}
+
+#[derive(
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    Display,
+    EnumString,
+    Eq,
+    PartialEq,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Default
+)]
+/// Controls how errors are handled during processing:
+/// - `Fail`: Stops processing and fails the task when any error occurs
+/// - `Continue`: Attempts to continue processing despite non-critical errors (eg. LLM refusals etc.)
+pub enum ErrorHandlingStrategy {
+    #[default]
+    Fail,
+    Continue,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, IntoParams)]
@@ -69,6 +91,9 @@ pub struct CreateForm {
     pub segment_processing: Option<SegmentProcessing>,
     #[schema(default = "LayoutAnalysis")]
     pub segmentation_strategy: Option<SegmentationStrategy>,
+    #[schema(default = "Fail")]
+    /// Controls whether processing should stop on errors or attempt to continue
+    pub error_handling: Option<ErrorHandlingStrategy>,
 }
 
 impl CreateForm {
@@ -140,6 +165,10 @@ impl CreateForm {
         Some(self.pipeline.clone().unwrap_or_default())
     }
 
+    fn get_error_handling(&self) -> Option<ErrorHandlingStrategy> {
+        Some(self.error_handling.clone().unwrap_or_default())
+    }
+
     pub fn to_configuration(&self) -> Configuration {
         Configuration {
             chunk_processing: self.get_chunk_processing(),
@@ -154,6 +183,7 @@ impl CreateForm {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
+            error_handling: self.get_error_handling(),
         }
     }
 }
@@ -162,7 +192,7 @@ impl CreateForm {
 pub struct UpdateForm {
     pub chunk_processing: Option<ChunkProcessing>,
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     pub high_resolution: Option<bool>,
@@ -173,6 +203,7 @@ pub struct UpdateForm {
     pub pipeline: Option<PipelineType>,
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
+    pub error_handling: Option<ErrorHandlingStrategy>,
 }
 
 impl UpdateForm {
@@ -244,6 +275,10 @@ impl UpdateForm {
                 .clone()
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
+            error_handling: self
+                .error_handling
+                .clone()
+                .or_else(|| current_config.error_handling.clone()),
         }
     }
 }

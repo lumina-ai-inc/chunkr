@@ -506,6 +506,7 @@ mod tests {
             segment_processing: SegmentProcessing::default(),
             segmentation_strategy: SegmentationStrategy::LayoutAnalysis,
             target_chunk_length: None,
+            error_handling: None,
         };
 
         config
