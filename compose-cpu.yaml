@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   task:
@@ -25,7 +25,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 10
+      replicas: 0
     restart: always
 
   web:

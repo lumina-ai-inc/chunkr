@@ -84,9 +84,6 @@ imageproc = "0.25.0"
 [build-dependencies]
 pkg-config = "0.3.19"
 
-[package.metadata.pkg-config]
-postgresql = { version = "14", lib_dir = "/opt/homebrew/opt/postgresql@14/lib" }
-
 [[bin]]
 name = "task"
 path = "src/workers/task.rs"
