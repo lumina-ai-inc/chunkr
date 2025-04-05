@@ -10,7 +10,17 @@ use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString, Default
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Clone,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Display,
+    EnumString,
+    Default,
 )]
 /// Controls the Optical Character Recognition (OCR) strategy.
 /// - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
@@ -57,7 +67,7 @@ pub enum SegmentationStrategy {
     ToSql,
     FromSql,
     ToSchema,
-    Default
+    Default,
 )]
 /// Controls how errors are handled during processing:
 /// - `Fail`: Stops processing and fails the task when any error occurs
