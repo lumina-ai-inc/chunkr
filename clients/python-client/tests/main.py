@@ -1,5 +1,5 @@
 from chunkr_ai import Chunkr
-from chunkr_ai.models import Tokenizer, ChunkProcessing
+from chunkr_ai.models import Tokenizer, ChunkProcessing, ErrorHandlingStrategy, Configuration, Status, Pipeline
 import asyncio
 import multiprocessing
 import time
@@ -98,30 +98,38 @@ def save_base64_to_file():
         f.write(segment_image_data)
 
 if __name__ == "__main__":
-    
-    # task = chunkr.upload("./files/test.pdf")
+    task = chunkr.upload("./files/test.pdf", config=Configuration(
+            error_handling=ErrorHandlingStrategy.CONTINUE,
+            pipeline=Pipeline.CHUNKR
+        )
+    )
+    if task.status == Status.FAILED:
+        print(task.message)
+    else:
+        markdown = task.markdown()
+        print(markdown)
     # task.markdown("./output/markdown.md")
     # print(task.output.chunks[1].embed)
     # print(task.output.chunks[0].segments[0].confidence)
-    tokenizers = [Tokenizer.WORD, Tokenizer.CL100K_BASE, Tokenizer.XLM_ROBERTA_BASE, "Qwen/Qwen-tokenizer", "Word"]
-    for tokenizer in tokenizers:
-        print(tokenizer)
-        chunk_processing = ChunkProcessing(
-            target_length=500,
-            tokenizer=tokenizer
-        )
-        print(chunk_processing)
-        print(chunk_processing.model_dump_json())
-        print("\n")
+    # tokenizers = [Tokenizer.WORD, Tokenizer.CL100K_BASE, Tokenizer.XLM_ROBERTA_BASE, "Qwen/Qwen-tokenizer", "Word"]
+    # for tokenizer in tokenizers:
+    #     print(tokenizer)
+    #     chunk_processing = ChunkProcessing(
+    #         target_length=500,
+    #         tokenizer=tokenizer
+    #     )
+    #     print(chunk_processing)
+    #     print(chunk_processing.model_dump_json())
+    #     print("\n")
 
-    tokenizer = tokenizers[1]
-    print(tokenizer)
-    chunk_processing = ChunkProcessing(
-        tokenizer=tokenizer
-    )
-    task = chunkr.upload("./files/test.pdf", chunk_processing)
-    task.markdown("./output/markdown.md")
-    print(task.output.chunks[1].embed)
-    print(task.configuration.chunk_processing)
-    print(task.configuration.chunk_processing.tokenizer)
-    assert task.configuration.chunk_processing.tokenizer == tokenizer
+    # tokenizer = tokenizers[1]
+    # print(tokenizer)
+    # chunk_processing = ChunkProcessing(
+    #     tokenizer=tokenizer
+    # )
+    # task = chunkr.upload("./files/test.pdf", chunk_processing)
+    # task.markdown("./output/markdown.md")
+    # print(task.output.chunks[1].embed)
+    # print(task.configuration.chunk_processing)
+    # print(task.configuration.chunk_processing.tokenizer)
+    # assert task.configuration.chunk_processing.tokenizer == tokenizer

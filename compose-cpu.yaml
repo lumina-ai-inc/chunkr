@@ -1,4 +1,3 @@
-# THIS IS UNDER DEVELOPMENT
 services:
   server:
     image: luminainc/server:1.9.0
@@ -35,23 +34,52 @@ services:
       - "5173:8000"
     env_file:
       - .env
+    environment:
+      - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
       replicas: 1
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:1.4.2
-    platform: linux/amd64
+    image: nginx:latest
     ports:
       - "8001:8000"
+    volumes:
+      - ./nginx-segmentation.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - segmentation-lb
     deploy:
-      replicas: 1
+      resources:
+        limits:
+          cpus: '8'
+          memory: 8G
+    restart: always
+
+  segmentation-lb:
+    image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
+    platform: linux/amd64
+    expose:
+      - "8000"
+    deploy:
+      replicas: 6
+      resources:
+        limits:
+          cpus: '8'
+          memory: 8G
     volumes:
       - /dev/shm:/dev/shm
+    environment:
+      - MAX_BATCH_SIZE=64
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.2
+      - SCORE_THRESHOLD=0.14
+      - OMP_NUM_THREADS=12
+      - MKL_NUM_THREADS=12
+      - NUMEXPR_NUM_THREADS=12
     restart: always
 
   ocr:
-    image: luminainc/doctr:1.9.0
+    image: luminainc/doctr-small:1.10.0-enterprise
     platform: linux/amd64
     ports:
       - "8002:8000"
@@ -62,10 +90,10 @@ services:
     restart: always
 
   postgres:
-    platform: linux/amd64
     build:
       context: ./docker/postgres
       dockerfile: Dockerfile
+    platform: linux/arm64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -84,7 +112,7 @@ services:
 
   adminer:
     image: adminer:latest
-    platform: linux/amd64
+    platform: linux/arm64
     ports:
       - "8082:8080"
     depends_on:
@@ -93,7 +121,7 @@ services:
 
   redis:
     image: redis:latest
-    platform: linux/amd64
+    platform: linux/arm64
     ports:
       - "6379:6379"
     volumes:
@@ -109,7 +137,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    platform: linux/amd64
+    platform: linux/arm64
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -127,7 +155,7 @@ services:
 
   minio-init:
     image: minio/mc
-    platform: linux/amd64
+    platform: linux/arm64
     depends_on:
       minio:
         condition: service_healthy
@@ -161,6 +189,22 @@ services:
       retries: 3
     depends_on:
       - postgres
+    restart: always
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.5
+    platform: linux/amd64
+    ports:
+      - "8003:80"
+    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    deploy:
+      replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
     restart: always
 
 volumes:
