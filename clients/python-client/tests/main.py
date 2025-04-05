@@ -1,5 +1,5 @@
 from chunkr_ai import Chunkr
-from chunkr_ai.models import Tokenizer, ChunkProcessing, ErrorHandlingStrategy, Configuration
+from chunkr_ai.models import Tokenizer, ChunkProcessing, ErrorHandlingStrategy, Configuration, Status, Pipeline
 import asyncio
 import multiprocessing
 import time
@@ -98,8 +98,16 @@ def save_base64_to_file():
         f.write(segment_image_data)
 
 if __name__ == "__main__":
-    
-    task = chunkr.upload("./files/test.pdf", config=Configuration(error_handling=ErrorHandlingStrategy.CONTINUE))
+    task = chunkr.upload("./files/test.pdf", config=Configuration(
+            error_handling=ErrorHandlingStrategy.CONTINUE,
+            pipeline=Pipeline.CHUNKR
+        )
+    )
+    if task.status == Status.FAILED:
+        print(task.message)
+    else:
+        markdown = task.markdown()
+        print(markdown)
     # task.markdown("./output/markdown.md")
     # print(task.output.chunks[1].embed)
     # print(task.output.chunks[0].segments[0].confidence)
