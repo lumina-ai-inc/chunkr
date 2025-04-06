@@ -21,8 +21,8 @@ pub struct ChunkProcessing {
     pub tokenizer: TokenizerType,
 }
 
-impl ChunkProcessing {
-    pub fn default() -> Self {
+impl Default for ChunkProcessing {
+    fn default() -> Self {
         Self {
             ignore_headers_and_footers: default_ignore_headers_and_footers(),
             target_length: default_target_length(),
