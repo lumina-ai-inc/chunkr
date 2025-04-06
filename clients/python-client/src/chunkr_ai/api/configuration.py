@@ -126,6 +126,10 @@ class SegmentationStrategy(str, Enum):
     LAYOUT_ANALYSIS = "LayoutAnalysis"
     PAGE = "Page"
 
+class ErrorHandlingStrategy(str, Enum):
+    FAIL = "Fail"
+    CONTINUE = "Continue"
+
 class BoundingBox(BaseModel):
     left: float
     top: float
@@ -189,6 +193,7 @@ class Pipeline(str, Enum):
 class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = None
     expires_in: Optional[int] = None
+    error_handling: Optional[ErrorHandlingStrategy] = None
     high_resolution: Optional[bool] = None
     ocr_strategy: Optional[OcrStrategy] = None
     segment_processing: Optional[SegmentProcessing] = None
