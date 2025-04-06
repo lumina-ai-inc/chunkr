@@ -49,29 +49,29 @@
 1. Go to [chunkr.ai](https://www.chunkr.ai) 
 2. Make an account and copy your API key
 3. Install our Python SDK:
-   ```bash
-   pip install chunkr-ai
-   ```
+```bash
+pip install chunkr-ai
+```
 4. Use the SDK to process your documents:
-   ```python
-   from chunkr_ai import Chunkr
+```python
+from chunkr_ai import Chunkr
 
-   # Initialize with your API key from chunkr.ai
-   chunkr = Chunkr(api_key="your_api_key")
+# Initialize with your API key from chunkr.ai
+chunkr = Chunkr(api_key="your_api_key")
 
-   # Upload a document (URL or local file path)
-   url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
-   task = chunkr.upload(url)
+# Upload a document (URL or local file path)
+url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
+task = chunkr.upload(url)
 
-   # Export results in various formats
-   task.html(output_file="output.html")
-   task.markdown(output_file="output.md")
-   task.content(output_file="output.txt")
-   task.json(output_file="output.json")
+# Export results in various formats
+html = task.html(output_file="output.html")
+markdown = task.markdown(output_file="output.md")
+content = task.content(output_file="output.txt")
+task.json(output_file="output.json")
 
-   # Clean up
-   chunkr.close()
-   ```
+# Clean up
+chunkr.close()
+```
 
 ## Documentation
 
@@ -97,7 +97,7 @@ cd chunkr
 cp .env.example .env
 
 # Configure your environment variables
-# Required: LLM_KEY as your OpenAI API key
+# Required: LLM__KEY as your OpenAI API key
 ```
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
@@ -107,15 +107,16 @@ With GPU:
 ```bash
 docker compose up -d
 ```
-1. Access the services:
+Access the services:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
 > **Important**: 
 > - Requires an NVIDIA CUDA GPU
 > - CPU-only deployment via `compose-cpu.yaml` is currently in development and not recommended for use
+> - To use a CPU version run ```docker compose -f compose-cpu.yaml up -d```
 
-6. Stop the services when done:
+1. Stop the services when done:
 ```bash
 docker compose down
 ```
@@ -160,7 +161,7 @@ LLM__URL=https://generativelanguage.googleapis.com/v1beta/openai/chat/completion
 Check [here](https://openrouter.ai/models) for available models.
 
 ```
-LLM__KEY=your_openrouter_api_key
+LLM__KEY=your_open_router_api_key
 LLM__MODEL=google/gemini-pro-1.5
 LLM__URL=https://openrouter.ai/api/v1/chat/completions
 ```
