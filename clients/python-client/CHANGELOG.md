@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.45](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.44...chunkr-ai-v0.0.45) (2025-04-06)
+
+
+### Features
+
+* Added configuration for `error_handling` which allows you to choose between `Fail` or `Continue` on non-critical errors ([0baca0a](https://github.com/lumina-ai-inc/chunkr/commit/0baca0a519b44d139f64d02bec754f259ed329de))
+
 ## [0.0.44](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.43...chunkr-ai-v0.0.44) (2025-03-28)
 
 
