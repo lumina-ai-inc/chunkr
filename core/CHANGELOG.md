@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.6.0...chunkr-core-v1.7.0) (2025-04-06)
+
+
+### Features
+
+* Added configuration for `error_handling` which allows you to choose between `Fail` or `Continue` on non-critical errors ([0baca0a](https://github.com/lumina-ai-inc/chunkr/commit/0baca0a519b44d139f64d02bec754f259ed329de))
+
+
+### Bug Fixes
+
+* Default trait added to chunk processing ([20c6f15](https://github.com/lumina-ai-inc/chunkr/commit/20c6f15bf5ef1a538413147103313e65e1223e47))
+
 ## [1.6.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.5.2...chunkr-core-v1.6.0) (2025-03-28)
 
 
