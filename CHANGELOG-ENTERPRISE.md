@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.11.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.10.0-enterprise...v1.11.0-enterprise) (2025-04-07)
+
+
+### Features
+
+* Added configuration for `error_handling` which allows you to choose between `Fail` or `Continue` on non-critical errors ([0baca0a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0baca0a519b44d139f64d02bec754f259ed329de))
+
+
+### Bug Fixes
+
+* Default trait added to chunk processing ([20c6f15](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/20c6f15bf5ef1a538413147103313e65e1223e47))
+
 ## [1.10.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.9.1-enterprise...v1.10.0-enterprise) (2025-03-29)
 
 
