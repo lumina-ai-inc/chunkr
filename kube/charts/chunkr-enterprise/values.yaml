@@ -255,3 +255,22 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: PG__URL
+  cleanup-failed-pods:
+    enabled: false
+    type: cronjob
+    schedule: "*/15 * * * *"  # Run every 15 minutes
+    image:
+      registry: bitnami
+      repository: kubectl
+      tag: latest
+    command:
+      - kubectl
+    args:
+      - delete
+      - pods
+      - --field-selector=status.phase=Failed
+      - -n
+      - chunkr
+    serviceAccountName: default
+    podSpec:
+      restartPolicy: OnFailure

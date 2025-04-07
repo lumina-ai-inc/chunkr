@@ -2,3 +2,4 @@
 {{- include "chunkr.service" . -}}
 {{- include "chunkr.pvc" . -}}
 {{- include "chunkr.job" . -}}
+{{- include "chunkr.cronjob" . -}}
