@@ -4,7 +4,7 @@ use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
 use crate::models::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
-use crate::models::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::email::EmailService;
 use crate::utils::services::file_operations::check_file_type;
@@ -773,18 +773,22 @@ pub enum Status {
 
 #[cfg(feature = "azure")]
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Clone,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Display,
+    EnumString,
+    Default,
 )]
 pub enum PipelineType {
+    #[default]
     Azure,
     Chunkr,
-}
-
-#[cfg(feature = "azure")]
-impl Default for PipelineType {
-    fn default() -> Self {
-        PipelineType::Azure
-    }
 }
 
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
@@ -815,6 +819,8 @@ pub struct Configuration {
     #[cfg(feature = "azure")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<PipelineType>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_handling: Option<ErrorHandlingStrategy>,
 }
 
 impl<'de> Deserialize<'de> for Configuration {
@@ -842,6 +848,8 @@ impl<'de> Deserialize<'de> for Configuration {
             target_chunk_length: Option<u32>,
             #[cfg(feature = "azure")]
             pipeline: Option<PipelineType>,
+            #[serde(default)]
+            error_handling: Option<ErrorHandlingStrategy>,
         }
 
         let helper = Helper::deserialize(deserializer)?;
@@ -850,11 +858,10 @@ impl<'de> Deserialize<'de> for Configuration {
         // create a default ChunkProcessing with the specified target length
         let chunk_processing = match (helper.chunk_processing, helper.target_chunk_length) {
             (Some(cp), _) => cp,
-            (None, Some(target_length)) => {
-                let mut cp = ChunkProcessing::default();
-                cp.target_length = target_length;
-                cp
-            }
+            (None, Some(target_length)) => ChunkProcessing {
+                target_length,
+                ..ChunkProcessing::default()
+            },
             (None, None) => ChunkProcessing::default(),
         };
 
@@ -875,6 +882,7 @@ impl<'de> Deserialize<'de> for Configuration {
             target_chunk_length: helper.target_chunk_length,
             #[cfg(feature = "azure")]
             pipeline: helper.pipeline,
+            error_handling: helper.error_handling,
         })
     }
 }

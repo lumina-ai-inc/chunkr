@@ -1,7 +1,7 @@
 [
   {
     "role": "user",
-    "content": "Your task is to follow the users prompt and generate a response based on the segment.\n\nThe segment has the type: {segment_type}.\n\nFollow the user's prompt carefully to extract and format the relevant information from the segment. Only extract information that matches the prompt's requirements.\n\nReturn your response in a clear, structured format that aligns with the user's request. You ouput must be in fenced like ```[INSERT_OUTPUT]```.\n\nUser prompt: {user_prompt}"
+    "content": "Your task is to follow the users prompt and generate a response based on the segment.\n\nThe segment has the type: {segment_type}.\n\nFollow the user's prompt carefully to extract and format the relevant information from the segment. Only extract information that matches the prompt's requirements.\n\nReturn your response in a clear, structured format that aligns with the user's request. You output must be in fenced like ```[INSERT_OUTPUT]```.\n\nUser prompt: {user_prompt}"
   },
   {
     "role": "user",

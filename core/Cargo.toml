@@ -1,6 +1,6 @@
 [package]
 name = "core"
-version = "1.7.0-enterprise"
+version = "1.7.0"
 edition = "2021"
 default-run = "core"
 
@@ -83,9 +83,6 @@ imageproc = "0.25.0"
 
 [build-dependencies]
 pkg-config = "0.3.19"
-
-[package.metadata.pkg-config]
-postgresql = { version = "14", lib_dir = "/opt/homebrew/opt/postgresql@14/lib" }
 
 [[bin]]
 name = "task"

@@ -27,9 +27,8 @@ fn generate_content() -> String {
     String::new()
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, Default)]
 /// The processed results of a document analysis task
-#[derive(Default)]
 pub struct OutputResponse {
     /// Collection of document chunks, where each chunk contains one or more segments
     pub chunks: Vec<Chunk>,
@@ -507,6 +506,7 @@ mod tests {
             segment_processing: SegmentProcessing::default(),
             segmentation_strategy: SegmentationStrategy::LayoutAnalysis,
             target_chunk_length: None,
+            error_handling: None,
         };
 
         config

@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:1.8.2
+    image: luminainc/server:1.10.0
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:1.8.2
+    image: luminainc/task:1.10.0
     platform: linux/amd64
     depends_on:
       - postgres
@@ -28,34 +28,58 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:1.8.2
+    image: luminainc/web:1.10.0
     platform: linux/amd64
     ports:
       - "5173:8000"
     env_file:
       - .env
+    environment:
+      - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
       replicas: 1
     restart: always
 
   segmentation:
-    image: luminainc/segmentation-yolo:bd6e0222
-    platform: linux/amd64
+    image: nginx:latest
     ports:
       - "8001:8000"
+    volumes:
+      - ./nginx-segmentation.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - segmentation-lb
     deploy:
-      replicas: 0
+      resources:
+        limits:
+          cpus: '8'
+          memory: 8G
+    restart: always
+
+  segmentation-lb:
+    image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
+    platform: linux/amd64
+    expose:
+      - "8000"
+    deploy:
+      replicas: 6
+      resources:
+        limits:
+          cpus: '8'
+          memory: 8G
     volumes:
       - /dev/shm:/dev/shm
-    # environment:
-    #   - MAX_BATCH_SIZE=4
-    #   - BATCH_WAIT_TIME=0.2
-    #   - OVERLAP_THRESHOLD=0.025
-    #   - SCORE_THRESHOLD=0.2
+    environment:
+      - MAX_BATCH_SIZE=64
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.2
+      - SCORE_THRESHOLD=0.14
+      - OMP_NUM_THREADS=12
+      - MKL_NUM_THREADS=12
+      - NUMEXPR_NUM_THREADS=12
     restart: always
 
   ocr:
-    image: luminainc/doctr:1.8.2
+    image: luminainc/doctr-small:1.10.0
     platform: linux/amd64
     ports:
       - "8002:8000"
@@ -68,6 +92,7 @@ services:
     build:
       context: ./docker/postgres
       dockerfile: Dockerfile
+    platform: linux/arm64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -86,6 +111,7 @@ services:
 
   adminer:
     image: adminer:latest
+    platform: linux/arm64
     ports:
       - "8082:8080"
     depends_on:
@@ -94,6 +120,7 @@ services:
 
   redis:
     image: redis:latest
+    platform: linux/arm64
     ports:
       - "6379:6379"
     volumes:
@@ -109,7 +136,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    platform: linux/amd64
+    platform: linux/arm64
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -127,7 +154,7 @@ services:
 
   minio-init:
     image: minio/mc
-    platform: linux/amd64
+    platform: linux/arm64
     depends_on:
       minio:
         condition: service_healthy
@@ -157,6 +184,9 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KC_PROXY=edge
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HTTP_ENABLED=true
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
       - KC_DB_USERNAME=postgres
@@ -171,6 +201,22 @@ services:
       retries: 3
     depends_on:
       - postgres
+    restart: always
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.5
+    platform: linux/amd64
+    ports:
+      - "8003:80"
+    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    deploy:
+      replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
     restart: always
 
 volumes:
