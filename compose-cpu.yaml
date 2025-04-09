@@ -149,8 +149,8 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.2
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
@@ -179,8 +179,8 @@ services:
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8080:8080"  # HTTP port
-      - "8443:8443"  # HTTPS port
+      - "8090:80"   # HTTP port
+      - "8443:443"  # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
