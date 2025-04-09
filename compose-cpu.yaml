@@ -186,6 +186,18 @@ services:
       - ./certs:/etc/nginx/certs:ro
     restart: always
 
+  web-proxy:
+    image: nginx:latest
+    ports:
+      - "80:80"  # HTTP port
+      - "443:443"  # HTTPS port
+    volumes:
+      - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
+    restart: always
+
 volumes:
   postgres_data:
   redis_data:
