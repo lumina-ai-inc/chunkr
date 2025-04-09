@@ -191,8 +191,8 @@ services:
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"    # HTTP port for web
-      - "443:443"  # HTTPS port for web
+      - "80:80"    # HTTP port
+      - "443:443"  # HTTPS port
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -205,8 +205,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:80"   # HTTP port for server
-      - "8444:443"  # HTTPS port for server
+      - "8010:80"   # HTTP port
+      - "8444:443"  # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
