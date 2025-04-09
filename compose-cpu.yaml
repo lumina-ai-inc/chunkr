@@ -219,8 +219,8 @@ services:
   minio-proxy:
     image: nginx:latest
     ports:
-      - "9000:9000" # MinIO API
-      - "9001:9001" # MinIO Console
+      - "9100:9000" # MinIO API
+      - "9101:9001" # MinIO Console
     volumes:
       - ./nginx/minio.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
