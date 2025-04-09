@@ -185,18 +185,50 @@ services:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
     restart: always
+    profiles:
+      - proxy
 
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"  # HTTP port
-      - "443:443"  # HTTPS port
+      - "80:80"    # HTTP port for web
+      - "443:443"  # HTTPS port for web
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - web
     restart: always
+    profiles:
+      - proxy
+
+  server-proxy:
+    image: nginx:latest
+    ports:
+      - "8010:80"   # HTTP port for server
+      - "8444:443"  # HTTPS port for server
+    volumes:
+      - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - server
+    restart: always
+    profiles:
+      - proxy
+
+  minio-proxy:
+    image: nginx:latest
+    ports:
+      - "9000:9000" # MinIO API
+      - "9001:9001" # MinIO Console
+    volumes:
+      - ./nginx/minio.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - minio
+    restart: always
+    profiles:
+      - proxy
 
 volumes:
   postgres_data:
