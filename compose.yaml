@@ -1,7 +1,6 @@
 services:
   server:
     image: luminainc/server:1.10.0
-    platform: linux/amd64
     ports:
       - "8000:8000"
     depends_on:
@@ -16,7 +15,6 @@ services:
 
   task:
     image: luminainc/task:1.10.0
-    platform: linux/amd64
     depends_on:
       - postgres
       - redis
@@ -29,7 +27,6 @@ services:
 
   web:
     image: luminainc/web:1.10.0
-    platform: linux/amd64
     ports:
       - "5173:8000"
     env_file:
@@ -40,7 +37,6 @@ services:
 
   segmentation:
     image: luminainc/segmentation:1.4.2
-    platform: linux/amd64
     ports:
       - "8001:8000"
     deploy:
@@ -62,7 +58,6 @@ services:
 
   ocr:
     image: luminainc/doctr:1.10.0
-    platform: linux/amd64
     ports:
       - "8002:8000"
     deploy:
@@ -98,7 +93,6 @@ services:
 
   adminer:
     image: adminer:latest
-    platform: linux/amd64
     ports:
       - "8082:8080"
     depends_on:
@@ -107,7 +101,6 @@ services:
 
   redis:
     image: redis:latest
-    platform: linux/amd64
     ports:
       - "6379:6379"
     volumes:
@@ -123,7 +116,6 @@ services:
 
   minio:
     image: minio/minio:latest
-    platform: linux/amd64
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -141,7 +133,6 @@ services:
 
   minio-init:
     image: minio/mc
-    platform: linux/amd64
     depends_on:
       minio:
         condition: service_healthy
@@ -154,7 +145,6 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.2
-    platform: linux/amd64
     ports:
       - "8080:8080"
     environment:
