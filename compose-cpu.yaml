@@ -48,11 +48,6 @@ services:
       - ./nginx-segmentation.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - segmentation-lb
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
-          memory: 8G
     restart: always
 
   segmentation-lb:
@@ -62,10 +57,6 @@ services:
       - "8000"
     deploy:
       replicas: 6
-      resources:
-        limits:
-          cpus: '8'
-          memory: 8G
     volumes:
       - /dev/shm:/dev/shm
     environment:
