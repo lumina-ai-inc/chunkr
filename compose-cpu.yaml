@@ -84,7 +84,7 @@ services:
     build:
       context: ./docker/postgres
       dockerfile: Dockerfile
-    platform: linux/arm64
+    platform: linux/amd64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -103,7 +103,7 @@ services:
 
   adminer:
     image: adminer:latest
-    platform: linux/arm64
+    platform: linux/amd64
     ports:
       - "8082:8080"
     depends_on:
@@ -112,7 +112,7 @@ services:
 
   redis:
     image: redis:latest
-    platform: linux/arm64
+    platform: linux/amd64
     ports:
       - "6379:6379"
     volumes:
@@ -128,7 +128,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    platform: linux/arm64
+    platform: linux/amd64
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -146,7 +146,7 @@ services:
 
   minio-init:
     image: minio/mc
-    platform: linux/arm64
+    platform: linux/amd64
     depends_on:
       minio:
         condition: service_healthy
