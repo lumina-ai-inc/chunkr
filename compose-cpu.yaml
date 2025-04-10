@@ -176,11 +176,12 @@ services:
         condition: service_healthy
     restart: always
 
+  # TODO: Add port based or route based
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8090:80"   # HTTP port
-      - "8443:443"  # HTTPS port
+      - "8090:8090"   # HTTP port
+      - "8443:8443"  # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -205,8 +206,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:80"   # HTTP port
-      - "8444:443"  # HTTPS port
+      - "8010:8010"   # HTTP port
+      - "8444:8444"  # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -219,8 +220,8 @@ services:
   minio-proxy:
     image: nginx:latest
     ports:
-      - "9100:9000" # MinIO API
-      - "9101:9001" # MinIO Console
+      - "9100:9100" # MinIO API
+      - "9101:9101" # MinIO Console
     volumes:
       - ./nginx/minio.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
