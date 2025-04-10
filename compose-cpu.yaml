@@ -176,7 +176,6 @@ services:
         condition: service_healthy
     restart: always
 
-  # TODO: Add port based or route based
   keycloak-proxy:
     image: nginx:latest
     ports:

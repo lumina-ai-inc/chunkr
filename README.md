@@ -35,6 +35,7 @@
 - [Documentation](#documentation)
 - [Self-Hosted Deployment Options](#self-hosted-deployment-options)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+    - [HTTPS Setup for Docker Compose](#https-setup-for-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [LLM Configuration](#llm-configuration)
   - [OpenAI Configuration](#openai-configuration)
@@ -102,23 +103,70 @@ cp .env.example .env
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
 4. Start the services:
-   
-With GPU:
 ```bash
+# For GPU deployment, use the following command:
 docker compose up -d
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml up -d
 ```
-Access the services:
+
+5. Access the services:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
-> **Important**: 
-> - Requires an NVIDIA CUDA GPU
-> - CPU-only deployment via `compose-cpu.yaml` is currently in development and not recommended for use
-> - To use a CPU version run ```docker compose -f compose-cpu.yaml up -d```
-
-1. Stop the services when done:
+6. Stop the services when done:
 ```bash
+# For GPU deployment, use the following command:
 docker compose down
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml down
+```
+
+#### HTTPS Setup for Docker Compose
+
+This section explains how to set up HTTPS using a self signed certificate with Docker Compose when hosting Chunkr on a VM. This allows you to access the web UI, API, Keycloak (authentication service) and MinIO (object storage service) over HTTPS.
+
+1. Generate a self-signed certificate:
+```bash
+# Create a certs directory
+mkdir certs
+
+# Generate the certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out certs/nginx.crt -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
+
+2. Update the .env file with your VM's IP address:
+> **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
+```bash
+AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
+VITE_API_URL=https://your_vm_ip_address:8444
+VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=https://your_vm_ip_address
+VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
+VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
+```
+
+1. Start the services:
+```bash
+# For GPU deployment, use the following command:
+docker compose --profile proxy up -d
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml --profile proxy up -d
+```
+
+4. Access the services:
+   - Web UI: `https://your_vm_ip_address`
+   - API: `https://your_vm_ip_address:8444`
+
+5. Stop the services when done:
+```bash
+# For GPU deployment, use the following command:
+docker compose --profile proxy down
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml --profile proxy down
 ```
 
 ### Deployment with Kubernetes
