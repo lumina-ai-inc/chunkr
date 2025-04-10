@@ -114,7 +114,7 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0
       katex:
-        specifier: ^0.16.19
+        specifier: ^0.16.21
         version: 0.16.21
       keycloak-js:
         specifier: ^25.0.4
