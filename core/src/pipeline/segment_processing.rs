@@ -34,6 +34,7 @@ trait ContentGenerator {
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
         llm_fallback_content: Option<String>,
+        configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let mut values = HashMap::new();
         let file_url = get_file_url(
@@ -50,7 +51,13 @@ trait ContentGenerator {
             _ => Some("html"),
         };
 
-        llm::try_extract_from_llm(messages, fence_type, llm_fallback_content).await
+        llm::try_extract_from_llm(
+            messages,
+            fence_type,
+            llm_fallback_content,
+            configuration.llm_processing.clone(),
+        )
+        .await
     }
     async fn generate_llm(
         &self,
@@ -58,6 +65,7 @@ trait ContentGenerator {
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
         llm_fallback_content: Option<String>,
+        configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
 }
 
@@ -118,6 +126,7 @@ impl ContentGenerator for HtmlGenerator {
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
         llm_fallback_content: Option<String>,
+        configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let content = self
             .process_llm(
@@ -125,6 +134,7 @@ impl ContentGenerator for HtmlGenerator {
                 image_folder_location,
                 segment_image,
                 llm_fallback_content,
+                configuration,
             )
             .await?;
 
@@ -194,6 +204,7 @@ impl ContentGenerator for MarkdownGenerator {
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
         llm_fallback_content: Option<String>,
+        configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let content = self
             .process_llm(
@@ -201,6 +212,7 @@ impl ContentGenerator for MarkdownGenerator {
                 image_folder_location,
                 segment_image,
                 llm_fallback_content,
+                configuration,
             )
             .await?;
 
@@ -239,6 +251,7 @@ async fn apply_generation_strategy<T: ContentGenerator>(
     generation_strategy: &GenerationStrategy,
     override_auto: String,
     llm_fallback_content: Option<String>,
+    configuration: &Configuration,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if !override_auto.is_empty() && generation_strategy == &GenerationStrategy::Auto {
         return Ok(override_auto);
@@ -255,6 +268,7 @@ async fn apply_generation_strategy<T: ContentGenerator>(
                 image_folder_location,
                 segment_image.unwrap(),
                 llm_fallback_content,
+                configuration,
             )
             .await?),
         GenerationStrategy::Auto => Ok(generator.generate_auto(auto_content)),
@@ -267,6 +281,7 @@ async fn generate_html(
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
     image_folder_location: &str,
+    configuration: &Configuration,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator {
         segment_type: segment.segment_type.clone(),
@@ -281,6 +296,7 @@ async fn generate_html(
             generation_strategy,
             segment.html.clone(),
             fallback_content,
+            configuration,
         )
         .await?,
     ))
@@ -292,6 +308,7 @@ async fn generate_markdown(
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
     image_folder_location: &str,
+    configuration: &Configuration,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator {
         segment_type: segment.segment_type.clone(),
@@ -306,6 +323,7 @@ async fn generate_markdown(
             generation_strategy,
             segment.markdown.clone(),
             fallback_content,
+            configuration,
         )
         .await?,
     ))
@@ -317,6 +335,7 @@ async fn generate_llm(
     llm_prompt: Option<String>,
     llm_fallback_content: Option<String>,
     image_folder_location: &str,
+    configuration: &Configuration,
 ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
     if llm_prompt.is_none() || segment_image.is_none() {
         return Ok(None);
@@ -333,7 +352,13 @@ async fn generate_llm(
     values.insert("image_url".to_string(), file_url);
 
     let messages = create_messages_from_template("llm_segment", &values)?;
-    let result = llm::try_extract_from_llm(messages, None, llm_fallback_content).await?;
+    let result = llm::try_extract_from_llm(
+        messages,
+        None,
+        llm_fallback_content,
+        configuration.llm_processing.clone(),
+    )
+    .await?;
 
     Ok(Some(result))
 }
@@ -421,6 +446,7 @@ async fn process_segment(
         html_strategy,
         fallback_html,
         image_folder_location,
+        configuration,
     )
     .await
     {
@@ -441,6 +467,7 @@ async fn process_segment(
         markdown_strategy,
         fallback_markdown,
         image_folder_location,
+        configuration,
     )
     .await
     {
@@ -461,6 +488,7 @@ async fn process_segment(
         llm_prompt.clone(),
         fallback_llm,
         image_folder_location,
+        configuration,
     )
     .await
     {

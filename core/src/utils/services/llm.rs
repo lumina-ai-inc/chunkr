@@ -166,22 +166,22 @@ pub async fn try_extract_from_llm(
     let llm_config = LlmConfig::from_env().unwrap();
 
     let (url, key, model) = if let Some(llm_proc) = llm_processing {
-        if !llm_config.allow_custom_llm {
-            return Err(Box::new(LLMError(
-                "Custom LLM providers not allowed".to_string(),
-            )));
-        }
-
-        if let Some(config) = llm_proc.configs.iter().find(|config| {
-            llm_config
-                .get_provider_key(&config.url, &config.model)
-                .is_some()
-        }) {
-            let key = llm_config
-                .get_provider_key(&config.url, &config.model)
-                .ok_or("No valid API key found for custom LLM provider")?;
-            (config.url.clone(), key, config.model.clone())
+        if let Some(model_id) = llm_proc.model_id {
+            // Try to get config from yaml first
+            if let Some((provider_url, api_key, model_name)) =
+                llm_config.get_model_config(&model_id)
+            {
+                (provider_url, api_key, model_name)
+            } else {
+                // Fall back to default config
+                (
+                    llm_config.url.clone(),
+                    llm_config.key.clone(),
+                    llm_config.model.clone(),
+                )
+            }
         } else {
+            // Use OCR config or default
             (
                 llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
                 llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
@@ -192,6 +192,7 @@ pub async fn try_extract_from_llm(
             )
         }
     } else {
+        // Use OCR config or default
         (
             llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
             llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),

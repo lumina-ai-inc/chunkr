@@ -10,8 +10,10 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
 
   task:
     image: luminainc/task:1.10.0
@@ -22,8 +24,10 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 10
+      replicas: 0
     restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
 
   web:
     image: luminainc/web:1.10.0

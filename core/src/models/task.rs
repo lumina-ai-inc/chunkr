@@ -732,17 +732,7 @@ pub enum PipelineType {
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default)]
 pub struct LlmProcessing {
     #[serde(default)]
-    pub configs: Vec<LlmConfiguration>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default)]
-pub struct LlmConfiguration {
-    #[serde(default)]
-    pub id: String,
-    #[serde(default)]
-    pub model: String,
-    #[serde(default)]
-    pub url: String,
+    pub model_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]

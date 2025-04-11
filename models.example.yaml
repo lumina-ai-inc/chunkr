@@ -1,0 +1,16 @@
+
+# List of allowed LLM models
+# Copy this file to models.yaml and fill in the values
+models:
+  - id: gemini-flash-2.0
+    model: google/gemini-2.0-flash-001
+    provider_url: https://openrouter.ai/api/v1/chat/completions
+    api_key: "your_openrouter_api_key_here"
+  - id: qwen-2.5-vl-7b-instruct
+    model: qwen/qwen-2.5-vl-7b-instruct
+    provider_url: https://openrouter.ai/api/v1/chat/completions
+    api_key: "your_openrouter_api_key_here"
+  - id: gpt-4o
+    model: gpt-4o
+    provider_url: https://api.openai.com/v1/chat/completions
+    api_key_env_var: LLM__KEY_OPENAI

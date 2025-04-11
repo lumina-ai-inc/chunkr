@@ -21,16 +21,15 @@ pub struct Config {
     pub structured_extraction_url: Option<String>,
     #[serde(default = "default_url")]
     pub url: String,
-    pub allow_custom_llm: bool,
-    pub llm_providers: Option<Vec<LlmProvider>>,
+    pub llm_models: Option<Vec<LlmModel>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct LlmProvider {
+pub struct LlmModel {
     pub id: String,
-    pub url: String,
-    pub models: Vec<String>,
-    pub api_key_env_var: String,
+    pub model: String,
+    pub provider_url: String,
+    pub api_key: String,
 }
 
 fn default_key() -> String {
@@ -53,33 +52,43 @@ impl Config {
             .build()?
             .try_deserialize::<Self>()?;
 
-        config.allow_custom_llm = std::env::var("ALLOW_CUSTOM_LLM")
-            .unwrap_or_else(|_| "false".to_string())
-            .parse::<bool>()
-            .unwrap_or(false);
-
-        if config.allow_custom_llm {
-            if let Ok(providers_path) = std::env::var("LLM_PROVIDERS_PATH") {
-                if let Ok(contents) = fs::read_to_string(providers_path) {
-                    if let Ok(providers) = serde_yaml::from_str::<Vec<LlmProvider>>(&contents) {
-                        config.llm_providers = Some(providers);
+        // Debug print to verify path
+        if let Ok(models_path) = std::env::var("LLM_MODELS_PATH") {
+            if let Ok(contents) = fs::read_to_string(&models_path) {
+                match serde_yaml::from_str::<serde_yaml::Value>(&contents) {
+                    Ok(yaml) => {
+                        if let Some(models) = yaml.get("models") {
+                            match serde_yaml::from_value(models.clone()) {
+                                Ok(parsed_models) => {
+                                    config.llm_models = Some(parsed_models);
+                                    println!("Successfully loaded models configuration");
+                                    // Debug print
+                                }
+                                Err(e) => println!("Error parsing models: {:?}", e),
+                            }
+                        } else {
+                            println!("No 'models' key found in YAML");
+                        }
                     }
+                    Err(e) => println!("Error parsing YAML: {:?}", e),
                 }
+            } else {
+                println!("Could not read file at path: {}", models_path);
             }
         }
 
         Ok(config)
     }
 
-    pub fn get_provider_key(&self, url: &str, model: &str) -> Option<String> {
-        if !self.allow_custom_llm {
-            return None;
-        }
-
-        self.llm_providers.as_ref().and_then(|providers| {
-            providers.iter().find_map(|provider| {
-                if provider.url == url && provider.models.contains(&model.to_string()) {
-                    std::env::var(&provider.api_key_env_var).ok()
+    pub fn get_model_config(&self, model_id: &str) -> Option<(String, String, String)> {
+        self.llm_models.as_ref().and_then(|models| {
+            models.iter().find_map(|model| {
+                if model.id == model_id {
+                    Some((
+                        model.provider_url.clone(),
+                        model.api_key.clone(),
+                        model.model.clone(),
+                    ))
                 } else {
                     None
                 }
