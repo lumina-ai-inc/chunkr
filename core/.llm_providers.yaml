@@ -1,0 +1,16 @@
+# .llm_providers.yaml
+# List of allowed LLM providers for dynamic task configuration.
+providers:
+  - id: openrouter_free # Identifier to link to the API key environment variable
+    url: https://openrouter.ai/api/v1/chat/completions
+    models:
+      - google/gemini-2.0-flash-001
+      - qwen/qwen-2.5-vl-7b-instruct
+    api_key_env_var: LLM__KEY_OPENROUTER # Env var holding the key
+  - id: openai_gpt4o
+    url: https://api.openai.com/v1/chat/completions
+    models:
+      - gpt-4o
+      - gpt-4-turbo
+    api_key_env_var: LLM__KEY_OPENAI
+  # Add other allowed providers here

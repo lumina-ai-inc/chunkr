@@ -729,8 +729,23 @@ pub enum PipelineType {
     Chunkr,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default)]
+pub struct LlmProcessing {
+    #[serde(default)]
+    pub configs: Vec<LlmConfiguration>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default)]
+pub struct LlmConfiguration {
+    #[serde(default)]
+    pub id: String,
+    #[serde(default)]
+    pub model: String,
+    #[serde(default)]
+    pub url: String,
+}
+
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
-/// The configuration used for the task.
 pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
     #[serde(alias = "expires_at")]
@@ -759,6 +774,8 @@ pub struct Configuration {
     pub pipeline: Option<PipelineType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error_handling: Option<ErrorHandlingStrategy>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl<'de> Deserialize<'de> for Configuration {
@@ -788,6 +805,8 @@ impl<'de> Deserialize<'de> for Configuration {
             pipeline: Option<PipelineType>,
             #[serde(default)]
             error_handling: Option<ErrorHandlingStrategy>,
+            #[serde(default)]
+            llm_processing: Option<LlmProcessing>,
         }
 
         let helper = Helper::deserialize(deserializer)?;
@@ -821,6 +840,7 @@ impl<'de> Deserialize<'de> for Configuration {
             #[cfg(feature = "azure")]
             pipeline: helper.pipeline,
             error_handling: helper.error_handling,
+            llm_processing: helper.llm_processing,
         })
     }
 }

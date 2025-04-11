@@ -2,6 +2,7 @@ use crate::configs::job_config;
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
+use crate::models::task::LlmProcessing;
 #[cfg(feature = "azure")]
 use crate::models::task::PipelineType;
 use crate::models::upload::{OcrStrategy, SegmentationStrategy};
@@ -44,6 +45,9 @@ pub struct CreateFormMultipart {
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis", format = "binary")]
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
+    #[param(style = Form, value_type = String, format = "binary")]
+    #[schema(value_type = Option<LlmProcessing>, format = "binary")]
+    pub llm_processing: Option<MPJson<LlmProcessing>>,
 }
 
 impl CreateFormMultipart {
@@ -68,6 +72,13 @@ impl CreateFormMultipart {
 
     fn get_ocr_strategy(&self) -> OcrStrategy {
         self.ocr_strategy
+            .as_ref()
+            .map(|e| e.0.clone())
+            .unwrap_or_default()
+    }
+
+    fn get_llm_processing(&self) -> LlmProcessing {
+        self.llm_processing
             .as_ref()
             .map(|e| e.0.clone())
             .unwrap_or_default()
@@ -147,6 +158,7 @@ impl CreateFormMultipart {
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
             error_handling: None,
+            llm_processing: Some(self.get_llm_processing()),
         }
     }
 }
@@ -266,7 +278,8 @@ impl UpdateFormMultipart {
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
-            error_handling: None,
+            error_handling: None, //TODO: Do we do anything with this?
+            llm_processing: None,
         }
     }
 }

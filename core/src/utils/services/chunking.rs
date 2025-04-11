@@ -172,6 +172,7 @@ mod tests {
             segmentation_strategy: SegmentationStrategy::LayoutAnalysis,
             target_chunk_length: None,
             error_handling: None,
+            llm_processing: None,
         };
 
         config

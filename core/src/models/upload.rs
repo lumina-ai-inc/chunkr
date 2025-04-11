@@ -2,6 +2,7 @@ use crate::configs::job_config;
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
+use crate::models::task::LlmProcessing;
 #[cfg(feature = "azure")]
 use crate::models::task::PipelineType;
 use postgres_types::{FromSql, ToSql};
@@ -104,6 +105,7 @@ pub struct CreateForm {
     #[schema(default = "Fail")]
     /// Controls whether processing should stop on errors or attempt to continue
     pub error_handling: Option<ErrorHandlingStrategy>,
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl CreateForm {
@@ -179,6 +181,10 @@ impl CreateForm {
         Some(self.error_handling.clone().unwrap_or_default())
     }
 
+    fn get_llm_processing(&self) -> Option<LlmProcessing> {
+        Some(self.llm_processing.clone().unwrap_or_default())
+    }
+
     pub fn to_configuration(&self) -> Configuration {
         Configuration {
             chunk_processing: self.get_chunk_processing(),
@@ -194,6 +200,7 @@ impl CreateForm {
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
             error_handling: self.get_error_handling(),
+            llm_processing: self.get_llm_processing(),
         }
     }
 }
@@ -214,6 +221,7 @@ pub struct UpdateForm {
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
     pub error_handling: Option<ErrorHandlingStrategy>,
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl UpdateForm {
@@ -289,6 +297,10 @@ impl UpdateForm {
                 .error_handling
                 .clone()
                 .or_else(|| current_config.error_handling.clone()),
+            llm_processing: self
+                .llm_processing
+                .clone()
+                .or_else(|| current_config.llm_processing.clone()),
         }
     }
 }

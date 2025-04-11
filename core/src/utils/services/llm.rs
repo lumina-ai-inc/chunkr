@@ -1,6 +1,7 @@
 use crate::configs::llm_config::Config as LlmConfig;
 // use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
+use crate::models::task::LlmProcessing;
 use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
@@ -160,17 +161,51 @@ pub async fn try_extract_from_llm(
     messages: Vec<Message>,
     fence_type: Option<&str>,
     fallback_content: Option<String>,
+    llm_processing: Option<LlmProcessing>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    // let worker_config = WorkerConfig::from_env().unwrap();
     let llm_config = LlmConfig::from_env().unwrap();
 
+    let (url, key, model) = if let Some(llm_proc) = llm_processing {
+        if !llm_config.allow_custom_llm {
+            return Err(Box::new(LLMError(
+                "Custom LLM providers not allowed".to_string(),
+            )));
+        }
+
+        if let Some(config) = llm_proc.configs.iter().find(|config| {
+            llm_config
+                .get_provider_key(&config.url, &config.model)
+                .is_some()
+        }) {
+            let key = llm_config
+                .get_provider_key(&config.url, &config.model)
+                .ok_or("No valid API key found for custom LLM provider")?;
+            (config.url.clone(), key, config.model.clone())
+        } else {
+            (
+                llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
+                llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
+                llm_config
+                    .ocr_model
+                    .clone()
+                    .unwrap_or(llm_config.model.clone()),
+            )
+        }
+    } else {
+        (
+            llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
+            llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
+            llm_config
+                .ocr_model
+                .clone()
+                .unwrap_or(llm_config.model.clone()),
+        )
+    };
+
     let response = process_openai_request(
-        llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
-        llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
-        llm_config
-            .ocr_model
-            .clone()
-            .unwrap_or(llm_config.model.clone()),
+        url,
+        key,
+        model,
         messages.clone(),
         None,
         None,

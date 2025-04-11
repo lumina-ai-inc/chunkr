@@ -2,7 +2,9 @@ use crate::models::open_ai::Message;
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
+use serde_yaml::Value;
 use std::collections::HashMap;
+use std::fs;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -19,6 +21,16 @@ pub struct Config {
     pub structured_extraction_url: Option<String>,
     #[serde(default = "default_url")]
     pub url: String,
+    pub allow_custom_llm: bool,
+    pub llm_providers: Option<Vec<LlmProvider>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LlmProvider {
+    pub id: String,
+    pub url: String,
+    pub models: Vec<String>,
+    pub api_key_env_var: String,
 }
 
 fn default_key() -> String {
@@ -36,10 +48,43 @@ fn default_url() -> String {
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
         dotenv_override().ok();
-        ConfigTrait::builder()
+        let mut config = ConfigTrait::builder()
             .add_source(config::Environment::default().prefix("LLM").separator("__"))
             .build()?
-            .try_deserialize::<Self>()
+            .try_deserialize::<Self>()?;
+
+        config.allow_custom_llm = std::env::var("ALLOW_CUSTOM_LLM")
+            .unwrap_or_else(|_| "false".to_string())
+            .parse::<bool>()
+            .unwrap_or(false);
+
+        if config.allow_custom_llm {
+            if let Ok(providers_path) = std::env::var("LLM_PROVIDERS_PATH") {
+                if let Ok(contents) = fs::read_to_string(providers_path) {
+                    if let Ok(providers) = serde_yaml::from_str::<Vec<LlmProvider>>(&contents) {
+                        config.llm_providers = Some(providers);
+                    }
+                }
+            }
+        }
+
+        Ok(config)
+    }
+
+    pub fn get_provider_key(&self, url: &str, model: &str) -> Option<String> {
+        if !self.allow_custom_llm {
+            return None;
+        }
+
+        self.llm_providers.as_ref().and_then(|providers| {
+            providers.iter().find_map(|provider| {
+                if provider.url == url && provider.models.contains(&model.to_string()) {
+                    std::env::var(&provider.api_key_env_var).ok()
+                } else {
+                    None
+                }
+            })
+        })
     }
 }
 
