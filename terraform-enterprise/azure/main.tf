@@ -70,24 +70,8 @@ variable "gpu_vm_size" {
   default = "Standard_NC8as_T4_v3"
 }
 
-variable "storage_account_name" {
-  type        = string
-  description = "The name for the storage account"
-  default     = null
-}
-
-variable "container_name" {
-  default = "chunkr"
-}
-
 variable "create_postgres" {
   description = "Whether to create PostgreSQL resources"
-  type        = bool
-  default     = false
-}
-
-variable "create_storage" {
-  description = "Whether to create Storage Account resources"
   type        = bool
   default     = false
 }
@@ -192,36 +176,6 @@ resource "azurerm_subnet_network_security_group_association" "services_nsg_assoc
 }
 
 ###############################################################
-# Storage Account 
-###############################################################
-resource "azurerm_storage_account" "storage" {
-  count                    = var.create_storage ? 1 : 0
-  name                     = var.storage_account_name
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-
-  blob_properties {
-    cors_rule {
-      allowed_headers    = ["*"]
-      allowed_methods    = ["GET", "HEAD", "POST"]
-      allowed_origins    = ["*"]
-      exposed_headers    = ["*"]
-      max_age_in_seconds = 3600
-    }
-  }
-}
-
-resource "azurerm_storage_container" "container" {
-  count                 = var.create_storage ? 1 : 0
-  name                  = var.container_name
-  storage_account_name  = azurerm_storage_account.storage[0].name
-  container_access_type = "private"
-}
-
-
-###############################################################
 # AKS Cluster
 ###############################################################
 resource "azurerm_kubernetes_cluster" "aks" {
@@ -257,10 +211,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "general" {
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
   vm_size               = var.general_vm_size
   node_count            = var.general_vm_count
-  min_count             = var.general_min_vm_count
-  max_count             = var.general_max_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
-  enable_auto_scaling   = true
 
   node_labels = {
     "purpose" = "general-compute"
@@ -274,10 +225,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
   vm_size               = var.gpu_vm_size
   node_count            = var.gpu_vm_count
-  min_count             = var.gpu_min_vm_count
-  max_count             = var.gpu_max_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
-  enable_auto_scaling   = true
 
   node_labels = {
     "purpose" = "gpu-compute"
@@ -351,19 +299,6 @@ resource "azurerm_postgresql_flexible_server_configuration" "uuid_ossp" {
 ###############################################################
 # Outputs
 ###############################################################
-output "storage_account_name" {
-  value = length(azurerm_storage_account.storage) > 0 ? azurerm_storage_account.storage[0].name : null
-}
-
-output "storage_account_key" {
-  value     = length(azurerm_storage_account.storage) > 0 ? azurerm_storage_account.storage[0].primary_access_key : null
-  sensitive = true
-}
-
-output "storage_account_endpoint" {
-  value = length(azurerm_storage_account.storage) > 0 ? "https://${azurerm_storage_account.storage[0].name}.blob.core.windows.net" : null
-}
-
 output "postgres_server_name" {
   value = var.create_postgres ? azurerm_postgresql_flexible_server.postgres[0].name : null
 }
