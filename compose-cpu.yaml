@@ -42,12 +42,13 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ./nginx//segmentation.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/segmentation.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
-      - segmentation-lb
+      - segmentation-backend
     restart: always
 
-  segmentation-lb:
+  segmentation-backend:
     image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
     expose:
       - "8000"
@@ -66,11 +67,22 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr-small:1.10.0
+    image: nginx:latest
     ports:
       - "8002:8000"
+    volumes:
+      - ./nginx/ocr.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - ocr-backend
+    restart: always
+
+  ocr-backend:
+    image: luminainc/doctr-small:1.10.0
+    expose:
+      - "8000"
     deploy:
-      replicas: 1
+      replicas: 3
     volumes:
       - /dev/shm:/dev/shm
     restart: always
