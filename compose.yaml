@@ -36,11 +36,22 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:1.4.2
+    image: nginx:latest
     ports:
       - "8001:8000"
+    volumes:
+      - ./nginx/segmentation.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - segmentation-backend
+    restart: always
+
+  segmentation-backend:
+    image: luminainc/segmentation:1.4.2
+    expose:
+      - "8000"
     deploy:
-      replicas: 1
+      replicas: 6
       resources:
         reservations:
           devices:
@@ -57,11 +68,22 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:1.10.0
+    image: nginx:latest
     ports:
       - "8002:8000"
+    volumes:
+      - ./nginx/ocr.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - ocr-backend
+    restart: always
+
+  ocr-backend:
+    image: luminainc/doctr:1.10.0
+    expose:
+      - "8000"
     deploy:
-      replicas: 1
+      replicas: 3
       resources:
         reservations:
           devices:
@@ -71,6 +93,7 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     restart: always
+
   postgres:
     build:
       context: ./docker/postgres
