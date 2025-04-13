@@ -102,8 +102,41 @@ async fn process_openai_request(
         Err(e) => {
             if use_fallback {
                 let llm_config = LlmConfig::from_env().unwrap();
+
+                // Try YAML fallback model first
+                if let Some((fallback_url, fallback_key, fallback_model)) =
+                    llm_config.get_fallback_model()
+                {
+                    println!("Using YAML fallback model: {}", fallback_model);
+                    match retry_with_backoff(|| async {
+                        rate_limiter
+                            .acquire_token_with_timeout(std::time::Duration::from_secs(
+                                *TOKEN_TIMEOUT.get().unwrap(),
+                            ))
+                            .await?;
+                        open_ai_call(
+                            fallback_url.clone(),
+                            fallback_key.clone(),
+                            fallback_model.clone(),
+                            messages.clone(),
+                            max_completion_tokens,
+                            temperature,
+                            response_format.clone(),
+                        )
+                        .await
+                    })
+                    .await
+                    {
+                        Ok(response) => return Ok(response),
+                        Err(fallback_err) => {
+                            println!("YAML fallback model failed: {:?}", fallback_err);
+                        }
+                    }
+                }
+
+                // If YAML fallback fails or is not available, try environment fallback
                 if let Some(fallback_model) = llm_config.fallback_model {
-                    println!("Using fallback model: {}", fallback_model);
+                    println!("Using environment fallback model: {}", fallback_model);
                     retry_with_backoff(|| async {
                         rate_limiter
                             .acquire_token_with_timeout(std::time::Duration::from_secs(
@@ -123,7 +156,7 @@ async fn process_openai_request(
                     })
                     .await?
                 } else {
-                    println!("No fallback model provided");
+                    println!("No fallback model found in either YAML or environment");
                     return Err(e);
                 }
             } else {
@@ -173,12 +206,17 @@ pub async fn try_extract_from_llm(
             {
                 (provider_url, api_key, model_name)
             } else {
-                // Fall back to default config
-                (
-                    llm_config.url.clone(),
-                    llm_config.key.clone(),
-                    llm_config.model.clone(),
-                )
+                // Get the default model from configured models
+                if let Some((provider_url, api_key, model_name)) = llm_config.get_default_model() {
+                    (provider_url, api_key, model_name)
+                } else {
+                    // Fall back to default env config if no default model in YAML
+                    (
+                        llm_config.url.clone(),
+                        llm_config.key.clone(),
+                        llm_config.model.clone(),
+                    )
+                }
             }
         } else {
             // Use OCR config or default
@@ -192,15 +230,17 @@ pub async fn try_extract_from_llm(
             )
         }
     } else {
-        // Use OCR config or default
-        (
-            llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
-            llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
-            llm_config
-                .ocr_model
-                .clone()
-                .unwrap_or(llm_config.model.clone()),
-        )
+        // Try to get the default model from configured models first
+        if let Some((provider_url, api_key, model_name)) = llm_config.get_default_model() {
+            (provider_url, api_key, model_name)
+        } else {
+            // Fall back to env config if no models configured
+            (
+                llm_config.url.clone(),
+                llm_config.key.clone(),
+                llm_config.model.clone(),
+            )
+        }
     };
 
     let response = process_openai_request(

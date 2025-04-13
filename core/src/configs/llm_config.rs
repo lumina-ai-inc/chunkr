@@ -30,6 +30,10 @@ pub struct LlmModel {
     pub model: String,
     pub provider_url: String,
     pub api_key: String,
+    #[serde(default)]
+    pub default: bool,
+    #[serde(default)]
+    pub fallback: bool,
 }
 
 fn default_key() -> String {
@@ -59,8 +63,21 @@ impl Config {
                         if let Some(models) = yaml.get("models") {
                             match serde_yaml::from_value(models.clone()) {
                                 Ok(parsed_models) => {
-                                    config.llm_models = Some(parsed_models);
-                                    println!("Successfully loaded models configuration");
+                                    let models: Vec<LlmModel> = parsed_models;
+
+                                    // Validate model configuration
+                                    match Self::validate_models(&models) {
+                                        Ok(_) => {
+                                            config.llm_models = Some(models);
+                                            println!("Successfully loaded models configuration");
+                                        }
+                                        Err(err) => {
+                                            return Err(ConfigError::Message(format!(
+                                                "Invalid model configuration: {}",
+                                                err
+                                            )));
+                                        }
+                                    }
                                 }
                                 Err(e) => println!("Error parsing models: {:?}", e),
                             }
@@ -78,10 +95,70 @@ impl Config {
         Ok(config)
     }
 
+    // Validate that models follow our rules
+    fn validate_models(models: &[LlmModel]) -> Result<(), String> {
+        if models.is_empty() {
+            return Err("No models defined".to_string());
+        }
+
+        let default_count = models.iter().filter(|m| m.default).count();
+        let fallback_count = models.iter().filter(|m| m.fallback).count();
+
+        if default_count != 1 {
+            return Err(format!(
+                "Exactly one model must be set as default, found {}",
+                default_count
+            ));
+        }
+
+        if fallback_count != 1 {
+            return Err(format!(
+                "Exactly one model must be set as fallback, found {}",
+                fallback_count
+            ));
+        }
+
+        Ok(())
+    }
+
     pub fn get_model_config(&self, model_id: &str) -> Option<(String, String, String)> {
         self.llm_models.as_ref().and_then(|models| {
             models.iter().find_map(|model| {
                 if model.id == model_id {
+                    Some((
+                        model.provider_url.clone(),
+                        model.api_key.clone(),
+                        model.model.clone(),
+                    ))
+                } else {
+                    None
+                }
+            })
+        })
+    }
+
+    // Get the default model configuration
+    pub fn get_default_model(&self) -> Option<(String, String, String)> {
+        self.llm_models.as_ref().and_then(|models| {
+            models.iter().find_map(|model| {
+                if model.default {
+                    Some((
+                        model.provider_url.clone(),
+                        model.api_key.clone(),
+                        model.model.clone(),
+                    ))
+                } else {
+                    None
+                }
+            })
+        })
+    }
+
+    // Get the fallback model configuration
+    pub fn get_fallback_model(&self) -> Option<(String, String, String)> {
+        self.llm_models.as_ref().and_then(|models| {
+            models.iter().find_map(|model| {
+                if model.fallback {
                     Some((
                         model.provider_url.clone(),
                         model.api_key.clone(),

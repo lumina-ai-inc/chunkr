@@ -731,7 +731,6 @@ pub enum PipelineType {
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default)]
 pub struct LlmProcessing {
-    #[serde(default)]
     pub model_id: Option<String>,
 }
 
