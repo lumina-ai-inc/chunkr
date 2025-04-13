@@ -52,7 +52,7 @@ impl Config {
             .build()?
             .try_deserialize::<Self>()?;
 
-        if let Ok(models_path) = std::env::var("LLM_MODELS_PATH") {
+        if let Ok(models_path) = std::env::var("LLM__MODELS_PATH") {
             if let Ok(contents) = fs::read_to_string(&models_path) {
                 match serde_yaml::from_str::<serde_yaml::Value>(&contents) {
                     Ok(yaml) => {
