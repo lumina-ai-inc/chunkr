@@ -189,6 +189,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count     = 1
     vm_size        = "Standard_D2s_v3"
     vnet_subnet_id = azurerm_subnet.aks_subnet.id
+    os_disk_size_gb = 128
     upgrade_settings {
       drain_timeout_in_minutes      = 0
       max_surge                     = "10%"
@@ -212,6 +213,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "general" {
   vm_size               = var.general_vm_size
   node_count            = var.general_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
+  os_disk_size_gb       = 128
 
   node_labels = {
     "purpose" = "general-compute"
@@ -226,13 +228,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   vm_size               = var.gpu_vm_size
   node_count            = var.gpu_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
+  os_disk_size_gb       = 256
 
   node_labels = {
     "purpose" = "gpu-compute"
   }
 
   node_taints = [
-    "nvidia.com/gpu=present:NoSchedule"
+    "nvidia.com/gpu:NoSchedule"
   ]
 
   max_pods = 250
