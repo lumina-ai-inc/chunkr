@@ -63,7 +63,7 @@ class RedisManager:
                 stderr=subprocess.STDOUT,
             )
             
-            start_time = time.time()
+            start_time = timew.time()
             while not self.is_redis_running() and time.time() - start_time < 5:
                 time.sleep(0.1)
                 if self.redis_process.poll() is not None:
