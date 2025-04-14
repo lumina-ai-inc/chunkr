@@ -1,22 +1,23 @@
+use crate::configs::llm_config::Config;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, PartialEq, Eq)]
 /// Specifies the fallback strategy for LLM processing
 ///
 /// This can be:
 /// 1. None - No fallback will be used
 /// 2. Default - The system default fallback model will be used
-/// 3. Custom - A specific model ID will be used as fallback (check the documentation for the models.)
+/// 3. Model - A specific model ID will be used as fallback (check the documentation for the models.)
 pub enum FallbackStrategy {
     /// No fallback will be used
     None,
     /// Use the system default fallback model
     Default,
     /// Use a specific model as fallback
-    String(String),
+    Model(String),
 }
 
 // Default implementation for FallbackStrategy
@@ -36,7 +37,7 @@ impl ToSql for FallbackStrategy {
         let s = match self {
             FallbackStrategy::None => "none".to_string(),
             FallbackStrategy::Default => "default".to_string(),
-            FallbackStrategy::String(id) => format!("string:{}", id),
+            FallbackStrategy::Model(id) => format!("model:{}", id),
         };
         s.to_sql(ty, out)
     }
@@ -58,7 +59,7 @@ impl<'a> FromSql<'a> for FallbackStrategy {
         match s.as_str() {
             "none" => Ok(FallbackStrategy::None),
             "default" => Ok(FallbackStrategy::Default),
-            s if s.starts_with("custom:") => Ok(FallbackStrategy::String(s[7..].to_string())),
+            s if s.starts_with("model:") => Ok(FallbackStrategy::Model(s[6..].to_string())),
             _ => Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Invalid FallbackStrategy format",
@@ -71,7 +72,7 @@ impl<'a> FromSql<'a> for FallbackStrategy {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
+#[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
 /// Controls the LLM used for the task.
 pub struct LlmProcessing {
     /// The ID of the model to use for the task. If not provided, the default model will be used.
@@ -85,6 +86,54 @@ pub struct LlmProcessing {
     /// The temperature to use for the LLM.
     #[serde(default)]
     pub temperature: f32,
+}
+
+impl<'de> Deserialize<'de> for LlmProcessing {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        // Helper struct to deserialize the data initially
+        #[derive(Deserialize)]
+        struct LlmProcessingHelper {
+            model_id: Option<String>,
+            #[serde(default)]
+            fallback_strategy: FallbackStrategy,
+            max_completion_tokens: Option<u32>,
+            #[serde(default)]
+            temperature: f32,
+        }
+
+        let mut helper = LlmProcessingHelper::deserialize(deserializer)?;
+        
+        // Handle None or empty string case - get default model ID
+        if helper.model_id.is_none() || helper.model_id.as_ref().map_or(false, |id| id.trim().is_empty()) {
+            // Use the Config to get the default model ID
+            if let Ok(config) = Config::from_env() {
+                if let Ok(default_model) = config.get_model(None) {
+                    helper.model_id = Some(default_model.id);
+                }
+            }
+        }
+
+        if helper.fallback_strategy == FallbackStrategy::Default {
+            if let Ok(config) = Config::from_env() {
+                if let Ok(default_fallback_model) = config.get_fallback_model(FallbackStrategy::Default) {
+                    if let Some(default_fallback_model) = default_fallback_model {
+                        helper.fallback_strategy = FallbackStrategy::Model(default_fallback_model.id);
+                    }
+                }
+            }
+        }
+        
+        // Return the processed struct
+        Ok(LlmProcessing {
+            model_id: helper.model_id,
+            fallback_strategy: helper.fallback_strategy,
+            max_completion_tokens: helper.max_completion_tokens,
+            temperature: helper.temperature,
+        })
+    }
 }
 
 impl Default for LlmProcessing {

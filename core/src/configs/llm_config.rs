@@ -192,13 +192,13 @@ impl Config {
                     .as_ref()
                     .ok_or_else(|| ConfigError::Message("No LLM models configured".to_string()))?
                     .iter()
-                    .find(|model| model.default)
+                    .find(|model| model.fallback)
                     .cloned()
                     .ok_or_else(|| ConfigError::Message("No fallback model found".to_string()))?;
 
                 Ok(Some(default_fallback_model))
             }
-            FallbackStrategy::String(model_id) => Ok(Some(self.get_model_by_id(&model_id)?)),
+            FallbackStrategy::Model(model_id) => Ok(Some(self.get_model_by_id(&model_id)?)),
             FallbackStrategy::None => Ok(None),
         }
     }
@@ -220,7 +220,7 @@ impl Config {
         }
         
         // Validate fallback strategy if it's a specific model ID
-        if let FallbackStrategy::String(fallback_model_id) = &llm_processing.fallback_strategy {
+        if let FallbackStrategy::Model(fallback_model_id) = &llm_processing.fallback_strategy {
             match self.get_model(Some(fallback_model_id.clone())) {
                 Ok(_) => {},
                 Err(_) => {

@@ -83,7 +83,7 @@ pub enum ErrorHandlingStrategy {
 pub struct CreateForm {
     pub chunk_processing: Option<ChunkProcessing>,
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// The file to be uploaded. Can be a URL or a base64 encoded file.
     pub file: String,
@@ -103,7 +103,6 @@ pub struct CreateForm {
     #[schema(default = "LayoutAnalysis")]
     pub segmentation_strategy: Option<SegmentationStrategy>,
     #[schema(default = "Fail")]
-    /// Controls whether processing should stop on errors or attempt to continue
     pub error_handling: Option<ErrorHandlingStrategy>,
     pub llm_processing: Option<LlmProcessing>,
 }
@@ -265,8 +264,15 @@ impl UpdateForm {
     }
 
     pub fn to_configuration(&self, current_config: &Configuration) -> Result<Configuration, String> {
+        let llm_config = llm_config::Config::from_env().unwrap();
+        let current_llm_processing = current_config.llm_processing.clone();
+        match llm_config.validate_llm_processing(&current_llm_processing) {
+            Ok(_) => {},
+            Err(e) => {
+                return Err(format!("The LLM processing configuration is probably outdated. Please update the configuration: {}", e));
+            }
+        }
         if let Some(llm_processing) = &self.llm_processing {
-            let llm_config = llm_config::Config::from_env().unwrap();
             llm_config.validate_llm_processing(llm_processing)?;
         }
         Ok(Configuration {
