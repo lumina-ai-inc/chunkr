@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Default values
-NUM_PDFS=200
-NUM_WORKERS=7
-DATASET_NAME="tables-vlm-azure-distill-v1"
-FLUSH_REDIS=false
+NUM_PDFS=50000
+NUM_WORKERS=16
+DATASET_NAME="sophris-datasheet-table-extraction-azure-distill-v1"
+FLUSH_REDIS=true
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
