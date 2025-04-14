@@ -1,4 +1,4 @@
-use crate::configs::job_config;
+use crate::configs::{llm_config, job_config};
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::llm::LlmProcessing;
 use crate::models::segment_processing::SegmentProcessing;
@@ -177,8 +177,12 @@ impl CreateForm {
         Some(self.pipeline.clone().unwrap_or_default())
     }
 
-    pub fn to_configuration(&self) -> Configuration {
-        Configuration {
+    pub fn to_configuration(&self) -> Result<Configuration, String> {
+        if let Some(llm_processing) = &self.llm_processing {
+            let llm_config = llm_config::Config::from_env().unwrap();
+            llm_config.validate_llm_processing(llm_processing)?;
+        }
+        Ok(Configuration {
             chunk_processing: self.get_chunk_processing(),
             expires_in: self.get_expires_in(),
             high_resolution: self.get_high_resolution(),
@@ -193,7 +197,7 @@ impl CreateForm {
             target_chunk_length: None,
             error_handling: self.error_handling.clone().unwrap_or_default(),
             llm_processing: self.llm_processing.clone().unwrap_or_default(),
-        }
+        })
     }
 }
 
@@ -260,8 +264,12 @@ impl UpdateForm {
         }
     }
 
-    pub fn to_configuration(&self, current_config: &Configuration) -> Configuration {
-        Configuration {
+    pub fn to_configuration(&self, current_config: &Configuration) -> Result<Configuration, String> {
+        if let Some(llm_processing) = &self.llm_processing {
+            let llm_config = llm_config::Config::from_env().unwrap();
+            llm_config.validate_llm_processing(llm_processing)?;
+        }
+        Ok(Configuration {
             chunk_processing: self
                 .chunk_processing
                 .clone()
@@ -293,6 +301,6 @@ impl UpdateForm {
                 .llm_processing
                 .clone()
                 .unwrap_or_else(|| current_config.llm_processing.clone()),
-        }
+        })
     }
 }

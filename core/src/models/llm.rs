@@ -22,7 +22,7 @@ pub enum FallbackStrategy {
 // Default implementation for FallbackStrategy
 impl Default for FallbackStrategy {
     fn default() -> Self {
-        FallbackStrategy::None
+        FallbackStrategy::Default
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::models::llm::FallbackStrategy;
+use crate::models::llm::{FallbackStrategy, LlmProcessing};
 use crate::models::open_ai::Message;
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
@@ -201,6 +201,40 @@ impl Config {
             FallbackStrategy::String(model_id) => Ok(Some(self.get_model_by_id(&model_id)?)),
             FallbackStrategy::None => Ok(None),
         }
+    }
+
+    pub fn validate_llm_processing(&self, llm_processing: &LlmProcessing) -> Result<(), String> {
+        // Validate primary model_id if specified
+        if let Some(model_id) = &llm_processing.model_id {
+            match self.get_model(Some(model_id.clone())) {
+                Ok(_) => {},
+                Err(_) => {
+                    let available_models = self.llm_models
+                        .as_ref()
+                        .map(|models| models.iter().map(|m| m.id.clone()).collect::<Vec<_>>().join(", "))
+                        .unwrap_or_default();
+                    
+                    return Err(format!("Unknown model_id '{}'. Supported model IDs are: {}", model_id, available_models));
+                }
+            }
+        }
+        
+        // Validate fallback strategy if it's a specific model ID
+        if let FallbackStrategy::String(fallback_model_id) = &llm_processing.fallback_strategy {
+            match self.get_model(Some(fallback_model_id.clone())) {
+                Ok(_) => {},
+                Err(_) => {
+                    let available_models = self.llm_models
+                        .as_ref()
+                        .map(|models| models.iter().map(|m| m.id.clone()).collect::<Vec<_>>().join(", "))
+                        .unwrap_or_default();
+                    
+                    return Err(format!("Unknown fallback model_id '{}'. Supported model IDs are: {}", fallback_model_id, available_models));
+                }
+            }
+        }
+        
+        Ok(())
     }
 }
 
