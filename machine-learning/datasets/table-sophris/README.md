@@ -17,7 +17,7 @@ bonus:
 progress:
 
 - reads datasheets to s3 and saves them.
-- processes them through chunkr for tables and saves relevant info in 
+- processes them through chunkr for tables and saves relevant info in the format:
 training/
 ├─ sophris/
 │  ├─ pdfs/
@@ -31,3 +31,6 @@ training/
 │  ├─ table_html/
 │  │  ├─ texas_{table_id}.html
 - to run see ./gen_data.sh
+
+
+S3 BUCKET: chunkr-datasets
