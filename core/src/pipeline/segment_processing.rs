@@ -55,7 +55,7 @@ trait ContentGenerator {
             messages,
             fence_type,
             llm_fallback_content,
-            configuration.llm_processing.clone(),
+            configuration.llm_processing.clone().unwrap_or_default(),
         )
         .await
     }
@@ -356,7 +356,7 @@ async fn generate_llm(
         messages,
         None,
         llm_fallback_content,
-        configuration.llm_processing.clone(),
+        configuration.llm_processing.clone().unwrap_or_default(),
     )
     .await?;
 

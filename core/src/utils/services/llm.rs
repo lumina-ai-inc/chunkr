@@ -1,5 +1,4 @@
 use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
-// use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
@@ -166,7 +165,7 @@ pub async fn try_extract_from_llm(
     let model = llm_config.get_model(llm_processing.model_id)?;
     let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
 
-    let response = process_openai_request(
+    let response = match process_openai_request(
         model,
         fallback_model,
         messages.clone(),
@@ -174,7 +173,17 @@ pub async fn try_extract_from_llm(
         Some(llm_processing.temperature),
         None,
     )
-    .await?;
+    .await
+    {
+        Ok(response) => response,
+        Err(e) => {
+            if let Some(fallback_content) = fallback_content {
+                println!("LLM API request(s) failed. Using fallback content");
+                return Ok(fallback_content);
+            }
+            return Err(e);
+        }
+    };
 
     if !response.choices.is_empty() && response.choices[0].finish_reason != "length" {
         if let Some(content) = extract_fenced_content(&get_llm_content(response)?, fence_type) {
