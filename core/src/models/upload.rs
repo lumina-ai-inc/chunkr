@@ -177,14 +177,6 @@ impl CreateForm {
         Some(self.pipeline.clone().unwrap_or_default())
     }
 
-    fn get_error_handling(&self) -> Option<ErrorHandlingStrategy> {
-        Some(self.error_handling.clone().unwrap_or_default())
-    }
-
-    fn get_llm_processing(&self) -> Option<LlmProcessing> {
-        Some(self.llm_processing.clone().unwrap_or_default())
-    }
-
     pub fn to_configuration(&self) -> Configuration {
         Configuration {
             chunk_processing: self.get_chunk_processing(),
@@ -199,8 +191,8 @@ impl CreateForm {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
-            error_handling: self.get_error_handling(),
-            llm_processing: self.get_llm_processing(),
+            error_handling: self.error_handling.clone().unwrap_or_default(),
+            llm_processing: self.llm_processing.clone().unwrap_or_default(),
         }
     }
 }
@@ -296,11 +288,11 @@ impl UpdateForm {
             error_handling: self
                 .error_handling
                 .clone()
-                .or_else(|| current_config.error_handling.clone()),
+                .unwrap_or_else(|| current_config.error_handling.clone()),
             llm_processing: self
                 .llm_processing
                 .clone()
-                .or_else(|| current_config.llm_processing.clone()),
+                .unwrap_or_else(|| current_config.llm_processing.clone()),
         }
     }
 }

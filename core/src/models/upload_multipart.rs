@@ -1,10 +1,11 @@
 use crate::configs::job_config;
 use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::llm::LlmProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
 #[cfg(feature = "azure")]
 use crate::models::task::PipelineType;
-use crate::models::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use utoipa::{IntoParams, ToSchema};
@@ -18,7 +19,7 @@ pub struct CreateFormMultipart {
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = Option<i32>, format = "binary")]
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<MPJson<i32>>,
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = String, format = "binary")]
@@ -146,8 +147,8 @@ impl CreateFormMultipart {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
-            error_handling: None,
-            llm_processing: None,
+            error_handling: ErrorHandlingStrategy::default(),
+            llm_processing: LlmProcessing::default(),
         }
     }
 }
@@ -267,8 +268,8 @@ impl UpdateFormMultipart {
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
-            error_handling: None,
-            llm_processing: None,
+            error_handling: ErrorHandlingStrategy::default(),
+            llm_processing: LlmProcessing::default(),
         }
     }
 }

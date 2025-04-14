@@ -757,10 +757,8 @@ pub struct Configuration {
     #[cfg(feature = "azure")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<PipelineType>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error_handling: Option<ErrorHandlingStrategy>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub llm_processing: Option<LlmProcessing>,
+    pub error_handling: ErrorHandlingStrategy,
+    pub llm_processing: LlmProcessing,
 }
 
 impl<'de> Deserialize<'de> for Configuration {
@@ -824,8 +822,8 @@ impl<'de> Deserialize<'de> for Configuration {
             target_chunk_length: helper.target_chunk_length,
             #[cfg(feature = "azure")]
             pipeline: helper.pipeline,
-            error_handling: helper.error_handling,
-            llm_processing: helper.llm_processing,
+            error_handling: helper.error_handling.unwrap_or_default(),
+            llm_processing: helper.llm_processing.unwrap_or_default(),
         })
     }
 }

@@ -55,7 +55,7 @@ trait ContentGenerator {
             messages,
             fence_type,
             llm_fallback_content,
-            configuration.llm_processing.clone().unwrap_or_default(),
+            configuration.llm_processing.clone(),
         )
         .await
     }
@@ -356,7 +356,7 @@ async fn generate_llm(
         messages,
         None,
         llm_fallback_content,
-        configuration.llm_processing.clone().unwrap_or_default(),
+        configuration.llm_processing.clone(),
     )
     .await?;
 
@@ -425,20 +425,6 @@ async fn process_segment(
         _ => (None, None, None),
     };
 
-    let error_handling = match configuration.error_handling.clone() {
-        Some(error_handling) => error_handling,
-        None => ErrorHandlingStrategy::Fail,
-    };
-
-    // Create generators to use for auto-generation fallbacks
-    let html_generator = HtmlGenerator {
-        segment_type: segment.segment_type.clone(),
-    };
-
-    let markdown_generator = MarkdownGenerator {
-        segment_type: segment.segment_type.clone(),
-    };
-
     // Process HTML with error handling
     let html = match generate_html(
         segment,
@@ -452,7 +438,10 @@ async fn process_segment(
     {
         Ok(content) => content,
         Err(e) => {
-            if error_handling == ErrorHandlingStrategy::Continue {
+            if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                let html_generator = HtmlGenerator {
+                    segment_type: segment.segment_type.clone(),
+                };
                 html_generator.generate_auto(&segment.content)
             } else {
                 return Err(e);
@@ -473,7 +462,10 @@ async fn process_segment(
     {
         Ok(content) => content,
         Err(e) => {
-            if error_handling == ErrorHandlingStrategy::Continue {
+            if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                let markdown_generator = MarkdownGenerator {
+                    segment_type: segment.segment_type.clone(),
+                };
                 markdown_generator.generate_auto(&segment.content)
             } else {
                 return Err(e);
@@ -494,7 +486,7 @@ async fn process_segment(
     {
         Ok(content) => content,
         Err(e) => {
-            if error_handling == ErrorHandlingStrategy::Continue {
+            if configuration.error_handling == ErrorHandlingStrategy::Continue {
                 None
             } else {
                 return Err(e);
