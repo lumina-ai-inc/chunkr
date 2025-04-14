@@ -3,16 +3,19 @@ use crate::configs::throttle_config::Config as ThrottleConfig;
 use crate::utils::clients::get_redis_pool;
 use deadpool_redis::redis::{RedisError, RedisResult};
 use once_cell::sync::OnceCell;
+use std::collections::HashMap;
+use std::sync::RwLock;
 use std::time::Duration;
 
 pub static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static GENERAL_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
-pub static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
-pub static LLM_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
+pub static LLM_RATE_LIMITERS: OnceCell<RwLock<HashMap<String, RateLimiter>>> = OnceCell::new();
+pub static LLM_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static SEGMENTATION_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
 
+#[derive(Clone)]
 pub struct RateLimiter {
     tokens_per_second: f32,
     bucket_name: String,
@@ -108,14 +111,13 @@ fn create_general_ocr_timeout() -> Option<u64> {
     throttle_config.general_ocr_timeout
 }
 
-fn create_llm_rate_limiter(bucket_name: &str) -> RateLimiter {
-    let throttle_config = ThrottleConfig::from_env().unwrap();
-    RateLimiter::new(throttle_config.llm_ocr_rate_limit, bucket_name)
+fn create_llm_rate_limiter(bucket_name: &str, rate_limit: f32) -> RateLimiter {
+    RateLimiter::new(rate_limit, bucket_name)
 }
 
-fn create_llm_ocr_timeout() -> Option<u64> {
+fn create_llm_timeout() -> Option<u64> {
     let throttle_config = ThrottleConfig::from_env().unwrap();
-    throttle_config.llm_ocr_timeout
+    throttle_config.llm_timeout
 }
 
 fn create_segmentation_rate_limiter(bucket_name: &str) -> RateLimiter {
@@ -134,10 +136,36 @@ pub fn init_throttle() {
     GENERAL_OCR_TIMEOUT.get_or_init(create_general_ocr_timeout);
     SEGMENTATION_RATE_LIMITER.get_or_init(|| create_segmentation_rate_limiter("segmentation"));
     SEGMENTATION_TIMEOUT.get_or_init(create_segmentation_timeout);
-    let llm_config = LlmConfig::from_env().unwrap();
-    let llm_ocr_url = llm_config.ocr_url.unwrap_or(llm_config.url);
-    let domain_name = llm_ocr_url
-        .split("://")
+
+    LLM_RATE_LIMITERS.get_or_init(|| {
+        let mut domain_rate_limiters = HashMap::new();
+        let llm_config = LlmConfig::from_env().unwrap();
+        let throttle_config = ThrottleConfig::from_env().unwrap();
+
+        if let Some(llm_models) = llm_config.llm_models.as_ref() {
+            for model in llm_models {
+                let domain_name = extract_domain_from_url(&model.provider_url).unwrap();
+
+                if !domain_rate_limiters.contains_key(&domain_name) {
+                    domain_rate_limiters.insert(
+                        domain_name.clone(),
+                        create_llm_rate_limiter(
+                            &domain_name,
+                            model.rate_limit.unwrap_or(throttle_config.llm_rate_limit),
+                        ),
+                    );
+                }
+            }
+        }
+
+        RwLock::new(domain_rate_limiters)
+    });
+
+    LLM_TIMEOUT.get_or_init(create_llm_timeout);
+}
+
+fn extract_domain_from_url(url: &str) -> Result<String, &'static str> {
+    url.split("://")
         .nth(1)
         .ok_or("Invalid URL format: missing protocol separator")
         .and_then(|s| {
@@ -145,9 +173,15 @@ pub fn init_throttle() {
                 .next()
                 .ok_or("Invalid URL format: missing domain")
         })
-        .unwrap_or("localhost");
-    LLM_RATE_LIMITER.get_or_init(|| create_llm_rate_limiter(domain_name));
-    LLM_OCR_TIMEOUT.get_or_init(create_llm_ocr_timeout);
+        .map(|s| s.to_string())
+}
+
+pub fn get_llm_rate_limiter(url: &str) -> Option<RateLimiter> {
+    let domain = extract_domain_from_url(url).ok()?;
+    LLM_RATE_LIMITERS.get().and_then(|limiters| {
+        let limiters_guard = limiters.read().unwrap();
+        limiters_guard.get(&domain).cloned()
+    })
 }
 
 #[cfg(test)]
@@ -165,7 +199,7 @@ mod tests {
     #[tokio::test]
     async fn test_acquire_token() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket");
+        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
         let result = rate_limiter.acquire_token().await;
         println!("result: {:?}", result);
     }
@@ -173,7 +207,7 @@ mod tests {
     #[tokio::test]
     async fn test_acquire_token_with_timeout() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket");
+        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
         let result = rate_limiter
             .acquire_token_with_timeout(Duration::from_secs(1))
             .await;
@@ -183,7 +217,7 @@ mod tests {
     #[tokio::test]
     async fn test_hit_rate_limit() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket");
+        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
 
         for _ in 0..2000 {
             let _ = rate_limiter.acquire_token().await;
@@ -197,7 +231,7 @@ mod tests {
     #[tokio::test]
     async fn test_hit_rate_limit_with_timeout() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket");
+        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
 
         let futures: Vec<_> = (0..2000).map(|_| rate_limiter.acquire_token()).collect();
         let _ = futures::future::join_all(futures).await;
@@ -217,9 +251,7 @@ mod tests {
     async fn send_request() -> Result<(), Box<dyn Error>> {
         initialize().await;
         let llm_config = LlmConfig::from_env().unwrap();
-        let url = llm_config.url;
-        let key = llm_config.key;
-        let model = llm_config.model;
+        let llm_model = llm_config.get_model(None).unwrap();
         let random_number = rand::thread_rng().gen_range(0..100000);
         let messages = vec![Message {
             role: "user".to_string(),
@@ -233,7 +265,17 @@ mod tests {
         }];
 
         let start_time = std::time::Instant::now();
-        match open_ai_call(url, key, model, messages, None, None, None).await {
+        match open_ai_call(
+            llm_model.provider_url,
+            llm_model.api_key,
+            llm_model.model,
+            messages,
+            None,
+            None,
+            None,
+        )
+        .await
+        {
             Ok(_) => Ok(()),
             Err(e) => {
                 println!(
@@ -249,9 +291,7 @@ mod tests {
     async fn send_request_with_retry() -> Result<(), Box<dyn Error>> {
         initialize().await;
         let llm_config = LlmConfig::from_env().unwrap();
-        let url = llm_config.url;
-        let key = llm_config.key;
-        let model = llm_config.model;
+        let llm_model = llm_config.get_model(None).unwrap();
         let random_number = rand::thread_rng().gen_range(0..100000);
         let messages = vec![Message {
             role: "user".to_string(),
@@ -267,9 +307,9 @@ mod tests {
         let start_time = std::time::Instant::now();
         loop {
             match open_ai_call(
-                url.clone(),
-                key.clone(),
-                model.clone(),
+                llm_model.provider_url.clone(),
+                llm_model.api_key.clone(),
+                llm_model.model.clone(),
                 messages.clone(),
                 None,
                 None,

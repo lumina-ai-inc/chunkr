@@ -1,5 +1,6 @@
 use crate::configs::worker_config;
 use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::llm::LlmProcessing;
 use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
 use crate::models::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
@@ -727,11 +728,6 @@ pub enum PipelineType {
     #[default]
     Azure,
     Chunkr,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema, Default)]
-pub struct LlmProcessing {
-    pub model_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]

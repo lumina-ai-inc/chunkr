@@ -1,30 +1,23 @@
+use crate::models::llm::FallbackStrategy;
 use crate::models::open_ai::Message;
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use serde_yaml::Value;
 use std::collections::HashMap;
 use std::fs;
+use std::sync::RwLock;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
-    pub fallback_model: Option<String>,
-    #[serde(default = "default_key")]
-    pub key: String,
-    #[serde(default = "default_model")]
-    pub model: String,
-    pub ocr_key: Option<String>,
-    pub ocr_model: Option<String>,
-    pub ocr_url: Option<String>,
-    pub structured_extraction_key: Option<String>,
-    pub structured_extraction_model: Option<String>,
-    pub structured_extraction_url: Option<String>,
-    #[serde(default = "default_url")]
-    pub url: String,
+    fallback_model: Option<String>,
+    key: Option<String>,
+    model: Option<String>,
+    url: Option<String>,
     pub llm_models: Option<Vec<LlmModel>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LlmModel {
     pub id: String,
     pub model: String,
@@ -34,22 +27,28 @@ pub struct LlmModel {
     pub default: bool,
     #[serde(default)]
     pub fallback: bool,
+    pub rate_limit: Option<f32>,
 }
 
-fn default_key() -> String {
-    "".to_string()
-}
-
-fn default_model() -> String {
-    "gpt-4o".to_string()
-}
-
-fn default_url() -> String {
-    "https://api.openai.com/v1/chat/completions".to_string()
-}
+static CONFIG: Lazy<RwLock<Option<Result<Config, ConfigError>>>> = Lazy::new(|| RwLock::new(None));
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
+        if let Some(config) = CONFIG.read().unwrap().as_ref() {
+            return match config {
+                Ok(cfg) => Ok(cfg.clone()),
+                Err(e) => Err(ConfigError::Message(format!("{}", e))),
+            };
+        }
+
+        let config = Self::load_config_from_env()?;
+
+        *CONFIG.write().unwrap() = Some(Ok(config.clone()));
+
+        Ok(config)
+    }
+
+    fn load_config_from_env() -> Result<Self, ConfigError> {
         dotenv_override().ok();
         let mut config = ConfigTrait::builder()
             .add_source(config::Environment::default().prefix("LLM").separator("__"))
@@ -57,45 +56,82 @@ impl Config {
             .try_deserialize::<Self>()?;
 
         if let Ok(models_path) = std::env::var("LLM__MODELS_PATH") {
-            if let Ok(contents) = fs::read_to_string(&models_path) {
-                match serde_yaml::from_str::<serde_yaml::Value>(&contents) {
-                    Ok(yaml) => {
-                        if let Some(models) = yaml.get("models") {
-                            match serde_yaml::from_value(models.clone()) {
-                                Ok(parsed_models) => {
-                                    let models: Vec<LlmModel> = parsed_models;
-
-                                    // Validate model configuration
-                                    match Self::validate_models(&models) {
-                                        Ok(_) => {
-                                            config.llm_models = Some(models);
-                                            println!("Successfully loaded models configuration");
-                                        }
-                                        Err(err) => {
-                                            return Err(ConfigError::Message(format!(
-                                                "Invalid model configuration: {}",
-                                                err
-                                            )));
-                                        }
-                                    }
-                                }
-                                Err(e) => println!("Error parsing models: {:?}", e),
-                            }
-                        } else {
-                            println!("No 'models' key found in YAML");
-                        }
-                    }
-                    Err(e) => println!("Error parsing YAML: {:?}", e),
+            match Self::load_models_from_file(&models_path) {
+                Ok(Some(models)) => {
+                    config.llm_models = Some(models);
                 }
-            } else {
-                println!("Could not read file at path: {}", models_path);
+                Ok(None) => {
+                    println!("No models were found or loaded");
+                }
+                Err(e) => {
+                    return Err(e);
+                }
             }
+        }
+
+        if config.llm_models.is_none()
+            && config.model.is_some()
+            && config.url.is_some()
+            && config.key.is_some()
+        {
+            let default_model = LlmModel {
+                id: "default".to_string(),
+                model: config.model.clone().unwrap(),
+                provider_url: config.url.clone().unwrap(),
+                api_key: config.key.clone().unwrap(),
+                default: true,
+                fallback: false,
+                rate_limit: None,
+            };
+
+            let fallback_model = LlmModel {
+                id: "fallback".to_string(),
+                model: config
+                    .fallback_model
+                    .clone()
+                    .unwrap_or_else(|| config.model.clone().unwrap()),
+                provider_url: config.url.clone().unwrap(),
+                api_key: config.key.clone().unwrap(),
+                default: false,
+                fallback: true,
+                rate_limit: None,
+            };
+
+            config.llm_models = Some(vec![default_model, fallback_model]);
+            println!("Created default and fallback models from environment variables");
+        }
+
+        if config.llm_models.is_none() && config.model.is_none() {
+            return Err(ConfigError::Message(
+                "No models defined in config file or environment variables".to_string(),
+            ));
         }
 
         Ok(config)
     }
 
-    // Validate that models follow our rules
+    fn load_models_from_file(file_path: &str) -> Result<Option<Vec<LlmModel>>, ConfigError> {
+        let contents = fs::read_to_string(file_path).map_err(|_| {
+            ConfigError::Message(format!("Could not read file at path: {}", file_path))
+        })?;
+
+        let yaml = serde_yaml::from_str::<serde_yaml::Value>(&contents)
+            .map_err(|e| ConfigError::Message(format!("Error parsing YAML: {:?}", e)))?;
+
+        let models = yaml
+            .get("models")
+            .ok_or_else(|| ConfigError::Message("No 'models' key found in YAML".to_string()))?;
+
+        let parsed_models: Vec<LlmModel> = serde_yaml::from_value(models.clone())
+            .map_err(|e| ConfigError::Message(format!("Error parsing models: {:?}", e)))?;
+
+        Self::validate_models(&parsed_models)
+            .map_err(|err| ConfigError::Message(format!("Invalid model configuration: {}", err)))?;
+
+        println!("Successfully loaded models configuration");
+        Ok(Some(parsed_models))
+    }
+
     fn validate_models(models: &[LlmModel]) -> Result<(), String> {
         if models.is_empty() {
             return Err("No models defined".to_string());
@@ -121,54 +157,50 @@ impl Config {
         Ok(())
     }
 
-    pub fn get_model_config(&self, model_id: &str) -> Option<(String, String, String)> {
-        self.llm_models.as_ref().and_then(|models| {
-            models.iter().find_map(|model| {
-                if model.id == model_id {
-                    Some((
-                        model.provider_url.clone(),
-                        model.api_key.clone(),
-                        model.model.clone(),
-                    ))
-                } else {
-                    None
-                }
-            })
-        })
+    fn get_model_by_id(&self, id: &str) -> Result<LlmModel, ConfigError> {
+        self.llm_models
+            .as_ref()
+            .ok_or_else(|| ConfigError::Message("No LLM models configured".to_string()))?
+            .iter()
+            .find(|model| model.id == id)
+            .cloned()
+            .ok_or_else(|| ConfigError::Message("No model found".to_string()))
     }
 
-    // Get the default model configuration
-    pub fn get_default_model(&self) -> Option<(String, String, String)> {
-        self.llm_models.as_ref().and_then(|models| {
-            models.iter().find_map(|model| {
-                if model.default {
-                    Some((
-                        model.provider_url.clone(),
-                        model.api_key.clone(),
-                        model.model.clone(),
-                    ))
-                } else {
-                    None
-                }
-            })
-        })
+    pub fn get_model(&self, id: Option<String>) -> Result<LlmModel, ConfigError> {
+        if let Some(id) = id {
+            self.get_model_by_id(&id)
+        } else {
+            self.llm_models
+                .as_ref()
+                .ok_or_else(|| ConfigError::Message("No LLM models configured".to_string()))?
+                .iter()
+                .find(|model| model.default)
+                .cloned()
+                .ok_or_else(|| ConfigError::Message("No default model found".to_string()))
+        }
     }
 
-    // Get the fallback model configuration
-    pub fn get_fallback_model(&self) -> Option<(String, String, String)> {
-        self.llm_models.as_ref().and_then(|models| {
-            models.iter().find_map(|model| {
-                if model.fallback {
-                    Some((
-                        model.provider_url.clone(),
-                        model.api_key.clone(),
-                        model.model.clone(),
-                    ))
-                } else {
-                    None
-                }
-            })
-        })
+    pub fn get_fallback_model(
+        &self,
+        fallback_strategy: FallbackStrategy,
+    ) -> Result<Option<LlmModel>, ConfigError> {
+        match fallback_strategy {
+            FallbackStrategy::Default => {
+                let default_fallback_model = self
+                    .llm_models
+                    .as_ref()
+                    .ok_or_else(|| ConfigError::Message("No LLM models configured".to_string()))?
+                    .iter()
+                    .find(|model| model.default)
+                    .cloned()
+                    .ok_or_else(|| ConfigError::Message("No fallback model found".to_string()))?;
+
+                Ok(Some(default_fallback_model))
+            }
+            FallbackStrategy::String(model_id) => Ok(Some(self.get_model_by_id(&model_id)?)),
+            FallbackStrategy::None => Ok(None),
+        }
     }
 }
 

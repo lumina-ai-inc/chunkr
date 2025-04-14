@@ -1,8 +1,8 @@
 use crate::configs::job_config;
 use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::llm::LlmProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
-use crate::models::task::LlmProcessing;
 #[cfg(feature = "azure")]
 use crate::models::task::PipelineType;
 use postgres_types::{FromSql, ToSql};

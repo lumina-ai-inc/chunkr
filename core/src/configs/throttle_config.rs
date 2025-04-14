@@ -10,10 +10,10 @@ pub struct Config {
     pub general_ocr_rate_limit: f32,
     #[serde(default = "default_general_ocr_timeout")]
     pub general_ocr_timeout: Option<u64>,
-    #[serde(default = "default_llm_ocr_rate_limit")]
-    pub llm_ocr_rate_limit: f32,
-    #[serde(default = "default_llm_ocr_timeout")]
-    pub llm_ocr_timeout: Option<u64>,
+    #[serde(default = "default_llm_rate_limit")]
+    pub llm_rate_limit: f32,
+    #[serde(default = "default_llm_timeout")]
+    pub llm_timeout: Option<u64>,
     #[serde(default = "default_segmentation_batch_size")]
     pub segmentation_batch_size: usize,
     #[serde(default = "default_segmentation_rate_limit")]
@@ -34,11 +34,11 @@ fn default_general_ocr_timeout() -> Option<u64> {
     None
 }
 
-fn default_llm_ocr_rate_limit() -> f32 {
+fn default_llm_rate_limit() -> f32 {
     200.0
 }
 
-fn default_llm_ocr_timeout() -> Option<u64> {
+fn default_llm_timeout() -> Option<u64> {
     None
 }
 
