@@ -1,4 +1,4 @@
-use crate::configs::job_config;
+use crate::configs::{job_config, llm_config};
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
@@ -260,8 +260,15 @@ impl UpdateForm {
         }
     }
 
-    pub fn to_configuration(&self, current_config: &Configuration) -> Configuration {
-        Configuration {
+    pub fn to_configuration(
+        &self,
+        current_config: &Configuration,
+    ) -> Result<Configuration, String> {
+        if let Some(llm_processing) = &self.llm_processing {
+            let llm_config = llm_config::Config::from_env().unwrap();
+            llm_config.validate_llm_processing(llm_processing)?;
+        }
+        Ok(Configuration {
             chunk_processing: self
                 .chunk_processing
                 .clone()
