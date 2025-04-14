@@ -80,31 +80,24 @@ function App() {
   const [lifetimePages, setLifetimePages] = useState<number>(0)
 
   const fetchData = useCallback(async () => {
-    if (!startDate || !endDate) return
+    if (!isValidApiKey || !startDate || !endDate || !apiKey) return
     const start = startDate.toISOString()
     const end = endDate.toISOString()
 
     try {
       const emailParam = userEmail ? `&email=${encodeURIComponent(userEmail)}` : ''
+      const headers = { 'Authorization': `Bearer ${apiKey}` }
 
       const [pData, sData, tuData, tData, ltPages] = await Promise.all([
-        apiCall<PageData[]>(`/pages-per-day?start=${start}&end=${end}${emailParam}`, {
-          headers: { 'Authorization': `Bearer ${apiKey}` }
-        }),
-        apiCall<StatusData[]>(`/status-breakdown?start=${start}&end=${end}${emailParam}`, {
-          headers: { 'Authorization': `Bearer ${apiKey}` }
-        }),
+        apiCall<PageData[]>(`/pages-per-day?start=${start}&end=${end}${emailParam}`, { headers }),
+        apiCall<StatusData[]>(`/status-breakdown?start=${start}&end=${end}${emailParam}`, { headers }),
         apiCall<UserData[]>('/top-users', {
           method: 'POST',
           body: { start, end, limit: 5 },
-          headers: { 'Authorization': `Bearer ${apiKey}` }
+          headers
         }),
-        apiCall<TaskData[]>(`/task-details?start=${start}&end=${end}${emailParam}`, {
-          headers: { 'Authorization': `Bearer ${apiKey}` }
-        }),
-        apiCall<number>('/lifetime-pages', {
-          headers: { 'Authorization': `Bearer ${apiKey}` }
-        })
+        apiCall<TaskData[]>(`/task-details?start=${start}&end=${end}${emailParam}`, { headers }),
+        apiCall<number>('/lifetime-pages', { headers })
       ])
 
       const filledPagesData = fillMissingPages(pData, startDate, endDate)
@@ -114,10 +107,14 @@ function App() {
       setTopUsers(tuData)
       setTaskData(tData)
       setLifetimePages(ltPages)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed:', err)
+      if (err.status === 401 || err.status === 403) {
+        console.error("API Key validation failed or expired.")
+        logout()
+      }
     }
-  }, [startDate, endDate, userEmail, apiKey])
+  }, [startDate, endDate, userEmail, apiKey, isValidApiKey])
 
   useEffect(() => {
     if (startDate && endDate && isValidApiKey) {
@@ -128,16 +125,18 @@ function App() {
   }, [startDate, endDate, userEmail, fetchData, isValidApiKey])
 
   const validateApiKey = async () => {
+    if (!apiKey) return
     try {
+      await apiCall<string[]>('/datasets', {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      })
       localStorage.setItem('apiKey', apiKey)
-      
-      await apiCall<number>('/lifetime-pages')
       setIsValidApiKey(true)
-      await fetchData()
     } catch (err) {
       console.error('Invalid API Key:', err)
       localStorage.removeItem('apiKey')
       setIsValidApiKey(false)
+      alert("Invalid API Key provided.")
     }
   }
 
@@ -145,7 +144,7 @@ function App() {
     const savedApiKey = localStorage.getItem('apiKey')
     if (savedApiKey) {
       setApiKey(savedApiKey)
-      setIsValidApiKey(true)
+      validateApiKey()
     }
   }, [])
 
@@ -263,7 +262,7 @@ function App() {
     const start = new Date(created)
     const end = new Date(completed)
     const diff = (end.getTime() - start.getTime()) / 1000
-    
+
     if (diff < 0) return 'N/A'
     return `${diff}s`
   }
@@ -273,7 +272,7 @@ function App() {
     const start = new Date(created)
     const end = new Date(completed)
     const diff = (end.getTime() - start.getTime()) / 1000
-    
+
     if (diff <= 0) return 'N/A'
     return (pageCount / diff).toFixed(2)
   }
@@ -282,23 +281,31 @@ function App() {
     localStorage.removeItem('apiKey')
     setIsValidApiKey(false)
     setApiKey('')
+    setPagesData([])
+    setStatusData([])
+    setTopUsers([])
+    setTaskData([])
+    setLifetimePages(0)
   }
 
   if (!isValidApiKey) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Card className="w-full max-w-md">
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <Card className="w-full max-w-md shadow-lg">
           <CardHeader>
-            <CardTitle>Enter API Key</CardTitle>
+            <CardTitle className="text-center text-2xl font-semibold">Enter API Key</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <Input
-              type="text"
+              type="password"
               placeholder="API Key"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
+              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             />
-            <Button onClick={validateApiKey} className="mt-4">Validate</Button>
+            <Button onClick={validateApiKey} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              Validate & Enter
+            </Button>
           </CardContent>
         </Card>
       </div>
