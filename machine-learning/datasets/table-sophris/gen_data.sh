@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default values
-NUM_PDFS=100
+NUM_PDFS=200
 NUM_WORKERS=7
 DATASET_NAME="tables-vlm-azure-distill-v1"
 FLUSH_REDIS=false
