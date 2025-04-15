@@ -7,7 +7,7 @@
 # We support any OpenAI compatible API
 models:
   # OpenAI Configuration Example
-  - id: gpt4o
+  - id: gpt-4o
     model: gpt-4o
     provider_url: https://api.openai.com/v1/chat/completions
     api_key: "your_openai_api_key_here"
@@ -26,3 +26,9 @@ models:
     model: google/gemini-pro-1.5
     provider_url: https://openrouter.ai/api/v1/chat/completions
     api_key: "your_openrouter_api_key_here"
+
+  # Self-hosted LLM Configuration Example
+  - id: local-llm
+    model: mistral-7b
+    provider_url: http://localhost:8000/v1/chat/completions
+    api_key: "your_local_api_key_or_leave_empty_if_not_required"
