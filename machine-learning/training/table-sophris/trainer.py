@@ -23,6 +23,7 @@ import sys
 import importlib.util
 from huggingface_hub import model_info
 import glob
+import math
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -175,8 +176,7 @@ class StatsTrackingCallback(TrainerCallback):
 class CustomChatDataset(torch.utils.data.Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
-        self.min_dim = 32  # Must be larger than Qwen's minimum of 28
-        self.divisible_by = 32
+        self.min_size = 32  # Set to 32 to be safe (above required 28)
 
     def __len__(self):
         return len(self.dataset)
@@ -197,29 +197,11 @@ class CustomChatDataset(torch.utils.data.Dataset):
                             width, height = image.size
                             
                             # Force resize if either dimension is too small
-                            if width < self.min_dim or height < self.min_dim:
-                                # Keep aspect ratio while ensuring minimum size
-                                if width < height:
-                                    new_width = self.min_dim
-                                    new_height = max(self.min_dim, int(height * (self.min_dim / width)))
-                                else:
-                                    new_height = self.min_dim
-                                    new_width = max(self.min_dim, int(width * (self.min_dim / height)))
-                                
-                                # Round up to nearest multiple of divisible_by
-                                new_width = ((new_width + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
-                                new_height = ((new_height + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
-                                
-                                # Perform the resize
+                            if width < self.min_size or height < self.min_size:
+                                scale = max(self.min_size / width, self.min_size / height)
+                                new_width = max(int(width * scale), self.min_size)
+                                new_height = max(int(height * scale), self.min_size)
                                 image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-                                
-                                # Double-check dimensions
-                                if image.size[0] < self.min_dim or image.size[1] < self.min_dim:
-                                    logger.warning(f"Image still too small after resize: {image.size}")
-                                    # Force minimum size if somehow still too small
-                                    image = image.resize((max(self.min_dim, image.size[0]), 
-                                                        max(self.min_dim, image.size[1])), 
-                                                       Image.Resampling.LANCZOS)
                             
                             content.append({"type": "image", "image": image, "text": None})
                         except Exception as e:
@@ -439,14 +421,37 @@ def main():
         return
         
     # --- Load Model and Tokenizer ---
-    logger.info(f"Loading base model: {model_name}")
+    logger.info("Loading base model...")
     model, tokenizer = FastVisionModel.from_pretrained(
-        model_name = model_name,
-        max_seq_length = max_seq_length,
-        dtype = None, # Auto-detect
-        load_in_4bit = True,
+        model_name=model_name,
+        max_seq_length=max_seq_length,
+        dtype=None,  # Auto-detect
+        load_in_4bit=True,
     )
-    logger.info("Base model loaded.")
+
+    # Patch the smart_resize function in the image processor
+    from transformers.models.qwen2_vl.image_processing_qwen2_vl import smart_resize
+
+    def patched_smart_resize(height, width, factor=28, min_pixels=56*56, max_pixels=14*14*4*1280):
+        """Patched version that allows smaller dimensions"""
+        # Skip the minimum size check
+        h_bar = round(height / factor) * factor
+        w_bar = round(width / factor) * factor
+        if h_bar * w_bar > max_pixels:
+            beta = math.sqrt((height * width) / max_pixels)
+            h_bar = math.floor(height / beta / factor) * factor
+            w_bar = math.floor(width / beta / factor) * factor
+        elif h_bar * w_bar < min_pixels:
+            beta = math.sqrt(min_pixels / (height * width))
+            h_bar = math.ceil(height * beta / factor) * factor
+            w_bar = math.ceil(width * beta / factor) * factor
+        return h_bar, w_bar
+
+    # Replace the smart_resize function in the module
+    import transformers.models.qwen2_vl.image_processing_qwen2_vl as qwen2_vl_module
+    qwen2_vl_module.smart_resize = patched_smart_resize
+
+    logger.info("Base model loaded and image processor patched.")
 
     # --- Add LoRA ---
     logger.info("Adding LoRA adapters...")
