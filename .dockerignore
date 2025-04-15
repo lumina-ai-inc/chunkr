@@ -41,3 +41,5 @@ Cargo.lock
 ./input
 
 __pycache__
+
+*.llm_providers.yaml

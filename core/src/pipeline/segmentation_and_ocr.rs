@@ -92,7 +92,7 @@ async fn segmentation_pages_batch(
     let throttle_config = ThrottleConfig::from_env().unwrap();
     let batch_size = throttle_config.segmentation_batch_size;
     let mut page_offset = 0;
-    let error_handling = configuration.error_handling.unwrap_or_default();
+    let error_handling = configuration.error_handling;
 
     let results: Vec<Vec<Vec<Segment>>> = match error_handling {
         ErrorHandlingStrategy::Fail => {
@@ -185,7 +185,7 @@ async fn process_ocr(
     pages: &Vec<&NamedTempFile>,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
     let configuration = task.configuration.clone();
-    let error_handling = configuration.error_handling.unwrap_or_default();
+    let error_handling = configuration.error_handling;
 
     let pdf_ocr_results = match pdf::extract_ocr_results(pdf_file, scaling_factor) {
         Ok(ocr_results) => ocr_results,

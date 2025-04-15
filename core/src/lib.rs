@@ -29,6 +29,7 @@ use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
 use routes::health::health_check;
+use routes::llm::get_models_ids;
 use routes::stripe::{
     create_checkout_session, create_setup_intent, create_stripe_session,
     get_billing_portal_session, get_checkout_session, get_invoice_detail, get_monthly_usage,
@@ -173,6 +174,7 @@ pub fn main() -> std::io::Result<()> {
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
                 .route("/github", web::get().to(get_github_repo_info))
+                .route("/llm/models", web::get().to(get_models_ids))
                 .service(
                     SwaggerUi::new("/swagger-ui/{_:.*}")
                         .url("/docs/openapi.json", ApiDoc::openapi()),

@@ -1,5 +1,6 @@
-use crate::configs::job_config;
+use crate::configs::{job_config, llm_config};
 use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::llm::LlmProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
 #[cfg(feature = "azure")]
@@ -82,7 +83,7 @@ pub enum ErrorHandlingStrategy {
 pub struct CreateForm {
     pub chunk_processing: Option<ChunkProcessing>,
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// The file to be uploaded. Can be a URL or a base64 encoded file.
     pub file: String,
@@ -102,8 +103,8 @@ pub struct CreateForm {
     #[schema(default = "LayoutAnalysis")]
     pub segmentation_strategy: Option<SegmentationStrategy>,
     #[schema(default = "Fail")]
-    /// Controls whether processing should stop on errors or attempt to continue
     pub error_handling: Option<ErrorHandlingStrategy>,
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl CreateForm {
@@ -175,12 +176,12 @@ impl CreateForm {
         Some(self.pipeline.clone().unwrap_or_default())
     }
 
-    fn get_error_handling(&self) -> Option<ErrorHandlingStrategy> {
-        Some(self.error_handling.clone().unwrap_or_default())
-    }
-
-    pub fn to_configuration(&self) -> Configuration {
-        Configuration {
+    pub fn to_configuration(&self) -> Result<Configuration, String> {
+        if let Some(llm_processing) = &self.llm_processing {
+            let llm_config = llm_config::Config::from_env().unwrap();
+            llm_config.validate_llm_processing(llm_processing)?;
+        }
+        Ok(Configuration {
             chunk_processing: self.get_chunk_processing(),
             expires_in: self.get_expires_in(),
             high_resolution: self.get_high_resolution(),
@@ -193,8 +194,9 @@ impl CreateForm {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
-            error_handling: self.get_error_handling(),
-        }
+            error_handling: self.error_handling.clone().unwrap_or_default(),
+            llm_processing: self.llm_processing.clone().unwrap_or_default(),
+        })
     }
 }
 
@@ -214,6 +216,7 @@ pub struct UpdateForm {
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
     pub error_handling: Option<ErrorHandlingStrategy>,
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl UpdateForm {
@@ -260,8 +263,22 @@ impl UpdateForm {
         }
     }
 
-    pub fn to_configuration(&self, current_config: &Configuration) -> Configuration {
-        Configuration {
+    pub fn to_configuration(
+        &self,
+        current_config: &Configuration,
+    ) -> Result<Configuration, String> {
+        let llm_config = llm_config::Config::from_env().unwrap();
+        let llm_processing = self
+            .llm_processing
+            .clone()
+            .unwrap_or_else(|| current_config.llm_processing.clone());
+        match llm_config.validate_llm_processing(&llm_processing) {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(format!("The LLM processing configuration is probably outdated. Please update the configuration: {}", e));
+            }
+        }
+        Ok(Configuration {
             chunk_processing: self
                 .chunk_processing
                 .clone()
@@ -288,7 +305,8 @@ impl UpdateForm {
             error_handling: self
                 .error_handling
                 .clone()
-                .or_else(|| current_config.error_handling.clone()),
-        }
+                .unwrap_or_else(|| current_config.error_handling.clone()),
+            llm_processing,
+        })
     }
 }
