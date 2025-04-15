@@ -163,14 +163,13 @@ pub async fn try_extract_from_llm(
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     // let worker_config = WorkerConfig::from_env().unwrap();
     let llm_config = LlmConfig::from_env().unwrap();
+    let model = llm_config.get_model(llm_processing.model_id)?;
+    let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
 
-    let response = process_openai_request(
-        llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
-        llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
-        llm_config
-            .ocr_model
-            .clone()
-            .unwrap_or(llm_config.model.clone()),
+    // Try with primary model
+    let response = match process_openai_request(
+        model,
+        fallback_model.clone(),
         messages.clone(),
         None,
         None,
@@ -179,9 +178,29 @@ pub async fn try_extract_from_llm(
     )
     .await?;
 
-    if !response.choices.is_empty() && response.choices[0].finish_reason != "length" {
-        if let Some(content) = extract_fenced_content(&get_llm_content(response)?, fence_type) {
-            return Ok(content);
+    // Try to extract content from primary model response
+    if let Some(content) = try_extract_from_response(&response, fence_type) {
+        return Ok(content);
+    }
+
+    // Try with fallback model if content extraction failed
+    if let Some(fallback) = fallback_model {
+        println!("Trying fallback model after primary model failed to produce extractable content");
+        if let Ok(fallback_response) = process_openai_request(
+            fallback,
+            None,
+            messages.clone(),
+            llm_processing.max_completion_tokens,
+            Some(llm_processing.temperature),
+            None,
+        )
+        .await
+        {
+            if let Some(content) = try_extract_from_response(&fallback_response, fence_type) {
+                return Ok(content);
+            }
+        } else {
+            println!("Fallback model request failed");
         }
     } else if !response.choices.is_empty() {
         println!("Response was truncated (finish_reason: length).");
