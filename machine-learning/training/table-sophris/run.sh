@@ -12,7 +12,7 @@ DATA_DIR="data"
 [ -z "$DATASET_NAME" ] && DATASET_NAME="default"
 echo "Using dataset name from environment: $DATASET_NAME"
 MODEL_NAME="unsloth/Qwen2.5-VL-3B-Instruct"
-BATCH_SIZE=8
+BATCH_SIZE=12
 GRAD_ACCUM=4
 MAX_STEPS=100
 LR=1e-4

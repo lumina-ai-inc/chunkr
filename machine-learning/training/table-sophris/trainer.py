@@ -175,9 +175,8 @@ class StatsTrackingCallback(TrainerCallback):
 class CustomChatDataset(torch.utils.data.Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
-        # Define minimum dimension required by Qwen2.5-VL
-        self.min_dim = 32  # Set higher than 28 to be safe
-        self.divisible_by = 32  # Ensure dimensions are divisible by this factor
+        self.min_dim = 32  # Increased from 28 to be safe
+        self.divisible_by = 32
 
     def __len__(self):
         return len(self.dataset)
@@ -193,26 +192,32 @@ class CustomChatDataset(torch.utils.data.Dataset):
                     img_base64 = item.get('image_base64')
                     if img_base64:
                         try:
-                            # Convert base64 string to PIL Image on-the-fly 
                             img_bytes = base64.b64decode(img_base64)
                             image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
                             
                             # Get original dimensions
                             width, height = image.size
                             
-                            # Calculate dimensions that are:
-                            # 1. At least min_dim
-                            # 2. Divisible by divisible_by
+                            # Calculate new dimensions ensuring minimum size and divisibility
                             new_width = max(self.min_dim, width)
                             new_height = max(self.min_dim, height)
+                            
+                            # Preserve aspect ratio while ensuring minimum dimensions
+                            if width < self.min_dim or height < self.min_dim:
+                                aspect = width / height
+                                if width < height:
+                                    new_width = self.min_dim
+                                    new_height = int(new_width / aspect)
+                                else:
+                                    new_height = self.min_dim
+                                    new_width = int(new_height * aspect)
                             
                             # Make dimensions divisible by divisible_by
                             new_width = ((new_width + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
                             new_height = ((new_height + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
                             
-                            # Only resize if dimensions changed
+                            # Resize if dimensions changed
                             if new_width != width or new_height != height:
-                                # logger.info(f"Resizing image from {width}x{height} to {new_width}x{new_height}")
                                 image = image.resize((new_width, new_height), Image.LANCZOS)
                                 
                             content.append({"type": "image", "image": image, "text": None})
@@ -536,8 +541,6 @@ def main():
         dataset_text_field="messages",
         dataset_kwargs={"skip_prepare_dataset": True},
         max_seq_length=max_seq_length,
-        device_map="auto",
-        ddp_find_unused_parameters=False
     )
 
     trainer = SFTTrainer(
