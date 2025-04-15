@@ -175,7 +175,7 @@ class StatsTrackingCallback(TrainerCallback):
 class CustomChatDataset(torch.utils.data.Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
-        self.min_dim = 32  # Minimum dimension requirement (increased from 28 for safety)
+        self.min_dim = 32  # Must be larger than Qwen's minimum of 28
         self.divisible_by = 32
 
     def __len__(self):
@@ -194,29 +194,37 @@ class CustomChatDataset(torch.utils.data.Dataset):
                         try:
                             img_bytes = base64.b64decode(img_base64)
                             image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-                            
-                            # Get original dimensions
                             width, height = image.size
                             
-                            # Calculate scaling factor to ensure minimum dimensions
-                            width_scale = self.min_dim / width if width < self.min_dim else 1
-                            height_scale = self.min_dim / height if height < self.min_dim else 1
-                            scale = max(width_scale, height_scale)
-                            
-                            # Calculate new dimensions
-                            new_width = int(width * scale)
-                            new_height = int(height * scale)
-                            
-                            # Make dimensions divisible by divisible_by
-                            new_width = ((new_width + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
-                            new_height = ((new_height + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
-                            
-                            # Resize image
-                            image = image.resize((new_width, new_height), Image.LANCZOS)
+                            # Force resize if either dimension is too small
+                            if width < self.min_dim or height < self.min_dim:
+                                # Keep aspect ratio while ensuring minimum size
+                                if width < height:
+                                    new_width = self.min_dim
+                                    new_height = max(self.min_dim, int(height * (self.min_dim / width)))
+                                else:
+                                    new_height = self.min_dim
+                                    new_width = max(self.min_dim, int(width * (self.min_dim / height)))
+                                
+                                # Round up to nearest multiple of divisible_by
+                                new_width = ((new_width + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
+                                new_height = ((new_height + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
+                                
+                                # Perform the resize
+                                image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                                
+                                # Double-check dimensions
+                                if image.size[0] < self.min_dim or image.size[1] < self.min_dim:
+                                    logger.warning(f"Image still too small after resize: {image.size}")
+                                    # Force minimum size if somehow still too small
+                                    image = image.resize((max(self.min_dim, image.size[0]), 
+                                                        max(self.min_dim, image.size[1])), 
+                                                       Image.Resampling.LANCZOS)
                             
                             content.append({"type": "image", "image": image, "text": None})
                         except Exception as e:
-                            logger.warning(f"Failed to load/resize image in __getitem__: {e}")
+                            logger.warning(f"Failed to process image: {str(e)}")
+                            continue
                 else:
                     content.append(item)
             
