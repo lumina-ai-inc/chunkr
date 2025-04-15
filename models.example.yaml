@@ -1,0 +1,34 @@
+# List of LLM models to use via the API
+# Copy this file to models.yaml and fill in the values
+# 1 model must be default
+# 1 model must be fallback (can be the same as default) - this is used when FallbackStrategy::Default is used
+# You can add as many models as you want - use the id to reference them in the POST and PATCH requests
+# Additionally, you can add a rate-limit to the model to limit the number of requests per minute for that model.
+# We support any OpenAI compatible API
+models:
+  # OpenAI Configuration Example
+  - id: gpt-4o
+    model: gpt-4o
+    provider_url: https://api.openai.com/v1/chat/completions
+    api_key: "your_openai_api_key_here"
+    default: true
+    rate-limit: 200 # requests per minute - optional
+
+  # Google AI Studio Configuration Example
+  - id: gemini-2.0-flash-lite
+    model: gemini-2.0-flash-lite
+    provider_url: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+    api_key: "your_google_ai_studio_api_key_here"
+    fallback: true
+
+  # OpenRouter Configuration Example
+  - id: gemini-pro-1.5
+    model: google/gemini-pro-1.5
+    provider_url: https://openrouter.ai/api/v1/chat/completions
+    api_key: "your_openrouter_api_key_here"
+
+  # Self-hosted LLM Configuration Example
+  - id: local-llm
+    model: mistral-7b
+    provider_url: http://localhost:8000/v1/chat/completions
+    api_key: "your_local_api_key_or_leave_empty_if_not_required"

@@ -3,6 +3,7 @@ pub mod azure;
 pub mod chunk_processing;
 pub mod cropping;
 pub mod general_ocr;
+pub mod llm;
 pub mod open_ai;
 pub mod output;
 pub mod pipeline;

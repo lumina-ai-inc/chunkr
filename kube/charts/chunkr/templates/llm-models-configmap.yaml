@@ -1,0 +1,11 @@
+{{- if and .Values.global.llmModels.enabled (not .Values.global.llmModels.existingConfigMap) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-llm-models
+  labels:
+    {{- include "chunkr.labels" . | nindent 4 }}
+data:
+  models.yaml: |-
+{{ .Files.Get .Values.global.llmModels.configFile | indent 4 }}
+{{- end }} 
