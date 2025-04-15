@@ -1,21 +1,33 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Union
+from PIL import Image
 
 
-class QAPair(BaseModel):
-    """Model to store question-answer pairs for VLM training."""
-    image_url: str
+class ContentItem(BaseModel):
+    type: str
+    text: str | None = None
+    image: Image.Image | None = None
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class Message(BaseModel):
+    role: str
+    content: List[ContentItem]
+
+
+class Conversation(BaseModel):
+    messages: List[Message]
+
+
+class TableTrainingSample(BaseModel):
+    """Represents a single training sample with image and HTML."""
+    image: Image.Image
     html: str
-    prompt: str
-    response: Optional[str] = None
-    metadata: Optional[dict] = None
+    table_id: str
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
-
-class TrainingDataset(BaseModel):
-    """Collection of QA pairs for a VLM training run."""
-    qa_pairs: List[QAPair]
-    name: str
-    description: Optional[str] = None
-    version: Optional[str] = None
-    created_at: Optional[str] = None
+    class Config:
+        arbitrary_types_allowed = True
 
