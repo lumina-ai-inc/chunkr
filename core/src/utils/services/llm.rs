@@ -62,6 +62,7 @@ pub async fn open_ai_call(
     Ok(response)
 }
 
+/// Process an OpenAI request with rate limiting and retrying on failure.
 async fn open_ai_call_handler(
     url: String,
     key: String,
@@ -71,13 +72,16 @@ async fn open_ai_call_handler(
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    let rate_limiter = get_llm_rate_limiter(&url).unwrap();
+    let rate_limiter = get_llm_rate_limiter(&url);
     retry_with_backoff(|| async {
-        rate_limiter
-            .acquire_token_with_timeout(std::time::Duration::from_secs(
-                *TOKEN_TIMEOUT.get().unwrap(),
-            ))
-            .await?;
+        let rate_limiter = rate_limiter.clone();
+        if let Some(rate_limiter) = rate_limiter {
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
+                .await?;
+        }
         open_ai_call(
             url.clone(),
             key.clone(),
@@ -92,9 +96,8 @@ async fn open_ai_call_handler(
     .await
 }
 
-/// Process an OpenAI request with rate limiting and retrying on failure.
+/// Process an OpenAI request
 /// If the request fails, it will retry with the fallback model if provided.
-/// If the response finish_reason is "length", it will retry with increased max_completion_tokens.
 async fn process_openai_request(
     model: LlmModel,
     fallback_model: Option<LlmModel>,

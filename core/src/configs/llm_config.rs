@@ -207,33 +207,53 @@ impl Config {
         // Validate primary model_id if specified
         if let Some(model_id) = &llm_processing.model_id {
             match self.get_model(Some(model_id.clone())) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => {
-                    let available_models = self.llm_models
+                    let available_models = self
+                        .llm_models
                         .as_ref()
-                        .map(|models| models.iter().map(|m| m.id.clone()).collect::<Vec<_>>().join(", "))
+                        .map(|models| {
+                            models
+                                .iter()
+                                .map(|m| m.id.clone())
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        })
                         .unwrap_or_default();
-                    
-                    return Err(format!("Unknown model_id '{}'. Supported model IDs are: {}", model_id, available_models));
+
+                    return Err(format!(
+                        "Unknown model_id '{}'. Supported model IDs are: {}",
+                        model_id, available_models
+                    ));
                 }
             }
         }
-        
+
         // Validate fallback strategy if it's a specific model ID
         if let FallbackStrategy::Model(fallback_model_id) = &llm_processing.fallback_strategy {
             match self.get_model(Some(fallback_model_id.clone())) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => {
-                    let available_models = self.llm_models
+                    let available_models = self
+                        .llm_models
                         .as_ref()
-                        .map(|models| models.iter().map(|m| m.id.clone()).collect::<Vec<_>>().join(", "))
+                        .map(|models| {
+                            models
+                                .iter()
+                                .map(|m| m.id.clone())
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        })
                         .unwrap_or_default();
-                    
-                    return Err(format!("Unknown fallback model_id '{}'. Supported model IDs are: {}", fallback_model_id, available_models));
+
+                    return Err(format!(
+                        "Unknown fallback model_id '{}'. Supported model IDs are: {}",
+                        fallback_model_id, available_models
+                    ));
                 }
             }
         }
-        
+
         Ok(())
     }
 }

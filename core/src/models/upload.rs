@@ -1,4 +1,4 @@
-use crate::configs::{llm_config, job_config};
+use crate::configs::{job_config, llm_config};
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::llm::LlmProcessing;
 use crate::models::segment_processing::SegmentProcessing;
@@ -263,17 +263,20 @@ impl UpdateForm {
         }
     }
 
-    pub fn to_configuration(&self, current_config: &Configuration) -> Result<Configuration, String> {
+    pub fn to_configuration(
+        &self,
+        current_config: &Configuration,
+    ) -> Result<Configuration, String> {
         let llm_config = llm_config::Config::from_env().unwrap();
-        let current_llm_processing = current_config.llm_processing.clone();
-        match llm_config.validate_llm_processing(&current_llm_processing) {
-            Ok(_) => {},
+        let llm_processing = self
+            .llm_processing
+            .clone()
+            .unwrap_or_else(|| current_config.llm_processing.clone());
+        match llm_config.validate_llm_processing(&llm_processing) {
+            Ok(_) => {}
             Err(e) => {
                 return Err(format!("The LLM processing configuration is probably outdated. Please update the configuration: {}", e));
             }
-        }
-        if let Some(llm_processing) = &self.llm_processing {
-            llm_config.validate_llm_processing(llm_processing)?;
         }
         Ok(Configuration {
             chunk_processing: self
@@ -303,10 +306,7 @@ impl UpdateForm {
                 .error_handling
                 .clone()
                 .unwrap_or_else(|| current_config.error_handling.clone()),
-            llm_processing: self
-                .llm_processing
-                .clone()
-                .unwrap_or_else(|| current_config.llm_processing.clone()),
+            llm_processing,
         })
     }
 }

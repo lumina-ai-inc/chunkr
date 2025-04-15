@@ -1,8 +1,9 @@
 # List of LLM models to use via the API
 # Copy this file to models.yaml and fill in the values
 # 1 model must be default
-# 1 model must be fallback (can be the same as default)
+# 1 model must be fallback (can be the same as default) - this is used when FallbackStrategy::Default is used
 # You can add as many models as you want - use the id to reference them in the POST and PATCH requests
+# Additionally, you can add a rate-limit to the model to limit the number of requests per minute for that model.
 # We support any OpenAI compatible API
 models:
   - id: gemini-flash-2.0
@@ -10,6 +11,7 @@ models:
     provider_url: https://openrouter.ai/api/v1/chat/completions
     api_key: "your_openrouter_api_key_here"
     default: true
+    rate-limit: 200 # requests per minute
   - id: qwen-2.5-vl-7b-instruct
     model: qwen/qwen-2.5-vl-7b-instruct
     provider_url: https://openrouter.ai/api/v1/chat/completions

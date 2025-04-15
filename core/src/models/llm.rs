@@ -105,9 +105,14 @@ impl<'de> Deserialize<'de> for LlmProcessing {
         }
 
         let mut helper = LlmProcessingHelper::deserialize(deserializer)?;
-        
+
         // Handle None or empty string case - get default model ID
-        if helper.model_id.is_none() || helper.model_id.as_ref().map_or(false, |id| id.trim().is_empty()) {
+        if helper.model_id.is_none()
+            || helper
+                .model_id
+                .as_ref()
+                .map_or(false, |id| id.trim().is_empty())
+        {
             // Use the Config to get the default model ID
             if let Ok(config) = Config::from_env() {
                 if let Ok(default_model) = config.get_model(None) {
@@ -118,14 +123,17 @@ impl<'de> Deserialize<'de> for LlmProcessing {
 
         if helper.fallback_strategy == FallbackStrategy::Default {
             if let Ok(config) = Config::from_env() {
-                if let Ok(default_fallback_model) = config.get_fallback_model(FallbackStrategy::Default) {
+                if let Ok(default_fallback_model) =
+                    config.get_fallback_model(FallbackStrategy::Default)
+                {
                     if let Some(default_fallback_model) = default_fallback_model {
-                        helper.fallback_strategy = FallbackStrategy::Model(default_fallback_model.id);
+                        helper.fallback_strategy =
+                            FallbackStrategy::Model(default_fallback_model.id);
                     }
                 }
             }
         }
-        
+
         // Return the processed struct
         Ok(LlmProcessing {
             model_id: helper.model_id,

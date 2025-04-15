@@ -9,7 +9,8 @@ use std::time::Duration;
 
 pub static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static GENERAL_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
-pub static LLM_RATE_LIMITERS: OnceCell<RwLock<HashMap<String, RateLimiter>>> = OnceCell::new();
+pub static LLM_RATE_LIMITERS: OnceCell<RwLock<HashMap<String, Option<RateLimiter>>>> =
+    OnceCell::new();
 pub static LLM_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static SEGMENTATION_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
@@ -111,8 +112,12 @@ fn create_general_ocr_timeout() -> Option<u64> {
     throttle_config.general_ocr_timeout
 }
 
-fn create_llm_rate_limiter(bucket_name: &str, rate_limit: f32) -> RateLimiter {
-    RateLimiter::new(rate_limit, bucket_name)
+fn create_llm_rate_limiter(bucket_name: &str, rate_limit: Option<f32>) -> Option<RateLimiter> {
+    if let Some(rate_limit) = rate_limit {
+        Some(RateLimiter::new(rate_limit, bucket_name))
+    } else {
+        None
+    }
 }
 
 fn create_llm_timeout() -> Option<u64> {
@@ -138,49 +143,32 @@ pub fn init_throttle() {
     SEGMENTATION_TIMEOUT.get_or_init(create_segmentation_timeout);
 
     LLM_RATE_LIMITERS.get_or_init(|| {
-        let mut domain_rate_limiters = HashMap::new();
+        let mut llm_rate_limiters = HashMap::new();
         let llm_config = LlmConfig::from_env().unwrap();
         let throttle_config = ThrottleConfig::from_env().unwrap();
 
         if let Some(llm_models) = llm_config.llm_models.as_ref() {
             for model in llm_models {
-                let domain_name = extract_domain_from_url(&model.provider_url).unwrap();
-
-                if !domain_rate_limiters.contains_key(&domain_name) {
-                    domain_rate_limiters.insert(
-                        domain_name.clone(),
-                        create_llm_rate_limiter(
-                            &domain_name,
-                            model.rate_limit.unwrap_or(throttle_config.llm_rate_limit),
-                        ),
-                    );
-                }
+                llm_rate_limiters.insert(
+                    model.id.clone(),
+                    create_llm_rate_limiter(
+                        &model.id,
+                        model.rate_limit.or(throttle_config.llm_rate_limit),
+                    ),
+                );
             }
         }
 
-        RwLock::new(domain_rate_limiters)
+        RwLock::new(llm_rate_limiters)
     });
 
     LLM_TIMEOUT.get_or_init(create_llm_timeout);
 }
 
-fn extract_domain_from_url(url: &str) -> Result<String, &'static str> {
-    url.split("://")
-        .nth(1)
-        .ok_or("Invalid URL format: missing protocol separator")
-        .and_then(|s| {
-            s.split('/')
-                .next()
-                .ok_or("Invalid URL format: missing domain")
-        })
-        .map(|s| s.to_string())
-}
-
-pub fn get_llm_rate_limiter(url: &str) -> Option<RateLimiter> {
-    let domain = extract_domain_from_url(url).ok()?;
+pub fn get_llm_rate_limiter(model_id: &str) -> Option<RateLimiter> {
     LLM_RATE_LIMITERS.get().and_then(|limiters| {
         let limiters_guard = limiters.read().unwrap();
-        limiters_guard.get(&domain).cloned()
+        limiters_guard.get(model_id).cloned().flatten()
     })
 }
 
@@ -199,16 +187,17 @@ mod tests {
     #[tokio::test]
     async fn test_acquire_token() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
-        let result = rate_limiter.acquire_token().await;
+        let rate_limiter = create_llm_rate_limiter("test_bucket", Some(100.0));
+        let result = rate_limiter.unwrap().acquire_token().await;
         println!("result: {:?}", result);
     }
 
     #[tokio::test]
     async fn test_acquire_token_with_timeout() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
+        let rate_limiter = create_llm_rate_limiter("test_bucket", Some(100.0));
         let result = rate_limiter
+            .unwrap()
             .acquire_token_with_timeout(Duration::from_secs(1))
             .await;
         println!("result: {:?}", result);
@@ -217,13 +206,10 @@ mod tests {
     #[tokio::test]
     async fn test_hit_rate_limit() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
+        let rate_limiter = create_llm_rate_limiter("test_bucket", Some(100.0));
 
-        for _ in 0..2000 {
-            let _ = rate_limiter.acquire_token().await;
-        }
-
-        let result = rate_limiter.acquire_token().await.unwrap();
+        let unwrapped_limiter = rate_limiter.unwrap().clone();
+        let result = unwrapped_limiter.acquire_token().await.unwrap();
         println!("result: {:?}", result);
         assert!(!result, "Token request should fail after exhausting limit");
     }
@@ -231,12 +217,18 @@ mod tests {
     #[tokio::test]
     async fn test_hit_rate_limit_with_timeout() {
         initialize().await;
-        let rate_limiter = create_llm_rate_limiter("test_bucket", 100.0);
+        let rate_limiter = create_llm_rate_limiter("test_bucket", Some(100.0));
 
-        let futures: Vec<_> = (0..2000).map(|_| rate_limiter.acquire_token()).collect();
+        let unwrapped_limiter = rate_limiter.unwrap().clone();
+        let futures: Vec<_> = (0..2000)
+            .map(|_| {
+                let limiter = unwrapped_limiter.clone();
+                async move { limiter.acquire_token().await }
+            })
+            .collect();
         let _ = futures::future::join_all(futures).await;
 
-        let result = rate_limiter
+        let result = unwrapped_limiter
             .acquire_token_with_timeout(Duration::from_secs(1))
             .await
             .unwrap();
