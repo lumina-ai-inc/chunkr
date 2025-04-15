@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 from typing import Any, List, Optional, Union
-from pydantic import field_validator
+from pydantic import field_validator, field_serializer
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -65,11 +65,7 @@ class TokenizerType(BaseModel):
             return f"string:{self.string_value}"
         return ""
     
-    model_config = ConfigDict(
-        json_encoders={
-            'TokenizerType': lambda v: v.model_dump()
-        }
-    )
+    model_config = ConfigDict()
     
     def model_dump(self, **kwargs):
         if self.enum_value is not None:
@@ -85,10 +81,13 @@ class ChunkProcessing(BaseModel):
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
-        json_encoders={
-            TokenizerType: lambda v: v.model_dump()
-        }
     )
+    
+    @field_serializer('tokenizer')
+    def serialize_tokenizer(self, tokenizer: Optional[TokenizerType], _info):
+        if tokenizer is None:
+            return None
+        return tokenizer.model_dump()
 
     @field_validator('tokenizer', mode='before')
     def validate_tokenizer(cls, v):
@@ -162,11 +161,7 @@ class FallbackStrategy(BaseModel):
             raise ValueError(f"Invalid fallback strategy: {v}")
         return v
     
-    model_config = ConfigDict(
-        json_encoders={
-            'FallbackStrategy': lambda v: v.model_dump()
-        }
-    )
+    model_config = ConfigDict()
     
     @classmethod
     def model_validate(cls, obj):
@@ -194,12 +189,12 @@ class LlmProcessing(BaseModel):
     max_completion_tokens: Optional[int] = None
     temperature: float = 0.0
     
-    model_config = ConfigDict(
-        json_encoders={
-            FallbackStrategy: lambda v: v.model_dump()
-        }
-    )
+    model_config = ConfigDict()
     
+    @field_serializer('fallback_strategy')
+    def serialize_fallback_strategy(self, fallback_strategy: FallbackStrategy, _info):
+        return fallback_strategy.model_dump()
+
     @field_validator('fallback_strategy', mode='before')
     def validate_fallback_strategy(cls, v):
         if isinstance(v, str):

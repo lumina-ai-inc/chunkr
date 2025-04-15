@@ -39,7 +39,7 @@ fn default_llm_rate_limit() -> Option<f32> {
 }
 
 fn default_llm_timeout() -> Option<u64> {
-    None
+    Some(150)
 }
 
 fn default_segmentation_batch_size() -> usize {
