@@ -200,7 +200,7 @@ pub async fn try_extract_from_llm(
     let llm_config = LlmConfig::from_env().unwrap();
     let model = llm_config.get_model(llm_processing.model_id)?;
     let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
-    
+
     // Try with primary model
     let response = match process_openai_request(
         model,
@@ -227,7 +227,7 @@ pub async fn try_extract_from_llm(
     if let Some(content) = try_extract_from_response(&response, fence_type) {
         return Ok(content);
     }
-    
+
     // Try with fallback model if content extraction failed
     if let Some(fallback) = fallback_model {
         println!("Trying fallback model after primary model failed to produce extractable content");
