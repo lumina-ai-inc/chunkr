@@ -181,7 +181,7 @@ jobs:
             python -m pip install --upgrade pip
             
             # Extract the version from pyproject.toml
-            LOCAL_VERSION=$(grep -oP '(?<=version = ")[^"]+' clients/python-client/pyproject.toml)
+            LOCAL_VERSION=$(grep -oP '(?<=version = ")[^"]+' clients/python/pyproject.toml)
             echo "Local version: $LOCAL_VERSION"
             
             # Check if the package exists on PyPI and get its version
@@ -215,12 +215,12 @@ jobs:
       
       - name: Build package
         if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
-        working-directory: ./clients/python-client
+        working-directory: ./clients/python
         run: uv build
       
       - name: Publish to PyPI
         if: steps.check-python.outputs.PUBLISH_PYTHON == 'true'
-        working-directory: ./clients/python-client
+        working-directory: ./clients/python
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: uv publish --token $PYPI_TOKEN

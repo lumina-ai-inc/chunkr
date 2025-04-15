@@ -4,7 +4,7 @@
             "release-type": "rust",
             "package-name": "chunkr-core"
         },
-        "clients/python-client": {
+        "clients/python": {
             "release-type": "python",
             "package-name": "chunkr-ai"
         },

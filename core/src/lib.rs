@@ -16,6 +16,9 @@ use utoipa::{
 };
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 
 pub mod configs;
 pub mod jobs;
@@ -128,6 +131,14 @@ impl Modify for SecurityAddon {
 #[get("/openapi.json")]
 pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
     web::Json(ApiDoc::openapi())
+}
+
+/// Generates the OpenAPI specification and saves it to a file
+pub fn generate_and_save_openapi_spec(output_path: &str) -> std::io::Result<()> {
+    let spec = serde_json::to_string_pretty(&ApiDoc::openapi())?;
+    let mut file = File::create(Path::new(output_path))?;
+    file.write_all(spec.as_bytes())?;
+    Ok(())
 }
 
 pub fn main() -> std::io::Result<()> {

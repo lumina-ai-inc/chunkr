@@ -1,6 +1,6 @@
 {
     "core": "1.7.0",
-    "clients/python-client": "0.0.45",
+    "clients/python": "0.0.45",
     "services": "0.1.1",
     "apps/web": "1.1.0",
     "kube/charts/chunkr": "1.2.0",
