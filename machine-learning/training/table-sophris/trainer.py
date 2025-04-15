@@ -175,7 +175,7 @@ class StatsTrackingCallback(TrainerCallback):
 class CustomChatDataset(torch.utils.data.Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
-        self.min_dim = 32  # Increased from 28 to be safe
+        self.min_dim = 32  # Minimum dimension requirement (increased from 28 for safety)
         self.divisible_by = 32
 
     def __len__(self):
@@ -198,31 +198,25 @@ class CustomChatDataset(torch.utils.data.Dataset):
                             # Get original dimensions
                             width, height = image.size
                             
-                            # Calculate new dimensions ensuring minimum size and divisibility
-                            new_width = max(self.min_dim, width)
-                            new_height = max(self.min_dim, height)
+                            # Calculate scaling factor to ensure minimum dimensions
+                            width_scale = self.min_dim / width if width < self.min_dim else 1
+                            height_scale = self.min_dim / height if height < self.min_dim else 1
+                            scale = max(width_scale, height_scale)
                             
-                            # Preserve aspect ratio while ensuring minimum dimensions
-                            if width < self.min_dim or height < self.min_dim:
-                                aspect = width / height
-                                if width < height:
-                                    new_width = self.min_dim
-                                    new_height = int(new_width / aspect)
-                                else:
-                                    new_height = self.min_dim
-                                    new_width = int(new_height * aspect)
+                            # Calculate new dimensions
+                            new_width = int(width * scale)
+                            new_height = int(height * scale)
                             
                             # Make dimensions divisible by divisible_by
                             new_width = ((new_width + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
                             new_height = ((new_height + self.divisible_by - 1) // self.divisible_by) * self.divisible_by
                             
-                            # Resize if dimensions changed
-                            if new_width != width or new_height != height:
-                                image = image.resize((new_width, new_height), Image.LANCZOS)
-                                
+                            # Resize image
+                            image = image.resize((new_width, new_height), Image.LANCZOS)
+                            
                             content.append({"type": "image", "image": image, "text": None})
                         except Exception as e:
-                            logger.warning(f"Failed to load image in __getitem__: {e}")
+                            logger.warning(f"Failed to load/resize image in __getitem__: {e}")
                 else:
                     content.append(item)
             
@@ -541,6 +535,8 @@ def main():
         dataset_text_field="messages",
         dataset_kwargs={"skip_prepare_dataset": True},
         max_seq_length=max_seq_length,
+        dataset_num_proc = 4,
+
     )
 
     trainer = SFTTrainer(
