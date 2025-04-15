@@ -1,9 +1,16 @@
 #!/bin/bash
 set -e
 
+# Load environment variables from .env
+if [ -f ".env" ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
 # Default values
 DATA_DIR="data"
-DATASET_NAME=$([ -n "$DATASET_NAME" ] && echo "$DATASET_NAME" || echo "default")
+# Get dataset name from environment variable or use default
+[ -z "$DATASET_NAME" ] && DATASET_NAME="default"
+echo "Using dataset name from environment: $DATASET_NAME"
 MODEL_NAME="unsloth/Qwen2.5-VL-3B-Instruct"
 BATCH_SIZE=8
 GRAD_ACCUM=4
@@ -159,10 +166,11 @@ while [ "$#" -gt 0 ]; do
         --s3-bucket) PREPARE_ARGS="$PREPARE_ARGS --s3_bucket $2"; shift 2;;
         --dataset-name) 
             DATASET_NAME="$2"
+            # Don't add quotes to args that will be passed to Python scripts
             PREPARE_ARGS="$PREPARE_ARGS --dataset_name $2"
             TRAIN_ARGS="$TRAIN_ARGS --dataset_name $2"
             EVAL_ARGS="$EVAL_ARGS --dataset_name $2"
-            export DATASET_NAME="$2"  # Also set as environment variable
+            export DATASET_NAME="$2"  # Make sure environment is updated for child processes
             shift 2;;
         
         # Training options
@@ -208,21 +216,13 @@ EVAL_ARGS="$EVAL_ARGS --data_dir $DATA_DIR"
 if [ "$PREPARE" = true ]; then
     echo "===== STEP 1: PREPARING DATASET ====="
     
-    # Pass literal dataset name without trying to expand bracket patterns
-    PREPARE_CMD="python prepare_dataset.py --output_dir \"$DATA_DIR\""
+    # Build the prepare command with correct arguments
+    PREPARE_CMD="python prepare_dataset.py --output_dir $DATA_DIR"
     
-    # Add dataset name if specified
-    if [ ! -z "$DATASET_NAME" ]; then
-        PREPARE_CMD="$PREPARE_CMD --dataset_name \"$DATASET_NAME\""
+    # Only add dataset name from environment if not already in PREPARE_ARGS
+    if [[ "$PREPARE_ARGS" != *"--dataset_name"* ]] && [ ! -z "$DATASET_NAME" ]; then
+        PREPARE_CMD="$PREPARE_CMD --dataset_name $DATASET_NAME"
     fi
-    
-    # Add data limit if specified
-    if [ ! -z "$DATA_LIMIT" ]; then
-        PREPARE_CMD="$PREPARE_CMD --data_limit $DATA_LIMIT"
-    fi
-    
-    # Add split ratios
-    PREPARE_CMD="$PREPARE_CMD --train_ratio $TRAIN_RATIO --val_ratio $VAL_RATIO --test_ratio $TEST_RATIO"
     
     # Add any additional preparation arguments
     PREPARE_CMD="$PREPARE_CMD $PREPARE_ARGS"
@@ -263,10 +263,16 @@ if [ "$PREPARE" = true ]; then
     # Extract just the directory name for dataset_name
     DATASET_NAME=$(basename "$DATASET_PATH")
     echo "Setting dataset name to: $DATASET_NAME"
+    export DATASET_NAME="$DATASET_NAME"  # Update environment with real dataset name
     
     # Update args for training to use this dataset name with path exactly as created
-    TRAIN_ARGS="$TRAIN_ARGS --dataset_name \"$DATASET_NAME\" --data_dir \"$DATA_DIR\""
-    EVAL_ARGS="$EVAL_ARGS --dataset_name \"$DATASET_NAME\" --data_dir \"$DATA_DIR\""
+    # Remove any existing dataset_name arguments
+    TRAIN_ARGS=$(echo "$TRAIN_ARGS" | sed 's/--dataset_name [^ ]*//')
+    EVAL_ARGS=$(echo "$EVAL_ARGS" | sed 's/--dataset_name [^ ]*//')
+    
+    # Add the correct dataset name and data_dir
+    TRAIN_ARGS="$TRAIN_ARGS --dataset_name $DATASET_NAME --data_dir $DATA_DIR"
+    EVAL_ARGS="$EVAL_ARGS --dataset_name $DATASET_NAME --data_dir $DATA_DIR"
 fi
 
 # Step 2: Train Model if requested
@@ -305,101 +311,14 @@ if [ "$TRAIN" = true ]; then
     eval $TRAIN_CMD
     
     # Verify model was saved properly
-    MODEL_NAME_SAFE=$(echo "$MODEL_NAME" | sed 's/\//_/g')
-    LORA_DIR="$OUTPUT_DIR/lora_$MODEL_NAME_SAFE"
+    echo "Verifying model was saved to $LORA_OUTPUT_DIR"
     
-    echo "Verifying model was saved to $LORA_DIR"
-    
-    if [ ! -d "$LORA_DIR" ]; then
-        echo "Error: Model output directory not found at $LORA_DIR"
-        mkdir -p "$LORA_DIR"
+    if [ ! -d "$LORA_OUTPUT_DIR" ]; then
+        echo "Error: Model output directory not found at $LORA_OUTPUT_DIR"
+        mkdir -p "$LORA_OUTPUT_DIR"
         echo "Created missing directory"
     fi
     
-    if [ ! -f "$LORA_DIR/adapter_model.bin" ]; then
-        echo "Warning: adapter_model.bin not found at $LORA_DIR"
-        echo "Training may have failed or model was saved in a different location"
-        
-        # Search for the model files
-        echo "Searching for adapter_model.bin in output directories..."
-        FOUND_MODELS=$(find "$OUTPUT_DIR" -name "adapter_model.bin")
-        
-        if [ -n "$FOUND_MODELS" ]; then
-            echo "Found model files in:"
-            echo "$FOUND_MODELS"
-            
-            # Use the first found model as fallback
-            FIRST_MODEL_DIR=$(dirname $(echo "$FOUND_MODELS" | head -n 1))
-            echo "Using $FIRST_MODEL_DIR as fallback model directory"
-            LORA_DIR="$FIRST_MODEL_DIR"
-        else
-            echo "No adapter_model.bin found in output directories"
-            
-            # Ask if user wants to continue
-            read -p "Continue to evaluation anyway? (y/n) " CONTINUE
-            if [ "$CONTINUE" != "y" ]; then
-                echo "Exiting due to missing model files"
-                exit 1
-            fi
-        fi
-    else
-        echo "Model was saved successfully at $LORA_DIR"
-    fi
-    
-    # Check if training was successful
-    if [ -d "$LORA_OUTPUT_DIR" ]; then
-        TRAINING_SUCCESS=true
-        echo "Training completed successfully."
-    else
-        echo "Warning: Training may have failed - $LORA_OUTPUT_DIR not found"
-        
-        # If we're supposed to evaluate after training, ask if we should continue
-        if [ "$EVAL" = true ]; then
-            read -p "Continue to evaluation anyway? (y/n) " -n 1 -r
-            echo
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                echo "Evaluation aborted."
-                exit 1
-            fi
-        fi
-    fi
-    echo ""
-fi
-
-# Step 3: Evaluate Model if requested
-if [ "$EVAL" = true ]; then
-    echo "===== STEP 3: EVALUATING MODEL ====="
-    
-    # Build evaluation command - always use test split and dataset name
-    EVAL_CMD="python eval.py --eval_split test --dataset_name \"$DATASET_NAME\""
-    
-    # Add finetuned model arguments if we successfully trained or user wants to evaluate
-    if [ "$TRAINING_SUCCESS" = true ]; then
-        EVAL_CMD="$EVAL_CMD --finetuned_path $LORA_OUTPUT_DIR --finetuned_base $MODEL_NAME"
-    fi
-    
-    # Add baseline models if specified, otherwise use default base model
-    if [ ! -z "$BASELINE_MODELS" ]; then
-        EVAL_CMD="$EVAL_CMD --baseline_models $BASELINE_MODELS"
-    else
-        # Use the base model as baseline if not specified otherwise
-        EVAL_CMD="$EVAL_CMD --baseline_models $MODEL_NAME"
-    fi
-    
-    # Force use of test split
-    EVAL_ARGS=$(echo "$EVAL_ARGS" | sed "s/--eval_split [^ ]*/--eval_split test/g")
-    if [[ "$EVAL_ARGS" != *"--eval_split"* ]]; then
-        EVAL_ARGS="$EVAL_ARGS --eval_split test"
-    fi
-    
-    # Add other evaluation arguments
-    EVAL_CMD="$EVAL_CMD $EVAL_ARGS"
-    
-    echo "Command: $EVAL_CMD"
-    eval $EVAL_CMD
-    
-    echo "Evaluation completed."
-    echo ""
 fi
 
 echo "All requested tasks completed successfully." 

@@ -55,36 +55,37 @@ class StatsTrackingCallback(TrainerCallback):
         # Save initial configuration
         self.args = args
         
-    def on_step_end(self, args, state, control, logs=None, **kwargs):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        """Called on each log event"""
         if logs:
-            self.last_log = {**self.last_log, **logs}
-        
-        if state.global_step > 0:
-            self.training_bar.update(1)
+            # Extract loss from logs - handle both dictionary and tensor cases
+            if 'loss' in logs:
+                current_loss = logs['loss']
+                # Convert from tensor if needed
+                if hasattr(current_loss, 'item'):
+                    current_loss = current_loss.item()
+                self.loss_history.append(float(current_loss))
+            else:
+                self.loss_history.append(float('nan'))
             
-            # Track stats for this step
+            # Track learning rate
+            if 'learning_rate' in logs:
+                self.lr_history.append(logs['learning_rate'])
+            else:
+                self.lr_history.append(float('nan'))
+            
+            # Track step and time
             self.step_history.append(state.global_step)
-            self.loss_history.append(self.last_log.get('loss', float('nan')))
-            self.lr_history.append(self.last_log.get('learning_rate', float('nan')))
+            self.time_history.append(time.time() - self.start_time)
             
-            elapsed = time.time() - self.start_time
-            self.time_history.append(elapsed)
-            
-            # Display metrics
-            desc = f"Step: {state.global_step}"
-            if 'loss' in self.last_log:
-                desc += f" | Loss: {self.last_log['loss']:.4f}"
-            if 'learning_rate' in self.last_log:
-                desc += f" | LR: {self.last_log['learning_rate']:.2e}"
-                
-            steps_per_second = state.global_step / elapsed
-            remaining_steps = args.max_steps - state.global_step
-            eta = remaining_steps / steps_per_second if steps_per_second > 0 else 0
-            
-            desc += f" | {time.strftime('%H:%M:%S', time.gmtime(elapsed))} elapsed"
-            desc += f" | ETA: {time.strftime('%H:%M:%S', time.gmtime(eta))}"
-            
-            self.training_bar.set_description(desc)
+            # Update progress bar description
+            if self.training_bar is not None:
+                desc = f"Step: {state.global_step}"
+                if 'loss' in logs:
+                    desc += f" | Loss: {current_loss:.4f}"
+                if 'learning_rate' in logs:
+                    desc += f" | LR: {logs['learning_rate']:.2e}"
+                self.training_bar.set_description(desc)
     
     def on_train_end(self, args, state, control, **kwargs):
         if self.training_bar:
@@ -393,15 +394,15 @@ def main():
     if not os.path.isabs(output_dir):
         output_dir = os.path.join(os.getcwd(), output_dir)
     
+    # Create standardized lora output path
+    model_name_safe = args.model_name.replace("/", "_").replace("\\", "_")
+    lora_output_dir = args.lora_output_dir or os.path.join(output_dir, f"lora_{model_name_safe}")
+    logger.info(f"LoRA will be saved to: {lora_output_dir}")
+    
     # Ensure output directories exist
     os.makedirs(output_dir, exist_ok=True)
-    os.makedirs("training_runs", exist_ok=True)
+    os.makedirs(lora_output_dir, exist_ok=True)
     
-    # Create standardized lora output path - make sure it's consistent everywhere
-    model_name_safe = args.model_name.replace("/", "_").replace("\\", "_")
-    lora_output_dir = os.path.join(output_dir, f"lora_{model_name_safe}")
-    logger.info(f"LoRA will be saved to: {lora_output_dir}")
-
     # --- Configuration ---
     model_name = args.model_name
     run_name = args.run_name
@@ -527,14 +528,16 @@ def main():
         weight_decay=0.01,
         lr_scheduler_type="linear",
         seed=seed,
-        report_to="none", # or "wandb", "tensorboard"
+        report_to="none",
         save_strategy="steps",
         save_steps=save_steps,
         save_total_limit=3,
-        remove_unused_columns=False, # Keep False as trainer needs 'messages'
-        dataset_text_field="messages", # Tell trainer where the conversation is
-        dataset_kwargs={"skip_prepare_dataset": True}, # We prepared it
+        remove_unused_columns=False,
+        dataset_text_field="messages",
+        dataset_kwargs={"skip_prepare_dataset": True},
         max_seq_length=max_seq_length,
+        device_map="auto",
+        ddp_find_unused_parameters=False
     )
 
     trainer = SFTTrainer(
@@ -560,9 +563,7 @@ def main():
     
     # Ensure model is in the correct state before saving
     try:
-        logger.info("Preparing model for saving...")
-        FastVisionModel.for_saving(model)
-        
+        logger.info("Preparing model for saving...")        
         # Save the model
         logger.info("Saving model...")
         model.save_pretrained(lora_output_dir)

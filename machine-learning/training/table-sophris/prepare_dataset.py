@@ -107,17 +107,14 @@ def main():
     
     # Create dataset-specific output directory
     safe_dataset_name = dataset_name.replace("/", "_").replace("\\", "_")
-    limit_suffix = f"[0-{data_limit-1}]" if data_limit else ""
-    dataset_dir = os.path.join(output_dir, f"{safe_dataset_name}{limit_suffix}")
+    dataset_dir = os.path.join(output_dir, safe_dataset_name)
     os.makedirs(dataset_dir, exist_ok=True)
 
-    # Save the dataset name with range suffix for other scripts
-    full_dataset_name = f"{safe_dataset_name}{limit_suffix}"
-    # Create a file to indicate the actual dataset name
+    # Save the dataset name for other scripts
     with open(os.path.join(dataset_dir, "dataset_name.txt"), "w") as f:
-        f.write(full_dataset_name)
+        f.write(safe_dataset_name)
 
-    logger.info(f"Preparing dataset: {full_dataset_name}")
+    logger.info(f"Preparing dataset: {safe_dataset_name}")
     logger.info(f"Output directory: {dataset_dir}")
     
     # Ensure splits sum to 1.0
@@ -269,7 +266,7 @@ def main():
     
     # Report results
     logger.info("=== Dataset Preparation Complete ===")
-    logger.info(f"Dataset: {full_dataset_name}")
+    logger.info(f"Dataset: {safe_dataset_name}")
     logger.info(f"Training set: {train_saved} samples saved ({train_skipped} skipped)")
     logger.info(f"Validation set: {val_saved} samples saved ({val_skipped} skipped)")
     logger.info(f"Test set: {test_saved} samples saved ({test_skipped} skipped)")
