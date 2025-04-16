@@ -178,5 +178,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   file: new File([], ""),
-  pipeline: Pipeline.Azure as any as WhenEnabled<"pipeline", Pipeline>,
+  pipeline: Pipeline.Azure as unknown as WhenEnabled<"pipeline", Pipeline>,
 };
