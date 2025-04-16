@@ -39,7 +39,7 @@ common:
     - name: AWS__REGION
       value: us-east-1
     - name: LLM__MODELS_PATH
-      value: "/app/models.yaml"
+      value: /app/models.yaml
     - name: PG__URL
       value: >-
         postgresql://{{ .Values.services.postgres.credentials.username }}:{{
@@ -102,9 +102,9 @@ global:
         mountPath: /dev/shm
   llmModels:
     enabled: true
-    configFile: "./models.yaml"
-    existingConfigMap: ""
-    mountPath: "/app/models.yaml"
+    configFile: ./models.yaml
+    existingConfigMap: ''
+    mountPath: /app/models.yaml
 nvidia:
   timeSlicing:
     enabled: true
@@ -116,7 +116,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: 1.10.0
+      tag: 1.11.0
     port: 8000
     targetPort: 8000
     ingress:
@@ -128,38 +128,44 @@ services:
     volumes:
       - name: llm-models-config
         configMap:
-          name: "{{ if .Values.global.llmModels.existingConfigMap }}{{ .Values.global.llmModels.existingConfigMap }}{{ else }}{{ .Release.Name }}-llm-models{{ end }}"
+          name: >-
+            {{ if .Values.global.llmModels.existingConfigMap }}{{
+            .Values.global.llmModels.existingConfigMap }}{{ else }}{{
+            .Release.Name }}-llm-models{{ end }}
     volumeMounts:
       - name: llm-models-config
-        mountPath: "/app/models.yaml"
-        subPath: "models.yaml"
+        mountPath: /app/models.yaml
+        subPath: models.yaml
         readOnly: true
   task:
     enabled: true
     useStandardEnv: true
     image:
       repository: task
-      tag: 1.10.0
+      tag: 1.11.0
     envFrom:
       - secretRef:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
-        value: "3"
+        value: '3'
     volumes:
       - name: llm-models-config
         configMap:
-          name: "{{ if .Values.global.llmModels.existingConfigMap }}{{ .Values.global.llmModels.existingConfigMap }}{{ else }}{{ .Release.Name }}-llm-models{{ end }}"
+          name: >-
+            {{ if .Values.global.llmModels.existingConfigMap }}{{
+            .Values.global.llmModels.existingConfigMap }}{{ else }}{{
+            .Release.Name }}-llm-models{{ end }}
     volumeMounts:
       - name: llm-models-config
-        mountPath: "/app/models.yaml"
-        subPath: "models.yaml"
+        mountPath: /app/models.yaml
+        subPath: models.yaml
         readOnly: true
   web:
     enabled: true
     image:
       repository: web
-      tag: 1.10.0
+      tag: 1.11.0
     port: 8000
     targetPort: 8000
     ingress:
@@ -192,14 +198,14 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 1.10.0
+      tag: 1.11.0
     port: 8000
     targetPort: 8000
     useGPU: true
     enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
-        value: "100"
+        value: '100'
     labels:
       workload-type: chunkr-gpu
   segmentation:
@@ -215,10 +221,10 @@ services:
       workload-type: chunkr-gpu
     env:
       - name: MAX_BATCH_SIZE
-        value: "4"
+        value: '4'
       - name: BATCH_WAIT_TIME
-        value: "0.2"
+        value: '0.2'
       - name: OVERLAP_THRESHOLD
-        value: "0.025"
+        value: '0.025'
       - name: SCORE_THRESHOLD
-        value: "0.2"
+        value: '0.2'

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.2.0...chunkr-chart-v1.3.0) (2025-04-15)
+
+
+### Features
+
+* Allow users to choose an LLM model to use for `segment_processing` by setting the `llm_processing.model_id` param in the POST and PATCH request. The available models can be configured using the `models.yaml` file. ([#437](https://github.com/lumina-ai-inc/chunkr/issues/437)) ([ea526c4](https://github.com/lumina-ai-inc/chunkr/commit/ea526c4c48692ae5d8a9ba00b70008ce238a4c14))
+
 ## [1.2.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.1.0...chunkr-chart-v1.2.0) (2025-03-27)
 
 
