@@ -2,7 +2,6 @@ use core::generate_and_save_openapi_spec;
 use clap::{Command, Arg};
 use std::path::Path;
 use std::env;
-use dirs;
 
 fn main() -> std::io::Result<()> {
     let matches = Command::new("OpenAPI Generator")
@@ -21,8 +20,8 @@ fn main() -> std::io::Result<()> {
     let output_path = if let Some(output) = matches.get_one::<String>("output") {
         output.to_string()
     } else {
-        let home_dir = dirs::home_dir().expect("Could not determine home directory");
-        let default_dir = home_dir.join(".chunkr");
+        let current_dir = env::current_dir().expect("Could not determine current directory");
+        let default_dir = current_dir.join("../.chunkr");
         default_dir.join("openapi.json").to_string_lossy().to_string()
     };
     
@@ -36,7 +35,7 @@ fn main() -> std::io::Result<()> {
     println!("Generating OpenAPI specification to: {}", output_path);
     generate_and_save_openapi_spec(&output_path)?;
     println!("OpenAPI specification generated successfully!");
-    
+     
     Ok(())
 }
 

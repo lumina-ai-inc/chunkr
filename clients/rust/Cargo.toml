@@ -1,0 +1,16 @@
+[package]
+name = "chunkr-ai"
+version = "0.1.0"
+edition = "2021"
+description = "Rust client for the Chunkr API"
+
+[dependencies]
+futures = "0.3"
+progenitor = { git = "https://github.com/oxidecomputer/progenitor" }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[[example]]
+name = "basic_usage"
+path = "examples/basic_usage.rs" 

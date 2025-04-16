@@ -2,7 +2,6 @@ output
 test
 output-gpu
 staging
-examples
 annotated
 annotated-gpu
 sample
