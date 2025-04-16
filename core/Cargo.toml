@@ -1,6 +1,6 @@
 [package]
 name = "core"
-version = "1.8.0-enterprise"
+version = "1.8.0"
 edition = "2021"
 default-run = "core"
 
@@ -76,6 +76,7 @@ libc = "0.2.171"
 tokenizers = { version = "0.21.1", features = ["http"] }
 tiktoken-rs = "0.6.0"
 lru = "0.13.0"
+serde_yaml = "0.9.34"
 
 [dev-dependencies]
 rand = "0.9.0"

@@ -18,6 +18,8 @@ from chunkr_ai.models import (
     EmbedSource,
     ErrorHandlingStrategy,
     Tokenizer,
+    LlmProcessing,
+    FallbackStrategy,
 )
 
 @pytest.fixture
@@ -125,6 +127,39 @@ def xlm_roberta_with_html_content_config():
                 markdown=GenerationStrategy.LLM,
                 embed_sources=[EmbedSource.HTML, EmbedSource.CONTENT]
             )
+        ),
+    )
+
+@pytest.fixture
+def none_fallback_config():
+    return Configuration(
+        llm_processing=LlmProcessing(
+            model_id="gemini-pro-2.5",
+            fallback_strategy=FallbackStrategy.none(),
+            max_completion_tokens=500,
+            temperature=0.2
+        ),
+    )
+
+@pytest.fixture
+def default_fallback_config():
+    return Configuration(
+        llm_processing=LlmProcessing(
+            model_id="gemini-pro-2.5",
+            fallback_strategy=FallbackStrategy.default(),
+            max_completion_tokens=1000,
+            temperature=0.5
+        ),
+    )
+
+@pytest.fixture
+def model_fallback_config():
+    return Configuration(
+        llm_processing=LlmProcessing(
+            model_id="gemini-pro-2.5",
+            fallback_strategy=FallbackStrategy.model("claude-3.7-sonnet"),
+            max_completion_tokens=2000,
+            temperature=0.7
         ),
     )
 
@@ -458,3 +493,101 @@ async def test_error_handling_continue(client, sample_path):
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_llm_processing_none_fallback(client, sample_path, none_fallback_config):
+    response = await client.upload(sample_path, none_fallback_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    assert response.configuration.llm_processing is not None
+    assert response.configuration.llm_processing.model_id == "gemini-pro-2.5"
+    assert str(response.configuration.llm_processing.fallback_strategy) == "None"
+    assert response.configuration.llm_processing.max_completion_tokens == 500
+    assert response.configuration.llm_processing.temperature == 0.2
+
+@pytest.mark.asyncio
+async def test_llm_processing_default_fallback(client, sample_path, default_fallback_config):
+    response = await client.upload(sample_path, default_fallback_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    assert response.configuration.llm_processing is not None
+    assert response.configuration.llm_processing.model_id == "gemini-pro-2.5"
+    # The service may resolve Default to an actual model
+    assert response.configuration.llm_processing.fallback_strategy is not None
+    assert response.configuration.llm_processing.max_completion_tokens == 1000
+    assert response.configuration.llm_processing.temperature == 0.5
+
+@pytest.mark.asyncio
+async def test_llm_processing_model_fallback(client, sample_path, model_fallback_config):
+    response = await client.upload(sample_path, model_fallback_config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    assert response.configuration.llm_processing is not None
+    assert response.configuration.llm_processing.model_id == "gemini-pro-2.5"
+    assert str(response.configuration.llm_processing.fallback_strategy) == "Model(claude-3.7-sonnet)"
+    assert response.configuration.llm_processing.max_completion_tokens == 2000
+    assert response.configuration.llm_processing.temperature == 0.7
+
+@pytest.mark.asyncio
+async def test_llm_custom_model(client, sample_path):
+    config = Configuration(
+        llm_processing=LlmProcessing(
+            model_id="claude-3.7-sonnet",  # Using a model from models.yaml
+            fallback_strategy=FallbackStrategy.none(),
+            max_completion_tokens=1500,
+            temperature=0.3
+        ),
+    )
+    response = await client.upload(sample_path, config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    assert response.configuration.llm_processing is not None
+    assert response.configuration.llm_processing.model_id == "claude-3.7-sonnet"
+
+@pytest.mark.asyncio
+async def test_fallback_strategy_serialization():
+    # Test that FallbackStrategy objects serialize correctly
+    none_strategy = FallbackStrategy.none()
+    default_strategy = FallbackStrategy.default()
+    model_strategy = FallbackStrategy.model("gpt-4.1")
+    
+    assert none_strategy.model_dump() == "None"
+    assert default_strategy.model_dump() == "Default"
+    assert model_strategy.model_dump() == {"Model": "gpt-4.1"}
+    
+    # Test string representation
+    assert str(none_strategy) == "None"
+    assert str(default_strategy) == "Default"
+    assert str(model_strategy) == "Model(gpt-4.1)"
+
+@pytest.mark.asyncio
+async def test_combined_config_with_llm_and_other_settings(client, sample_path):
+    # Test combining LLM settings with other configuration options
+    config = Configuration(
+        llm_processing=LlmProcessing(
+            model_id="qwen-2.5-vl-7b-instruct",
+            fallback_strategy=FallbackStrategy.model("gemini-flash-2.0"),
+            temperature=0.4
+        ),
+        segmentation_strategy=SegmentationStrategy.PAGE,
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM
+            )
+        ),
+        chunk_processing=ChunkProcessing(target_length=1024)
+    )
+    
+    response = await client.upload(sample_path, config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    assert response.configuration.llm_processing is not None
+    assert response.configuration.llm_processing.model_id == "qwen-2.5-vl-7b-instruct"
+    assert response.configuration.segmentation_strategy == SegmentationStrategy.PAGE
+    assert response.configuration.chunk_processing.target_length == 1024

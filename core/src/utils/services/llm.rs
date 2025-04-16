@@ -1,7 +1,7 @@
-use crate::configs::llm_config::Config as LlmConfig;
-// use crate::configs::worker_config::Config as WorkerConfig;
+use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
+use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
-use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
+use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
 use std::fmt;
@@ -26,6 +26,7 @@ pub async fn open_ai_call(
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
+    println!("OpenAI call with model: {:?}", model);
     let request = OpenAiRequest {
         model: model.clone(),
         messages,
@@ -39,7 +40,7 @@ pub async fn open_ai_call(
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", key));
 
-    if let Some(timeout) = LLM_OCR_TIMEOUT.get() {
+    if let Some(timeout) = LLM_TIMEOUT.get() {
         if let Some(timeout_value) = timeout {
             openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
         }
@@ -55,7 +56,7 @@ pub async fn open_ai_call(
     let response: OpenAiResponse = match serde_json::from_str(&text) {
         Ok(parsed) => parsed,
         Err(e) => {
-            println!("Model: {}\nError parsing JSON: {:?}", model, e);
+            println!("Error parsing JSON: {:?}\nResponse: {}", e, text);
             return Err(Box::new(LLMError("Error parsing JSON".to_string())));
         }
     };
@@ -63,9 +64,7 @@ pub async fn open_ai_call(
 }
 
 /// Process an OpenAI request with rate limiting and retrying on failure.
-/// If the request fails, it will retry with the fallback model if provided.
-/// If the response finish_reason is "length", it will retry with increased max_completion_tokens.
-async fn process_openai_request(
+async fn open_ai_call_handler(
     url: String,
     key: String,
     model: String,
@@ -73,17 +72,17 @@ async fn process_openai_request(
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
-    use_fallback: bool,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
-
-    // First attempt
-    let response = match retry_with_backoff(|| async {
-        rate_limiter
-            .acquire_token_with_timeout(std::time::Duration::from_secs(
-                *TOKEN_TIMEOUT.get().unwrap(),
-            ))
-            .await?;
+    let rate_limiter = get_llm_rate_limiter(&url);
+    retry_with_backoff(|| async {
+        let rate_limiter = rate_limiter.clone();
+        if let Some(rate_limiter) = rate_limiter {
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
+                .await?;
+        }
         open_ai_call(
             url.clone(),
             key.clone(),
@@ -96,48 +95,53 @@ async fn process_openai_request(
         .await
     })
     .await
-    {
-        Ok(response) => response,
-        Err(e) => {
-            if use_fallback {
-                let llm_config = LlmConfig::from_env().unwrap();
-                if let Some(fallback_model) = llm_config.fallback_model {
-                    println!("Using fallback model: {}", fallback_model);
-                    retry_with_backoff(|| async {
-                        rate_limiter
-                            .acquire_token_with_timeout(std::time::Duration::from_secs(
-                                *TOKEN_TIMEOUT.get().unwrap(),
-                            ))
-                            .await?;
-                        open_ai_call(
-                            url.clone(),
-                            key.clone(),
-                            fallback_model.clone(),
-                            messages.clone(),
-                            max_completion_tokens,
-                            temperature,
-                            response_format.clone(),
-                        )
-                        .await
-                    })
-                    .await?
-                } else {
-                    println!("No fallback model provided");
-                    return Err(e);
-                }
-            } else {
-                println!("Fallback not enabled");
-                return Err(e);
-            }
-        }
-    };
-
-    Ok(response)
 }
 
-fn get_llm_content(response: OpenAiResponse) -> Result<String, Box<dyn Error + Send + Sync>> {
-    if let MessageContent::String { content } = response.choices[0].message.content.clone() {
-        Ok(content)
+/// Process an OpenAI request
+/// If the request fails, it will retry with the fallback model if provided.
+async fn process_openai_request(
+    model: LlmModel,
+    fallback_model: Option<LlmModel>,
+    messages: Vec<Message>,
+    max_completion_tokens: Option<u32>,
+    temperature: Option<f32>,
+    response_format: Option<serde_json::Value>,
+) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
+    match open_ai_call_handler(
+        model.provider_url,
+        model.api_key,
+        model.model,
+        messages.clone(),
+        max_completion_tokens,
+        temperature,
+        response_format.clone(),
+    )
+    .await
+    {
+        Ok(response) => Ok(response),
+        Err(e) => {
+            if let Some(fallback_model) = fallback_model {
+                Ok(open_ai_call_handler(
+                    fallback_model.provider_url,
+                    fallback_model.api_key,
+                    fallback_model.model,
+                    messages,
+                    max_completion_tokens,
+                    temperature,
+                    response_format,
+                )
+                .await?)
+            } else {
+                println!("No fallback model provided");
+                Err(e)
+            }
+        }
+    }
+}
+
+fn get_llm_content(response: &OpenAiResponse) -> Result<String, Box<dyn Error + Send + Sync>> {
+    if let MessageContent::String { content } = &response.choices[0].message.content {
+        Ok(content.clone())
     } else {
         Err(Box::new(LLMError("Invalid content type".to_string())) as Box<dyn Error + Send + Sync>)
     }
@@ -156,39 +160,98 @@ fn extract_fenced_content(content: &str, fence_type: Option<&str>) -> Option<Str
         .map(|content| content.trim().to_string())
 }
 
+/// Try to extract fenced content from an OpenAI response
+/// Returns Some(content) if extraction succeeds, None otherwise
+fn try_extract_from_response(
+    response: &OpenAiResponse,
+    fence_type: Option<&str>,
+) -> Option<String> {
+    if response.choices.is_empty() {
+        println!("Response contains no choices");
+        return None;
+    }
+
+    if response.choices[0].finish_reason == "length" {
+        println!("Response was truncated (finish_reason: length)");
+        return None;
+    }
+
+    match get_llm_content(response) {
+        Ok(content) => {
+            let extracted = extract_fenced_content(&content, fence_type);
+            if extracted.is_none() {
+                println!("No content could be extracted from response content");
+            }
+            extracted
+        }
+        Err(e) => {
+            println!("Error getting content from response: {:?}", e);
+            None
+        }
+    }
+}
+
 pub async fn try_extract_from_llm(
     messages: Vec<Message>,
     fence_type: Option<&str>,
     fallback_content: Option<String>,
+    llm_processing: LlmProcessing,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    // let worker_config = WorkerConfig::from_env().unwrap();
     let llm_config = LlmConfig::from_env().unwrap();
+    let model = llm_config.get_model(llm_processing.model_id)?;
+    let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
 
-    let response = process_openai_request(
-        llm_config.ocr_url.clone().unwrap_or(llm_config.url.clone()),
-        llm_config.ocr_key.clone().unwrap_or(llm_config.key.clone()),
-        llm_config
-            .ocr_model
-            .clone()
-            .unwrap_or(llm_config.model.clone()),
+    // Try with primary model
+    let response = match process_openai_request(
+        model,
+        fallback_model.clone(),
         messages.clone(),
+        llm_processing.max_completion_tokens,
+        Some(llm_processing.temperature),
         None,
-        None,
-        None,
-        fallback_content.is_some(),
     )
-    .await?;
-
-    if !response.choices.is_empty() && response.choices[0].finish_reason != "length" {
-        if let Some(content) = extract_fenced_content(&get_llm_content(response)?, fence_type) {
-            return Ok(content);
+    .await
+    {
+        Ok(response) => response,
+        Err(e) => {
+            // If both the primary and fallback models requests fail
+            if let Some(fallback_content) = fallback_content {
+                println!("LLM API request(s) failed. Using fallback content");
+                return Ok(fallback_content);
+            }
+            return Err(e);
         }
-    } else if !response.choices.is_empty() {
-        println!("Response was truncated (finish_reason: length).");
+    };
+
+    // Try to extract content from primary model response
+    if let Some(content) = try_extract_from_response(&response, fence_type) {
+        return Ok(content);
     }
 
+    // Try with fallback model if content extraction failed
+    if let Some(fallback) = fallback_model {
+        println!("Trying fallback model after primary model failed to produce extractable content");
+        if let Ok(fallback_response) = process_openai_request(
+            fallback,
+            None,
+            messages.clone(),
+            llm_processing.max_completion_tokens,
+            Some(llm_processing.temperature),
+            None,
+        )
+        .await
+        {
+            if let Some(content) = try_extract_from_response(&fallback_response, fence_type) {
+                return Ok(content);
+            }
+        } else {
+            println!("Fallback model request failed");
+        }
+    }
+
+    // Use fallback content as last resort
     if let Some(fallback_content) = fallback_content {
-        println!("Using fallback content");
+        println!("Using fallback content after all LLM extraction attempts failed");
         return Ok(fallback_content);
     }
 

@@ -38,10 +38,9 @@
     - [HTTPS Setup for Docker Compose](#https-setup-for-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [LLM Configuration](#llm-configuration)
-  - [OpenAI Configuration](#openai-configuration)
-  - [Google AI Studio Configuration](#google-ai-studio-configuration)
-  - [OpenRouter Configuration](#openrouter-configuration)
-  - [Self-Hosted Configuration](#self-hosted-configuration)
+  - [Using models.yaml (Recommended)](#using-modelsyaml-recommended)
+  - [Using environment variables (Basic)](#using-environment-variables-basic)
+  - [Common LLM API Providers](#common-llm-api-providers)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
@@ -97,8 +96,8 @@ cd chunkr
 # Copy the example environment file
 cp .env.example .env
 
-# Configure your environment variables
-# Required: LLM__KEY as your OpenAI API key
+# Configure your llm models
+cp models.example.yaml models.yaml
 ```
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
@@ -179,6 +178,41 @@ For enterprise support and deployment assistance, [contact us](mailto:mehul@chun
 
 ## LLM Configuration
 
+Chunkr supports two ways to configure LLMs:
+
+1. **models.yaml file**: Advanced configuration for multiple LLMs with additional options
+2. **Environment variables**: Simple configuration for a single LLM
+
+### Using models.yaml (Recommended)
+
+For more flexible configuration with multiple models, default/fallback options, and rate limits:
+
+1. Copy the example file to create your configuration:
+```bash
+cp models.example.yaml models.yaml
+```
+
+2. Edit the models.yaml file with your configuration. Example:
+```yaml
+models:
+  - id: gpt-4o
+    model: gpt-4o
+    provider_url: https://api.openai.com/v1/chat/completions
+    api_key: "your_openai_api_key_here"
+    default: true
+    rate-limit: 200 # requests per minute - optional
+```
+
+Benefits of using models.yaml:
+- Configure multiple LLM providers simultaneously
+- Set default and fallback models
+- Add distributed rate limits per model
+- Reference models by ID in API requests (see docs for more info)
+
+>Read the `models.example.yaml` file for more information on the available options.
+
+### Using environment variables (Basic)
+
 You can use any OpenAI API compatible endpoint by setting the following variables in your .env file:
 ``` 
 LLM__KEY:
@@ -186,43 +220,16 @@ LLM__MODEL:
 LLM__URL:
 ```
 
-### OpenAI Configuration
+### Common LLM API Providers
 
-```
-LLM__KEY=your_openai_api_key
-LLM__MODEL=gpt-4o
-LLM__URL=https://api.openai.com/v1/chat/completions
-```
+Below is a table of common LLM providers and their configuration details to get you started:
 
-### Google AI Studio Configuration
-
-For getting a Google AI Studio API key, see [here](https://ai.google.dev/gemini-api/docs/openai).
-
-```
-LLM__KEY=your_google_ai_studio_api_key
-LLM__MODEL=gemini-2.0-flash-lite
-LLM__URL=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
-```
-
-### OpenRouter Configuration
-
-Check [here](https://openrouter.ai/models) for available models.
-
-```
-LLM__KEY=your_open_router_api_key
-LLM__MODEL=google/gemini-pro-1.5
-LLM__URL=https://openrouter.ai/api/v1/chat/completions
-```
-
-### Self-Hosted Configuration
-
-You can use any OpenAI API compatible endpoint. To host your own LLM you can use [VLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html) or [Ollama](https://ollama.com/blog/openai-compatibility).
-
-```
-LLM__KEY=your_api_key
-LLM__MODEL=model_name
-LLM__URL=http://localhost:8000/v1
-```
+| Provider         | API URL                                                                  | Documentation                                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenAI           | https://api.openai.com/v1/chat/completions                               | [OpenAI Docs](https://platform.openai.com/docs)                                                                                        |
+| Google AI Studio | https://generativelanguage.googleapis.com/v1beta/openai/chat/completions | [Google AI Docs](https://ai.google.dev/gemini-api/docs/openai)                                                                         |
+| OpenRouter       | https://openrouter.ai/api/v1/chat/completions                            | [OpenRouter Models](https://openrouter.ai/models)                                                                                      |
+| Self-Hosted      | http://localhost:8000/v1                                                 | [VLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html) or [Ollama](https://ollama.com/blog/openai-compatibility) |
 
 ## Licensing
 

@@ -12,6 +12,8 @@ services:
     deploy:
       replicas: 1
     restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
 
   task:
     image: luminainc/task:1.10.0
@@ -24,6 +26,8 @@ services:
     deploy:
       replicas: 10
     restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
 
   web:
     image: luminainc/web:1.10.0
@@ -99,7 +103,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -122,7 +126,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -141,7 +145,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 1
@@ -200,8 +204,8 @@ services:
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8090:8090"   # HTTP port
-      - "8443:8443"  # HTTPS port
+      - "8090:8090" # HTTP port
+      - "8443:8443" # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -212,8 +216,8 @@ services:
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"    # HTTP port
-      - "443:443"  # HTTPS port
+      - "80:80" # HTTP port
+      - "443:443" # HTTPS port
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -226,8 +230,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:8010"   # HTTP port
-      - "8444:8444"  # HTTPS port
+      - "8010:8010" # HTTP port
+      - "8444:8444" # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
