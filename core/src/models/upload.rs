@@ -1,5 +1,6 @@
-use crate::configs::job_config;
+use crate::configs::{job_config, llm_config};
 use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::llm::LlmProcessing;
 use crate::models::segment_processing::SegmentProcessing;
 use crate::models::task::Configuration;
 #[cfg(feature = "azure")]
@@ -10,12 +11,21 @@ use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Clone,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Display,
+    EnumString,
+    Default,
 )]
 /// Controls the Optical Character Recognition (OCR) strategy.
 /// - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
 /// - `Auto`: Selectively applies OCR only to pages with missing or low-quality text. When text layer is present the bounding boxes from the text layer are used.
-#[derive(Default)]
 pub enum OcrStrategy {
     #[default]
     All,
@@ -35,22 +45,45 @@ pub enum OcrStrategy {
     ToSql,
     FromSql,
     ToSchema,
+    Default,
 )]
 /// Controls the segmentation strategy:
 /// - `LayoutAnalysis`: Analyzes pages for layout elements (e.g., `Table`, `Picture`, `Formula`, etc.) using bounding boxes. Provides fine-grained segmentation and better chunking. (Latency penalty: ~TBD seconds per page).
 /// - `Page`: Treats each page as a single segment. Faster processing, but without layout element detection and only simple chunking.
-#[derive(Default)]
 pub enum SegmentationStrategy {
     #[default]
     LayoutAnalysis,
     Page,
 }
 
+#[derive(
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    Display,
+    EnumString,
+    Eq,
+    PartialEq,
+    ToSql,
+    FromSql,
+    ToSchema,
+    Default,
+)]
+/// Controls how errors are handled during processing:
+/// - `Fail`: Stops processing and fails the task when any error occurs
+/// - `Continue`: Attempts to continue processing despite non-critical errors (eg. LLM refusals etc.)
+pub enum ErrorHandlingStrategy {
+    #[default]
+    Fail,
+    Continue,
+}
+
 #[derive(Debug, Serialize, Deserialize, ToSchema, IntoParams)]
 pub struct CreateForm {
     pub chunk_processing: Option<ChunkProcessing>,
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// The file to be uploaded. Can be a URL or a base64 encoded file.
     pub file: String,
@@ -69,6 +102,9 @@ pub struct CreateForm {
     pub segment_processing: Option<SegmentProcessing>,
     #[schema(default = "LayoutAnalysis")]
     pub segmentation_strategy: Option<SegmentationStrategy>,
+    #[schema(default = "Fail")]
+    pub error_handling: Option<ErrorHandlingStrategy>,
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl CreateForm {
@@ -140,8 +176,12 @@ impl CreateForm {
         Some(self.pipeline.clone().unwrap_or_default())
     }
 
-    pub fn to_configuration(&self) -> Configuration {
-        Configuration {
+    pub fn to_configuration(&self) -> Result<Configuration, String> {
+        if let Some(llm_processing) = &self.llm_processing {
+            let llm_config = llm_config::Config::from_env().unwrap();
+            llm_config.validate_llm_processing(llm_processing)?;
+        }
+        Ok(Configuration {
             chunk_processing: self.get_chunk_processing(),
             expires_in: self.get_expires_in(),
             high_resolution: self.get_high_resolution(),
@@ -154,7 +194,9 @@ impl CreateForm {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
-        }
+            error_handling: self.error_handling.clone().unwrap_or_default(),
+            llm_processing: self.llm_processing.clone().unwrap_or_default(),
+        })
     }
 }
 
@@ -162,7 +204,7 @@ impl CreateForm {
 pub struct UpdateForm {
     pub chunk_processing: Option<ChunkProcessing>,
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     pub high_resolution: Option<bool>,
@@ -173,6 +215,8 @@ pub struct UpdateForm {
     pub pipeline: Option<PipelineType>,
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
+    pub error_handling: Option<ErrorHandlingStrategy>,
+    pub llm_processing: Option<LlmProcessing>,
 }
 
 impl UpdateForm {
@@ -219,8 +263,22 @@ impl UpdateForm {
         }
     }
 
-    pub fn to_configuration(&self, current_config: &Configuration) -> Configuration {
-        Configuration {
+    pub fn to_configuration(
+        &self,
+        current_config: &Configuration,
+    ) -> Result<Configuration, String> {
+        let llm_config = llm_config::Config::from_env().unwrap();
+        let llm_processing = self
+            .llm_processing
+            .clone()
+            .unwrap_or_else(|| current_config.llm_processing.clone());
+        match llm_config.validate_llm_processing(&llm_processing) {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(format!("The LLM processing configuration is probably outdated. Please update the configuration: {}", e));
+            }
+        }
+        Ok(Configuration {
             chunk_processing: self
                 .chunk_processing
                 .clone()
@@ -244,6 +302,11 @@ impl UpdateForm {
                 .clone()
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
-        }
+            error_handling: self
+                .error_handling
+                .clone()
+                .unwrap_or_else(|| current_config.error_handling.clone()),
+            llm_processing,
+        })
     }
 }

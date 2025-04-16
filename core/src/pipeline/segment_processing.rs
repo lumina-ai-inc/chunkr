@@ -5,6 +5,7 @@ use crate::models::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
 };
 use crate::models::task::{Configuration, Status};
+use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
@@ -26,10 +27,46 @@ trait ContentGenerator {
     }
     fn generate_auto(&self, content: &str) -> String;
     fn template_key(&self) -> &'static str;
-    fn process_llm_result(&self, content: &str) -> String {
-        content.to_string()
-    }
     fn segment_type(&self) -> SegmentType;
+    async fn process_llm(
+        &self,
+        segment_id: &str,
+        image_folder_location: &str,
+        segment_image: Arc<NamedTempFile>,
+        llm_fallback_content: Option<String>,
+        configuration: &Configuration,
+    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        let mut values = HashMap::new();
+        let file_url = get_file_url(
+            &segment_image,
+            &format!("{}/{}.jpg", image_folder_location, segment_id),
+        )
+        .await?;
+        values.insert("image_url".to_string(), file_url);
+        let messages = create_messages_from_template(self.template_key(), &values)?;
+
+        let fence_type = match (self.template_key(), self.segment_type()) {
+            (_, SegmentType::Formula) => Some("latex"),
+            (key, _) if key.starts_with("md_") => Some("markdown"),
+            _ => Some("html"),
+        };
+
+        llm::try_extract_from_llm(
+            messages,
+            fence_type,
+            llm_fallback_content,
+            configuration.llm_processing.clone(),
+        )
+        .await
+    }
+    async fn generate_llm(
+        &self,
+        segment_id: &str,
+        image_folder_location: &str,
+        segment_image: Arc<NamedTempFile>,
+        llm_fallback_content: Option<String>,
+        configuration: &Configuration,
+    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
 }
 
 struct HtmlGenerator {
@@ -83,10 +120,28 @@ impl ContentGenerator for HtmlGenerator {
         self.segment_type.clone()
     }
 
-    fn process_llm_result(&self, content: &str) -> String {
-        match self.segment_type {
-            SegmentType::Formula => format!("<span class=\"formula\">{}</span>", content),
-            _ => content.to_string(),
+    async fn generate_llm(
+        &self,
+        segment_id: &str,
+        image_folder_location: &str,
+        segment_image: Arc<NamedTempFile>,
+        llm_fallback_content: Option<String>,
+        configuration: &Configuration,
+    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        let content = self
+            .process_llm(
+                segment_id,
+                image_folder_location,
+                segment_image,
+                llm_fallback_content,
+                configuration,
+            )
+            .await?;
+
+        if self.segment_type() == SegmentType::Formula {
+            Ok(format!("<span class=\"formula\">{}</span>", content))
+        } else {
+            Ok(content)
         }
     }
 }
@@ -143,10 +198,28 @@ impl ContentGenerator for MarkdownGenerator {
         self.segment_type.clone()
     }
 
-    fn process_llm_result(&self, content: &str) -> String {
-        match self.segment_type {
-            SegmentType::Formula => format!("${}$", content),
-            _ => content.to_string(),
+    async fn generate_llm(
+        &self,
+        segment_id: &str,
+        image_folder_location: &str,
+        segment_image: Arc<NamedTempFile>,
+        llm_fallback_content: Option<String>,
+        configuration: &Configuration,
+    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        let content = self
+            .process_llm(
+                segment_id,
+                image_folder_location,
+                segment_image,
+                llm_fallback_content,
+                configuration,
+            )
+            .await?;
+
+        if self.segment_type() == SegmentType::Formula {
+            Ok(format!("${content}$"))
+        } else {
+            Ok(content)
         }
     }
 }
@@ -169,7 +242,7 @@ fn convert_checkboxes_markdown(content: &str) -> String {
         .replace(":unselected:", "[ ]")
 }
 
-async fn generate_content<T: ContentGenerator>(
+async fn apply_generation_strategy<T: ContentGenerator>(
     segment_id: &str,
     image_folder_location: &str,
     generator: &T,
@@ -178,6 +251,7 @@ async fn generate_content<T: ContentGenerator>(
     generation_strategy: &GenerationStrategy,
     override_auto: String,
     llm_fallback_content: Option<String>,
+    configuration: &Configuration,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if !override_auto.is_empty() && generation_strategy == &GenerationStrategy::Auto {
         return Ok(override_auto);
@@ -188,30 +262,15 @@ async fn generate_content<T: ContentGenerator>(
     }
 
     match generation_strategy {
-        GenerationStrategy::LLM => {
-            let mut values = HashMap::new();
-            let file_url = get_file_url(
-                segment_image.as_ref().unwrap(),
-                &format!("{}/{}.jpg", image_folder_location, segment_id),
+        GenerationStrategy::LLM => Ok(generator
+            .generate_llm(
+                segment_id,
+                image_folder_location,
+                segment_image.unwrap(),
+                llm_fallback_content,
+                configuration,
             )
-            .await?;
-            values.insert("image_url".to_string(), file_url);
-            let messages = create_messages_from_template(generator.template_key(), &values)?;
-            let result = match (generator.template_key(), generator.segment_type()) {
-                (_, SegmentType::Formula) => {
-                    llm::try_extract_from_llm(messages, Some("latex"), llm_fallback_content).await?
-                }
-                (key, _) if key.starts_with("md_") => {
-                    llm::try_extract_from_llm(messages, Some("markdown"), llm_fallback_content)
-                        .await?
-                }
-                _ => {
-                    llm::try_extract_from_llm(messages, Some("html"), llm_fallback_content).await?
-                }
-            };
-
-            Ok(generator.process_llm_result(&result))
-        }
+            .await?),
         GenerationStrategy::Auto => Ok(generator.generate_auto(auto_content)),
     }
 }
@@ -222,12 +281,13 @@ async fn generate_html(
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
     image_folder_location: &str,
+    configuration: &Configuration,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator {
         segment_type: segment.segment_type.clone(),
     };
     Ok(html::clean_img_tags(
-        &generate_content(
+        &apply_generation_strategy(
             &segment.segment_id,
             image_folder_location,
             &generator,
@@ -236,6 +296,7 @@ async fn generate_html(
             generation_strategy,
             segment.html.clone(),
             fallback_content,
+            configuration,
         )
         .await?,
     ))
@@ -247,12 +308,13 @@ async fn generate_markdown(
     generation_strategy: &GenerationStrategy,
     fallback_content: Option<String>,
     image_folder_location: &str,
+    configuration: &Configuration,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator {
         segment_type: segment.segment_type.clone(),
     };
     Ok(markdown::clean_img_tags(
-        &generate_content(
+        &apply_generation_strategy(
             &segment.segment_id,
             image_folder_location,
             &generator,
@@ -261,6 +323,7 @@ async fn generate_markdown(
             generation_strategy,
             segment.markdown.clone(),
             fallback_content,
+            configuration,
         )
         .await?,
     ))
@@ -272,6 +335,7 @@ async fn generate_llm(
     llm_prompt: Option<String>,
     llm_fallback_content: Option<String>,
     image_folder_location: &str,
+    configuration: &Configuration,
 ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
     if llm_prompt.is_none() || segment_image.is_none() {
         return Ok(None);
@@ -288,7 +352,13 @@ async fn generate_llm(
     values.insert("image_url".to_string(), file_url);
 
     let messages = create_messages_from_template("llm_segment", &values)?;
-    let result = llm::try_extract_from_llm(messages, None, llm_fallback_content).await?;
+    let result = llm::try_extract_from_llm(
+        messages,
+        None,
+        llm_fallback_content,
+        configuration.llm_processing.clone(),
+    )
+    .await?;
 
     Ok(Some(result))
 }
@@ -355,29 +425,74 @@ async fn process_segment(
         _ => (None, None, None),
     };
 
-    let (html, markdown, llm) = futures::try_join!(
-        generate_html(
-            segment,
-            segment_image.clone(),
-            html_strategy,
-            fallback_html,
-            image_folder_location,
-        ),
-        generate_markdown(
-            segment,
-            segment_image.clone(),
-            markdown_strategy,
-            fallback_markdown,
-            image_folder_location,
-        ),
-        generate_llm(
-            segment,
-            segment_image.clone(),
-            llm_prompt.clone(),
-            fallback_llm,
-            image_folder_location,
-        )
-    )?;
+    // Process HTML with error handling
+    let html = match generate_html(
+        segment,
+        segment_image.clone(),
+        html_strategy,
+        fallback_html,
+        image_folder_location,
+        configuration,
+    )
+    .await
+    {
+        Ok(content) => content,
+        Err(e) => {
+            if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                let html_generator = HtmlGenerator {
+                    segment_type: segment.segment_type.clone(),
+                };
+                html_generator.generate_auto(&segment.content)
+            } else {
+                return Err(e);
+            }
+        }
+    };
+
+    // Process Markdown with error handling
+    let markdown = match generate_markdown(
+        segment,
+        segment_image.clone(),
+        markdown_strategy,
+        fallback_markdown,
+        image_folder_location,
+        configuration,
+    )
+    .await
+    {
+        Ok(content) => content,
+        Err(e) => {
+            if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                let markdown_generator = MarkdownGenerator {
+                    segment_type: segment.segment_type.clone(),
+                };
+                markdown_generator.generate_auto(&segment.content)
+            } else {
+                return Err(e);
+            }
+        }
+    };
+
+    // Process LLM with error handling
+    let llm = match generate_llm(
+        segment,
+        segment_image.clone(),
+        llm_prompt.clone(),
+        fallback_llm,
+        image_folder_location,
+        configuration,
+    )
+    .await
+    {
+        Ok(content) => content,
+        Err(e) => {
+            if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                None
+            } else {
+                return Err(e);
+            }
+        }
+    };
 
     segment.content = convert_checkboxes(&segment.content);
     segment.html = convert_checkboxes_html(&html);

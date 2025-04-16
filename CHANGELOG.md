@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.10.0...v1.11.0) (2025-04-15)
+
+
+### Features
+
+* Allow users to choose an LLM model to use for `segment_processing` by setting the `llm_processing.model_id` param in the POST and PATCH request. The available models can be configured using the `models.yaml` file. ([#437](https://github.com/lumina-ai-inc/chunkr/issues/437)) ([ea526c4](https://github.com/lumina-ai-inc/chunkr/commit/ea526c4c48692ae5d8a9ba00b70008ce238a4c14))
+* Https support for docker compose using nginx ([#434](https://github.com/lumina-ai-inc/chunkr/issues/434)) ([868096c](https://github.com/lumina-ai-inc/chunkr/commit/868096c8adbb051243e433b2b1c7f440ac1b5997))
+
+## [1.10.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.9.0...v1.10.0) (2025-04-06)
+
+
+### Features
+
+* Added configuration for `error_handling` which allows you to choose between `Fail` or `Continue` on non-critical errors ([0baca0a](https://github.com/lumina-ai-inc/chunkr/commit/0baca0a519b44d139f64d02bec754f259ed329de))
+
+
+### Bug Fixes
+
+* Default trait added to chunk processing ([20c6f15](https://github.com/lumina-ai-inc/chunkr/commit/20c6f15bf5ef1a538413147103313e65e1223e47))
+
 ## [1.9.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.8.2...v1.9.0) (2025-03-28)
 
 

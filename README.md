@@ -35,12 +35,12 @@
 - [Documentation](#documentation)
 - [Self-Hosted Deployment Options](#self-hosted-deployment-options)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+    - [HTTPS Setup for Docker Compose](#https-setup-for-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [LLM Configuration](#llm-configuration)
-  - [OpenAI Configuration](#openai-configuration)
-  - [Google AI Studio Configuration](#google-ai-studio-configuration)
-  - [OpenRouter Configuration](#openrouter-configuration)
-  - [Self-Hosted Configuration](#self-hosted-configuration)
+  - [Using models.yaml (Recommended)](#using-modelsyaml-recommended)
+  - [Using environment variables (Basic)](#using-environment-variables-basic)
+  - [Common LLM API Providers](#common-llm-api-providers)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
@@ -49,29 +49,29 @@
 1. Go to [chunkr.ai](https://www.chunkr.ai) 
 2. Make an account and copy your API key
 3. Install our Python SDK:
-   ```bash
-   pip install chunkr-ai
-   ```
+```bash
+pip install chunkr-ai
+```
 4. Use the SDK to process your documents:
-   ```python
-   from chunkr_ai import Chunkr
+```python
+from chunkr_ai import Chunkr
 
-   # Initialize with your API key from chunkr.ai
-   chunkr = Chunkr(api_key="your_api_key")
+# Initialize with your API key from chunkr.ai
+chunkr = Chunkr(api_key="your_api_key")
 
-   # Upload a document (URL or local file path)
-   url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
-   task = chunkr.upload(url)
+# Upload a document (URL or local file path)
+url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
+task = chunkr.upload(url)
 
-   # Export results in various formats
-   task.html(output_file="output.html")
-   task.markdown(output_file="output.md")
-   task.content(output_file="output.txt")
-   task.json(output_file="output.json")
+# Export results in various formats
+html = task.html(output_file="output.html")
+markdown = task.markdown(output_file="output.md")
+content = task.content(output_file="output.txt")
+task.json(output_file="output.json")
 
-   # Clean up
-   chunkr.close()
-   ```
+# Clean up
+chunkr.close()
+```
 
 ## Documentation
 
@@ -96,28 +96,76 @@ cd chunkr
 # Copy the example environment file
 cp .env.example .env
 
-# Configure your environment variables
-# Required: LLM_KEY as your OpenAI API key
+# Configure your llm models
+cp models.example.yaml models.yaml
 ```
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
 4. Start the services:
-   
-With GPU:
 ```bash
+# For GPU deployment, use the following command:
 docker compose up -d
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml up -d
 ```
-1. Access the services:
+
+5. Access the services:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
-> **Important**: 
-> - Requires an NVIDIA CUDA GPU
-> - CPU-only deployment via `compose-cpu.yaml` is currently in development and not recommended for use
-
 6. Stop the services when done:
 ```bash
+# For GPU deployment, use the following command:
 docker compose down
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml down
+```
+
+#### HTTPS Setup for Docker Compose
+
+This section explains how to set up HTTPS using a self signed certificate with Docker Compose when hosting Chunkr on a VM. This allows you to access the web UI, API, Keycloak (authentication service) and MinIO (object storage service) over HTTPS.
+
+1. Generate a self-signed certificate:
+```bash
+# Create a certs directory
+mkdir certs
+
+# Generate the certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out certs/nginx.crt -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
+
+2. Update the .env file with your VM's IP address:
+> **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
+```bash
+AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
+VITE_API_URL=https://your_vm_ip_address:8444
+VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=https://your_vm_ip_address
+VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
+VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
+```
+
+1. Start the services:
+```bash
+# For GPU deployment, use the following command:
+docker compose --profile proxy up -d
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml --profile proxy up -d
+```
+
+4. Access the services:
+   - Web UI: `https://your_vm_ip_address`
+   - API: `https://your_vm_ip_address:8444`
+
+5. Stop the services when done:
+```bash
+# For GPU deployment, use the following command:
+docker compose --profile proxy down
+
+# For CPU deployment, use the following command:
+docker compose -f compose-cpu.yaml --profile proxy down
 ```
 
 ### Deployment with Kubernetes
@@ -130,6 +178,41 @@ For enterprise support and deployment assistance, [contact us](mailto:mehul@chun
 
 ## LLM Configuration
 
+Chunkr supports two ways to configure LLMs:
+
+1. **models.yaml file**: Advanced configuration for multiple LLMs with additional options
+2. **Environment variables**: Simple configuration for a single LLM
+
+### Using models.yaml (Recommended)
+
+For more flexible configuration with multiple models, default/fallback options, and rate limits:
+
+1. Copy the example file to create your configuration:
+```bash
+cp models.example.yaml models.yaml
+```
+
+2. Edit the models.yaml file with your configuration. Example:
+```yaml
+models:
+  - id: gpt-4o
+    model: gpt-4o
+    provider_url: https://api.openai.com/v1/chat/completions
+    api_key: "your_openai_api_key_here"
+    default: true
+    rate-limit: 200 # requests per minute - optional
+```
+
+Benefits of using models.yaml:
+- Configure multiple LLM providers simultaneously
+- Set default and fallback models
+- Add distributed rate limits per model
+- Reference models by ID in API requests (see docs for more info)
+
+>Read the `models.example.yaml` file for more information on the available options.
+
+### Using environment variables (Basic)
+
 You can use any OpenAI API compatible endpoint by setting the following variables in your .env file:
 ``` 
 LLM__KEY:
@@ -137,43 +220,16 @@ LLM__MODEL:
 LLM__URL:
 ```
 
-### OpenAI Configuration
+### Common LLM API Providers
 
-```
-LLM__KEY=your_openai_api_key
-LLM__MODEL=gpt-4o
-LLM__URL=https://api.openai.com/v1/chat/completions
-```
+Below is a table of common LLM providers and their configuration details to get you started:
 
-### Google AI Studio Configuration
-
-For getting a Google AI Studio API key, see [here](https://ai.google.dev/gemini-api/docs/openai).
-
-```
-LLM__KEY=your_google_ai_studio_api_key
-LLM__MODEL=gemini-2.0-flash-lite
-LLM__URL=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
-```
-
-### OpenRouter Configuration
-
-Check [here](https://openrouter.ai/models) for available models.
-
-```
-LLM__KEY=your_openrouter_api_key
-LLM__MODEL=google/gemini-pro-1.5
-LLM__URL=https://openrouter.ai/api/v1/chat/completions
-```
-
-### Self-Hosted Configuration
-
-You can use any OpenAI API compatible endpoint. To host your own LLM you can use [VLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html) or [Ollama](https://ollama.com/blog/openai-compatibility).
-
-```
-LLM__KEY=your_api_key
-LLM__MODEL=model_name
-LLM__URL=http://localhost:8000/v1
-```
+| Provider         | API URL                                                                  | Documentation                                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenAI           | https://api.openai.com/v1/chat/completions                               | [OpenAI Docs](https://platform.openai.com/docs)                                                                                        |
+| Google AI Studio | https://generativelanguage.googleapis.com/v1beta/openai/chat/completions | [Google AI Docs](https://ai.google.dev/gemini-api/docs/openai)                                                                         |
+| OpenRouter       | https://openrouter.ai/api/v1/chat/completions                            | [OpenRouter Models](https://openrouter.ai/models)                                                                                      |
+| Self-Hosted      | http://localhost:8000/v1                                                 | [VLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html) or [Ollama](https://ollama.com/blog/openai-compatibility) |
 
 ## Licensing
 

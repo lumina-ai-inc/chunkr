@@ -26,7 +26,7 @@
   "oauth2DeviceCodeLifespan": 600,
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
-  "sslRequired": "external",
+  "sslRequired": "none",
   "registrationAllowed": true,
   "registrationEmailAsUsername": false,
   "rememberMe": true,
@@ -306,14 +306,10 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:5173/*",
-        "https://www.chunkr.ai/*",
-        "https://chunkr.ai/*"
+        "*"
       ],
       "webOrigins": [
-        "https://chunkr.ai",
-        "https://www.chunkr.ai",
-        "http://localhost:5173"
+        "*"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -327,7 +323,7 @@
       "protocol": "openid-connect",
       "attributes": {
         "client.introspection.response.allow.jwt.claim.enabled": "false",
-        "post.logout.redirect.uris": "http://localhost:5173/*##https://chunkr.ai/*##https://www.chunkr.ai/*",
+        "post.logout.redirect.uris": "*",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",

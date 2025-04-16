@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 from typing import Any, List, Optional, Union
-from pydantic import field_validator
+from pydantic import field_validator, field_serializer
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -65,11 +65,7 @@ class TokenizerType(BaseModel):
             return f"string:{self.string_value}"
         return ""
     
-    model_config = ConfigDict(
-        json_encoders={
-            'TokenizerType': lambda v: v.model_dump()
-        }
-    )
+    model_config = ConfigDict()
     
     def model_dump(self, **kwargs):
         if self.enum_value is not None:
@@ -85,10 +81,13 @@ class ChunkProcessing(BaseModel):
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
-        json_encoders={
-            TokenizerType: lambda v: v.model_dump()
-        }
     )
+    
+    @field_serializer('tokenizer')
+    def serialize_tokenizer(self, tokenizer: Optional[TokenizerType], _info):
+        if tokenizer is None:
+            return None
+        return tokenizer.model_dump()
 
     @field_validator('tokenizer', mode='before')
     def validate_tokenizer(cls, v):
@@ -125,6 +124,99 @@ class OcrStrategy(str, Enum):
 class SegmentationStrategy(str, Enum):
     LAYOUT_ANALYSIS = "LayoutAnalysis"
     PAGE = "Page"
+
+class ErrorHandlingStrategy(str, Enum):
+    FAIL = "Fail"
+    CONTINUE = "Continue"
+
+class FallbackStrategy(BaseModel):
+    type: str
+    model_id: Optional[str] = None
+    
+    @classmethod
+    def none(cls) -> "FallbackStrategy":
+        return cls(type="None")
+    
+    @classmethod
+    def default(cls) -> "FallbackStrategy":
+        return cls(type="Default")
+    
+    @classmethod
+    def model(cls, model_id: str) -> "FallbackStrategy":
+        return cls(type="Model", model_id=model_id)
+    
+    def __str__(self) -> str:
+        if self.type == "Model":
+            return f"Model({self.model_id})"
+        return self.type
+    
+    def model_dump(self, **kwargs):
+        if self.type == "Model":
+            return {"Model": self.model_id}
+        return self.type
+    
+    @field_validator('type')
+    def validate_type(cls, v):
+        if v not in ["None", "Default", "Model"]:
+            raise ValueError(f"Invalid fallback strategy: {v}")
+        return v
+    
+    model_config = ConfigDict()
+    
+    @classmethod
+    def model_validate(cls, obj):
+        # Handle string values like "None" or "Default"
+        if isinstance(obj, str):
+            if obj in ["None", "Default"]:
+                return cls(type=obj)
+            # Try to parse as Enum value if it's not a direct match
+            try:
+                return cls(type=obj)
+            except ValueError:
+                pass  # Let it fall through to normal validation
+                
+        # Handle dictionary format like {"Model": "model-id"}
+        elif isinstance(obj, dict) and len(obj) == 1:
+            if "Model" in obj:
+                return cls(type="Model", model_id=obj["Model"])
+        
+        # Fall back to normal validation
+        return super().model_validate(obj)
+
+class LlmProcessing(BaseModel):
+    model_id: Optional[str] = None
+    fallback_strategy: FallbackStrategy = Field(default_factory=FallbackStrategy.default)
+    max_completion_tokens: Optional[int] = None
+    temperature: float = 0.0
+    
+    model_config = ConfigDict()
+    
+    @field_serializer('fallback_strategy')
+    def serialize_fallback_strategy(self, fallback_strategy: FallbackStrategy, _info):
+        return fallback_strategy.model_dump()
+
+    @field_validator('fallback_strategy', mode='before')
+    def validate_fallback_strategy(cls, v):
+        if isinstance(v, str):
+            if v == "None":
+                return FallbackStrategy.none()
+            elif v == "Default":
+                return FallbackStrategy.default()
+            # Try to parse as a model ID if it's not None or Default
+            try:
+                return FallbackStrategy.model(v)
+            except ValueError:
+                pass  # Let it fall through to normal validation
+        # Handle dictionary format like {"Model": "model-id"}
+        elif isinstance(v, dict) and len(v) == 1:
+            if "Model" in v:
+                return FallbackStrategy.model(v["Model"])
+            elif "None" in v or v.get("None") is None:
+                return FallbackStrategy.none()
+            elif "Default" in v or v.get("Default") is None:
+                return FallbackStrategy.default()
+                
+        return v
 
 class BoundingBox(BaseModel):
     left: float
@@ -189,11 +281,13 @@ class Pipeline(str, Enum):
 class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = None
     expires_in: Optional[int] = None
+    error_handling: Optional[ErrorHandlingStrategy] = None
     high_resolution: Optional[bool] = None
     ocr_strategy: Optional[OcrStrategy] = None
     segment_processing: Optional[SegmentProcessing] = None
     segmentation_strategy: Optional[SegmentationStrategy] = None
     pipeline: Optional[Pipeline] = None
+    llm_processing: Optional[LlmProcessing] = None
     
 class OutputConfiguration(Configuration):
     input_file_url: Optional[str] = None

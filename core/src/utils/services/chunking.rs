@@ -133,9 +133,10 @@ pub fn hierarchical_chunking(
 mod tests {
     use super::*;
     use crate::models::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
+    use crate::models::llm::LlmProcessing;
     use crate::models::output::{BoundingBox, Segment, SegmentType};
     use crate::models::segment_processing::{EmbedSource, SegmentProcessing};
-    use crate::models::upload::{OcrStrategy, SegmentationStrategy};
+    use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 
     fn create_segment(content: &str, segment_type: SegmentType) -> Segment {
         Segment {
@@ -171,6 +172,8 @@ mod tests {
             segment_processing: SegmentProcessing::default(),
             segmentation_strategy: SegmentationStrategy::LayoutAnalysis,
             target_chunk_length: None,
+            error_handling: ErrorHandlingStrategy::default(),
+            llm_processing: LlmProcessing::default(),
         };
 
         config

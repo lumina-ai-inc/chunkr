@@ -1,10 +1,11 @@
 use crate::configs::worker_config;
 use crate::models::chunk_processing::ChunkProcessing;
+use crate::models::llm::LlmProcessing;
 use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
 use crate::models::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
-use crate::models::upload::{OcrStrategy, SegmentationStrategy};
+use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
 use crate::utils::storage::services::delete_folder;
@@ -730,7 +731,6 @@ pub enum PipelineType {
 }
 
 #[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
-/// The configuration used for the task.
 pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
     #[serde(alias = "expires_at")]
@@ -757,6 +757,8 @@ pub struct Configuration {
     #[cfg(feature = "azure")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<PipelineType>,
+    pub error_handling: ErrorHandlingStrategy,
+    pub llm_processing: LlmProcessing,
 }
 
 impl<'de> Deserialize<'de> for Configuration {
@@ -784,6 +786,10 @@ impl<'de> Deserialize<'de> for Configuration {
             target_chunk_length: Option<u32>,
             #[cfg(feature = "azure")]
             pipeline: Option<PipelineType>,
+            #[serde(default)]
+            error_handling: Option<ErrorHandlingStrategy>,
+            #[serde(default)]
+            llm_processing: Option<LlmProcessing>,
         }
 
         let helper = Helper::deserialize(deserializer)?;
@@ -816,6 +822,8 @@ impl<'de> Deserialize<'de> for Configuration {
             target_chunk_length: helper.target_chunk_length,
             #[cfg(feature = "azure")]
             pipeline: helper.pipeline,
+            error_handling: helper.error_handling.unwrap_or_default(),
+            llm_processing: helper.llm_processing.unwrap_or_default(),
         })
     }
 }

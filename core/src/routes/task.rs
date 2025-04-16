@@ -95,7 +95,10 @@ pub async fn create_task_route(
     payload: web::Json<upload::CreateForm>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let configuration = payload.to_configuration();
+    let configuration = match payload.to_configuration() {
+        Ok(config) => config,
+        Err(e) => return Ok(HttpResponse::BadRequest().body(e)),
+    };
 
     let (base64_data, filename) = match get_base64(payload.file.clone()).await {
         Ok(file) => file,
@@ -184,7 +187,10 @@ pub async fn update_task_route(
         Ok(task) => task,
         Err(_) => return Err(actix_web::error::ErrorNotFound("Task not found")),
     };
-    let configuration = payload.to_configuration(&previous_task.configuration);
+    let configuration = match payload.to_configuration(&previous_task.configuration) {
+        Ok(config) => config,
+        Err(e) => return Ok(HttpResponse::BadRequest().body(e)),
+    };
     let result = update_task(&previous_task, &configuration).await;
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),

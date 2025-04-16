@@ -162,3 +162,5 @@ crash.*.log
 uv.lock
 output_structured_extraction
 request.sh
+certs
+models.yaml
