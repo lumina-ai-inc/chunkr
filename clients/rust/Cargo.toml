@@ -1,16 +1,15 @@
 [package]
 name = "chunkr-ai"
-version = "0.1.0"
+version = "1.0.0"
+authors = ["ishaan@lumina.sh"]
+description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data."
+license = ""
 edition = "2021"
-description = "Rust client for the Chunkr API"
 
 [dependencies]
-futures = "0.3"
-progenitor = { git = "https://github.com/oxidecomputer/progenitor" }
-reqwest = { version = "0.12", features = ["json", "stream"] }
-serde = { version = "1.0", features = ["derive"] }
-chrono = { version = "0.4", features = ["serde"] }
-
-[[example]]
-name = "basic_usage"
-path = "examples/basic_usage.rs" 
+serde = { version = "^1.0", features = ["derive"] }
+serde_with = { version = "^3.8", default-features = false, features = ["base64", "std", "macros"] }
+serde_json = "^1.0"
+serde_repr = "^0.1"
+url = "^2.5"
+reqwest = { version = "^0.12", default-features = false, features = ["json", "multipart"] }

@@ -1,17 +1,3 @@
-# Rust build artifacts
 /target/
+**/*.rs.bk
 Cargo.lock
-
-# Generated documentation
-/doc/
-
-# IDE files
-.idea/
-.vscode/
-*.iml
-*.swp
-*.swo
-
-# OS specific files
-.DS_Store
-Thumbs.db
