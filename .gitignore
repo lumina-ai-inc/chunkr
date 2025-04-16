@@ -184,3 +184,5 @@ training_runs
 outputs 
 lora_model
 model_cache
+deepspeed_configs
+configs

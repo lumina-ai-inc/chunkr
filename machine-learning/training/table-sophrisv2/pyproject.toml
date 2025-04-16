@@ -1,0 +1,21 @@
+[project]
+name = "table-sophris"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "bitsandbytes>=0.45.5",
+    "boto3>=1.37.34",
+    "pydantic>=2.11.3",
+    "python-dotenv>=1.1.0",
+    "torch==2.5.1",
+    "unsloth>=2025.2.4",
+    "vllm==0.7.2",
+    "setuptools",
+    "levenshtein>=0.27.1",
+    "numpy>=1.26.4",
+    "pandas>=2.2.3",
+    "matplotlib>=3.10.1",
+    "seaborn>=0.13.2",
+]
