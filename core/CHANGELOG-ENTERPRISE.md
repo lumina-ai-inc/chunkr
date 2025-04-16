@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.8.0-enterprise...chunkr-core-enterprise-v1.9.0-enterprise) (2025-04-16)
+
+
+### Features
+
+* Allow users to choose an LLM model to use for `segment_processing` by setting the `llm_processing.model_id` param in the POST and PATCH request. The available models can be configured using the `models.yaml` file. ([#437](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/437)) ([ea526c4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ea526c4c48692ae5d8a9ba00b70008ce238a4c14))
+
 ## [1.8.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.7.0-enterprise...chunkr-core-enterprise-v1.8.0-enterprise) (2025-04-07)
 
 
