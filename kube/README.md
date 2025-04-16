@@ -1,11 +1,32 @@
 # Chunkr Kubernetes
 
+## Table of Contents
+- [Chunkr Kubernetes](#chunkr-kubernetes)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+    - [GPU Setup](#gpu-setup)
+      - [For GKE Users](#for-gke-users)
+      - [For Other Kubernetes Distributions](#for-other-kubernetes-distributions)
+    - [Cloudflare Tunnel (Recommended)](#cloudflare-tunnel-recommended)
+  - [Installation](#installation)
+    - [1. Create Namespace](#1-create-namespace)
+    - [2. Setup Secrets](#2-setup-secrets)
+    - [3. Setup `models.yaml`](#3-setup-modelsyaml)
+    - [4. Install with Helm](#4-install-with-helm)
+  - [Update](#update)
+  - [Uninstall](#uninstall)
+  - [External providers](#external-providers)
+    - [Storage Classes](#storage-classes)
+    - [S3 provider](#s3-provider)
+    - [Redis](#redis)
+    - [Postgres](#postgres)
+
 ## Prerequisites
 
 - [Helm](https://helm.sh/docs/intro/install/)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 
-### GPU Setup [Required]
+### GPU Setup
 
 #### For GKE Users
 No additional setup required - GKE automatically handles NVIDIA drivers and device plugins for GPU nodes.
@@ -34,51 +55,23 @@ kubectl patch clusterpolicy/cluster-policy \
   -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
 ```
 
-### Ingress Setup [Required]
-Choose ONE of the following ingress methods:
-
-#### Option 1: Cloudflare Tunnel [Recommended]
+### Cloudflare Tunnel (Recommended)
 This option uses Cloudflare Tunnels for both ingress and SSL termination. This is recommended for simpler setup and better security.
 
 Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/tutorials/many-cfd-one-tunnel/
-
-#### Option 2: NGINX Ingress Controller + Cloudflare SSL [In Development - Not Recommended]
-This option uses NGINX for ingress and Cloudflare for SSL termination.
-
-1. Install NGINX Ingress Controller:
-```bash
-# Check if NGINX ingress controller is already installed
-kubectl get pods -A | grep nginx-ingress
-# or
-kubectl get ingressclass
-
-# If not installed, you can install it using Helm:
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install nginx-ingress ingress-nginx/ingress-nginx
-```
-
-2. Set up Cloudflare SSL Certificate:
-   - Log in to Cloudflare Dashboard and navigate to your domain
-   - Go to SSL/TLS tab > Origin Server
-   - Click "Create Certificate"
-   - Choose "Let Cloudflare generate a private key and CSR"
-   - Add your domain and subdomains (e.g., example.com, *.example.com)
-   - Select RSA (2048) key type
-   - Download the certificate files as `origin.crt` and `origin.key`
-   - Create the TLS secret in Kubernetes:
-   ```bash
-   kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key
-   kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key -n chunkr
-   ```
 
 ## Installation
 
 > **Note:**
 > By default postgres, redis, and S3 use the filesystem. Optionally, you can use your own external providers. Click here to learn more about [external providers](#external-providers)
 
+### 1. Create Namespace
 
-### 1. Setup Secrets
+```bash
+kubectl create namespace chunkr
+```
+
+### 2. Setup Secrets
 
 Create and configure your secrets:
 ```bash
@@ -92,27 +85,27 @@ cp secrets/chunkr-secret.example.yaml secrets/local/chunkr-secret.yaml
 Edit and apply your secrets:
 ```bash
 # 1. Edit each secret file with your values
-vim secrets/local/chunkr-secret.yaml  # or use your preferred editor
+vim secrets/local/chunkr-secret.yaml  
 
-# 2. Create namespace and apply secrets
-kubectl create namespace chunkr
-
-# 3. Apply/update all secrets at once
+# 2. Apply secrets
 kubectl apply -f secrets/local/ -n chunkr
 ```
 
-### 2. Install with Helm
+### 3. Setup `models.yaml`
 
-Choose one of the following installation methods:
-
-**Basic Installation:**
+Configure your models:
 ```bash
-helm install chunkr ./charts/chunkr \
-  -f ./charts/chunkr/values.yaml \
-  -f ./charts/chunkr/infrastructure.yaml \
-  --namespace chunkr \
-  --create-namespace
+# Copy the example models.yaml
+cp ../models.yaml.example secrets/local/models.yaml
+
+# Edit the models.yaml file with your values
+vim secrets/local/models.yaml
+
+# Create the llm configmap
+kubectl create configmap llm-models-configmap --from-file=models.yaml=./secrets/local/models.yaml -n chunkr
 ```
+
+### 4. Install with Helm
 
 **Custom Domain Installation with Cloudflare Tunnel:**
 ```bash
@@ -128,41 +121,26 @@ helm install chunkr ./charts/chunkr \
   --set "services.minio.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
   --set cloudflared.enabled=true \
-  --set cloudflared.config.tunnelName=YOUR_TUNNEL_NAME
-```
-
-**Installation with TLS (Cloudflare):**
-```bash
-helm install chunkr ./charts/chunkr \
-  -f ./charts/chunkr/values.yaml \
-  -f ./charts/chunkr/infrastructure.yaml \
-  --namespace chunkr \
-  --create-namespace \
-  --set ingress.tls.enabled=true \
-  --set ingress.tls.secretName=tls-secret
+  --set cloudflared.config.tunnelName=YOUR_TUNNEL_NAME \
+  --set global.storageClass=standard
 ```
 
 ## Update
 
-To update the deployment, use one of the following methods:
-
-**Basic Update:**
 ```bash
-helm upgrade chunkr ./charts/chunkr \
-  -f ./charts/chunkr/values.yaml \
-  -f ./charts/chunkr/infrastructure.yaml \
-  --namespace chunkr
-```
-
-**Update with Configuration Changes:**
-```bash
-# Example: Update domain settings
 helm upgrade chunkr ./charts/chunkr \
   -f ./charts/chunkr/values.yaml \
   -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
-  --set ingress.domain=new-domain.com \
-  --set "services.web.ingress.subdomain=new-chunkr"
+  --set ingress.subdomains.root=false \
+  --set "services.web.ingress.subdomain=chunkr" \
+  --set "services.server.ingress.subdomain=chunkr-api" \
+  --set "services.keycloak.ingress.subdomain=chunkr-auth" \
+  --set "services.minio.ingress.subdomain=chunkr-s3" \
+  --set ingress.type=cloudflare \
+  --set cloudflared.enabled=true \
+  --set cloudflared.config.tunnelName=YOUR_TUNNEL_NAME \
+  --set global.storageClass=standard
 ```
 
 ## Uninstall
@@ -224,42 +202,39 @@ helm upgrade chunkr ./charts/chunkr \
   --set services.minio.enabled=false
 ```
 
-### Postgres
-
-```bash
-helm upgrade chunkr ./charts/chunkr \
-  -f ./charts/chunkr/values.yaml \
-  -f ./charts/chunkr/infrastructure.yaml \
-  --namespace chunkr \
-  --set services.postgres.enabled=false \
-  --set "common.standardEnv[4].name=PG__URL" \
-  --set "common.standardEnv[4].value=postgresql://user:password@your-external-postgres:5432/dbname"
-```
-
 ### Redis
 
+Redis is managed in the cluster by default. You must set the credentials for the external Redis instance in the chunkr-secret.yaml file.
+
 ```bash
+# Update the chunkr-secret.yaml file with the credentials for the external Redis instance
+REDIS__URL=
+
+# Disable Redis
 helm upgrade chunkr ./charts/chunkr \
   -f ./charts/chunkr/values.yaml \
   -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
   --set services.redis.enabled=false \
-  --set "common.standardEnv[6].name=REDIS__URL" \
-  --set "common.standardEnv[6].value=redis://your-external-redis:6379"
 ```
 
-## GPU Compatibility
 
-The embeddings service supports different GPU architectures through specific Docker images. By default, it uses the Ampere 80 architecture (A100, A30, etc) with image `ghcr.io/huggingface/text-embeddings-inference:1.5`.
+### Postgres
 
-For the most up-to-date information about supported GPU architectures and their corresponding image tags, please refer to [Text Embeddings Inference Supported Models Documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models#supported-hardware)
-
-Example upgrade with GPU-specific image tag:
+Postgres is disabled by default, a managed Postgres service is recommended. To enable it, run:
 
 ```bash
+# Enable Postgres
 helm upgrade chunkr ./charts/chunkr \
   -f ./charts/chunkr/values.yaml \
   -f ./charts/chunkr/infrastructure.yaml \
   --namespace chunkr \
-  --set services.embeddings.image.tag=turing-1.6  # Replace with your GPU-specific tag
+  --set services.postgres.enabled=true \
+  --set services.postgres.credentials.username={YOUR_USERNAME} \
+  --set services.postgres.credentials.password={YOUR_PASSWORD}
+```
+
+```bash
+# Update the chunkr-secret.yaml file with the credentials for the external Postgres instance
+PG__URL=
 ```
