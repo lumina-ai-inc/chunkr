@@ -5,6 +5,7 @@ use strum_macros::Display;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, PartialEq, Eq)]
+#[serde(tag = "type", content = "value")]
 /// Specifies the fallback strategy for LLM processing
 ///
 /// This can be:
@@ -80,6 +81,7 @@ pub struct LlmProcessing {
     pub model_id: Option<String>,
     /// The fallback strategy to use for the LLMs in the task.
     #[serde(default)]
+    #[schema(default = "Default")]
     pub fallback_strategy: FallbackStrategy,
     /// The maximum number of tokens to generate.
     pub max_completion_tokens: Option<u32>,

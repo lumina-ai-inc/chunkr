@@ -14,9 +14,8 @@ use serde::{Deserialize, Serialize};
 /// LlmProcessing : Controls the LLM used for the task.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LlmProcessing {
-    /// The fallback strategy to use for the LLMs in the task.
     #[serde(rename = "fallback_strategy", skip_serializing_if = "Option::is_none")]
-    pub fallback_strategy: Option<Box<models::FallbackStrategy>>,
+    pub fallback_strategy: Option<Box<models::LlmProcessingFallbackStrategy>>,
     /// The maximum number of tokens to generate.
     #[serde(rename = "max_completion_tokens", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub max_completion_tokens: Option<Option<i32>>,

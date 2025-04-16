@@ -11,31 +11,28 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// FallbackStrategyOneOf : No fallback will be used
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FallbackStrategyOneOf {
-    #[serde(rename = "type")]
-    pub r#type: Type,
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum LlmProcessingFallbackStrategy {
+    /// The fallback strategy to use for the LLMs in the task.
+    FallbackStrategy(Box<models::FallbackStrategy>),
 }
 
-impl FallbackStrategyOneOf {
-    /// No fallback will be used
-    pub fn new(r#type: Type) -> FallbackStrategyOneOf {
-        FallbackStrategyOneOf {
-            r#type,
-        }
+impl Default for LlmProcessingFallbackStrategy {
+    fn default() -> Self {
+        Self::FallbackStrategy(Default::default())
     }
 }
 /// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Type {
-    #[serde(rename = "None")]
-    None,
+    #[serde(rename = "Model")]
+    Model,
 }
 
 impl Default for Type {
     fn default() -> Type {
-        Self::None
+        Self::Model
     }
 }
 

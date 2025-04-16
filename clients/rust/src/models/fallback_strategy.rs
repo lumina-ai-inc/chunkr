@@ -16,16 +16,30 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FallbackStrategy {
-    /// No fallback will be used
-    String(String),
-    /// Use the system default fallback model
-    String(String),
     FallbackStrategyOneOf(Box<models::FallbackStrategyOneOf>),
+    FallbackStrategyOneOf1(Box<models::FallbackStrategyOneOf1>),
+    FallbackStrategyOneOf2(Box<models::FallbackStrategyOneOf2>),
 }
 
 impl Default for FallbackStrategy {
     fn default() -> Self {
-        Self::String(Default::default())
+        Self::FallbackStrategyOneOf(Default::default())
+    }
+}
+/// 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+pub enum Type {
+    #[serde(rename = "None")]
+    None,
+    #[serde(rename = "Default")]
+    Default,
+    #[serde(rename = "Model")]
+    Model,
+}
+
+impl Default for Type {
+    fn default() -> Type {
+        Self::None
     }
 }
 

@@ -3,6 +3,7 @@ name = "core"
 version = "1.7.0"
 edition = "2021"
 default-run = "core"
+license = "AGPL"
 
 [features]
 azure = []

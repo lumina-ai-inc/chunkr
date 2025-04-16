@@ -100,8 +100,6 @@ fn run_migrations(url: &str) {
             models::upload::SegmentationStrategy,
             models::upload::CreateForm,
             models::upload::UpdateForm,
-            models::upload_multipart::CreateFormMultipart,
-            models::upload_multipart::UpdateFormMultipart,
         )
     ),
     modifiers(&SecurityAddon),

@@ -11,17 +11,17 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// FallbackStrategyOneOf : No fallback will be used
+/// FallbackStrategyOneOf1 : Use the system default fallback model
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FallbackStrategyOneOf {
+pub struct FallbackStrategyOneOf1 {
     #[serde(rename = "type")]
     pub r#type: Type,
 }
 
-impl FallbackStrategyOneOf {
-    /// No fallback will be used
-    pub fn new(r#type: Type) -> FallbackStrategyOneOf {
-        FallbackStrategyOneOf {
+impl FallbackStrategyOneOf1 {
+    /// Use the system default fallback model
+    pub fn new(r#type: Type) -> FallbackStrategyOneOf1 {
+        FallbackStrategyOneOf1 {
             r#type,
         }
     }
@@ -29,13 +29,13 @@ impl FallbackStrategyOneOf {
 /// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Type {
-    #[serde(rename = "None")]
-    None,
+    #[serde(rename = "Default")]
+    Default,
 }
 
 impl Default for Type {
     fn default() -> Type {
-        Self::None
+        Self::Default
     }
 }
 
