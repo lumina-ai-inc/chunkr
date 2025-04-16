@@ -44,6 +44,8 @@ common:
         .Values.ingress.domain }}
     - name: AWS__REGION
       value: us-east-1
+    - name: LLM__MODELS_PATH
+      value: /app/models.yaml
     - name: PG__URL
       value: >-
         postgresql://{{ .Values.services.postgres.credentials.username }}:{{
@@ -120,6 +122,15 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
+    volumes:
+      - name: llm-models-config
+        configMap:
+          name: llm-models-configmap
+    volumeMounts:
+      - name: llm-models-config
+        mountPath: /app/models.yaml
+        subPath: models.yaml
+        readOnly: true
   task:
     enabled: true
     useStandardEnv: true
@@ -133,7 +144,16 @@ services:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
-        value: '3'
+        value: "3"
+    volumes:
+      - name: llm-models-config
+        configMap:
+          name: llm-models-configmap
+    volumeMounts:
+      - name: llm-models-config
+        mountPath: /app/models.yaml
+        subPath: models.yaml
+        readOnly: true
   web:
     enabled: true
     image:
@@ -152,7 +172,7 @@ services:
       - name: VITE_DOCS_URL
         value: https://docs.chunkr.ai
       - name: VITE_FEATURE_FLAG_PIPELINE
-        value: 'true'
+        value: "true"
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -187,7 +207,7 @@ services:
     enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
-        value: '100'
+        value: "100"
     labels:
       workload-type: chunkr-gpu
   segmentation:
@@ -258,7 +278,7 @@ services:
   cleanup-failed-pods:
     enabled: false
     type: cronjob
-    schedule: '*/15 * * * *'
+    schedule: "*/15 * * * *"
     image:
       registry: bitnami
       repository: kubectl
@@ -268,8 +288,8 @@ services:
     args:
       - delete
       - pods
-      - '--field-selector=status.phase=Failed'
-      - '-n'
+      - "--field-selector=status.phase=Failed"
+      - "-n"
       - chunkr
     serviceAccountName: default
     podSpec:
