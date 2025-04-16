@@ -52,7 +52,9 @@ export default function Auth({ children }: AuthProps) {
 
   // Silent sign-in logic
   useEffect(() => {
-    const attemptedSilentSignIn = sessionStorage.getItem("attemptedSilentSignIn");
+    const attemptedSilentSignIn = sessionStorage.getItem(
+      "attemptedSilentSignIn"
+    );
 
     if (
       !auth.isAuthenticated &&
@@ -65,7 +67,7 @@ export default function Auth({ children }: AuthProps) {
         console.log("Silent sign-in failed:", err);
       });
     }
-  }, [auth.isAuthenticated, auth.isLoading, auth.activeNavigator]);
+  }, [auth.isAuthenticated, auth.isLoading, auth.activeNavigator, auth]);
 
   return <>{children}</>;
 }
