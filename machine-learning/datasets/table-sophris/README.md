@@ -40,3 +40,7 @@ S3 BUCKET: chunkr-datasets
 - storage.py is in 2 places cause of dumb python exports
 - take dataset name and bucket name from env for both datasheet upload and data gen
 - add format data and training scripts - good to go for first run tmr lfg
+
+datasets:
+- tables-vlm-azure-distill-v1
+- sophris-datasheet-table-extraction-azure-distill-v1
