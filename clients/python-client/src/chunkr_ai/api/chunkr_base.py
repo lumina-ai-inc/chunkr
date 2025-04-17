@@ -18,17 +18,23 @@ class ChunkrBase(HeadersMixin):
         raise_on_failure: Whether to raise an exception if the task fails. Defaults to False.
     """
 
-    def __init__(self, url: str = None, api_key: str = None, raise_on_failure: bool = False):
+    url: str
+    _api_key: str
+    raise_on_failure: bool
+    _client: Optional[httpx.AsyncClient]
+
+    def __init__(self, url: Optional[str] = None, api_key: Optional[str] = None, raise_on_failure: bool = False):
         load_dotenv(override=True)
         self.url = url or os.getenv("CHUNKR_URL") or "https://api.chunkr.ai"
-        self._api_key = api_key or os.getenv("CHUNKR_API_KEY")
+        _api_key = api_key or os.getenv("CHUNKR_API_KEY")
         self.raise_on_failure = raise_on_failure
         
-        if not self._api_key:
+        if not _api_key:
             raise ValueError(
                 "API key must be provided either directly, in .env file, or as CHUNKR_API_KEY environment variable. You can get an api key at: https://www.chunkr.ai"
             )
 
+        self._api_key = _api_key
         self.url = self.url.rstrip("/")
         self._client = httpx.AsyncClient()
 
@@ -36,7 +42,7 @@ class ChunkrBase(HeadersMixin):
     def upload(
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
-        config: Configuration = None,
+        config: Optional[Configuration] = None,
         filename: Optional[str] = None,
     ) -> TaskResponse:
         """Upload a file and wait for processing to complete.
@@ -90,7 +96,7 @@ class ChunkrBase(HeadersMixin):
     def create_task(
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
-        config: Configuration = None,
+        config: Optional[Configuration] = None,
         filename: Optional[str] = None,
     ) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`.
@@ -127,7 +133,7 @@ class ChunkrBase(HeadersMixin):
 
     @abstractmethod
     def update_task(
-        self, task_id: str, config: Configuration
+        self, task_id: str, config: Optional[Configuration] = None
     ) -> TaskResponse:
         """Update a task by its ID and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`.
 
