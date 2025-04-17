@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TypeVar, Optional, Generic, cast, Awaitable, Union
+from typing import Optional, cast, Awaitable, Union
 from pydantic import BaseModel, PrivateAttr
 import asyncio
 import json
@@ -10,8 +10,6 @@ from .configuration import Configuration, OutputConfiguration, OutputResponse, S
 from .protocol import ChunkrClientProtocol
 from .misc import prepare_upload_data
 from .decorators import anywhere, require_task, retry_on_429
-
-T = TypeVar("T", bound="TaskResponse", default="TaskResponse")
 
 class TaskResponse(BaseModel):
     configuration: OutputConfiguration
@@ -28,20 +26,20 @@ class TaskResponse(BaseModel):
     _base64_urls: bool = False
     _client: Optional[ChunkrClientProtocol] = PrivateAttr(default=None)
 
-    def with_client(self, client: ChunkrClientProtocol, include_chunks: bool = False, base64_urls: bool = False) -> T:
+    def with_client(self, client: ChunkrClientProtocol, include_chunks: bool = False, base64_urls: bool = False) -> "TaskResponse":
         self._client = client
         self.include_chunks = include_chunks
         self._base64_urls = base64_urls
-        return cast(T, self)
+        return self
 
-    def _check_status(self) -> Optional[T]:
+    def _check_status(self) -> Optional["TaskResponse"]:
         """Helper method to check task status and handle completion/failure"""
         if self.status == "Failed":
             if getattr(self._client, 'raise_on_failure', True):
                 raise ValueError(self.message)
-            return cast(T, self)
+            return self
         if self.status not in ("Starting", "Processing"):
-            return cast(T, self)
+            return self
         return None
 
     @require_task()
@@ -69,7 +67,7 @@ class TaskResponse(BaseModel):
             raise e
 
     @anywhere()
-    async def poll(self) -> T:
+    async def poll(self) -> "TaskResponse":
         """Poll the task for completion."""
         while True:
             j = await self._poll_request()
@@ -78,13 +76,13 @@ class TaskResponse(BaseModel):
             updated = TaskResponse(**j).with_client(self._client)
             self.__dict__.update(updated.__dict__)
             if res := self._check_status():
-                return cast(T, res)
+                return res
             await asyncio.sleep(0.5)
 
     @anywhere()
     @require_task()
     @retry_on_429()
-    async def update(self, config: Configuration) -> T:
+    async def update(self, config: Configuration) -> "TaskResponse":
         """Update the task configuration."""
         data = await prepare_upload_data(None, None, config)
         if not self._client:
@@ -100,11 +98,11 @@ class TaskResponse(BaseModel):
         r.raise_for_status()
         updated = TaskResponse(**r.json()).with_client(self._client)
         self.__dict__.update(updated.__dict__)
-        return await cast(Awaitable[T], self.poll())
+        return cast(TaskResponse, self.poll())
 
     @anywhere()
     @require_task()
-    async def delete(self) -> T:
+    async def delete(self) -> "TaskResponse":
         """Delete the task."""
         if not self._client:
             raise ValueError("Chunkr client protocol is not initialized")
@@ -115,11 +113,11 @@ class TaskResponse(BaseModel):
             self.task_url, headers=self._client._headers()
         )
         r.raise_for_status()
-        return cast(T, self)
+        return self
 
     @anywhere()
     @require_task()
-    async def cancel(self) -> T:
+    async def cancel(self) -> "TaskResponse":
         """Cancel the task."""
         if not self._client:
             raise ValueError("Chunkr client protocol is not initialized")
@@ -130,7 +128,7 @@ class TaskResponse(BaseModel):
             f"{self.task_url}/cancel", headers=self._client._headers()
         )
         r.raise_for_status()
-        return await cast(Awaitable[T], self.poll())
+        return cast(TaskResponse, self.poll())
 
     def _write_to_file(self, content: Union[str, dict], output_file: Optional[str], is_json: bool = False) -> None:
         """Helper method to write content to a file
