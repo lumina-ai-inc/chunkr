@@ -7,8 +7,37 @@ BATCH_PER_DEVICE=4
 NUM_DEVICES=8
 GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
 
-export PYTHONPATH=src:$PYTHONPATH
+DATA_DIR="data/tables-vlm-azure-distill-v1"
+CONVERTED_DATA_DIR="data/llava-format"
+IMAGE_DIR="data/images"
+EVAL_OUTPUT_DIR="evaluation_results"
 
+# Step 1: Prepare Dataset
+echo "Preparing dataset..."
+python prepare_dataset.py \
+    --output_dir $DATA_DIR \
+    --data_limit 1000 \
+    --train_ratio 0.8 \
+    --val_ratio 0.1 \
+    --test_ratio 0.1
+
+# Construct the path where prepare_dataset actually saves the files
+# It creates a subdirectory named after the basename of DATA_DIR
+DATASET_BASENAME=$(basename "$DATA_DIR")
+PREPARED_DATA_DIR="$DATA_DIR/$DATASET_BASENAME"
+echo "Constructed prepared data path: $PREPARED_DATA_DIR"
+
+# Step 2: Convert Dataset
+echo "Converting dataset to LLaVA format..."
+python convert_dataset.py \
+    --input_dir "$PREPARED_DATA_DIR" \
+    --output_dir $CONVERTED_DATA_DIR \
+    --image_dir $IMAGE_DIR \
+    --create_tensorboard_dir
+
+# Step 3: Train Model with LoRA
+echo "Training model with LoRA..."
+export PYTHONPATH=src:$PYTHONPATH
 deepspeed src/training/train.py \
     --use_liger True \
     --lora_enable True \
@@ -25,7 +54,6 @@ deepspeed src/training/train.py \
     --remove_unused_columns False \
     --freeze_vision_tower False \
     --freeze_llm True \
-    --tune_merger True \
     --bf16 True \
     --fp16 False \
     --disable_flash_attn2 False \

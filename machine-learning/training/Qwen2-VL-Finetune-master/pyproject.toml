@@ -1,0 +1,29 @@
+[project]
+name = "qwen2-vl-finetune-master"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.37.34",
+    "datasets>=3.5.0",
+    "deepspeed>=0.16.6",
+    "flash-attn>=2.7.4.post1",
+    "gradio>=5.25.2",
+    "levenshtein>=0.27.1",
+    "liger-kernel>=0.5.8",
+    "matplotlib>=3.10.1",
+    "nltk>=3.9.1",
+    "numpy>=2.2.4",
+    "peft>=0.15.2",
+    "pillow>=11.2.1",
+    "python-dotenv>=1.1.0",
+    "qwen-vl-utils>=0.0.10",
+    "rouge-score>=0.1.2",
+    "tensorboard>=2.19.0",
+    "torch>=2.6.0",
+    "torchvision>=0.21.0",
+    "transformers>=4.51.3",
+    "trl>=0.16.1",
+    "ujson>=5.10.0",
+]

@@ -221,8 +221,8 @@ if __name__ == '__main__':
     dataset = loader.load_data(limit=10) # Load 10 samples
     print(dataset)
     if len(dataset) > 0:
-        print("\nFirst sample:")
-        print(dataset[0])
+        # print("\nFirst sample:")
+        # print(dataset[0])
         # Accessing the image requires handling the HF Dataset format
         try:
             first_image = dataset[0]['messages'][0]['content'][1]['image']

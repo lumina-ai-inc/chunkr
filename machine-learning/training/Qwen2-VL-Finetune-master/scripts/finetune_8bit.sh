@@ -21,7 +21,6 @@ deepspeed src/training/train.py \
     --image_folder /path/to/your/image/folder \
     --remove_unused_columns False \
     --lora_enable False \
-    --tune_merger True \
     --freeze_vision_tower False \
     --freeze_llm False \
     --bf16 True \

@@ -2,11 +2,11 @@ import os
 import torch
 from peft import LoraConfig, get_peft_model
 import ast
-from transformers import AutoProcessor, BitsAndBytesConfig, Qwen2VLForConditionalGeneration, HfArgumentParser, Qwen2_5_VLForConditionalGeneration
-from training.trainer import QwenTrainer
-from training.data import make_supervised_data_module
-from training.params import DataArguments, ModelArguments, TrainingArguments
-from training.train_utils import get_peft_state_maybe_zero_3, get_peft_state_non_lora_maybe_zero_3, safe_save_model_for_hf_trainer
+from transformers import AutoProcessor, BitsAndBytesConfig, Qwen2VLForConditionalGeneration, Qwen2_5_VLForConditionalGeneration, HfArgumentParser, Qwen2_5_VLForConditionalGeneration
+from src.training.trainer import QwenTrainer
+from src.training.data import make_supervised_data_module
+from src.training.params import DataArguments, ModelArguments, TrainingArguments
+from src.training.train_utils import get_peft_state_maybe_zero_3, get_peft_state_non_lora_maybe_zero_3, safe_save_model_for_hf_trainer
 import pathlib
 from liger_kernel.transformers import apply_liger_kernel_to_qwen2_vl, apply_liger_kernel_to_qwen2_5_vl
 from monkey_patch_forward import replace_qwen2_5_with_mixed_modality_forward, replace_qwen_2_with_mixed_modality_forward
@@ -30,8 +30,7 @@ def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[
     
     if num_lora_modules > 0:
         lora_module_names = lora_module_names[-num_lora_modules:]
-    if verbose:
-        rank0_print(f"Found {len(lora_module_names)} lora modules: {lora_module_names}")
+   
     return lora_module_names
 
 def set_requires_grad(parameters, requires_grad):
@@ -47,7 +46,7 @@ def configure_vision_tower(model, training_args, compute_dtype, device):
     
     # Handle merger specifically
     merger_params = model.visual.merger.parameters()
-    set_requires_grad(merger_params, training_args.tune_merger)
+    set_requires_grad(merger_params, not training_args.freeze_merger)
 
 def configure_llm(model, training_args):
     lm_head = model.lm_head.parameters()
@@ -163,14 +162,9 @@ def train():
         rank0_print("Adding LoRA to the model...")
         model = get_peft_model(model, peft_config)
 
-    processor = AutoProcessor.from_pretrained(model_args.model_id,
-                                            # The default setting is padding_side="left"
-                                            # When training using the right-side padding is more efficient.
-                                              padding_side="right")
+    processor = AutoProcessor.from_pretrained(model_args.model_id)
 
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
-    model.config.tokenizer_padding_side = processor.tokenizer.padding_side
-    model.config.vision_lr = training_args.vision_lr
 
     if training_args.bits in [4, 8]:
         from peft.tuners.lora import LoraLayer

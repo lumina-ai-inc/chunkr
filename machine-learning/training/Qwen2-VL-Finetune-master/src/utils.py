@@ -1,6 +1,6 @@
 from peft import PeftModel
 import torch
-from transformers import BitsAndBytesConfig, Qwen2VLForConditionalGeneration, AutoProcessor, AutoConfig, Qwen2_5_VLForConditionalGeneration
+from transformers import BitsAndBytesConfig, Qwen2VLForConditionalGeneration,Qwen2_5_VLForConditionalGeneration, AutoProcessor, AutoConfig, Qwen2_5_VLForConditionalGeneration
 import warnings
 import os
 import json
@@ -42,7 +42,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
         if hasattr(lora_cfg_pretrained, 'quantization_config'):
             del lora_cfg_pretrained.quantization_config
         processor = AutoProcessor.from_pretrained(model_base)
-        print('Loading Qwen2-VL from base model...')
+        print('Loading base model...')
         if "Qwen2.5" in model_base:
             model = Qwen2_5_VLForConditionalGeneration.from_pretrained(model_base, low_cpu_mem_usage=True, config=lora_cfg_pretrained, **kwargs)
         else:
