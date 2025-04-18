@@ -30,14 +30,18 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[O
     if isinstance(file, str):
         if file.startswith(('http://', 'https://')):
             return None, file
-        try:
-            base64.b64decode(file)
-            return None, file
-        except:
+        # Try to handle as a file path first
+        path = Path(file)
+        if path.exists():
+            # It's a valid file path, convert to Path object and continue processing
+            file = path
+        else:
+            # If not a valid file path, try treating as base64
             try:
-                file = Path(file)
+                base64.b64decode(file)
+                return None, file
             except:
-                raise ValueError("File must be a valid path, URL, or base64 string")
+                raise ValueError(f"File not found: {file} and it's not a valid base64 string")
 
     # Handle file paths - convert to base64
     if isinstance(file, Path):

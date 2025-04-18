@@ -2,6 +2,7 @@ from chunkr_ai import Chunkr
 import asyncio
 import multiprocessing
 import time
+from typing import Awaitable
 import base64
 import os
 
@@ -44,9 +45,9 @@ async def test_async_concurrent_with_tasks(tasks):
 
 def upload_file_sync(file_path):
     task = chunkr.upload(file_path)
-    print(f"Uploaded {file_path}: {task.task_id}")
-    task.poll()
-    return task.task_id
+    print(f"Uploaded {file_path}: {task.task_id}") # type: ignore
+    task.poll() # type: ignore
+    return task.task_id # type: ignore 
 
 
 def test_multiprocessing():
@@ -87,6 +88,8 @@ def test_multiprocess_with_async():
 
 def save_base64_to_file():
     task = chunkr.upload("./files/test.pdf")
+    if isinstance(task, Awaitable):
+        raise ValueError("Task is an awaitable")
     task = chunkr.get_task(task.task_id, base64_urls=True)
     print(task.configuration)
     with open("./output/task.json", "w") as f:
@@ -98,7 +101,7 @@ def save_base64_to_file():
     with open(output_path, "wb") as f:
         f.write(pdf_data)
 
-    segment_image = task.output.chunks[0].segments[0].image
+    segment_image = task.output.chunks[0].segments[0].image 
     segment_image_data = base64.b64decode(segment_image)
     output_path = "./output/segment_image.jpg"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -118,11 +121,11 @@ if __name__ == "__main__":
             ),
         )
     )
-    print(task.configuration)
+    print(task.configuration) # type: ignore
     if task.status == Status.FAILED:
-        print(task.message)
+        print(task.message) # type: ignore
     else:
-        markdown = task.markdown()
+        markdown = task.markdown() # type: ignore
         print(markdown)
     # task.markdown("./output/markdown.md")
     # print(task.output.chunks[1].embed)
