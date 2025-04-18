@@ -11,6 +11,7 @@ from botocore.exceptions import ClientError
 from PIL import Image
 from datasets import Dataset, Features, Image as HFImage, Value, Sequence
 from dotenv import load_dotenv
+import awswrangler as wr
 
 # Assuming storage.py is accessible, adjust path if necessary
 # If storage.py is in datasets/table-sophris/utils, you might need to adjust PYTHONPATH
@@ -28,22 +29,40 @@ class SimpleS3Fetcher:
         self.bucket_name = bucket_name
         self.dataset_name = dataset_name
         self.s3_client = boto3.client('s3')
-        self.base_prefix = f"{dataset_name}/" # Adjust if your base prefix is different
+        # Define prefixes relative to the dataset name
+        self.base_prefix = f"{dataset_name}/"
         self.images_prefix = f"{self.base_prefix}table_images/"
         self.html_prefix = f"{self.base_prefix}table_html/"
+        logger.info(f"Initialized S3 Fetcher for bucket '{bucket_name}', dataset '{dataset_name}'")
+        logger.info(f"Image prefix: {self.images_prefix}")
+        logger.info(f"HTML prefix: {self.html_prefix}")
 
-    def list_objects(self, prefix: str) -> List[str]:
-        keys = []
+    def list_objects(self, prefix: str):
+        """Lists object keys under a given prefix using a generator."""
+        logger.info(f"Listing objects with prefix '{prefix}' in bucket '{self.bucket_name}' using boto3 paginator...")
         paginator = self.s3_client.get_paginator('list_objects_v2')
+        page_iterator = paginator.paginate(Bucket=self.bucket_name, Prefix=prefix)
+        count = 0
         try:
-            for page in paginator.paginate(Bucket=self.bucket_name, Prefix=prefix):
-                for obj in page.get('Contents', []):
-                    keys.append(obj['Key'])
-            logger.info(f"Found {len(keys)} objects with prefix '{prefix}'")
-            return keys
+            for page in page_iterator:
+                if 'Contents' in page:
+                    for obj in page['Contents']:
+                        yield obj['Key'] # Yield key directly
+                        count += 1
+                # Optional: Log progress periodically for very large listings
+                # if count % 10000 == 0 and count > 0:
+                #    logger.info(f"Listed {count} objects so far...")
+
+        except ClientError as e:
+            logger.error(f"Error listing objects in S3 bucket {self.bucket_name} with prefix {prefix}: {e}")
+            # Decide how to handle: raise error, return empty list, etc.
+            # For now, we'll let the generator stop.
+            return # Stop yielding if there's an error
         except Exception as e:
-            logger.error(f"Error listing S3 objects with prefix '{prefix}': {e}")
-            return []
+            logger.error(f"An unexpected error occurred during S3 listing: {e}")
+            return # Stop yielding
+
+        logger.info(f"Finished listing. Found {count} objects matching prefix '{prefix}'.")
 
     def download_file_content(self, key: str) -> Optional[bytes]:
         try:

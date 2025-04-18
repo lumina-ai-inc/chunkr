@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 import Levenshtein
 import re
 from qwen_vl_utils import process_vision_info
+from huggingface_hub import HfApi, upload_file
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -22,6 +23,7 @@ def parse_args():
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--use_flash_attn", type=bool, default=True)
     parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--hub_model_id", type=str, default=None, help="Hugging Face Hub model ID to upload results to")
     return parser.parse_args()
 
 def replace_llava_tokens(text):
@@ -243,7 +245,7 @@ def process_batch(model, processor, batch, max_new_tokens, device):
         traceback.print_exc()
         return [f"Error: {str(e)}"] * len(batch)
 
-def evaluate(model, processor, data, image_folder, max_new_tokens, output_dir, batch_size):
+def evaluate(model, processor, data, image_folder, max_new_tokens, output_dir, batch_size, hub_model_id=None):
     results = []
     total_similarity = 0
     # Removed baseline model comparison logic for simplicity as requested
@@ -320,17 +322,36 @@ def evaluate(model, processor, data, image_folder, max_new_tokens, output_dir, b
     # writer.add_scalar('Evaluation/Average_Levenshtein_Similarity', avg_similarity, 0) # Log average if using tensorboard
     # writer.close() # Close tensorboard writer
 
-    # Save results
+    # Save results locally
     os.makedirs(output_dir, exist_ok=True) # Ensure output dir exists
-    with open(os.path.join(output_dir, 'eval_scores.json'), 'w') as f:
-        json.dump({
-            'average_similarity': avg_similarity,
-            'num_samples_evaluated': len(results),
-            'individual_scores': results
-        }, f, indent=2)
+    local_results_path = os.path.join(output_dir, 'eval_scores.json')
+    results_data = {
+        'average_similarity': avg_similarity,
+        'num_samples_evaluated': len(results),
+        'individual_scores': results
+    }
+    with open(local_results_path, 'w') as f:
+        json.dump(results_data, f, indent=2)
 
     print(f"Evaluation complete. Average Levenshtein similarity: {avg_similarity:.4f} over {len(results)} samples.")
-    return results
+    print(f"Local results saved to: {local_results_path}")
+
+    # Upload results to Hugging Face Hub
+    if hub_model_id:
+        print(f"Uploading evaluation results to Hugging Face Hub repository: {hub_model_id}...")
+        try:
+            upload_file(
+                path_or_fileobj=local_results_path,
+                path_in_repo="evaluation/eval_scores.json", # Store in a subdirectory on the Hub
+                repo_id=hub_model_id,
+                repo_type="model",
+                commit_message="Upload evaluation results"
+            )
+            print("Upload to Hub complete.")
+        except Exception as e:
+            print(f"Error uploading evaluation results to Hub: {e}")
+
+    return results # Return the detailed results list
 
 def main():
     args = parse_args()
@@ -343,7 +364,7 @@ def main():
         data = json.load(f)
     
     # Evaluate
-    evaluate(model, processor, data, args.image_folder, args.max_new_tokens, args.output_dir, args.batch_size)
+    evaluate(model, processor, data, args.image_folder, args.max_new_tokens, args.output_dir, args.batch_size, args.hub_model_id)
 
 if __name__ == "__main__":
     # Add qwen_vl_utils to sys path if it's not installed as a package

@@ -73,6 +73,11 @@ def fetch_sample_worker(args):
                 continue
             return None, f"Error processing key '{key}': {str(e)}"
 
+# Helper for parallel formatting in save_split
+def format_sample_worker(args):
+    sample, instruction = args
+    return format_for_saving(sample, instruction)
+
 def main():
     load_dotenv(override=True)
     parser = argparse.ArgumentParser(description="Prepare dataset for table OCR training")
@@ -84,9 +89,9 @@ def main():
     parser.add_argument("--val_ratio", type=float, default=0.1, help="Ratio of data for validation")
     parser.add_argument("--test_ratio", type=float, default=0.1, help="Ratio of data for testing")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
-    parser.add_argument("--parallel", type=int, default=8, help="Number of parallel workers for fetching")
+    parser.add_argument("--parallel", type=int, default=16, help="Number of parallel workers for fetching/formatting (increased default)")
     parser.add_argument("--retry", type=int, default=2, help="Number of retries for failed fetches")
-    parser.add_argument("--batch_size", type=int, default=50, help="Batch size for processing samples")
+    parser.add_argument("--batch_size", type=int, default=200, help="Batch size for processing samples (increased default)")
     args = parser.parse_args()
 
     # Get dataset name from args or environment
@@ -231,38 +236,54 @@ def main():
     
     logger.info(f"Split dataset into {len(train_samples)} training, {len(val_samples)} validation, and {len(test_samples)} test samples")
     
-    # --- Save each split to its own file ---
-    def save_split(samples, output_file):
+    # --- Save each split to its own file (with parallel formatting) ---
+    def save_split(samples, output_file, instruction, num_workers):
         saved_count = 0
         skipped_count = 0
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            for sample in tqdm(samples, desc=f"Saving to {os.path.basename(output_file)}"):
-                formatted_data = format_for_saving(sample, loader.instruction)
+        format_errors = 0
+
+        with open(output_file, 'w', encoding='utf-8') as f, \
+             concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+
+            # Prepare tasks for formatting
+            format_tasks = [(sample, instruction) for sample in samples]
+
+            # Process formatting in parallel
+            formatted_results = list(tqdm(executor.map(format_sample_worker, format_tasks),
+                                          total=len(samples),
+                                          desc=f"Formatting {os.path.basename(output_file)}"))
+
+            # Write formatted results sequentially (safer for single file)
+            for formatted_data in tqdm(formatted_results, desc=f"Writing {os.path.basename(output_file)}"):
                 if formatted_data:
                     try:
                         json_record = json.dumps(formatted_data)
                         f.write(json_record + '\n')
                         saved_count += 1
                     except Exception as e:
-                        logger.error(f"Error saving sample {sample.table_id}: {e}")
-                        skipped_count += 1
+                        # Log specific error if needed, using table_id from formatted_data
+                        # logger.error(f"Error saving sample {formatted_data.get('table_id', 'UNKNOWN')}: {e}")
+                        format_errors += 1
                 else:
+                    # This count includes samples skipped by format_for_saving
                     skipped_count += 1
-                    
-        return saved_count, skipped_count
-    
+
+        if format_errors > 0:
+             logger.warning(f"Encountered {format_errors} errors during JSON serialization for {os.path.basename(output_file)}")
+
+        return saved_count, skipped_count + format_errors # Combine skipped and serialization errors
+
     # Save train split
     logger.info(f"Saving training samples to {train_file}...")
-    train_saved, train_skipped = save_split(train_samples, train_file)
+    train_saved, train_skipped = save_split(train_samples, train_file, loader.instruction, max_workers)
     
     # Save validation split
     logger.info(f"Saving validation samples to {val_file}...")
-    val_saved, val_skipped = save_split(val_samples, val_file)
+    val_saved, val_skipped = save_split(val_samples, val_file, loader.instruction, max_workers)
     
     # Save test split
     logger.info(f"Saving test samples to {test_file}...")
-    test_saved, test_skipped = save_split(test_samples, test_file)
+    test_saved, test_skipped = save_split(test_samples, test_file, loader.instruction, max_workers)
     
     # Report results
     logger.info("=== Dataset Preparation Complete ===")
