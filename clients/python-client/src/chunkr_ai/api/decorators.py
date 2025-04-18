@@ -13,10 +13,7 @@ P = ParamSpec('P')
 
 _sync_loop = None
 
-@overload
-def anywhere() -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Union[Awaitable[T], T]]]: ...
-
-def anywhere():
+def anywhere() -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Union[Awaitable[T], T]]]:
     """Decorator that allows an async function to run anywhere - sync or async context."""
     def decorator(async_func: Callable[P, Awaitable[T]]) -> Callable[P, Union[Awaitable[T], T]]:
         @functools.wraps(async_func)
@@ -42,22 +39,22 @@ def anywhere():
         return wrapper
     return decorator
 
-def ensure_client() -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
+def ensure_client() -> Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[T]]]:
     """Decorator that ensures a valid httpx.AsyncClient exists before executing the method"""
-    def decorator(async_func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    def decorator(async_func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @functools.wraps(async_func)
-        async def wrapper(self: Any, *args: P.args, **kwargs: P.kwargs) -> T:
+        async def wrapper(self: Any, *args: Any, **kwargs: Any) -> T:
             if not self._client or self._client.is_closed:
                 self._client = httpx.AsyncClient()
             return await async_func(self, *args, **kwargs)
         return wrapper
     return decorator
 
-def require_task() -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
+def require_task() -> Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[T]]]:
     """Decorator that ensures task has required attributes and valid client before execution"""
-    def decorator(async_func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    def decorator(async_func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @functools.wraps(async_func)
-        async def wrapper(self: Any, *args: P.args, **kwargs: P.kwargs) -> T:
+        async def wrapper(self: Any, *args: Any, **kwargs: Any) -> T:
             if not self.task_url:
                 raise ValueError("Task URL not found")
             if not self._client:
