@@ -32,7 +32,7 @@ def sample_absolute_path_str():
 
 @pytest.fixture
 def sample_relative_path_str():
-    return "./files/test.pdf"
+    return "./tests/files/test.pdf"
 
 @pytest.fixture
 def sample_image():
