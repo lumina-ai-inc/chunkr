@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.0.2...chunkr-chart-enterprise-v1.1.0) (2025-04-18)
+
+
+### Features
+
+* Enterprise chart now supports  configmap ([38772d0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/38772d0063dc8575ea6d8cfcd826a932ec51df38))
+
 ## [1.0.2](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.0.1...chunkr-chart-enterprise-v1.0.2) (2025-03-28)
 
 

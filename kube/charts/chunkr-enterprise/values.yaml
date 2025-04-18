@@ -111,7 +111,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.12.0-enterprise
+      tag: 1.13.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -136,7 +136,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 1.12.0-enterprise
+      tag: 1.13.0-enterprise
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -144,7 +144,7 @@ services:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
-        value: "3"
+        value: '3'
     volumes:
       - name: llm-models-config
         configMap:
@@ -158,7 +158,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.12.0-enterprise
+      tag: 1.13.0-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -172,7 +172,7 @@ services:
       - name: VITE_DOCS_URL
         value: https://docs.chunkr.ai
       - name: VITE_FEATURE_FLAG_PIPELINE
-        value: "true"
+        value: 'true'
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -198,7 +198,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 1.11.0-enterprise
+      tag: 1.13.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -207,7 +207,7 @@ services:
     enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
-        value: "100"
+        value: '100'
     labels:
       workload-type: chunkr-gpu
   segmentation:
@@ -227,7 +227,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: 1.12.0-enterprise
+      tag: 1.13.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -239,7 +239,7 @@ services:
     enabled: true
     image:
       repository: analytics-web
-      tag: 1.11.0-enterprise
+      tag: 1.13.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -256,7 +256,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: 1.11.0-enterprise
+      tag: 1.13.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -278,18 +278,18 @@ services:
   cleanup-failed-pods:
     enabled: false
     type: cronjob
-    schedule: "*/15 * * * *"
+    schedule: '*/15 * * * *'
     image:
       registry: bitnami
       repository: kubectl
-      tag: latest
+      tag: 1.13.0-enterprise
     command:
       - kubectl
     args:
       - delete
       - pods
-      - "--field-selector=status.phase=Failed"
-      - "-n"
+      - '--field-selector=status.phase=Failed'
+      - '-n'
       - chunkr
     serviceAccountName: default
     podSpec:

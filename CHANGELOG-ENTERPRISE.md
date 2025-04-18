@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.13.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.12.0-enterprise...v1.13.0-enterprise) (2025-04-18)
+
+
+### Features
+
+* Enterprise chart now supports  configmap ([38772d0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/38772d0063dc8575ea6d8cfcd826a932ec51df38))
+
+
+### Bug Fixes
+
+* Config map in helm chart ([5a08085](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5a08085e3c72647dd0833cdcc5574e99948298d5))
+* Paths decodable as base64 string can be used with the python client ([#444](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/444)) ([d544aac](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d544aac952d7a6b45ece09b691ad0d1d4b9454c1))
+
 ## [1.12.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.11.0-enterprise...v1.12.0-enterprise) (2025-04-16)
 
 
