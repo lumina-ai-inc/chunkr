@@ -1,20 +1,35 @@
 #!/bin/bash
 
+# First log in to Hugging Face with the token
+if [ ! -z "$HF_TOKEN" ]; then
+  echo "Logging into Hugging Face Hub..."
+  huggingface-cli login --token $HF_TOKEN
+fi
+
+# Install torch first (needed for flash-attn)
+echo "Pre-installing torch for flash-attn dependency..."
+uv add torch>=2.6.0 --system
+
+# Install flash-attn with build isolation disabled
+echo "Installing flash-attn with build isolation disabled..."
+uv add flash-attn --no-build-isolation --system
+
 # --- Configuration ---
-MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
-GLOBAL_BATCH_SIZE=144
-BATCH_PER_DEVICE=6
-NUM_DEVICES=8 # Adjust if your hardware setup changed
+MODEL_NAME=${MODEL_NAME:-"Qwen/Qwen2.5-VL-3B-Instruct"}
+GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-144}
+BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-4}
+NUM_DEVICES=${NUM_DEVICES:-8} # Adjust if your hardware setup changed
 GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
-OUTPUT_DIR="output/sophris_table_v1" # Unified output directory for all runs
-MERGED_MODEL_PATH="${OUTPUT_DIR}_merged" # Merged path based on output dir
-DATA_DIR="data/sophris-datasheet-table-extraction-azure-distill-v1"
-CONVERTED_DATA_DIR="data/llava-format"
-IMAGE_DIR="data/images"
-TENSORBOARD_DIR="$OUTPUT_DIR/runs" # Tensorboard logs
-HUB_MODEL_ID="ChunkrAI/sophris-table-VLM"
-VISUALIZATION_DIR="$OUTPUT_DIR/visualizations"
-NUM_EPOCHS=100 # Total desired epochs (adjust if resuming)
+OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_v1"} # Unified output directory for all runs
+MERGED_MODEL_PATH=${MERGED_MODEL_PATH:-"${OUTPUT_DIR}_merged"} # Merged path based on output dir
+DATA_DIR=${DATA_DIR:-"data/sophris-datasheet-table-extraction-azure-distill-v1"}
+CONVERTED_DATA_DIR=${CONVERTED_DATA_DIR:-"data/llava-format"}
+IMAGE_DIR=${IMAGE_DIR:-"data/images"}
+TENSORBOARD_DIR=${TENSORBOARD_DIR:-"$OUTPUT_DIR/runs"} # Tensorboard logs
+HUB_MODEL_ID=${HUB_MODEL_ID:-"ChunkrAI/sophris-table-VLM"}
+VISUALIZATION_DIR=${VISUALIZATION_DIR:-"$OUTPUT_DIR/visualizations"}
+NUM_EPOCHS=${NUM_EPOCHS:-100} # Total desired epochs (adjust if resuming)
+DATA_LIMIT=${DATA_LIMIT:-48000}
 
 # --- Dynamic Checkpoint Detection ---
 RESUME_CHECKPOINT=""
@@ -30,13 +45,6 @@ else
 fi
 # --- End Dynamic Checkpoint Detection ---
 
-# Ensure user is logged in to Hugging Face Hub
-if ! huggingface-cli whoami > /dev/null 2>&1; then
-  echo "You are not logged into Hugging Face Hub. Please run 'huggingface-cli login'"
-  # Optionally exit if login is mandatory: exit 1
-  # Or prompt for login: huggingface-cli login
-fi
-
 # Create required directories
 mkdir -p $OUTPUT_DIR $CONVERTED_DATA_DIR $IMAGE_DIR $TENSORBOARD_DIR $VISUALIZATION_DIR $MERGED_MODEL_PATH
 
@@ -48,30 +56,16 @@ mkdir -p $OUTPUT_DIR $CONVERTED_DATA_DIR $IMAGE_DIR $TENSORBOARD_DIR $VISUALIZAT
 #   exit 1
 # fi
 
-# Launch TensorBoard
-# First, ensure any lingering TensorBoard processes are stopped
-echo "Attempting to stop any existing TensorBoard processes..."
-pkill -f tensorboard # Forcefully kill processes matching 'tensorboard'
-sleep 2 # Give processes a moment to terminate
-
-if command -v tmux &> /dev/null; then
-    echo "Starting TensorBoard in a tmux session..."
-    tmux kill-session -t tensorboard_sophris 2>/dev/null || true # Kill the specific tmux session if it exists
-    echo "Launching TensorBoard with logdir: $TENSORBOARD_DIR" # Verify the path being used
-    tmux new-session -d -s tensorboard_sophris "tensorboard --logdir $TENSORBOARD_DIR --bind_all --port 6006 && bash" # Use a consistent port
-    echo "TensorBoard started in tmux session 'tensorboard_sophris'. To view:"
-    echo "  1. Access http://localhost:6006 in your browser"
-    echo "  2. Or attach: tmux attach -t tensorboard_sophris"
-else
-    echo "tmux not found. Install tmux to automatically launch TensorBoard."
-    echo "You can manually run: tensorboard --logdir $TENSORBOARD_DIR --port 6006"
-fi
+# Start TensorBoard with remote access enabled
+echo "Starting TensorBoard in background..."
+nohup tensorboard --logdir $TENSORBOARD_DIR --port 6006 --bind_all > tensorboard.log 2>&1 &
+echo "TensorBoard started in background. Access at http://<your-sf-compute-ip>:6006"
 
 # Step 1: Prepare Dataset
 echo "Preparing dataset..."
 uv run prepare_dataset.py \
     --output_dir $DATA_DIR \
-    --data_limit 24000 \
+    --data_limit 48000 \
     --train_ratio 0.8 \
     --val_ratio 0.1 \
     --test_ratio 0.1
@@ -95,49 +89,49 @@ uv run convert_dataset.py \
 # Step 3: Train Model - Start or Continue Training
 TRAIN_ARGS=(
     "--output_dir" "$OUTPUT_DIR"
-    "--overwrite_output_dir" # Overwrite necessary for resuming/consistent output
+    "--overwrite_output_dir"
     "--num_train_epochs" "$NUM_EPOCHS"
-    "--use_liger" "True"
-    "--lora_enable" "True"
-    "--use_dora" "False"
-    "--lora_namespan_exclude" "['lm_head', 'embed_tokens']"
-    "--lora_rank" "64"
-    "--lora_alpha" "64"
-    "--lora_dropout" "0.05"
-    "--num_lora_modules" "-1"
+    "--use_liger" "${USE_LIGER:-True}"
+    "--lora_enable" "${LORA_ENABLE:-True}"
+    "--use_dora" "${USE_DORA:-False}"
+    "--lora_namespan_exclude" "${LORA_NAMESPAN_EXCLUDE:-""}"
+    "--lora_rank" "${LORA_RANK:-64}"
+    "--lora_alpha" "${LORA_ALPHA:-64}"
+    "--lora_dropout" "${LORA_DROPOUT:-0.05}"
+    "--num_lora_modules" "${NUM_LORA_MODULES:--1}"
     "--deepspeed" "scripts/zero3_offload.json"
     "--model_id" "$MODEL_NAME"
     "--data_path" "$CONVERTED_DATA_DIR/train.json"
     "--image_folder" "$IMAGE_DIR"
     "--remove_unused_columns" "False"
-    "--freeze_vision_tower" "False"
-    "--freeze_llm" "True"
-    "--bf16" "True"
-    "--fp16" "False"
-    "--disable_flash_attn2" "False"
+    "--freeze_vision_tower" "${FREEZE_VISION_TOWER:-False}"
+    "--freeze_llm" "${FREEZE_LLM:-True}"
+    "--bf16" "${BF16:-True}"
+    "--fp16" "${FP16:-False}"
+    "--disable_flash_attn2" "${DISABLE_FLASH_ATTN2:-False}"
     "--per_device_train_batch_size" "$BATCH_PER_DEVICE"
     "--gradient_accumulation_steps" "$GRAD_ACCUM_STEPS"
     "--image_min_pixels" "$((256 * 28 * 28))"
     "--image_max_pixels" "$((1280 * 28 * 28))"
-    "--learning_rate" "1e-4"
-    "--merger_lr" "1e-5"
-    "--vision_lr" "2e-6"
-    "--weight_decay" "0.1"
-    "--warmup_ratio" "0.03"
-    "--lr_scheduler_type" "cosine"
-    "--logging_steps" "1"
-    "--tf32" "True"
-    "--gradient_checkpointing" "True"
+    "--learning_rate" "${LEARNING_RATE:-1e-4}"
+    "--merger_lr" "${MERGER_LR:-1e-5}"
+    "--vision_lr" "${VISION_LR:-5e-6}"
+    "--weight_decay" "${WEIGHT_DECAY:-0.1}"
+    "--warmup_ratio" "${WARMUP_RATIO:-0.03}"
+    "--lr_scheduler_type" "${LR_SCHEDULER_TYPE:-cosine}"
+    "--logging_steps" "${LOGGING_STEPS:-1}"
+    "--tf32" "${TF32:-True}"
+    "--gradient_checkpointing" "${GRADIENT_CHECKPOINTING:-True}"
     "--report_to" "tensorboard"
-    "--lazy_preprocess" "True"
-    "--save_strategy" "steps"
-    "--save_steps" "200"
-    "--save_total_limit" "10"
-    "--dataloader_num_workers" "4"
-    "--push_to_hub" "True"
+    "--lazy_preprocess" "${LAZY_PREPROCESS:-True}"
+    "--save_strategy" "${SAVE_STRATEGY:-steps}"
+    "--save_steps" "${SAVE_STEPS:-200}"
+    "--save_total_limit" "${SAVE_TOTAL_LIMIT:-10}"
+    "--dataloader_num_workers" "${DATALOADER_NUM_WORKERS:-4}"
+    "--push_to_hub" "${PUSH_TO_HUB:-True}"
     "--hub_model_id" "$HUB_MODEL_ID"
-    "--hub_private_repo" "True"
-    "--hub_strategy" "checkpoint"
+    "--hub_private_repo" "${HUB_PRIVATE_REPO:-True}"
+    "--hub_strategy" "${HUB_STRATEGY:-checkpoint}"
 )
 
 if [ -n "$RESUME_CHECKPOINT" ]; then

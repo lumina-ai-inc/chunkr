@@ -3,7 +3,7 @@ name = "qwen2-vl-finetune-master"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "awswrangler[s3]>=3.11.0",
     "boto3>=1.37.34",

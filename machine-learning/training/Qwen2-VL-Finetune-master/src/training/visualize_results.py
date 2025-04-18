@@ -45,24 +45,20 @@ def plot_tensorboard_metrics(tensorboard_dir, output_dir):
         
         # Process each event file
         for event_file in event_files:
-            ea = event_accumulator.EventAccumulator(
-                event_file,
-                size_guidance={
-                    event_accumulator.SCALARS: 0,
-                }
-            )
+            print(f"Processing TensorBoard events from: {event_file}")
+            ea = event_accumulator.EventAccumulator(event_file,
+                                                   size_guidance={
+                                                       event_accumulator.SCALARS: 0,
+                                                   })
             ea.Reload()
             
-            # Get all scalar tags (metrics)
+            # Get all scalar tags and visualize each one
             tags = ea.Tags()['scalars']
-            
-            # Plot each metric
             for tag in tags:
                 events = ea.Scalars(tag)
                 steps = [event.step for event in events]
                 values = [event.value for event in events]
                 
-                # Create plot
                 plt.figure(figsize=(10, 6))
                 plt.plot(steps, values)
                 plt.title(tag)
@@ -76,6 +72,7 @@ def plot_tensorboard_metrics(tensorboard_dir, output_dir):
                 plt.close()
         
         print(f"Training metrics visualizations saved to {metrics_dir}")
+        print(f"To view metrics in real-time, access TensorBoard at: http://<your-sf-compute-ip>:6006")
     except Exception as e:
         print(f"Error processing TensorBoard logs: {e}")
         print("Continuing with other visualizations...")

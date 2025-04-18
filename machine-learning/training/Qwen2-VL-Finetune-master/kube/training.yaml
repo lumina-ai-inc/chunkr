@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwen-vl-training
+spec:
+  selector:
+    app: qwen-vl-training
+  ports:
+    - port: 6006
+      targetPort: 6006
+      name: tensorboard
+  type: ClusterIP
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: qwen-vl-training
+spec:
+  template:
+    metadata:
+      labels:
+        app: qwen-vl-training
+    spec:
+      imagePullSecrets:
+        - name: luminadockerhub
+      containers:
+        - name: training
+          image: luminainc/qwen-vl-finetune:latest
+          command: ["/bin/bash"]
+          args: ["scripts/run_pipeline.sh"]
+          env:
+            # Secrets from Kubernetes Secrets
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: OPENROUTER_API_KEY
+            - name: CHUNKR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: CHUNKR_API_KEY
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: AWS_ACCESS_KEY_ID
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: S3_BUCKET
+            - name: DATASET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: DATASET_NAME
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: qwen-vl-training-secrets
+                  key: HF_TOKEN
+
+            # Core configuration
+            - name: MODEL_NAME
+              value: "Qwen/Qwen2.5-VL-3B-Instruct"
+            - name: GLOBAL_BATCH_SIZE
+              value: "144"
+            - name: BATCH_PER_DEVICE
+              value: "4"
+            - name: NUM_DEVICES
+              value: "8"
+            - name: OUTPUT_DIR
+              value: "output/sophris_table_v1"
+            - name: DATA_DIR
+              value: "data/sophris-datasheet-table-extraction-azure-distill-v1"
+            - name: CONVERTED_DATA_DIR
+              value: "data/llava-format"
+            - name: IMAGE_DIR
+              value: "data/images"
+            - name: HUB_MODEL_ID
+              value: "ChunkrAI/sophris-table-VLM"
+            - name: NUM_EPOCHS
+              value: "100"
+
+            # Training parameters
+            - name: USE_LIGER
+              value: "True"
+            - name: LORA_ENABLE
+              value: "True"
+            - name: USE_DORA
+              value: "False"
+            - name: LORA_RANK
+              value: "64"
+            - name: LORA_ALPHA
+              value: "64"
+            - name: LORA_DROPOUT
+              value: "0.05"
+            - name: NUM_LORA_MODULES
+              value: "-1"
+            - name: FREEZE_VISION_TOWER
+              value: "False"
+            - name: FREEZE_LLM
+              value: "True"
+            - name: BF16
+              value: "True"
+            - name: FP16
+              value: "False"
+            - name: DISABLE_FLASH_ATTN2
+              value: "False"
+            - name: LEARNING_RATE
+              value: "1e-4"
+            - name: MERGER_LR
+              value: "1e-5"
+            - name: VISION_LR
+              value: "5e-6"
+            - name: WEIGHT_DECAY
+              value: "0.1"
+            - name: WARMUP_RATIO
+              value: "0.03"
+            - name: LR_SCHEDULER_TYPE
+              value: "cosine"
+            - name: LOGGING_STEPS
+              value: "1"
+            - name: TF32
+              value: "True"
+            - name: GRADIENT_CHECKPOINTING
+              value: "True"
+            - name: LAZY_PREPROCESS
+              value: "True"
+            - name: SAVE_STRATEGY
+              value: "steps"
+            - name: SAVE_STEPS
+              value: "200"
+            - name: SAVE_TOTAL_LIMIT
+              value: "10"
+            - name: DATALOADER_NUM_WORKERS
+              value: "4"
+            - name: PUSH_TO_HUB
+              value: "True"
+            - name: HUB_PRIVATE_REPO
+              value: "True"
+            - name: HUB_STRATEGY
+              value: "checkpoint"
+            - name: DATA_LIMIT
+              value: "48000"
+
+          ports:
+            - containerPort: 6006
+          resources:
+            requests:
+              nvidia.com/gpu: 8
+              memory: "64Gi"
+              cpu: "16"
+            limits:
+              nvidia.com/gpu: 8
+              memory: "64Gi"
+              cpu: "16"
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+            - name: output-volume
+              mountPath: /app/output
+      volumes:
+        - name: data-volume
+          emptyDir: {}
+        - name: output-volume
+          emptyDir: {}
+      restartPolicy: Never
