@@ -27,6 +27,14 @@ def sample_path():
     return Path("tests/files/test.pdf")
 
 @pytest.fixture
+def sample_absolute_path_str():
+    return "tests/files/test.pdf"
+
+@pytest.fixture
+def sample_relative_path_str():
+    return "./tests/files/test.pdf"
+
+@pytest.fixture
 def sample_image():
     return Image.open("tests/files/test.jpg")
 
@@ -50,7 +58,7 @@ def pipeline_type(request):
 def markdown_embed_config():
     return Configuration(
         segment_processing=SegmentProcessing(
-            page=GenerationConfig(
+            Page=GenerationConfig(
                 html=GenerationStrategy.LLM,
                 markdown=GenerationStrategy.LLM,
                 embed_sources=[EmbedSource.MARKDOWN]
@@ -62,7 +70,7 @@ def markdown_embed_config():
 def html_embed_config():
     return Configuration(
         segment_processing=SegmentProcessing(
-            page=GenerationConfig(
+            Page=GenerationConfig(
                 html=GenerationStrategy.LLM,
                 markdown=GenerationStrategy.LLM,
                 embed_sources=[EmbedSource.HTML]
@@ -74,7 +82,7 @@ def html_embed_config():
 def multiple_embed_config():
     return Configuration(
         segment_processing=SegmentProcessing(
-            page=GenerationConfig(
+            Page=GenerationConfig(
                 html=GenerationStrategy.LLM,
                 markdown=GenerationStrategy.LLM,
                 llm="Generate a summary of this content",
@@ -122,7 +130,7 @@ def xlm_roberta_with_html_content_config():
             tokenizer=Tokenizer.XLM_ROBERTA_BASE
         ),
         segment_processing=SegmentProcessing(
-            page=GenerationConfig(
+            Page=GenerationConfig(
                 html=GenerationStrategy.LLM,
                 markdown=GenerationStrategy.LLM,
                 embed_sources=[EmbedSource.HTML, EmbedSource.CONTENT]
@@ -171,6 +179,20 @@ async def test_send_file_path(client, sample_path):
     assert response.output is not None
 
 @pytest.mark.asyncio
+async def test_send_file_path_str(client, sample_absolute_path_str):
+    response = await client.upload(sample_absolute_path_str)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_send_file_relative_path_str(client, sample_relative_path_str):
+    response = await client.upload(sample_relative_path_str)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
 async def test_send_file_url(client, sample_url):
     response = await client.upload(sample_url)
     assert response.task_id is not None
@@ -178,7 +200,7 @@ async def test_send_file_url(client, sample_url):
     assert response.output is not None
 
 @pytest.mark.asyncio
-async def test_send_file_path_str(client, sample_path):
+async def test_send_file_path_as_str(client, sample_path):
     response = await client.upload(str(sample_path))
     assert response.task_id is not None
     assert response.status == "Succeeded"
@@ -247,7 +269,7 @@ async def test_page_llm_html(client, sample_path):
         Configuration(
             segmentation_strategy=SegmentationStrategy.PAGE,
             segment_processing=SegmentProcessing(
-                page=GenerationConfig(html=GenerationStrategy.LLM)
+                Page=GenerationConfig(html=GenerationStrategy.LLM)
             ),
         ),
     )
@@ -260,7 +282,7 @@ async def test_page_llm(client, sample_path):
     configuration = Configuration(
         segmentation_strategy=SegmentationStrategy.PAGE,
         segment_processing=SegmentProcessing(
-            page=GenerationConfig(
+            Page=GenerationConfig(
                 html=GenerationStrategy.LLM, markdown=GenerationStrategy.LLM
             )
         ),
@@ -339,7 +361,7 @@ async def test_pipeline_type_azure(client, sample_path):
     assert response.output is not None
     
 @pytest.mark.asyncio
-async def test_pipeline_type_azure(client, sample_path):
+async def test_pipeline_type_chunkr(client, sample_path):
     response = await client.upload(sample_path, Configuration(pipeline=Pipeline.CHUNKR))
     assert response.task_id is not None
     assert response.status == "Succeeded"
@@ -575,7 +597,7 @@ async def test_combined_config_with_llm_and_other_settings(client, sample_path):
         ),
         segmentation_strategy=SegmentationStrategy.PAGE,
         segment_processing=SegmentProcessing(
-            page=GenerationConfig(
+            Page=GenerationConfig(
                 html=GenerationStrategy.LLM,
                 markdown=GenerationStrategy.LLM
             )

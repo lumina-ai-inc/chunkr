@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TypeVar, Optional, Generic
+from typing import Optional, cast, Awaitable, Union
 from pydantic import BaseModel, PrivateAttr
 import asyncio
 import json
@@ -11,9 +11,7 @@ from .protocol import ChunkrClientProtocol
 from .misc import prepare_upload_data
 from .decorators import anywhere, require_task, retry_on_429
 
-T = TypeVar("T", bound="TaskResponse")
-
-class TaskResponse(BaseModel, Generic[T]):
+class TaskResponse(BaseModel):
     configuration: OutputConfiguration
     created_at: datetime
     expires_at: Optional[datetime] = None
@@ -28,13 +26,13 @@ class TaskResponse(BaseModel, Generic[T]):
     _base64_urls: bool = False
     _client: Optional[ChunkrClientProtocol] = PrivateAttr(default=None)
 
-    def with_client(self, client: ChunkrClientProtocol, include_chunks: bool = False, base64_urls: bool = False) -> T:
+    def with_client(self, client: ChunkrClientProtocol, include_chunks: bool = False, base64_urls: bool = False) -> "TaskResponse":
         self._client = client
         self.include_chunks = include_chunks
         self._base64_urls = base64_urls
         return self
 
-    def _check_status(self) -> Optional[T]:
+    def _check_status(self) -> Optional["TaskResponse"]:
         """Helper method to check task status and handle completion/failure"""
         if self.status == "Failed":
             if getattr(self._client, 'raise_on_failure', True):
@@ -47,6 +45,11 @@ class TaskResponse(BaseModel, Generic[T]):
     @require_task()
     async def _poll_request(self) -> dict:
         try:
+            if not self._client:
+                raise ValueError("Chunkr client protocol is not initialized")
+            if not self._client._client or self._client._client.is_closed:
+                raise ValueError("httpx client is not open")
+            assert self.task_url is not None 
             r = await self._client._client.get(
                 self.task_url, headers=self._client._headers()
             )
@@ -64,10 +67,12 @@ class TaskResponse(BaseModel, Generic[T]):
             raise e
 
     @anywhere()
-    async def poll(self) -> T:
+    async def poll(self) -> "TaskResponse":
         """Poll the task for completion."""
         while True:
             j = await self._poll_request()
+            if not self._client:
+                raise ValueError("Chunkr client protocol is not initialized")
             updated = TaskResponse(**j).with_client(self._client)
             self.__dict__.update(updated.__dict__)
             if res := self._check_status():
@@ -77,9 +82,14 @@ class TaskResponse(BaseModel, Generic[T]):
     @anywhere()
     @require_task()
     @retry_on_429()
-    async def update(self, config: Configuration) -> T:
+    async def update(self, config: Configuration) -> "TaskResponse":
         """Update the task configuration."""
         data = await prepare_upload_data(None, None, config)
+        if not self._client:
+            raise ValueError("Chunkr client protocol is not initialized")
+        if not self._client._client or self._client._client.is_closed:
+            raise ValueError("httpx client is not open")
+        assert self.task_url is not None
         r = await self._client._client.patch(
             f"{self.task_url}/parse",
             json=data,
@@ -88,12 +98,17 @@ class TaskResponse(BaseModel, Generic[T]):
         r.raise_for_status()
         updated = TaskResponse(**r.json()).with_client(self._client)
         self.__dict__.update(updated.__dict__)
-        return await self.poll()
+        return cast(TaskResponse, self.poll())
 
     @anywhere()
     @require_task()
-    async def delete(self) -> T:
+    async def delete(self) -> "TaskResponse":
         """Delete the task."""
+        if not self._client:
+            raise ValueError("Chunkr client protocol is not initialized")
+        if not self._client._client or self._client._client.is_closed:
+            raise ValueError("httpx client is not open")
+        assert self.task_url is not None
         r = await self._client._client.delete(
             self.task_url, headers=self._client._headers()
         )
@@ -102,15 +117,20 @@ class TaskResponse(BaseModel, Generic[T]):
 
     @anywhere()
     @require_task()
-    async def cancel(self) -> T:
+    async def cancel(self) -> "TaskResponse":
         """Cancel the task."""
+        if not self._client:
+            raise ValueError("Chunkr client protocol is not initialized")
+        if not self._client._client or self._client._client.is_closed:
+            raise ValueError("httpx client is not open")
+        assert self.task_url is not None
         r = await self._client._client.get(
             f"{self.task_url}/cancel", headers=self._client._headers()
         )
         r.raise_for_status()
-        return await self.poll()
+        return cast(TaskResponse, self.poll())
 
-    def _write_to_file(self, content: str | dict, output_file: str, is_json: bool = False) -> None:
+    def _write_to_file(self, content: Union[str, dict], output_file: Optional[str], is_json: bool = False) -> None:
         """Helper method to write content to a file
         
         Args:
@@ -131,9 +151,12 @@ class TaskResponse(BaseModel, Generic[T]):
                 if is_json:
                     json.dump(content, f, cls=DateTimeEncoder, indent=2)
                 else:
-                    f.write(content)
+                    if isinstance(content, str):
+                        f.write(content)
+                    else:
+                        raise ValueError("Content is not a string")
 
-    def html(self, output_file: str = None) -> str:
+    def html(self, output_file: Optional[str] = None) -> str:
         """Get the full HTML of the task
         
         Args:
@@ -143,7 +166,7 @@ class TaskResponse(BaseModel, Generic[T]):
         self._write_to_file(content, output_file)
         return content
 
-    def markdown(self, output_file: str = None) -> str:
+    def markdown(self, output_file: Optional[str] = None) -> str:
         """Get the full markdown of the task
         
         Args:
@@ -153,7 +176,7 @@ class TaskResponse(BaseModel, Generic[T]):
         self._write_to_file(content, output_file)
         return content
 
-    def content(self, output_file: str = None) -> str:
+    def content(self, output_file: Optional[str] = None) -> str:
         """Get the full content of the task
         
         Args:
@@ -163,7 +186,7 @@ class TaskResponse(BaseModel, Generic[T]):
         self._write_to_file(content, output_file)
         return content
     
-    def json(self, output_file: str = None) -> dict:
+    def json(self, output_file: Optional[str] = None) -> dict:
         """Get the full task data as JSON
         
         Args:

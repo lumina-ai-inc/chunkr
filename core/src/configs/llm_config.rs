@@ -30,6 +30,23 @@ pub struct LlmModel {
     pub rate_limit: Option<f32>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LlmModelPublic {
+    pub id: String,
+    pub default: bool,
+    pub fallback: bool,
+}
+
+impl From<LlmModel> for LlmModelPublic {
+    fn from(model: LlmModel) -> Self {
+        LlmModelPublic {
+            id: model.id,
+            default: model.default,
+            fallback: model.fallback,
+        }
+    }
+}
+
 static CONFIG: Lazy<RwLock<Option<Result<Config, ConfigError>>>> = Lazy::new(|| RwLock::new(None));
 
 impl Config {

@@ -1,5 +1,6 @@
 class HeadersMixin:
     """Mixin class for handling authorization headers"""
+    _api_key: str = ""
 
     def get_api_key(self) -> str:
         """Get the API key"""
