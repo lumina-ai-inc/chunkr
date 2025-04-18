@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.47](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.46...chunkr-ai-v0.0.47) (2025-04-18)
+
+
+### Bug Fixes
+
+* Paths decodable as base64 string can be used with the python client ([#444](https://github.com/lumina-ai-inc/chunkr/issues/444)) ([d544aac](https://github.com/lumina-ai-inc/chunkr/commit/d544aac952d7a6b45ece09b691ad0d1d4b9454c1))
+
 ## [0.0.46](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.45...chunkr-ai-v0.0.46) (2025-04-15)
 
 

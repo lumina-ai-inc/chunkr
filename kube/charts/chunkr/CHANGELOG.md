@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.3.0...chunkr-chart-v1.3.1) (2025-04-18)
+
+
+### Bug Fixes
+
+* Config map in helm chart ([5a08085](https://github.com/lumina-ai-inc/chunkr/commit/5a08085e3c72647dd0833cdcc5574e99948298d5))
+
 ## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-chart-v1.2.0...chunkr-chart-v1.3.0) (2025-04-15)
 
 
