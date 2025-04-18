@@ -140,6 +140,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out
 > **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
 ```bash
 AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
+WORKER__SERVER_URL=https://your_vm_ip_address:8444
 VITE_API_URL=https://your_vm_ip_address:8444
 VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=https://your_vm_ip_address
 VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
