@@ -1,8 +1,13 @@
 import os
+import sys
 import torch
 from peft import LoraConfig, get_peft_model
 import ast
 from transformers import AutoProcessor, BitsAndBytesConfig, Qwen2VLForConditionalGeneration, Qwen2_5_VLForConditionalGeneration, HfArgumentParser, Qwen2_5_VLForConditionalGeneration
+
+# Add the project root to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 from src.training.trainer import QwenTrainer
 from src.training.data import make_supervised_data_module
 from src.training.params import DataArguments, ModelArguments, TrainingArguments

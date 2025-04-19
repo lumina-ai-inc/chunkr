@@ -27,7 +27,7 @@ uv pip install flash-attn --no-build-isolation
 # --- Configuration ---
 MODEL_NAME=${MODEL_NAME:-"Qwen/Qwen2.5-VL-3B-Instruct"}
 GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-144}
-BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-4}
+BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-8}
 NUM_DEVICES=${NUM_DEVICES:-8} # Adjust if your hardware setup changed
 GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
 OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_v2"} # Unified output directory for all runs
@@ -39,7 +39,7 @@ TENSORBOARD_DIR=${TENSORBOARD_DIR:-"$OUTPUT_DIR/runs"} # Tensorboard logs
 HUB_MODEL_ID=${HUB_MODEL_ID:-"ChunkrAI/sophris-table-VLM"}
 VISUALIZATION_DIR=${VISUALIZATION_DIR:-"$OUTPUT_DIR/visualizations"}
 NUM_EPOCHS=${NUM_EPOCHS:-100} # Total desired epochs (adjust if resuming)
-DATA_LIMIT=${DATA_LIMIT:-48000}
+DATA_LIMIT=${DATA_LIMIT:-48}
 
 # --- Dynamic Checkpoint Detection ---
 RESUME_CHECKPOINT=""
@@ -60,41 +60,41 @@ mkdir -p $OUTPUT_DIR $CONVERTED_DATA_DIR $IMAGE_DIR $TENSORBOARD_DIR $VISUALIZAT
 
 # Check if the resume checkpoint exists (only relevant if we found one)
 # This check is now less critical as we dynamically find it, but kept for safety
-# if [ -n "$RESUME_CHECKPOINT" ] && [ ! -d "$RESUME_CHECKPOINT" ]; then
-#   echo "Error: Detected resume checkpoint directory does not exist: $RESUME_CHECKPOINT"
-#   echo "There might be an issue with checkpoint detection or directory structure."
-#   exit 1
-# fi
+if [ -n "$RESUME_CHECKPOINT" ] && [ ! -d "$RESUME_CHECKPOINT" ]; then
+  echo "Error: Detected resume checkpoint directory does not exist: $RESUME_CHECKPOINT"
+  echo "There might be an issue with checkpoint detection or directory structure."
+  exit 1
+fi
 
 # Start TensorBoard with remote access enabled
 echo "Starting TensorBoard in background..."
 nohup tensorboard --logdir $TENSORBOARD_DIR --port 6006 --bind_all > tensorboard.log 2>&1 &
 echo "TensorBoard started in background. Access at http://<your-sf-compute-ip>:6006"
 
-Step 1: Prepare Dataset
-echo "Preparing dataset..."
-uv run prepare_dataset.py \
-    --output_dir $DATA_DIR \
-    --data_limit $DATA_LIMIT \
-    --train_ratio 0.8 \
-    --val_ratio 0.1 \
-    --test_ratio 0.1
+# # Step 1: Prepare Dataset
+# echo "Preparing dataset..."
+# uv run prepare_dataset.py \
+#     --output_dir $DATA_DIR \
+#     --data_limit $DATA_LIMIT \
+#     --train_ratio 0.8 \
+#     --val_ratio 0.1 \
+#     --test_ratio 0.1
 
-# Get the actual subdirectory where files are stored
-DATASET_BASENAME=$(basename "$DATA_DIR")
-PREPARED_DATA_DIR="$DATA_DIR/$DATASET_BASENAME"
-echo "Using dataset files from: $PREPARED_DATA_DIR"
+# # Get the actual subdirectory where files are stored
+# DATASET_BASENAME=$(basename "$DATA_DIR")
+# PREPARED_DATA_DIR="$DATA_DIR/$DATASET_BASENAME"
+# echo "Using dataset files from: $PREPARED_DATA_DIR"
 
-# Define the image directory (assuming images are within the prepared data dir)
-IMAGE_DIR="$PREPARED_DATA_DIR" # Or adjust if images are in a specific subfolder like "$PREPARED_DATA_DIR/images"
+# # Define the image directory (assuming images are within the prepared data dir)
+# IMAGE_DIR="$PREPARED_DATA_DIR" # Or adjust if images are in a specific subfolder like "$PREPARED_DATA_DIR/images"
 
-# Step 2: Convert Dataset
-echo "Converting dataset to LLaVA format..."
-uv run convert_dataset.py \
-    --input_dir "$PREPARED_DATA_DIR" \
-    --output_dir $CONVERTED_DATA_DIR \
-    --image_dir $IMAGE_DIR \
-    --create_tensorboard_dir
+# # Step 2: Convert Dataset
+# echo "Converting dataset to LLaVA format..."
+# uv run convert_dataset.py \
+#     --input_dir "$PREPARED_DATA_DIR" \
+#     --output_dir $CONVERTED_DATA_DIR \
+#     --image_dir $IMAGE_DIR \
+#     --create_tensorboard_dir
 
 # Step 3: Train Model - Start or Continue Training
 TRAIN_ARGS=(
@@ -154,7 +154,6 @@ else
 fi
 
 # Ensure PYTHONPATH is set for deepspeed launch
-export PYTHONPATH=src:$PYTHONPATH
 uv run deepspeed src/training/train.py "${TRAIN_ARGS[@]}"
 
 # Step 4: Merge LoRA Weights from the *final* state in OUTPUT_DIR
