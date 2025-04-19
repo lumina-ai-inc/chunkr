@@ -23,7 +23,7 @@ uv pip install ninja packaging
 
 # Install flash-attn with uv pip install and no build isolation
 echo "Installing flash-attn with uv pip install..."
-uv pip install flash-attn==2.7.4 --no-build-isolation
+uv pip install flash-attn --no-build-isolation
 # --- Configuration ---
 MODEL_NAME=${MODEL_NAME:-"Qwen/Qwen2.5-VL-3B-Instruct"}
 GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-144}
