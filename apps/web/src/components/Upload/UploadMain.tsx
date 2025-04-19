@@ -14,6 +14,7 @@ import {
   ToggleGroup,
   SegmentProcessingControls,
   ChunkProcessingControls,
+  LlmProcessingControls,
 } from "./ConfigControls";
 import { uploadFile } from "../../services/uploadFileApi";
 import { UploadForm } from "../../models/upload.model";
@@ -506,6 +507,13 @@ export default function UploadMain({
               showOnlyPage={
                 config.segmentation_strategy === SegmentationStrategy.Page
               }
+            />
+          </div>
+
+          <div style={{ marginTop: 32 }}>
+            <LlmProcessingControls
+              value={config.llm_processing!}
+              onChange={(llm) => setConfig({ ...config, llm_processing: llm })}
             />
           </div>
         </section>

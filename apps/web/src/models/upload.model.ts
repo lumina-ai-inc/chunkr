@@ -4,6 +4,7 @@ import {
   SegmentProcessing,
   SegmentationStrategy,
   Pipeline,
+  LlmProcessing,
 } from "./taskConfig.model";
 import { WhenEnabled } from "../config/env.config";
 
@@ -33,4 +34,7 @@ export interface UploadForm {
 
   /** Pipeline to run after processing */
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
+
+  /** NEW: optional LLM processing config */
+  llm_processing?: LlmProcessing;
 }

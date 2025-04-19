@@ -7,7 +7,10 @@ import {
   CroppingStrategy,
   DEFAULT_SEGMENT_PROCESSING,
   ChunkProcessing,
+  LlmProcessing,
+  FallbackStrategyType,
 } from "../../models/taskConfig.model";
+import { fetchLLMModels, LLMModel } from "../../services/llmModels.service";
 
 interface ToggleGroupProps {
   value: string;
@@ -491,6 +494,360 @@ export function ChunkProcessingControls({
           </Text>
         </label>
       </Flex>
+    </div>
+  );
+}
+
+export function LlmProcessingControls({
+  value,
+  onChange,
+}: {
+  value: LlmProcessing;
+  onChange: (value: LlmProcessing) => void;
+}) {
+  const [models, setModels] = useState<LLMModel[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Dropdown state
+  const [isModelOpen, setIsModelOpen] = useState(false);
+  const [isFallbackOpen, setIsFallbackOpen] = useState(false);
+  const modelRef = useRef<HTMLDivElement>(null);
+  const fallbackRef = useRef<HTMLDivElement>(null);
+  const docsUrl = "https://docs.chunkr.ai/docs/features/llm-processing";
+
+  useEffect(() => {
+    setLoading(true);
+    fetchLLMModels()
+      .then(setModels)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  // close dropdowns on outside click
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (modelRef.current && !modelRef.current.contains(e.target as Node)) {
+        setIsModelOpen(false);
+      }
+      if (
+        fallbackRef.current &&
+        !fallbackRef.current.contains(e.target as Node)
+      ) {
+        setIsFallbackOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="config-card">
+        <Text size="2" weight="medium" className="white">
+          Loading LLM models…
+        </Text>
+      </div>
+    );
+  }
+
+  // figure out the system defaults
+  const defaultModelId = models.find((m) => m.default)?.id || "";
+  const defaultFallbackId = models.find((m) => m.fallback)?.id || "";
+
+  // determine what's currently shown
+  const selectedModelId = value.model_id ?? defaultModelId;
+  const currentFallbackType = value.fallback_strategy?.type;
+  const currentFallbackId =
+    currentFallbackType === FallbackStrategyType.Model
+      ? value.fallback_strategy!.model_id!
+      : "";
+
+  return (
+    <div className="config-card">
+      {/* Top Header */}
+      <div className="config-card-header">
+        <Flex direction="row" gap="2" align="center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 3V7M17 5H21M19 17V21M17 19H21M10 5L8.53001 8.72721C8.3421 9.20367 8.24814 9.4419 8.10427 9.64278C7.97675 9.82084 7.82084 9.97675 7.64278 10.1043C7.4419 10.2481 7.20367 10.3421 6.72721 10.53L3 12L6.72721 13.47C7.20367 13.6579 7.4419 13.7519 7.64278 13.8957C7.82084 14.0233 7.97675 14.1792 8.10427 14.3572C8.24814 14.5581 8.3421 14.7963 8.53001 15.2728L10 19L11.47 15.2728C11.6579 14.7963 11.7519 14.5581 11.8957 14.3572C12.0233 14.1792 12.1792 14.0233 12.3572 13.8957C12.5581 13.7519 12.7963 13.6579 13.2728 13.47L17 12L13.2728 10.53C12.7963 10.3421 12.5581 10.2481 12.3572 10.1043C12.1792 9.97675 12.0233 9.82084 11.8957 9.64278C11.7519 9.4419 11.6579 9.20367 11.47 8.72721L10 5Z"
+              stroke="#FFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <Text size="3" weight="bold" className="white">
+            LLM Processing
+          </Text>
+        </Flex>
+        {docsUrl && (
+          <Flex
+            onClick={() => window.open(docsUrl, "_blank")}
+            direction="row"
+            gap="1"
+            align="center"
+            justify="end"
+            className="docs-text"
+          >
+            <Text size="1" weight="medium" className="white">
+              Docs
+            </Text>
+            {/* docs-icon SVG */}
+            <svg
+              width="12px"
+              height="12px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 14.1625L14.1625 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </Flex>
+        )}
+      </div>
+
+      <div className="segment-config-grid">
+        {/* ==== MAIN MODEL SELECTOR ==== */}
+        <div
+          className="config-card"
+          style={{
+            zIndex: 100,
+          }}
+        >
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Model
+            </Text>
+          </div>
+          <div className="model-selector" ref={modelRef}>
+            <button
+              className="model-selector-button"
+              onClick={() => setIsModelOpen((o) => !o)}
+              type="button"
+            >
+              <Text size="2" weight="medium">
+                {selectedModelId}
+              </Text>
+              {/* chevron SVG */}
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{
+                  transform: isModelOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                }}
+              >
+                <path
+                  d="M2.5 4.5L6 8L9.5 4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            {isModelOpen && (
+              <div className="segment-dropdown-menu">
+                {models.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className={`segment-dropdown-item ${
+                      selectedModelId === m.id ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      onChange({
+                        ...value,
+                        // if it's the system default, clear it, else pick it
+                        model_id: m.id === defaultModelId ? undefined : m.id,
+                      });
+                      setIsModelOpen(false);
+                    }}
+                  >
+                    <Text size="2" weight="medium">
+                      {m.id}
+                      {m.default && " (Default)"}
+                    </Text>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ==== FALLBACK SELECTOR ==== */}
+        <div
+          className="config-card"
+          style={{
+            zIndex: 100,
+          }}
+        >
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Fallback
+            </Text>
+          </div>
+          <div className="model-selector" ref={fallbackRef}>
+            <button
+              className="model-selector-button"
+              onClick={() => setIsFallbackOpen((o) => !o)}
+              type="button"
+            >
+              <Text size="2" weight="medium">
+                {currentFallbackType === FallbackStrategyType.Default
+                  ? defaultFallbackId
+                  : currentFallbackId}
+              </Text>
+              {/* chevron SVG */}
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{
+                  transform: isFallbackOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                }}
+              >
+                <path
+                  d="M2.5 4.5L6 8L9.5 4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            {isFallbackOpen && (
+              <div className="segment-dropdown-menu">
+                {/** 1) Always show the system default fallback **/}
+                <button
+                  type="button"
+                  className={`segment-dropdown-item ${
+                    currentFallbackType === FallbackStrategyType.Default
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    onChange({
+                      ...value,
+                      fallback_strategy: {
+                        type: FallbackStrategyType.Default,
+                      },
+                    });
+                    setIsFallbackOpen(false);
+                  }}
+                >
+                  <Text size="2" weight="medium">
+                    {defaultFallbackId}
+                    {" (Default)"}
+                  </Text>
+                </button>
+
+                {/** 2) Then any other model (excluding the default fallback) **/}
+                {models
+                  .filter((m) => m.id !== defaultFallbackId)
+                  .map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className={`segment-dropdown-item ${
+                        currentFallbackType === FallbackStrategyType.Model &&
+                        currentFallbackId === m.id
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        onChange({
+                          ...value,
+                          fallback_strategy: {
+                            type: FallbackStrategyType.Model,
+                            model_id: m.id,
+                          },
+                        });
+                        setIsFallbackOpen(false);
+                      }}
+                    >
+                      <Text size="2" weight="medium">
+                        {m.id}
+                      </Text>
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ==== Temperature ==== */}
+        <div className="config-card">
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Temperature
+            </Text>
+          </div>
+          <input
+            type="number"
+            step={0.01}
+            min={0}
+            max={1}
+            value={value.temperature ?? 0}
+            onChange={(e) =>
+              onChange({ ...value, temperature: parseFloat(e.target.value) })
+            }
+            className="number-input"
+          />
+        </div>
+
+        {/* ==== Max Completion Tokens ==== */}
+        <div className="config-card">
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Max Completion Tokens
+            </Text>
+          </div>
+          <input
+            type="number"
+            value={value.max_completion_tokens ?? ""}
+            onChange={(e) => {
+              const str = e.target.value;
+              onChange({
+                ...value,
+                max_completion_tokens: str === "" ? undefined : Number(str),
+              });
+            }}
+            min={0}
+            className="number-input"
+          />
+        </div>
+      </div>
     </div>
   );
 }

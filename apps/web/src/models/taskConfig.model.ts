@@ -1,3 +1,5 @@
+import { WhenEnabled } from "../config/env.config";
+
 /**
  * OCR Strategy options for document processing
  * - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
@@ -78,7 +80,29 @@ export interface SegmentProcessing {
   Title: SegmentProcessingConfig;
 }
 
-import { WhenEnabled } from "../config/env.config";
+export enum FallbackStrategyType {
+  None = "none",
+  Default = "default",
+  Model = "model",
+}
+
+export interface FallbackStrategy {
+  /** none | default | model */
+  type: FallbackStrategyType;
+  /** only set if type === FallbackStrategyType.Model */
+  model_id?: string;
+}
+
+export interface LlmProcessing {
+  /** ID of the model to use. undefined ⇒ system default */
+  model_id?: string;
+  /** what to do if primary fails */
+  fallback_strategy?: FallbackStrategy;
+  /** max tokens to generate */
+  max_completion_tokens?: number;
+  /** randomness (0.0 = deterministic) */
+  temperature?: number;
+}
 
 export interface UploadFormData {
   chunk_processing: ChunkProcessing;
@@ -86,6 +110,7 @@ export interface UploadFormData {
   ocr_strategy: OcrStrategy;
   segmentation_strategy: SegmentationStrategy;
   segment_processing: SegmentProcessing;
+  llm_processing?: LlmProcessing;
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
 }
 
@@ -133,11 +158,19 @@ export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
   Title: { ...DEFAULT_SEGMENT_CONFIG },
 };
 
+const DEFAULT_LLM_PROCESSING: LlmProcessing = {
+  model_id: undefined,
+  fallback_strategy: { type: FallbackStrategyType.Default },
+  max_completion_tokens: undefined,
+  temperature: 0.0,
+};
+
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   chunk_processing: { target_length: 512, ignore_headers_and_footers: true },
   high_resolution: false,
   ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
+  llm_processing: DEFAULT_LLM_PROCESSING,
   pipeline: Pipeline.Azure as unknown as WhenEnabled<"pipeline", Pipeline>,
 };
