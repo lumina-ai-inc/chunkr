@@ -51,13 +51,19 @@ kubectl apply -f kube/training.yaml
 # Clean up
 rm kube/secrets_processed.yaml kube/luminadockerhub_processed.yaml
 
-# Setup port forwarding for TensorBoard
-echo "Ensure you are in the right context"
-echo "finding pods"
-kubectl get pods
+# Find the pod
+echo "Finding the running pod..."
+sleep 10
+POD_NAME=$(kubectl get pods -n sf-lumina -l job-name=qwen-vl-training -o jsonpath='{.items[0].metadata.name}')
 
-
-echo "Setting up port forwarding for TensorBoard..."
-echo "To access TensorBoard, run: kubectl port-forward pod/NAMEOFPOD 6006:6006"
+if [ -z "$POD_NAME" ]; then
+  echo "Warning: Pod not found. You may need to manually set up port forwarding later."
+  echo "Run: kubectl get pods -n sf-lumina"
+  echo "Then: kubectl port-forward pod/POD_NAME 6006:6006 -n sf-lumina"
+else
+  echo "Pod found: $POD_NAME"
+  echo "To set up TensorBoard port forwarding, run:"
+  echo "kubectl port-forward pod/$POD_NAME 6006:6006 -n sf-lumina"
+fi
 
 echo "Deployment complete!" 

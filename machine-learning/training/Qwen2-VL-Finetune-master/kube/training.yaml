@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: qwen-vl-training
+  namespace: sf-lumina
 spec:
   selector:
     app: qwen-vl-training
@@ -15,6 +16,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: qwen-vl-training
+  namespace: sf-lumina
 spec:
   template:
     metadata:
@@ -26,6 +28,7 @@ spec:
       containers:
         - name: training
           image: luminainc/qwen-vl-finetune:latest
+          imagePullPolicy: Always
           command: ["/bin/bash"]
           args: ["scripts/run_pipeline.sh"]
           env:
@@ -35,31 +38,37 @@ spec:
                 secretKeyRef:
                   name: qwen-vl-training-secrets
                   key: OPENROUTER_API_KEY
+                  optional: true
             - name: CHUNKR_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: qwen-vl-training-secrets
                   key: CHUNKR_API_KEY
+                  optional: true
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: qwen-vl-training-secrets
                   key: AWS_SECRET_ACCESS_KEY
+                  optional: true
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
                   name: qwen-vl-training-secrets
                   key: AWS_ACCESS_KEY_ID
+                  optional: true
             - name: S3_BUCKET
               valueFrom:
                 secretKeyRef:
                   name: qwen-vl-training-secrets
                   key: S3_BUCKET
+                  optional: true
             - name: DATASET_NAME
               valueFrom:
                 secretKeyRef:
                   name: qwen-vl-training-secrets
                   key: DATASET_NAME
+                  optional: true
             - name: HF_TOKEN
               valueFrom:
                 secretKeyRef:

@@ -5,22 +5,32 @@ if [ ! -z "$HF_TOKEN" ]; then
   echo "Logging into Hugging Face Hub..."
   huggingface-cli login --token $HF_TOKEN
 fi
+echo "TRYING TO RUN"
+# Create virtual environment for packages
+uv init
 
-# Install torch first (needed for flash-attn)
-echo "Pre-installing torch for flash-attn dependency..."
-uv add torch>=2.6.0 --system
+# Install setuptools first - essential for builds
+echo "Installing setuptools..."
+uv pip install setuptools wheel
 
-# Install flash-attn with build isolation disabled
-echo "Installing flash-attn with build isolation disabled..."
-uv add flash-attn --no-build-isolation --system
+# Install torch with uv pip install
+echo "Installing torch with uv pip install..."
+uv pip install torch==2.6.2
 
+# Install flash-attn dependencies
+echo "Installing flash-attn build dependencies..."
+uv pip install ninja packaging
+
+# Install flash-attn with uv pip install and no build isolation
+echo "Installing flash-attn with uv pip install..."
+uv pip install flash-attn==2.7.4 --no-build-isolation
 # --- Configuration ---
 MODEL_NAME=${MODEL_NAME:-"Qwen/Qwen2.5-VL-3B-Instruct"}
 GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-144}
 BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-4}
 NUM_DEVICES=${NUM_DEVICES:-8} # Adjust if your hardware setup changed
 GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
-OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_v1"} # Unified output directory for all runs
+OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_v2"} # Unified output directory for all runs
 MERGED_MODEL_PATH=${MERGED_MODEL_PATH:-"${OUTPUT_DIR}_merged"} # Merged path based on output dir
 DATA_DIR=${DATA_DIR:-"data/sophris-datasheet-table-extraction-azure-distill-v1"}
 CONVERTED_DATA_DIR=${CONVERTED_DATA_DIR:-"data/llava-format"}
@@ -65,7 +75,7 @@ echo "TensorBoard started in background. Access at http://<your-sf-compute-ip>:6
 echo "Preparing dataset..."
 uv run prepare_dataset.py \
     --output_dir $DATA_DIR \
-    --data_limit 48000 \
+    --data_limit $DATA_LIMIT \
     --train_ratio 0.8 \
     --val_ratio 0.1 \
     --test_ratio 0.1
