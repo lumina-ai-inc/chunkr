@@ -3,13 +3,13 @@ name = "qwen2-vl-finetune-master"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "awswrangler[s3]>=3.11.0",
     "boto3>=1.37.34",
     "datasets>=3.5.0",
     "deepspeed>=0.16.6",
-    "flash-attn>=2.7.4.post1",
+    "flash-attn",
     "gradio>=5.25.2",
     "levenshtein>=0.27.1",
     "liger-kernel>=0.5.8",
@@ -21,6 +21,7 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "qwen-vl-utils>=0.0.10",
     "rouge-score>=0.1.2",
+    "triton",
     "tensorboard>=2.19.0",
     "torch>=2.6.0",
     "torchvision>=0.21.0",

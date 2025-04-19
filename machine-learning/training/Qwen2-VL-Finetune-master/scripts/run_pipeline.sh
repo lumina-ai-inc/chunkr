@@ -21,6 +21,8 @@ uv pip install torch
 echo "Installing flash-attn build dependencies..."
 uv pip install ninja packaging
 
+
+
 # Install flash-attn with uv pip install and no build isolation
 echo "Installing flash-attn with uv pip install..."
 uv pip install flash-attn --no-build-isolation
