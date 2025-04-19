@@ -81,49 +81,11 @@ export interface SegmentProcessing {
 import { WhenEnabled } from "../config/env.config";
 
 export interface UploadFormData {
-  /** Optional chunk processing configuration */
-  chunk_processing?: ChunkProcessing;
-
-  /**
-   * The number of seconds until task is deleted.
-   * Expired tasks can **not** be updated, polled or accessed via web interface.
-   */
-  expires_in?: number;
-
-  /** The file to be uploaded */
-  file: File;
-
-  /**
-   * Whether to use high-resolution images for cropping and post-processing.
-   * (Latency penalty: ~7 seconds per page)
-   * @default false
-   */
-  high_resolution?: boolean;
-
-  /**
-   * OCR strategy to use for document processing
-   * @default "Auto"
-   */
-  ocr_strategy?: OcrStrategy;
-
-  /** Optional segment processing configuration */
-  segment_processing?: SegmentProcessing;
-
-  /**
-   * Segmentation strategy to use
-   * @default "LayoutAnalysis"
-   */
-  segmentation_strategy?: SegmentationStrategy;
-
-  /**
-   * @deprecated Use `chunk_processing` instead
-   * The target chunk length to be used for chunking.
-   * If 0, each chunk will contain a single segment.
-   * @default 512
-   */
-  target_chunk_length?: number;
-
-  /** Pipeline to use for processing */
+  chunk_processing: ChunkProcessing;
+  high_resolution: boolean;
+  ocr_strategy: OcrStrategy;
+  segmentation_strategy: SegmentationStrategy;
+  segment_processing: SegmentProcessing;
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
 }
 
@@ -177,6 +139,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
-  file: new File([], ""),
   pipeline: Pipeline.Azure as unknown as WhenEnabled<"pipeline", Pipeline>,
 };

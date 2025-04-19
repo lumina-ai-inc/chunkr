@@ -5,7 +5,6 @@ import { AuthContextProps } from "react-oidc-context";
 import "./UploadDialog.css";
 import UploadMain from "./UploadMain";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface UploadDialogProps {
   auth: AuthContextProps;
@@ -19,7 +18,6 @@ export default function UploadDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const isAuthenticated = auth.isAuthenticated;
-  const navigate = useNavigate();
 
   const handleOpenChange = (open: boolean) => {
     if (!isUploading) {
@@ -29,12 +27,11 @@ export default function UploadDialog({
 
   const handleUploadStart = () => {
     setIsUploading(true);
+    setIsOpen(false);
   };
 
   const handleUploadComplete = () => {
     setIsUploading(false);
-    setIsOpen(false);
-    navigate("/dashboard?tablePageIndex=0&tablePageSize=20", { replace: true });
     onUploadComplete?.();
   };
 
