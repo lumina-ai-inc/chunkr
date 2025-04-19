@@ -71,7 +71,7 @@ echo "Starting TensorBoard in background..."
 nohup tensorboard --logdir $TENSORBOARD_DIR --port 6006 --bind_all > tensorboard.log 2>&1 &
 echo "TensorBoard started in background. Access at http://<your-sf-compute-ip>:6006"
 
-# Step 1: Prepare Dataset
+Step 1: Prepare Dataset
 echo "Preparing dataset..."
 uv run prepare_dataset.py \
     --output_dir $DATA_DIR \
@@ -104,7 +104,7 @@ TRAIN_ARGS=(
     "--use_liger" "${USE_LIGER:-True}"
     "--lora_enable" "${LORA_ENABLE:-True}"
     "--use_dora" "${USE_DORA:-False}"
-    "--lora_namespan_exclude" "${LORA_NAMESPAN_EXCLUDE:-""}"
+    "--lora_namespan_exclude" "${LORA_NAMESPAN_EXCLUDE:-"[]"}"
     "--lora_rank" "${LORA_RANK:-64}"
     "--lora_alpha" "${LORA_ALPHA:-64}"
     "--lora_dropout" "${LORA_DROPOUT:-0.05}"
