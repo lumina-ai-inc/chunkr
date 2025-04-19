@@ -7,7 +7,7 @@ if [ ! -z "$HF_TOKEN" ]; then
 fi
 echo "TRYING TO RUN"
 # Create virtual environment for packages
-uv init
+uv venv
 
 # Install setuptools first - essential for builds
 echo "Installing setuptools..."
@@ -15,7 +15,7 @@ uv pip install setuptools wheel
 
 # Install torch with uv pip install
 echo "Installing torch with uv pip install..."
-uv pip install torch==2.6.2
+uv pip install torch
 
 # Install flash-attn dependencies
 echo "Installing flash-attn build dependencies..."
