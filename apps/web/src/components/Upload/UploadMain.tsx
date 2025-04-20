@@ -526,6 +526,7 @@ export default function UploadMain({
             <LlmProcessingControls
               value={config.llm_processing!}
               onChange={(llm) => setConfig({ ...config, llm_processing: llm })}
+              docsUrl={`${DOCS_URL}/docs/features/llm-processing`}
             />
           </div>
         </section>

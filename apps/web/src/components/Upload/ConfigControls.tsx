@@ -630,9 +630,11 @@ export function ChunkProcessingControls({
 export function LlmProcessingControls({
   value,
   onChange,
+  docsUrl,
 }: {
   value: LlmProcessing;
   onChange: (value: LlmProcessing) => void;
+  docsUrl?: string;
 }) {
   const [models, setModels] = useState<LLMModel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -642,7 +644,6 @@ export function LlmProcessingControls({
   const [isFallbackOpen, setIsFallbackOpen] = useState(false);
   const modelRef = useRef<HTMLDivElement>(null);
   const fallbackRef = useRef<HTMLDivElement>(null);
-  const docsUrl = "https://docs.chunkr.ai/docs/features/llm-processing";
 
   useEffect(() => {
     setLoading(true);
