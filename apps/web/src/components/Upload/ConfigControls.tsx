@@ -9,6 +9,7 @@ import {
   ChunkProcessing,
   LlmProcessing,
   FallbackStrategyType,
+  EmbedSource,
 } from "../../models/taskConfig.model";
 import { fetchLLMModels, LLMModel } from "../../services/llmModels.service";
 
@@ -217,11 +218,19 @@ export function SegmentProcessingControls({
     const defaultConfig = DEFAULT_SEGMENT_PROCESSING[type];
     const currentConfig = value[type];
 
+    const defaultSources = defaultConfig.embed_sources ?? [
+      EmbedSource.MARKDOWN,
+    ];
+    const currentSources = currentConfig.embed_sources ?? [
+      EmbedSource.MARKDOWN,
+    ];
+
     return (
       defaultConfig.crop_image !== currentConfig.crop_image ||
       defaultConfig.html !== currentConfig.html ||
       defaultConfig.markdown !== currentConfig.markdown ||
-      (currentConfig.llm && currentConfig.llm.trim() !== "")
+      (!!currentConfig.llm && currentConfig.llm.trim() !== "") ||
+      JSON.stringify(defaultSources) !== JSON.stringify(currentSources)
     );
   };
 
@@ -238,6 +247,27 @@ export function SegmentProcessingControls({
   const handleTypeSelect = (type: keyof SegmentProcessing) => {
     setSelectedType(type);
     setIsDropdownOpen(false);
+  };
+
+  // derive the current embed_sources for this segment type:
+  const currentSources: EmbedSource[] = value[selectedType].embed_sources ?? [
+    EmbedSource.MARKDOWN,
+  ];
+
+  // helper to add/remove a source
+  const toggleEmbedSource = (src: EmbedSource) => {
+    const has = currentSources.includes(src);
+    const newSources = has
+      ? currentSources.filter((s) => s !== src)
+      : [...currentSources, src];
+
+    onChange({
+      ...value,
+      [selectedType]: {
+        ...value[selectedType],
+        embed_sources: newSources,
+      },
+    });
   };
 
   return (
@@ -294,45 +324,132 @@ export function SegmentProcessingControls({
       </div>
 
       <div className="segment-config-grid">
-        <ToggleGroup
-          docHover={false}
-          label="HTML Generation"
-          value={value[selectedType].html}
-          onChange={(v) => updateConfig("html", v)}
-          options={[
-            { label: "Auto", value: GenerationStrategy.Auto },
-            { label: "LLM", value: GenerationStrategy.LLM },
-          ]}
-        />
-
-        <ToggleGroup
-          docHover={false}
-          label="Markdown Generation"
-          value={value[selectedType].markdown}
-          onChange={(v) => updateConfig("markdown", v)}
-          options={[
-            { label: "Auto", value: GenerationStrategy.Auto },
-            { label: "LLM", value: GenerationStrategy.LLM },
-          ]}
-        />
-
-        <ToggleGroup
-          docHover={false}
-          label="Image Cropping"
-          value={value[selectedType].crop_image}
-          onChange={(v) => updateConfig("crop_image", v)}
-          options={[
-            { label: "Auto", value: CroppingStrategy.Auto },
-            { label: "All", value: CroppingStrategy.All },
-          ]}
-        />
-
+        {/** ==== Markdown Generation ==== **/}
         <div className="config-card">
-          <div className="config-card-header">
+          <div
+            className="config-card-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Text size="3" weight="bold" className="white">
+              Markdown Generation
+            </Text>
+
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={currentSources.includes(EmbedSource.MARKDOWN)}
+                onChange={() => toggleEmbedSource(EmbedSource.MARKDOWN)}
+              />
+            </label>
+          </div>
+
+          <div className="toggle-buttons">
+            {[
+              { label: "Auto", value: GenerationStrategy.Auto },
+              { label: "LLM", value: GenerationStrategy.LLM },
+            ].map((option) => (
+              <button
+                key={option.value}
+                className={`toggle-button ${
+                  value[selectedType].markdown === option.value ? "active" : ""
+                }`}
+                onClick={() =>
+                  onChange({
+                    ...value,
+                    [selectedType]: {
+                      ...value[selectedType],
+                      markdown: option.value,
+                    },
+                  })
+                }
+              >
+                <Text size="1" weight="bold">
+                  {option.label}
+                </Text>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/** ==== HTML Generation ==== **/}
+        <div className="config-card">
+          <div
+            className="config-card-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Text size="3" weight="bold" className="white">
+              HTML Generation
+            </Text>
+
+            {/** embed_sources checkbox **/}
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={currentSources.includes(EmbedSource.HTML)}
+                onChange={() => toggleEmbedSource(EmbedSource.HTML)}
+              />
+            </label>
+          </div>
+
+          <div className="toggle-buttons">
+            {[
+              { label: "Auto", value: GenerationStrategy.Auto },
+              { label: "LLM", value: GenerationStrategy.LLM },
+            ].map((option) => (
+              <button
+                key={option.value}
+                className={`toggle-button ${
+                  value[selectedType].html === option.value ? "active" : ""
+                }`}
+                onClick={() =>
+                  onChange({
+                    ...value,
+                    [selectedType]: {
+                      ...value[selectedType],
+                      html: option.value,
+                    },
+                  })
+                }
+              >
+                <Text size="1" weight="bold">
+                  {option.label}
+                </Text>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/** ==== Custom LLM ==== **/}
+        <div className="config-card">
+          <div
+            className="config-card-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Text size="3" weight="bold" className="white">
               Custom LLM
             </Text>
+
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={currentSources.includes(EmbedSource.LLM)}
+                onChange={() => toggleEmbedSource(EmbedSource.LLM)}
+              />
+            </label>
           </div>
+
           <input
             type="text"
             className="llm-input"
@@ -349,6 +466,18 @@ export function SegmentProcessingControls({
             }
           />
         </div>
+
+        {/** ==== Image Cropping (unchanged) ==== **/}
+        <ToggleGroup
+          docHover={false}
+          label="Image Cropping"
+          value={value[selectedType].crop_image}
+          onChange={(v) => updateConfig("crop_image", v)}
+          options={[
+            { label: "Auto", value: CroppingStrategy.Auto },
+            { label: "All", value: CroppingStrategy.All },
+          ]}
+        />
       </div>
     </div>
   );

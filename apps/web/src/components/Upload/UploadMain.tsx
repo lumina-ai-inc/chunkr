@@ -496,6 +496,7 @@ export default function UploadMain({
                 </svg>
               </Flex>
             </div>
+
             <SegmentProcessingControls
               value={config.segment_processing || DEFAULT_SEGMENT_PROCESSING}
               onChange={(value) =>
@@ -508,6 +509,17 @@ export default function UploadMain({
                 config.segmentation_strategy === SegmentationStrategy.Page
               }
             />
+            <Flex direction="row" mt="3" align="center">
+              <Text
+                size="1"
+                weight="medium"
+                className="white"
+                style={{ opacity: 0.8 }}
+              >
+                * Use checkboxes to select which sources to include in the embed
+                field.
+              </Text>
+            </Flex>
           </div>
 
           <div style={{ marginTop: 32 }}>

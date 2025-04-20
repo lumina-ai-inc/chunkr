@@ -50,12 +50,19 @@ export enum CroppingStrategy {
   Auto = "Auto",
 }
 
+export enum EmbedSource {
+  MARKDOWN = "EmbedSource.MARKDOWN",
+  HTML = "EmbedSource.HTML",
+  LLM = "EmbedSource.LLM",
+}
+
 /** Base configuration for automatic content generation */
 export interface SegmentProcessingConfig {
   crop_image: CroppingStrategy;
   html: GenerationStrategy;
   llm?: string;
   markdown: GenerationStrategy;
+  embed_sources?: EmbedSource[];
 }
 
 /**
@@ -123,24 +130,28 @@ const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.Auto,
   html: GenerationStrategy.Auto,
   markdown: GenerationStrategy.Auto,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 const DEFAULT_TABLE_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.Auto,
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.Auto,
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.All,
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
