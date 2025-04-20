@@ -179,6 +179,8 @@ mod tests {
     use crate::models::open_ai::{ContentPart, Message, MessageContent};
     use crate::utils::clients::initialize;
     use crate::utils::services::llm::open_ai_call;
+    use limit_lens::apis::{configuration::Configuration, rate_test_api};
+    use limit_lens::models::CreateSessionRequest;
     use rand::Rng;
     use std::error::Error;
     use std::fs;
@@ -437,6 +439,9 @@ mod tests {
         // Initialize the environment
         initialize().await;
         
+        // Create configuration for limit-lens client
+        let config = Configuration::default();
+        
         // Define test scenarios with different rate limits
         let scenarios = vec![1, 10, 25, 50, 100, 200];
         let test_duration_secs = 30;
@@ -444,18 +449,13 @@ mod tests {
         for rate_limit in scenarios {
             println!("Testing rate limit: {} requests per second", rate_limit);
             
-            // Create a new session for this rate limit test
-            let client = reqwest::Client::new();
-            let session_response = client
-                .post("http://localhost:6969/api/test/session")
-                .json(&serde_json::json!({ 
-                    "name": format!("Rate Limiter Test - {} RPS", rate_limit) 
-                }))
-                .send()
-                .await?;
+            // Create a new session for this rate limit test using the limit-lens crate
+            let session_request = CreateSessionRequest {
+                name: Some(format!("Rate Limiter Test - {} RPS", rate_limit).into()),
+            };
             
-            let session_data: serde_json::Value = session_response.json().await?;
-            let session_id = session_data["id"].as_str().unwrap();
+            let session = rate_test_api::create_test_session(&config, session_request).await?;
+            let session_id = session.id;
             
             // Create rate limiter with the current test scenario rate
             let rate_limiter = RateLimiter::new(rate_limit as f32, &format!("limit_lens_test_{}", rate_limit));
@@ -469,8 +469,8 @@ mod tests {
             
             for i in 0..expected_requests {
                 let limiter = rate_limiter.clone();
-                let client = client.clone();
-                let session_id = session_id.to_string();
+                let config = config.clone();
+                let session_id = session_id.clone();
                 
                 let future = tokio::spawn(async move {
                     // Try to acquire a token with a longer timeout that matches the test duration
@@ -478,12 +478,8 @@ mod tests {
                         .acquire_token_with_timeout(Duration::from_secs(test_duration_secs as u64))
                         .await
                     {
-                        // Removed the deadline check to ensure all requests are attempted
-                        match client
-                            .get(format!("http://localhost:6969/api/test/request/{}", session_id))
-                            .send()
-                            .await
-                        {
+                        // Use the limit-lens crate to make the test request
+                        match rate_test_api::receive_test_request(&config, &session_id).await {
                             Ok(_) => Ok(()),
                             Err(e) => Err(e.to_string().into())
                         }
@@ -509,21 +505,18 @@ mod tests {
             // Add small delay to ensure all requests are processed
             tokio::time::sleep(Duration::from_millis(500)).await;
             
-            // Get metrics from limit-lens
-            let metrics_response = client
-                .get(format!("http://localhost:6969/api/test/metrics/{}", session_id))
-                .send()
-                .await?;
-            
-            let metrics: serde_json::Value = metrics_response.json().await?;
+            // Get metrics from limit-lens using the client crate
+            let metrics = rate_test_api::get_test_metrics(&config, &session_id).await?;
             
             // Extract key metrics
-            let total_requests = metrics["total_requests"].as_u64().unwrap() as f64;
-            let requests_per_second = metrics["requests_per_second"].as_f64().unwrap();
-            let distribution = metrics["request_distribution"].as_array().unwrap();
+            let total_requests = metrics.total_requests as f64;
+            let requests_per_second = &metrics.requests_per_second;
+            let distribution = &metrics.request_distribution;
+            
             println!("total_requests: {:?}", total_requests);
             println!("requests_per_second: {:?}", requests_per_second);
             println!("distribution: {:?}", distribution);
+            
             // Validate metrics
             
             // 1. Check total requests - should be within 10% of expected
@@ -535,7 +528,7 @@ mod tests {
                 total_requests, expected_requests_f64, total_requests_diff_pct
             );
             
-            // 2. Check rate - should be within 20% of target rate
+            // 2. Check rate - should be within 30% of target rate
             let rate_diff_pct = ((requests_per_second - rate_limit as f64).abs() / rate_limit as f64) * 100.0;
             println!("rate_diff_pct: {:?}", rate_diff_pct);
             assert!(
@@ -550,7 +543,7 @@ mod tests {
             let mut total_deviation = 0.0;
             
             for (i, period) in distribution.iter().enumerate() {
-                let count = period["count"].as_u64().unwrap() as f64;
+                let count = period.count as f64;
                 
                 // Skip first and last periods which might be partial
                 if i == 0 || i == distribution.len() - 1 {
