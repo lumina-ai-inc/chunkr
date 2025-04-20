@@ -44,7 +44,7 @@ export function ToggleGroup({
           justify="end"
           className={docHover ? "docs-text" : "docs-text-hidden"}
         >
-          <Text size="1" weight="medium" className="white ">
+          <Text size="1" weight="bold" className="white ">
             Docs
           </Text>
           <svg
@@ -124,7 +124,7 @@ export function NumberInput({
           justify="end"
           className={docHover ? "docs-text" : "docs-text-hidden"}
         >
-          <Text size="1" weight="medium" className="white ">
+          <Text size="1" weight="bold" className="white ">
             Docs
           </Text>
           <svg
@@ -554,7 +554,7 @@ export function ChunkProcessingControls({
           justify="end"
           className="docs-text"
         >
-          <Text size="1" weight="medium" className="white">
+          <Text size="1" weight="bold" className="white">
             Docs
           </Text>
           <svg
@@ -724,7 +724,7 @@ export function LlmProcessingControls({
             justify="end"
             className="docs-text"
           >
-            <Text size="1" weight="medium" className="white">
+            <Text size="1" weight="bold" className="white">
               Docs
             </Text>
             {/* docs-icon SVG */}

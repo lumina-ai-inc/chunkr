@@ -465,7 +465,7 @@ export default function UploadMain({
                 justify="end"
                 className="docs-text"
               >
-                <Text size="1" weight="medium" className="white ">
+                <Text size="1" weight="bold" className="white ">
                   Docs
                 </Text>
                 <svg
