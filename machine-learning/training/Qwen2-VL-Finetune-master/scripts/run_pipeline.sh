@@ -32,16 +32,17 @@ GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-144}
 BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-8}
 NUM_DEVICES=${NUM_DEVICES:-8} # Adjust if your hardware setup changed
 GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
-OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_v2"} # Unified output directory for all runs
+OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_vllm_compat"} # Unified output directory for all runs
 MERGED_MODEL_PATH=${MERGED_MODEL_PATH:-"${OUTPUT_DIR}_merged"} # Merged path based on output dir
 DATA_DIR=${DATA_DIR:-"data/sophris-datasheet-table-extraction-azure-distill-v1"}
 CONVERTED_DATA_DIR=${CONVERTED_DATA_DIR:-"data/llava-format"}
 IMAGE_DIR=${IMAGE_DIR:-"data/images"}
 TENSORBOARD_DIR=${TENSORBOARD_DIR:-"$OUTPUT_DIR/runs"} # Tensorboard logs
-HUB_MODEL_ID=${HUB_MODEL_ID:-"ChunkrAI/sophris-table-VLM"}
+CHECKPOINT_HUB_MODEL_ID=${HUB_MODEL_ID:-"ChunkrAI/chunkr-table-v1-qwen2_5VL-3B-LORA"}
+HUB_MODEL_ID=${HUB_MODEL_ID:-"ChunkrAI/chunkr-table-v1-qwen2_5VL-3B"}
 VISUALIZATION_DIR=${VISUALIZATION_DIR:-"$OUTPUT_DIR/visualizations"}
-NUM_EPOCHS=${NUM_EPOCHS:-100} # Total desired epochs (adjust if resuming)
-DATA_LIMIT=${DATA_LIMIT:-48}
+NUM_EPOCHS=${NUM_EPOCHS:-10} # Total desired epochs (adjust if resuming)
+DATA_LIMIT=${DATA_LIMIT:-100000}
 
 # --- Dynamic Checkpoint Detection ---
 RESUME_CHECKPOINT=""
@@ -106,12 +107,12 @@ TRAIN_ARGS=(
     "--use_liger" "${USE_LIGER:-True}"
     "--lora_enable" "${LORA_ENABLE:-True}"
     "--use_dora" "${USE_DORA:-False}"
-    "--lora_namespan_exclude" "${LORA_NAMESPAN_EXCLUDE:-"[]"}"
+    "--lora_namespan_exclude" "${LORA_NAMESPAN_EXCLUDE:-"['lm_head', 'embed_tokens']"}"
     "--lora_rank" "${LORA_RANK:-64}"
     "--lora_alpha" "${LORA_ALPHA:-64}"
     "--lora_dropout" "${LORA_DROPOUT:-0.05}"
     "--num_lora_modules" "${NUM_LORA_MODULES:--1}"
-    "--deepspeed" "scripts/zero3_offload.json"
+    "--deepspeed" "scripts/zero3.json"
     "--model_id" "$MODEL_NAME"
     "--data_path" "$CONVERTED_DATA_DIR/train.json"
     "--image_folder" "$IMAGE_DIR"
@@ -141,7 +142,7 @@ TRAIN_ARGS=(
     "--save_total_limit" "${SAVE_TOTAL_LIMIT:-10}"
     "--dataloader_num_workers" "${DATALOADER_NUM_WORKERS:-4}"
     "--push_to_hub" "${PUSH_TO_HUB:-True}"
-    "--hub_model_id" "$HUB_MODEL_ID"
+    "--hub_model_id" "$CHECKPOINT_HUB_MODEL_ID"
     "--hub_private_repo" "${HUB_PRIVATE_REPO:-True}"
     "--hub_strategy" "${HUB_STRATEGY:-checkpoint}"
 )
@@ -165,6 +166,7 @@ uv run src/merge_lora_weights.py \
     --model-base $MODEL_NAME \
     --save-model-path $MERGED_MODEL_PATH \
     --hub-model-id $HUB_MODEL_ID # Optionally change commit message here if needed
+
 
 # Step 5: Evaluate Model using the merged model from OUTPUT_DIR
 echo "Evaluating the merged model..."
@@ -197,7 +199,7 @@ echo "Access it at http://localhost:7860 (or the configured port)"
 # Note: This will run in the foreground. You might want to run it in the background
 # or in a separate terminal/tmux session for long-running access.
 # The image directory finding is heuristic; adjust pattern if needed.
-uv run src/app/evaluation_app.py \
-    --base_output_dir "$(dirname "$OUTPUT_DIR")" \
-    --initial_run_dir "$OUTPUT_DIR" \
-    --image_base_dir_pattern "$DATA_DIR/*" # Adjust pattern based on where images *actually* are relative to DATA_DIR 
+# uv run test_hf_model.py \
+#     --base_output_dir "$(dirname "$OUTPUT_DIR")" \
+#     --initial_run_dir "$OUTPUT_DIR" \
+#     --image_base_dir_pattern "$DATA_DIR/*" # Adjust pattern based on where images *actually* are relative to DATA_DIR 

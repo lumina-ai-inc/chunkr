@@ -42,7 +42,6 @@ def merge_lora(args):
                 repo_id=args.hub_model_id,
                 repo_type="model",
                 commit_message=f"Upload merged model from {args.model_path}",
-                private=True
             )
             print("Upload to Hub complete.")
         except Exception as e:

@@ -49,6 +49,10 @@ This repository contains a script for training [Qwen2-VL](https://huggingface.co
   - [License](#license)
   - [Citation](#citation)
   - [Acknowledgement](#acknowledgement)
+  - [VLLM Deployment Examples](#vllm-deployment-examples)
+    - [1. Load Merged Model from Local Directory](#1-load-merged-model-from-local-directory)
+    - [2. Load Merged Model from Hugging Face Hub](#2-load-merged-model-from-hugging-face-hub)
+    - [3. Load Base Model and Apply LoRA Adapters Dynamically](#3-load-base-model-and-apply-lora-adapters-dynamically)
 
 ## Supported Features
 
@@ -396,3 +400,73 @@ This project is based on
 - [Mipha](https://github.com/zhuyiche/llava-phi): Open-source projcet of SMM with amazing capabilites.
 - [Qwen2-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2-VL-7B-Instruct): Awesome pretrained MLLM based on Qwen2.
 - [Liger-Kernel](https://github.com/linkedin/Liger-Kernel): Collection of Tirton kernels designed specifically for LLM training.
+
+## VLLM Deployment Examples
+
+Here are examples of how to deploy the model using the `vllm/vllm-openai` Docker image.
+
+### 1. Load Merged Model from Local Directory
+
+This method uses a model that has already been merged (e.g., using `finalize.py`) and saved locally.
+
+```bash
+sudo docker run --runtime=nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -v ~/.huggingface:/root/.huggingface \
+  -v /path/to/your/local/merged/model:/model \
+  -p 8001:8000 \
+  --ipc=host \
+  -e HUGGING_FACE_HUB_TOKEN=<your_hf_token> \
+  vllm/vllm-openai:v0.8.4 \
+  --model /model \
+  --trust-remote-code \
+  --max-model-len 4096 \
+  --max-num-seqs 256
+```
+*Replace `/path/to/your/local/merged/model` with the actual path to your merged model directory.*
+*Replace `<your_hf_token>` with your Hugging Face Hub token if needed.*
+
+### 2. Load Merged Model from Hugging Face Hub
+
+This method loads a pre-merged model directly from a Hugging Face Hub repository.
+
+```bash
+sudo docker run --runtime=nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -v ~/.huggingface:/root/.huggingface \
+  -p 8001:8000 \
+  --ipc=host \
+  -e HUGGING_FACE_HUB_TOKEN=<your_hf_token> \
+  vllm/vllm-openai:v0.8.4 \
+  --model ChunkrAI/chunkr-table-v1-qwen2_5VL-3B \
+  --trust-remote-code \
+  --max-model-len 4096 \
+  --max-num-seqs 256
+```
+*Replace `<your_hf_token>` with your Hugging Face Hub token, especially if the repository is private.*
+
+### 3. Load Base Model and Apply LoRA Adapters Dynamically
+
+This method loads the base model and applies LoRA adapters at runtime.
+
+**Note:** This approach might not be ideal for Qwen-VL models as VLLM's dynamic LoRA might not correctly handle the vision components compared to a pre-merged model.
+
+```bash
+sudo docker run --runtime nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -v ~/.huggingface:/root/.huggingface \
+  -p 8001:8000 \
+  --ipc=host \
+  -e HUGGING_FACE_HUB_TOKEN=<your_hf_token> \
+  vllm/vllm-openai:v0.8.4 \
+  --model Qwen/Qwen2.5-VL-3B-Instruct \
+  --trust-remote-code \
+  --enable-lora \
+  --lora-modules <adapter_name>=<your_lora_repo_id> \
+  --max-lora-rank 64 \
+  --max-model-len 4096 \
+  --max-num-seqs 256
+```
+*Replace `<your_hf_token>` with your Hugging Face Hub token.*
+*Replace `<adapter_name>` with a name for your adapter (e.g., `finetuned_adapter`).*
+*Replace `<your_lora_repo_id>` with the Hugging Face Hub repository ID containing *only* the LoRA adapter weights (not the merged model), e.g., `ChunkrAI/chunkr-table-v1-qwen2_5VL-3B-LORA`.*
