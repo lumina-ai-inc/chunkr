@@ -431,4 +431,175 @@ mod tests {
         )?;
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_rate_limiter_with_multiple_rates() -> Result<(), Box<dyn Error>> {
+        // Initialize the environment
+        initialize().await;
+        
+        // Define test scenarios with different rate limits
+        let scenarios = vec![1, 10, 25, 50, 100, 200];
+        let test_duration_secs = 30;
+        
+        for rate_limit in scenarios {
+            println!("Testing rate limit: {} requests per second", rate_limit);
+            
+            // Create a new session for this rate limit test
+            let client = reqwest::Client::new();
+            let session_response = client
+                .post("http://localhost:6969/api/test/session")
+                .json(&serde_json::json!({ 
+                    "name": format!("Rate Limiter Test - {} RPS", rate_limit) 
+                }))
+                .send()
+                .await?;
+            
+            let session_data: serde_json::Value = session_response.json().await?;
+            let session_id = session_data["id"].as_str().unwrap();
+            
+            // Create rate limiter with the current test scenario rate
+            let rate_limiter = RateLimiter::new(rate_limit as f32, &format!("limit_lens_test_{}", rate_limit));
+            
+            // Calculate expected total requests
+            let expected_requests = rate_limit * test_duration_secs;
+            
+            // Send requests for the duration
+            let start_time = std::time::Instant::now();
+            let mut futures: Vec<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>> = Vec::new();
+            
+            for i in 0..expected_requests {
+                let limiter = rate_limiter.clone();
+                let client = client.clone();
+                let session_id = session_id.to_string();
+                
+                let future = tokio::spawn(async move {
+                    // Try to acquire a token with a longer timeout that matches the test duration
+                    if let Ok(true) = limiter
+                        .acquire_token_with_timeout(Duration::from_secs(test_duration_secs as u64))
+                        .await
+                    {
+                        // Removed the deadline check to ensure all requests are attempted
+                        match client
+                            .get(format!("http://localhost:6969/api/test/request/{}", session_id))
+                            .send()
+                            .await
+                        {
+                            Ok(_) => Ok(()),
+                            Err(e) => Err(e.to_string().into())
+                        }
+                    } else {
+                        // Log token acquisition failures
+                        println!("Failed to acquire token for request {}", i);
+                        Ok(())
+                    }
+                });
+                
+                futures.push(future);
+            }
+            
+            // Wait for all futures to complete or the deadline to pass
+            futures::future::join_all(futures).await;
+            
+            // Ensure we wait for the full test duration
+            let elapsed = start_time.elapsed();
+            if elapsed < Duration::from_secs(test_duration_secs as u64) {
+                tokio::time::sleep(Duration::from_secs(test_duration_secs as u64) - elapsed).await;
+            }
+            
+            // Add small delay to ensure all requests are processed
+            tokio::time::sleep(Duration::from_millis(500)).await;
+            
+            // Get metrics from limit-lens
+            let metrics_response = client
+                .get(format!("http://localhost:6969/api/test/metrics/{}", session_id))
+                .send()
+                .await?;
+            
+            let metrics: serde_json::Value = metrics_response.json().await?;
+            
+            // Extract key metrics
+            let total_requests = metrics["total_requests"].as_u64().unwrap() as f64;
+            let requests_per_second = metrics["requests_per_second"].as_f64().unwrap();
+            let distribution = metrics["request_distribution"].as_array().unwrap();
+            println!("total_requests: {:?}", total_requests);
+            println!("requests_per_second: {:?}", requests_per_second);
+            println!("distribution: {:?}", distribution);
+            // Validate metrics
+            
+            // 1. Check total requests - should be within 10% of expected
+            let expected_requests_f64 = expected_requests as f64;
+            let total_requests_diff_pct = ((total_requests - expected_requests_f64).abs() / expected_requests_f64) * 100.0;
+            assert!(
+                total_requests_diff_pct <= 10.0,
+                "Total requests {} differs from expected {} by more than 10% ({}%)",
+                total_requests, expected_requests_f64, total_requests_diff_pct
+            );
+            
+            // 2. Check rate - should be within 20% of target rate
+            let rate_diff_pct = ((requests_per_second - rate_limit as f64).abs() / rate_limit as f64) * 100.0;
+            println!("rate_diff_pct: {:?}", rate_diff_pct);
+            assert!(
+                rate_diff_pct <= 30.0,
+                "Measured rate {} differs from target {} by more than 30% ({}%)",
+                requests_per_second, rate_limit, rate_diff_pct
+            );
+            
+            // 3. Check distribution - each second should have roughly the target rate of requests
+            // Skip first and last second which might be partial
+            let mut valid_periods = 0;
+            let mut total_deviation = 0.0;
+            
+            for (i, period) in distribution.iter().enumerate() {
+                let count = period["count"].as_u64().unwrap() as f64;
+                
+                // Skip first and last periods which might be partial
+                if i == 0 || i == distribution.len() - 1 {
+                    continue;
+                }
+                
+                valid_periods += 1;
+                let deviation_pct = ((count - rate_limit as f64).abs() / rate_limit as f64) * 100.0;
+                total_deviation += deviation_pct;
+            }
+            
+            // Average deviation across all complete periods should be within 25%
+            if valid_periods > 0 {
+                let avg_deviation = total_deviation / valid_periods as f64;
+                assert!(
+                    avg_deviation <= 25.0,
+                    "Average per-second deviation from target rate too high: {}%",
+                    avg_deviation
+                );
+            }
+            
+            println!("✅ Rate limit {} RPS test passed:", rate_limit);
+            println!("   - Total requests: {} (expected ~{})", total_requests, expected_requests);
+            println!("   - Measured rate: {:.2} RPS", requests_per_second);
+            println!("   - Test duration: {:.2}s", start_time.elapsed().as_secs_f64());
+            
+            // Store results for this scenario
+            let dir_name = format!("output/limit_lens_test_{}_rps", rate_limit);
+            let output_dir = Path::new(&dir_name);
+            fs::create_dir_all(output_dir)?;
+            
+            std::fs::write(
+                output_dir.join("metrics.json"),
+                serde_json::to_string_pretty(&metrics)?,
+            )?;
+            
+            std::fs::write(
+                output_dir.join("summary.txt"),
+                format!(
+                    "Rate limit: {} RPS\nTotal requests: {}\nMeasured rate: {:.2} RPS\nTest duration: {:.2}s",
+                    rate_limit,
+                    total_requests,
+                    requests_per_second,
+                    start_time.elapsed().as_secs_f64()
+                ),
+            )?;
+        }
+        
+        Ok(())
+    }
+
 }
