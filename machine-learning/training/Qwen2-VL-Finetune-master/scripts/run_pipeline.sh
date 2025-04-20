@@ -73,30 +73,30 @@ echo "Starting TensorBoard in background..."
 nohup tensorboard --logdir $TENSORBOARD_DIR --port 6006 --bind_all > tensorboard.log 2>&1 &
 echo "TensorBoard started in background. Access at http://<your-sf-compute-ip>:6006"
 
-# # Step 1: Prepare Dataset
-# echo "Preparing dataset..."
-# uv run prepare_dataset.py \
-#     --output_dir $DATA_DIR \
-#     --data_limit $DATA_LIMIT \
-#     --train_ratio 0.8 \
-#     --val_ratio 0.1 \
-#     --test_ratio 0.1
+# Step 1: Prepare Dataset
+echo "Preparing dataset..."
+uv run prepare_dataset.py \
+    --output_dir $DATA_DIR \
+    --data_limit $DATA_LIMIT \
+    --train_ratio 0.8 \
+    --val_ratio 0.1 \
+    --test_ratio 0.1
 
-# # Get the actual subdirectory where files are stored
-# DATASET_BASENAME=$(basename "$DATA_DIR")
-# PREPARED_DATA_DIR="$DATA_DIR/$DATASET_BASENAME"
-# echo "Using dataset files from: $PREPARED_DATA_DIR"
+# Get the actual subdirectory where files are stored
+DATASET_BASENAME=$(basename "$DATA_DIR")
+PREPARED_DATA_DIR="$DATA_DIR/$DATASET_BASENAME"
+echo "Using dataset files from: $PREPARED_DATA_DIR"
 
-# # Define the image directory (assuming images are within the prepared data dir)
-# IMAGE_DIR="$PREPARED_DATA_DIR" # Or adjust if images are in a specific subfolder like "$PREPARED_DATA_DIR/images"
+# Define the image directory (assuming images are within the prepared data dir)
+IMAGE_DIR="$PREPARED_DATA_DIR" # Or adjust if images are in a specific subfolder like "$PREPARED_DATA_DIR/images"
 
-# # Step 2: Convert Dataset
-# echo "Converting dataset to LLaVA format..."
-# uv run convert_dataset.py \
-#     --input_dir "$PREPARED_DATA_DIR" \
-#     --output_dir $CONVERTED_DATA_DIR \
-#     --image_dir $IMAGE_DIR \
-#     --create_tensorboard_dir
+# Step 2: Convert Dataset
+echo "Converting dataset to LLaVA format..."
+uv run convert_dataset.py \
+    --input_dir "$PREPARED_DATA_DIR" \
+    --output_dir $CONVERTED_DATA_DIR \
+    --image_dir $IMAGE_DIR \
+    --create_tensorboard_dir
 
 # Step 3: Train Model - Start or Continue Training
 TRAIN_ARGS=(
@@ -178,15 +178,6 @@ uv run src/training/evaluation.py \
     --use_flash_attn True \
     --device cuda \
     --hub_model_id $HUB_MODEL_ID # Optionally change commit message
-
-# Step 6: Visualize Results (Commented out old static version)
-# echo "Visualizing results..."
-# uv run src/training/visualize_results.py \
-#     --results_path $OUTPUT_DIR/evaluation_results/eval_scores.json \
-#     --output_dir $VISUALIZATION_DIR \
-#     --image_dir $IMAGE_DIR \
-#     --tensorboard_dir $TENSORBOARD_DIR \
-#     --hub_model_id $HUB_MODEL_ID # Optionally change commit message
 
 echo "Pipeline complete. Checkpoints, logs, and results pushed to $HUB_MODEL_ID (if enabled)"
 
