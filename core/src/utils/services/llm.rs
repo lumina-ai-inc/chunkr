@@ -75,7 +75,6 @@ async fn open_ai_call_handler(
     retry_with_backoff(|| async {
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
-            println!("llm rate_limiter exists");
             rate_limiter
                 .acquire_token_with_timeout(std::time::Duration::from_secs(
                     *TOKEN_TIMEOUT.get().unwrap(),
