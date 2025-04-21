@@ -146,7 +146,6 @@ pub fn init_throttle() {
         let mut llm_rate_limiters = HashMap::new();
         let llm_config = LlmConfig::from_env().unwrap();
         let throttle_config = ThrottleConfig::from_env().unwrap();
-
         if let Some(llm_models) = llm_config.llm_models.as_ref() {
             for model in llm_models {
                 llm_rate_limiters.insert(
@@ -163,13 +162,58 @@ pub fn init_throttle() {
     });
 
     LLM_TIMEOUT.get_or_init(create_llm_timeout);
+    print_rate_limits();
 }
 
-pub fn get_llm_rate_limiter(model_id: &str) -> Option<RateLimiter> {
-    LLM_RATE_LIMITERS.get().and_then(|limiters| {
+pub fn get_llm_rate_limiter(model_id: &str) -> Result<Option<RateLimiter>, String> {
+    LLM_RATE_LIMITERS.get()
+        .ok_or_else(|| "LLM rate limiters not initialized".to_string())
+        .and_then(|limiters| {
+            let limiters_guard = limiters.read().unwrap();
+            if limiters_guard.contains_key(model_id) {
+                Ok(limiters_guard.get(model_id).cloned().flatten())
+            } else {
+                Err(format!("Model ID '{}' not found", model_id))
+            }
+        })
+}
+
+pub fn print_rate_limits() {
+    println!("=== Rate Limits (requests per second) ===");
+    
+    // Print OCR rate limit
+    if let Some(limiter) = GENERAL_OCR_RATE_LIMITER.get() {
+        println!("General OCR: {:.2} requests/sec", limiter.tokens_per_second);
+    } else {
+        println!("General OCR: not initialized");
+    }
+    
+    // Print Segmentation rate limit
+    if let Some(limiter) = SEGMENTATION_RATE_LIMITER.get() {
+        println!("Segmentation: {:.2} requests/sec", limiter.tokens_per_second);
+    } else {
+        println!("Segmentation: not initialized");
+    }
+    
+    // Print LLM rate limits
+    if let Some(limiters) = LLM_RATE_LIMITERS.get() {
         let limiters_guard = limiters.read().unwrap();
-        limiters_guard.get(model_id).cloned().flatten()
-    })
+        println!("LLM Models:");
+        
+        if limiters_guard.is_empty() {
+            println!("  No LLM models configured");
+        } else {
+            for (model_id, limiter_option) in limiters_guard.iter() {
+                if let Some(limiter) = limiter_option {
+                    println!("  {}: {:.2} requests/sec", model_id, limiter.tokens_per_second);
+                } else {
+                    println!("  {}: no rate limit", model_id);
+                }
+            }
+        }
+    } else {
+        println!("LLM Models: not initialized");
+    }
 }
 
 #[cfg(test)]
@@ -443,7 +487,7 @@ mod tests {
         let config = Configuration::default();
         
         // Define test scenarios with different rate limits
-        let scenarios = vec![1, 10, 25, 50, 100, 200];
+        let scenarios = vec![1, 8, 10, 25, 50, 100, 200];
         let test_duration_secs = 30;
         
         for rate_limit in scenarios {

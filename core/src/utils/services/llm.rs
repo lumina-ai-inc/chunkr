@@ -56,7 +56,7 @@ pub async fn open_ai_call(
     let response: OpenAiResponse = match serde_json::from_str(&text) {
         Ok(parsed) => parsed,
         Err(e) => {
-            println!("Error parsing JSON: {:?}\nResponse: {}", e, text);
+            println!("Error parsing JSON: {:?}\nResponse: {}", e, text.trim());
             return Err(Box::new(LLMError("Error parsing JSON".to_string())));
         }
     };
@@ -65,18 +65,17 @@ pub async fn open_ai_call(
 
 /// Process an OpenAI request with rate limiting and retrying on failure.
 async fn open_ai_call_handler(
-    url: String,
-    key: String,
-    model: String,
+    model: LlmModel,
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    let rate_limiter = get_llm_rate_limiter(&url);
+    let rate_limiter = get_llm_rate_limiter(&model.id)?;
     retry_with_backoff(|| async {
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
+            println!("llm rate_limiter exists");
             rate_limiter
                 .acquire_token_with_timeout(std::time::Duration::from_secs(
                     *TOKEN_TIMEOUT.get().unwrap(),
@@ -84,9 +83,9 @@ async fn open_ai_call_handler(
                 .await?;
         }
         open_ai_call(
-            url.clone(),
-            key.clone(),
-            model.clone(),
+            model.provider_url.clone(),
+            model.api_key.clone(),
+            model.model.clone(),
             messages.clone(),
             max_completion_tokens,
             temperature,
@@ -108,9 +107,7 @@ async fn process_openai_request(
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     match open_ai_call_handler(
-        model.provider_url,
-        model.api_key,
-        model.model,
+        model.clone(),
         messages.clone(),
         max_completion_tokens,
         temperature,
@@ -122,9 +119,7 @@ async fn process_openai_request(
         Err(e) => {
             if let Some(fallback_model) = fallback_model {
                 Ok(open_ai_call_handler(
-                    fallback_model.provider_url,
-                    fallback_model.api_key,
-                    fallback_model.model,
+                    fallback_model.clone(),
                     messages,
                     max_completion_tokens,
                     temperature,

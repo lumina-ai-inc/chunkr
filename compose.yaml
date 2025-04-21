@@ -31,6 +31,7 @@ services:
 
   web:
     image: luminainc/web:1.11.0
+    platform: linux/amd64
     ports:
       - "5173:8000"
     env_file:
