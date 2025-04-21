@@ -1,5 +1,12 @@
 import { WhenEnabled } from "../config/env.config";
 
+export enum Tokenizer {
+  Word = "Word",
+  CL100K_BASE = "Cl100kBase",
+  XLM_ROBERTA_BASE = "XlmRobertaBase",
+  BERT_BASE_UNCASED = "BertBaseUncased",
+}
+
 /**
  * OCR Strategy options for document processing
  * - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
@@ -36,6 +43,12 @@ export interface ChunkProcessing {
    * @default 512
    */
   target_length: number;
+
+  /**
+   * Which tokenizer to use when splitting into chunks.
+   * - one of the predefined enums below, or any Hugging Face ID string.
+   */
+  tokenizer?: Tokenizer | string;
 }
 
 /** Controls how content should be generated */
@@ -176,8 +189,14 @@ const DEFAULT_LLM_PROCESSING: LlmProcessing = {
   temperature: 0.0,
 };
 
+export const DEFAULT_CHUNK_PROCESSING: ChunkProcessing = {
+  target_length: 512,
+  ignore_headers_and_footers: true,
+  tokenizer: Tokenizer.Word,
+};
+
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
-  chunk_processing: { target_length: 512, ignore_headers_and_footers: true },
+  chunk_processing: DEFAULT_CHUNK_PROCESSING,
   high_resolution: false,
   ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,

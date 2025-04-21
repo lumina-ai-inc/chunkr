@@ -10,6 +10,7 @@ import {
   LlmProcessing,
   FallbackStrategyType,
   EmbedSource,
+  Tokenizer,
 } from "../../models/taskConfig.model";
 import { fetchLLMModels, LLMModel } from "../../services/llmModels.service";
 
@@ -483,19 +484,51 @@ export function SegmentProcessingControls({
   );
 }
 
-interface ChunkProcessingControlsProps {
-  value: ChunkProcessing;
-  onChange: (value: ChunkProcessing) => void;
-  docsUrl?: string;
-}
-
 export function ChunkProcessingControls({
   value,
   onChange,
   docsUrl,
-}: ChunkProcessingControlsProps) {
+}: {
+  value: ChunkProcessing;
+  onChange: (value: ChunkProcessing) => void;
+  docsUrl?: string;
+}) {
+  // Dropdown state for Tokenizer picker
+  const [isTokOpen, setIsTokOpen] = useState(false);
+  const tokRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (tokRef.current && !tokRef.current.contains(e.target as Node)) {
+        setIsTokOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Predefined tokens per docs
+  const predefined: { label: string; value: Tokenizer }[] = [
+    { label: "Word", value: Tokenizer.Word },
+    { label: "CL100K Base", value: Tokenizer.CL100K_BASE },
+    { label: "XLM‑Roberta Base", value: Tokenizer.XLM_ROBERTA_BASE },
+    { label: "BERT Base Uncased", value: Tokenizer.BERT_BASE_UNCASED },
+  ];
+
+  // Determine if current is custom (not one of the enums)
+  const chosen = value.tokenizer ?? Tokenizer.Word;
+  const isCustom = !predefined.find((p) => p.value === chosen);
+
+  // Handler for selecting a tokenizer
+  const selectTokenizer = (tok: Tokenizer | string) => {
+    onChange({ ...value, tokenizer: tok });
+    setIsTokOpen(false);
+  };
+
   return (
-    <div className="config-card">
+    <div className="chunk-processing-container config-card">
+      {/* === Parent Header === */}
       <div className="config-card-header">
         <Flex direction="row" gap="2" align="center">
           <svg
@@ -545,84 +578,143 @@ export function ChunkProcessingControls({
             Chunk Processing
           </Text>
         </Flex>
-
-        <Flex
-          onClick={() => docsUrl && window.open(docsUrl, "_blank")}
-          direction="row"
-          gap="1"
-          align="center"
-          justify="end"
-          className="docs-text"
-        >
-          <Text size="1" weight="bold" className="white">
-            Docs
-          </Text>
-          <svg
-            width="12px"
-            height="12px"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        {docsUrl && (
+          <Flex
+            onClick={() => window.open(docsUrl, "_blank")}
+            direction="row"
+            gap="1"
+            align="center"
+            justify="end"
+            className="docs-text"
           >
-            <path
-              d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M9.8374 14.1625L14.1625 9.8374"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </Flex>
+            <Text size="1" weight="bold" className="white">
+              Docs
+            </Text>
+          </Flex>
+        )}
       </div>
 
-      <Flex direction="row" width="100%" justify="between" gap="24px">
-        <Flex direction="row" width="fit-content" align="center" gap="2">
-          <Text
-            size="2"
-            weight="medium"
-            className="white"
-            style={{ width: "fit-content" }}
-          >
-            Length:
-          </Text>
+      {/* === Sub‑cards grid === */}
+      <div className="segment-config-grid">
+        {/* 1) Length sub–card */}
+        <div className="config-card">
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Length
+            </Text>
+          </div>
           <input
             type="number"
             value={value.target_length}
-            onChange={(e) =>
-              onChange({ ...value, target_length: Number(e.target.value) })
-            }
             min={0}
-            className="number-input fit-content"
-          />
-        </Flex>
-
-        <label className="toggle-switch">
-          <input
-            type="checkbox"
-            checked={value.ignore_headers_and_footers ?? false}
             onChange={(e) =>
-              onChange({
-                ...value,
-                ignore_headers_and_footers: e.target.checked,
-              })
+              onChange({ ...value, target_length: +e.target.value })
             }
+            className="number-input"
           />
-          <Text size="1" weight="medium" className="white ml-2">
-            Ignore Headers & Footers
-          </Text>
-        </label>
-      </Flex>
+        </div>
+
+        {/* 2) Ignore Headers & Footers sub–card */}
+        <div className="config-card">
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Ignore Headers & Footers
+            </Text>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={!!value.ignore_headers_and_footers}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    ignore_headers_and_footers: e.target.checked,
+                  })
+                }
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* 3) Tokenizer sub–card */}
+        <div className="config-card">
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Tokenizer
+            </Text>
+          </div>
+
+          {/* Re‑use the LLM “model selector” dropdown pattern */}
+          <div className="model-selector" ref={tokRef}>
+            <button
+              className="model-selector-button"
+              type="button"
+              onClick={() => setIsTokOpen((o) => !o)}
+            >
+              <Text size="2" weight="medium">
+                {isCustom ? "Custom…" : chosen}
+              </Text>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                style={{
+                  transform: isTokOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                }}
+              >
+                <path
+                  d="M2.5 4.5L6 8L9.5 4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            {isTokOpen && (
+              <div className="segment-dropdown-menu">
+                {predefined.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={`segment-dropdown-item ${
+                      chosen === opt.value ? "active" : ""
+                    }`}
+                    onClick={() => selectTokenizer(opt.value)}
+                  >
+                    <Text size="2" weight="medium">
+                      {opt.label}
+                      {opt.value === Tokenizer.Word && " (Default)"}
+                    </Text>
+                  </button>
+                ))}
+                <button
+                  key="__custom__"
+                  className={`segment-dropdown-item ${
+                    isCustom ? "active" : ""
+                  }`}
+                  onClick={() => selectTokenizer("")}
+                >
+                  <Text size="2" weight="medium">
+                    Custom
+                  </Text>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* If custom, show free‑form input */}
+          {isCustom && (
+            <input
+              type="text"
+              placeholder="huggingface/model‑id"
+              value={chosen as string}
+              onChange={(e) => selectTokenizer(e.target.value)}
+              className="number-input"
+              style={{ marginTop: "8px" }}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -728,33 +820,6 @@ export function LlmProcessingControls({
             <Text size="1" weight="bold" className="white">
               Docs
             </Text>
-            {/* docs-icon SVG */}
-            <svg
-              width="12px"
-              height="12px"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <path
-                d="M9.8374 14.1625L14.1625 9.8374"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <path
-                d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
           </Flex>
         )}
       </div>
@@ -781,7 +846,6 @@ export function LlmProcessingControls({
               <Text size="2" weight="medium">
                 {selectedModelId}
               </Text>
-              {/* chevron SVG */}
               <svg
                 width="12"
                 height="12"
@@ -854,7 +918,6 @@ export function LlmProcessingControls({
                   ? defaultFallbackId
                   : currentFallbackId}
               </Text>
-              {/* chevron SVG */}
               <svg
                 width="12"
                 height="12"

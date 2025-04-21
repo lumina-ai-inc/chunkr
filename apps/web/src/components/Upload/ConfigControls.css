@@ -356,3 +356,16 @@ select.number-input {
 .ml-2 {
   margin-left: 8px;
 }
+
+.chunk-processing-container {
+  /* copy whatever .segment-processing-container does */
+  display: flex;
+  flex-direction: column;
+}
+
+.chunk-processing-container .segment-config-grid {
+  /* reuse the grid styling */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
