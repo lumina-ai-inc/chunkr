@@ -148,6 +148,20 @@ export default function UploadMain({
     setIsUploading(false);
   }, [files, config, onUploadStart, onUploadSuccess]);
 
+  const getButtonText = () => {
+    if (isUploading) {
+      return "Processing…";
+    }
+    if (files.length === 1) {
+      return `Process Document (${files.length})`;
+    }
+    if (files.length > 1) {
+      return `Process Documents (${files.length})`;
+    }
+    // Default text when no files are selected (button is disabled)
+    return "Process Document";
+  };
+
   return (
     <div className="upload-form-container">
       <section className="upload-section">
@@ -539,7 +553,7 @@ export default function UploadMain({
             disabled={files.length === 0 || !isAuthenticated || isUploading}
           >
             <Text size="3" weight="bold">
-              {isUploading ? "Processing…" : "Process Document"}
+              {getButtonText()}
             </Text>
           </button>
         </section>
