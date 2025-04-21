@@ -29,8 +29,8 @@ uv pip install flash-attn --no-build-isolation
 # --- Configuration ---
 MODEL_NAME=${MODEL_NAME:-"Qwen/Qwen2.5-VL-3B-Instruct"}
 GLOBAL_BATCH_SIZE=${GLOBAL_BATCH_SIZE:-144}
-BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-8}
-NUM_DEVICES=${NUM_DEVICES:-8} # Adjust if your hardware setup changed
+BATCH_PER_DEVICE=${BATCH_PER_DEVICE:-4}
+NUM_DEVICES=${NUM_DEVICES:-2} # Adjust if your hardware setup changed
 GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
 OUTPUT_DIR=${OUTPUT_DIR:-"output/sophris_table_vllm_compat"} # Unified output directory for all runs
 MERGED_MODEL_PATH=${MERGED_MODEL_PATH:-"${OUTPUT_DIR}_merged"} # Merged path based on output dir
