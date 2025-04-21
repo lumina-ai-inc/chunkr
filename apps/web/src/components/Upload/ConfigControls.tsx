@@ -516,18 +516,21 @@ export function ChunkProcessingControls({
     { label: "BERT Base Uncased", value: Tokenizer.BERT_BASE_UNCASED },
   ];
 
-  // Determine if current is custom (not one of the enums)
-  const chosen = value.tokenizer ?? Tokenizer.Word;
-  const isCustom = !predefined.find((p) => p.value === chosen);
+  // Determine the current tokenizer value and if it's custom
+  const currentTokenizerValue = value.tokenizer?.Enum ?? Tokenizer.Word; // Get the value inside Enum, default to Word
+  const isCustom = !predefined.find((p) => p.value === currentTokenizerValue);
 
   // Handler for selecting a tokenizer
   const selectTokenizer = (tok: Tokenizer | string) => {
-    onChange({ ...value, tokenizer: tok });
+    onChange({ ...value, tokenizer: { Enum: tok } }); // Ensure the object structure is always set
     setIsTokOpen(false);
   };
 
   return (
-    <div className="chunk-processing-container config-card">
+    <div
+      className="chunk-processing-container config-card"
+      style={{ zIndex: 100, position: "relative" }}
+    >
       {/* === Parent Header === */}
       <div className="config-card-header">
         <Flex direction="row" gap="2" align="center">
@@ -590,6 +593,32 @@ export function ChunkProcessingControls({
             <Text size="1" weight="bold" className="white">
               Docs
             </Text>
+            <svg
+              width="12px"
+              height="12px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 14.1625L14.1625 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
           </Flex>
         )}
       </div>
@@ -614,28 +643,7 @@ export function ChunkProcessingControls({
           />
         </div>
 
-        {/* 2) Ignore Headers & Footers sub–card */}
-        <div className="config-card">
-          <div className="config-card-header">
-            <Text size="3" weight="bold" className="white">
-              Ignore Headers & Footers
-            </Text>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={!!value.ignore_headers_and_footers}
-                onChange={(e) =>
-                  onChange({
-                    ...value,
-                    ignore_headers_and_footers: e.target.checked,
-                  })
-                }
-              />
-            </label>
-          </div>
-        </div>
-
-        {/* 3) Tokenizer sub–card */}
+        {/* 2) Tokenizer sub–card */}
         <div className="config-card">
           <div className="config-card-header">
             <Text size="3" weight="bold" className="white">
@@ -643,7 +651,7 @@ export function ChunkProcessingControls({
             </Text>
           </div>
 
-          {/* Re‑use the LLM “model selector” dropdown pattern */}
+          {/* Re‑use the LLM "model selector" dropdown pattern */}
           <div className="model-selector" ref={tokRef}>
             <button
               className="model-selector-button"
@@ -651,7 +659,8 @@ export function ChunkProcessingControls({
               onClick={() => setIsTokOpen((o) => !o)}
             >
               <Text size="2" weight="medium">
-                {isCustom ? "Custom…" : chosen}
+                {/* Display based on the actual value */}
+                {isCustom ? "Custom…" : currentTokenizerValue}
               </Text>
               <svg
                 width="12"
@@ -672,12 +681,13 @@ export function ChunkProcessingControls({
               </svg>
             </button>
             {isTokOpen && (
-              <div className="segment-dropdown-menu">
+              <div className="segment-dropdown-menu" style={{ zIndex: 100 }}>
                 {predefined.map((opt) => (
                   <button
                     key={opt.value}
                     className={`segment-dropdown-item ${
-                      chosen === opt.value ? "active" : ""
+                      // Compare with the actual value
+                      currentTokenizerValue === opt.value ? "active" : ""
                     }`}
                     onClick={() => selectTokenizer(opt.value)}
                   >
@@ -707,13 +717,31 @@ export function ChunkProcessingControls({
             <input
               type="text"
               placeholder="huggingface/model‑id"
-              value={chosen as string}
+              // Bind to the actual value
+              value={currentTokenizerValue as string}
               onChange={(e) => selectTokenizer(e.target.value)}
               className="number-input"
               style={{ marginTop: "8px" }}
             />
           )}
         </div>
+
+        {/* 3) Ignore Headers & Footers sub–card */}
+        <ToggleGroup
+          label="Headers & Footers"
+          value={String(!!value.ignore_headers_and_footers)}
+          onChange={(newValue) =>
+            onChange({
+              ...value,
+              ignore_headers_and_footers: newValue === "true",
+            })
+          }
+          options={[
+            { label: "Ignore", value: "true" },
+            { label: "Include", value: "false" },
+          ]}
+          docHover={false}
+        />
       </div>
     </div>
   );
@@ -820,6 +848,32 @@ export function LlmProcessingControls({
             <Text size="1" weight="bold" className="white">
               Docs
             </Text>
+            <svg
+              width="12px"
+              height="12px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 14.1625L14.1625 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
           </Flex>
         )}
       </div>

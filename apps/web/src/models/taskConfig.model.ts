@@ -46,9 +46,9 @@ export interface ChunkProcessing {
 
   /**
    * Which tokenizer to use when splitting into chunks.
-   * - one of the predefined enums below, or any Hugging Face ID string.
+   * - an object with an `Enum` key containing one of the predefined enums below, or any Hugging Face ID string.
    */
-  tokenizer?: Tokenizer | string;
+  tokenizer?: { Enum: Tokenizer | string };
 }
 
 /** Controls how content should be generated */
@@ -64,9 +64,9 @@ export enum CroppingStrategy {
 }
 
 export enum EmbedSource {
-  MARKDOWN = "EmbedSource.MARKDOWN",
-  HTML = "EmbedSource.HTML",
-  LLM = "EmbedSource.LLM",
+  MARKDOWN = "Markdown",
+  HTML = "HTML",
+  LLM = "LLM",
 }
 
 /** Base configuration for automatic content generation */
@@ -192,7 +192,7 @@ const DEFAULT_LLM_PROCESSING: LlmProcessing = {
 export const DEFAULT_CHUNK_PROCESSING: ChunkProcessing = {
   target_length: 512,
   ignore_headers_and_footers: true,
-  tokenizer: Tokenizer.Word,
+  tokenizer: { Enum: Tokenizer.Word },
 };
 
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
