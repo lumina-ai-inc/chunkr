@@ -1,0 +1,269 @@
+services:
+  server:
+    image: luminainc/server:1.11.0
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
+
+  task:
+    image: luminainc/task:1.11.0
+    platform: linux/amd64
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 10
+    restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
+
+  web:
+    image: luminainc/web:1.11.0
+    platform: linux/amd64
+    ports:
+      - "5173:8000"
+    env_file:
+      - .env
+    environment:
+      - VITE_FEATURE_FLAG_PIPELINE=true
+    deploy:
+      replicas: 0
+    restart: always
+
+  segmentation:
+    image: nginx:latest
+    # nginx has multi-arch support
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./nginx/segmentation.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - segmentation-backend
+    restart: always
+
+  segmentation-backend:
+    image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
+    platform: linux/amd64
+    expose:
+      - "8000"
+    deploy:
+      replicas: 1
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - MAX_BATCH_SIZE=64
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.2
+      - SCORE_THRESHOLD=0.14
+      - OMP_NUM_THREADS=12
+      - MKL_NUM_THREADS=12
+      - NUMEXPR_NUM_THREADS=12
+    restart: always
+
+  ocr:
+    image: nginx:latest
+    # nginx has multi-arch support
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./nginx/ocr.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - ocr-backend
+    restart: always
+
+  ocr-backend:
+    image: luminainc/doctr-small:1.11.0
+    platform: linux/amd64
+    expose:
+      - "8000"
+    deploy:
+      replicas: 3
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
+  postgres:
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    # No platform needed for builds
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+
+  adminer:
+    image: adminer:latest
+    # adminer has multi-arch support
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
+    restart: always
+
+  redis:
+    image: redis:latest
+    platform: linux/arm64 # Explicitly use ARM64 for Redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+
+  minio:
+    image: minio/minio:latest
+    # minio has multi-arch support
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 1
+
+  minio-init:
+    image: minio/mc
+    # minio/mc has multi-arch support
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+        /usr/bin/mc mb myminio/chunkr --ignore-existing &&
+        /usr/bin/mc anonymous set public myminio/chunkr
+      "
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    platform: linux/arm64 # Explicitly use ARM64 for Keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_PROXY=edge
+      - KC_HTTP_ENABLED=true
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_HEALTH_ENABLED=true
+      - KC_TRANSACTION_XA_ENABLED=false
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+    command: ["start-dev", "--import-realm"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 600s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+
+  keycloak-proxy:
+    image: nginx:latest
+    # nginx has multi-arch support
+    ports:
+      - "8090:8090" # HTTP port
+      - "8443:8443" # HTTPS port
+    volumes:
+      - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    restart: always
+    profiles:
+      - proxy
+
+  web-proxy:
+    image: nginx:latest
+    # nginx has multi-arch support
+    ports:
+      - "80:80" # HTTP port
+      - "443:443" # HTTPS port
+    volumes:
+      - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
+    restart: always
+    profiles:
+      - proxy
+
+  server-proxy:
+    image: nginx:latest
+    # nginx has multi-arch support
+    ports:
+      - "8010:8010" # HTTP port
+      - "8444:8444" # HTTPS port
+    volumes:
+      - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - server
+    restart: always
+    profiles:
+      - proxy
+
+  minio-proxy:
+    image: nginx:latest
+    # nginx has multi-arch support
+    ports:
+      - "9100:9100" # MinIO API
+      - "9101:9101" # MinIO Console
+    volumes:
+      - ./nginx/minio.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - minio
+    restart: always
+    profiles:
+      - proxy
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
