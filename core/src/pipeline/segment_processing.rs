@@ -534,6 +534,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         })
         .collect();
 
+    println!("Processing {:?} segments concurrently", futures.len());
     match futures::future::try_join_all(futures).await {
         Ok(_) => (),
         Err(e) => {
