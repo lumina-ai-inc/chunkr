@@ -122,6 +122,7 @@ export default function UploadMain({
           segment_processing: getEffectiveSegmentProcessing(config),
           segmentation_strategy: config.segmentation_strategy,
           pipeline: config.pipeline,
+          llm_processing: config.llm_processing,
         };
         await uploadFile(payload);
         successCount++;

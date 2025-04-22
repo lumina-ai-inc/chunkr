@@ -80,9 +80,8 @@ export function ToggleGroup({
         {options.map((option) => (
           <button
             key={option.value}
-            className={`toggle-button ${
-              value === option.value ? "active" : ""
-            }`}
+            className={`toggle-button ${value === option.value ? "active" : ""
+              }`}
             onClick={() => onChange(option.value)}
           >
             <Text size="1" weight="bold">
@@ -182,8 +181,8 @@ export function SegmentProcessingControls({
   const segmentTypes = showOnlyPage
     ? (["Page"] as (keyof SegmentProcessing)[])
     : (Object.keys(value)
-        .filter((key) => key !== "Page")
-        .sort() as (keyof SegmentProcessing)[]);
+      .filter((key) => key !== "Page")
+      .sort() as (keyof SegmentProcessing)[]);
 
   const defaultSegmentType = segmentTypes[0];
   const [selectedType, setSelectedType] =
@@ -308,9 +307,8 @@ export function SegmentProcessingControls({
             {segmentTypes.map((type) => (
               <button
                 key={type}
-                className={`segment-dropdown-item ${
-                  selectedType === type ? "active" : ""
-                } ${isModified(type) ? "modified" : ""}`}
+                className={`segment-dropdown-item ${selectedType === type ? "active" : ""
+                  } ${isModified(type) ? "modified" : ""}`}
                 onClick={() => handleTypeSelect(type)}
                 type="button"
               >
@@ -355,9 +353,8 @@ export function SegmentProcessingControls({
             ].map((option) => (
               <button
                 key={option.value}
-                className={`toggle-button ${
-                  value[selectedType].markdown === option.value ? "active" : ""
-                }`}
+                className={`toggle-button ${value[selectedType].markdown === option.value ? "active" : ""
+                  }`}
                 onClick={() =>
                   onChange({
                     ...value,
@@ -407,9 +404,8 @@ export function SegmentProcessingControls({
             ].map((option) => (
               <button
                 key={option.value}
-                className={`toggle-button ${
-                  value[selectedType].html === option.value ? "active" : ""
-                }`}
+                className={`toggle-button ${value[selectedType].html === option.value ? "active" : ""
+                  }`}
                 onClick={() =>
                   onChange({
                     ...value,
@@ -688,7 +684,7 @@ export function ChunkProcessingControls({
                     className={`segment-dropdown-item ${
                       // Compare with the actual value
                       currentTokenizerValue === opt.value ? "active" : ""
-                    }`}
+                      }`}
                     onClick={() => selectTokenizer(opt.value)}
                   >
                     <Text size="2" weight="medium">
@@ -699,9 +695,8 @@ export function ChunkProcessingControls({
                 ))}
                 <button
                   key="__custom__"
-                  className={`segment-dropdown-item ${
-                    isCustom ? "active" : ""
-                  }`}
+                  className={`segment-dropdown-item ${isCustom ? "active" : ""
+                    }`}
                   onClick={() => selectTokenizer("")}
                 >
                   <Text size="2" weight="medium">
@@ -806,11 +801,25 @@ export function LlmProcessingControls({
 
   // determine what's currently shown
   const selectedModelId = value.model_id ?? defaultModelId;
-  const currentFallbackType = value.fallback_strategy?.type;
-  const currentFallbackId =
-    currentFallbackType === FallbackStrategyType.Model
-      ? value.fallback_strategy!.model_id!
-      : "";
+
+  // --- Updated Fallback Logic ---
+  // Get the type (key) and model ID (value) from the fallback_strategy object
+  const fallbackStrategy = value.fallback_strategy ?? { [FallbackStrategyType.Default]: null };
+  const currentFallbackType = Object.keys(fallbackStrategy)[0] as FallbackStrategyType;
+  // Conditionally access the model ID only if the type is 'Model'
+  const currentFallbackId = currentFallbackType === FallbackStrategyType.Model
+    ? (fallbackStrategy as { [FallbackStrategyType.Model]: string })[FallbackStrategyType.Model]
+    : "";
+
+  // Determine the text to display for the fallback button
+  let fallbackDisplayText = "";
+  if (currentFallbackType === FallbackStrategyType.Default) {
+    fallbackDisplayText = `${defaultFallbackId} (Default)`;
+  } else if (currentFallbackType === FallbackStrategyType.Model) {
+    fallbackDisplayText = currentFallbackId;
+  } else { // FallbackStrategyType.None or unexpected
+    fallbackDisplayText = "None"; // Or handle other cases as needed
+  }
 
   return (
     <div className="config-card">
@@ -926,9 +935,7 @@ export function LlmProcessingControls({
                   <button
                     key={m.id}
                     type="button"
-                    className={`segment-dropdown-item ${
-                      selectedModelId === m.id ? "active" : ""
-                    }`}
+                    className={`segment-dropdown-item ${selectedModelId === m.id ? "active" : ""}`}
                     onClick={() => {
                       onChange({
                         ...value,
@@ -954,6 +961,7 @@ export function LlmProcessingControls({
           className="config-card"
           style={{
             zIndex: 100,
+            position: "relative",
           }}
         >
           <div className="config-card-header">
@@ -968,9 +976,7 @@ export function LlmProcessingControls({
               type="button"
             >
               <Text size="2" weight="medium">
-                {currentFallbackType === FallbackStrategyType.Default
-                  ? defaultFallbackId
-                  : currentFallbackId}
+                {fallbackDisplayText}
               </Text>
               <svg
                 width="12"
@@ -995,20 +1001,17 @@ export function LlmProcessingControls({
 
             {isFallbackOpen && (
               <div className="segment-dropdown-menu">
+
+
                 {/** 1) Always show the system default fallback **/}
                 <button
                   type="button"
-                  className={`segment-dropdown-item ${
-                    currentFallbackType === FallbackStrategyType.Default
-                      ? "active"
-                      : ""
-                  }`}
+                  className={`segment-dropdown-item ${currentFallbackType === FallbackStrategyType.Default ? "active" : ""
+                    }`}
                   onClick={() => {
                     onChange({
                       ...value,
-                      fallback_strategy: {
-                        type: FallbackStrategyType.Default,
-                      },
+                      fallback_strategy: { [FallbackStrategyType.Default]: null },
                     });
                     setIsFallbackOpen(false);
                   }}
@@ -1026,19 +1029,15 @@ export function LlmProcessingControls({
                     <button
                       key={m.id}
                       type="button"
-                      className={`segment-dropdown-item ${
-                        currentFallbackType === FallbackStrategyType.Model &&
+                      className={`segment-dropdown-item ${currentFallbackType === FallbackStrategyType.Model &&
                         currentFallbackId === m.id
-                          ? "active"
-                          : ""
-                      }`}
+                        ? "active"
+                        : ""
+                        }`}
                       onClick={() => {
                         onChange({
                           ...value,
-                          fallback_strategy: {
-                            type: FallbackStrategyType.Model,
-                            model_id: m.id,
-                          },
+                          fallback_strategy: { [FallbackStrategyType.Model]: m.id },
                         });
                         setIsFallbackOpen(false);
                       }}

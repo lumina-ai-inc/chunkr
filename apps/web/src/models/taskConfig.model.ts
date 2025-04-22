@@ -101,17 +101,21 @@ export interface SegmentProcessing {
 }
 
 export enum FallbackStrategyType {
-  None = "none",
-  Default = "default",
-  Model = "model",
+
+  Default = "Default",
+  Model = "Model",
 }
 
-export interface FallbackStrategy {
-  /** none | default | model */
-  type: FallbackStrategyType;
-  /** only set if type === FallbackStrategyType.Model */
-  model_id?: string;
-}
+/**
+ * Defines the fallback strategy for LLM processing.
+ * - `{ None: null }`: No fallback strategy.
+ * - `{ Default: null }`: Use the system default fallback.
+ * - `{ Model: string }`: Use the specified model ID as fallback.
+ */
+export type FallbackStrategy =
+
+  | { [FallbackStrategyType.Default]: null }
+  | { [FallbackStrategyType.Model]: string }; // string is the model_id
 
 export interface LlmProcessing {
   /** ID of the model to use. undefined ⇒ system default */
@@ -184,7 +188,7 @@ export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
 
 const DEFAULT_LLM_PROCESSING: LlmProcessing = {
   model_id: undefined,
-  fallback_strategy: { type: FallbackStrategyType.Default },
+  fallback_strategy: { [FallbackStrategyType.Default]: null },
   max_completion_tokens: undefined,
   temperature: 0.0,
 };
