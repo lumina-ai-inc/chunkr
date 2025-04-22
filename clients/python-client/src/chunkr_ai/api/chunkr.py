@@ -16,7 +16,7 @@ class Chunkr(ChunkrBase):
     @ensure_client()
     async def upload(
         self,
-        file: Union[str, Path, BinaryIO, Image.Image],
+        file: Union[str, Path, BinaryIO, Image.Image, bytes, bytearray, memoryview],
         config: Optional[Configuration] = None,
         filename: Optional[str] = None,
     ) -> TaskResponse:
@@ -34,7 +34,7 @@ class Chunkr(ChunkrBase):
     @retry_on_429()
     async def create_task(
         self,
-        file: Union[str, Path, BinaryIO, Image.Image],
+        file: Union[str, Path, BinaryIO, Image.Image, bytes, bytearray, memoryview],
         config: Optional[Configuration] = None,
         filename: Optional[str] = None,
     ) -> TaskResponse:
