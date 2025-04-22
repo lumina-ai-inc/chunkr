@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.48](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.47...chunkr-ai-v0.0.48) (2025-04-22)
+
+
+### Bug Fixes
+
+* Improved handling of base64, bytes-like and file-like file content in the python client ([#452](https://github.com/lumina-ai-inc/chunkr/issues/452)) ([65e479f](https://github.com/lumina-ai-inc/chunkr/commit/65e479f75ecb91e676afcffe1843d4902a8736e7))
+
 ## [0.0.47](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.46...chunkr-ai-v0.0.47) (2025-04-18)
 
 
