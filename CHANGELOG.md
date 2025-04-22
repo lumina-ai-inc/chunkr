@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.11.1...v1.11.2) (2025-04-22)
+
+
+### Bug Fixes
+
+* Improved handling of base64, bytes-like and file-like file content in the python client ([#452](https://github.com/lumina-ai-inc/chunkr/issues/452)) ([65e479f](https://github.com/lumina-ai-inc/chunkr/commit/65e479f75ecb91e676afcffe1843d4902a8736e7))
+
 ## [1.11.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.11.0...v1.11.1) (2025-04-18)
 
 
