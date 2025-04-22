@@ -3,9 +3,9 @@ import base64
 import io
 from pathlib import Path
 from PIL import Image
-from typing import Union, Tuple, BinaryIO, Optional
+from typing import Union, Tuple, BinaryIO, Optional, Any
 
-async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[Optional[str], str]:
+async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image, bytes, bytearray, memoryview]) -> Tuple[Optional[str], str]:
     """Convert various file types into a tuple of (filename, file content).
 
     Args:
@@ -15,6 +15,7 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[O
             - Local file path (will be converted to base64)
             - Opened binary file (will be converted to base64)
             - PIL/Pillow Image object (will be converted to base64)
+            - Bytes object (will be converted to base64)
 
     Returns:
         Tuple[Optional[str], str]: (filename, content) where content is either a URL or base64 string
@@ -26,22 +27,54 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[O
         ValueError: If the URL is invalid or unreachable
         ValueError: If the MIME type is unsupported
     """
-    # Handle strings
+    # Handle bytes-like objects
+    if isinstance(file, (bytes, bytearray, memoryview)):
+        # Convert to bytes first if it's not already
+        file_bytes = bytes(file)
+        
+        # Check if this might be an already-encoded base64 string in bytes form
+        try:
+            # Try to decode the bytes to a string and see if it's valid base64
+            potential_base64 = file_bytes.decode('utf-8', errors='strict')
+            base64.b64decode(potential_base64)
+            # If we get here, it was a valid base64 string in bytes form
+            return None, potential_base64
+        except:
+            # Not a base64 string in bytes form, encode it as base64
+            base64_str = base64.b64encode(file_bytes).decode()
+            return None, base64_str
+        
+    # Handle strings - urls or paths or base64
     if isinstance(file, str):
+        # Handle URLs
         if file.startswith(('http://', 'https://')):
             return None, file
-        # Try to handle as a file path first
-        path = Path(file)
-        if path.exists():
-            # It's a valid file path, convert to Path object and continue processing
-            file = path
-        else:
-            # If not a valid file path, try treating as base64
+            
+        # Handle data URLs
+        if file.startswith('data:'):
+            return None, file
+            
+        # Try to handle as a file path
+        try:
+            path = Path(file)
+            if path.exists():
+                # It's a valid file path, convert to Path object and continue processing
+                file = path
+            else:
+                # If not a valid file path, try treating as base64
+                try:
+                    # Just test if it's valid base64, don't store the result
+                    base64.b64decode(file)
+                    return None, file
+                except:
+                    raise ValueError(f"File not found: {file} and it's not a valid base64 string")
+        except Exception as e:
+            # If string can't be converted to Path or decoded as base64, it might still be a base64 string
             try:
                 base64.b64decode(file)
                 return None, file
             except:
-                raise ValueError(f"File not found: {file} and it's not a valid base64 string")
+                raise ValueError(f"Unable to process file: {e}")
 
     # Handle file paths - convert to base64
     if isinstance(file, Path):
@@ -71,17 +104,16 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[O
         file.seek(0)
         file_content = file.read()
         name = getattr(file, "name", "document")
-        file_ext = Path(name).suffix.lower().lstrip('.')
-        if not file_ext:
-            raise ValueError("File must have an extension")
+        if not name or not isinstance(name, str):
+            name = None
         base64_str = base64.b64encode(file_content).decode()
-        return Path(name).name, base64_str
+        return name, base64_str
 
     raise TypeError(f"Unsupported file type: {type(file)}")
 
 
 async def prepare_upload_data(
-    file: Optional[Union[str, Path, BinaryIO, Image.Image]] = None,
+    file: Optional[Union[str, Path, BinaryIO, Image.Image, bytes, bytearray, memoryview]] = None,
     filename: Optional[str] = None,
     config: Optional[Configuration] = None,
 ) -> dict:
@@ -89,8 +121,8 @@ async def prepare_upload_data(
 
     Args:
         file: The file to upload
+        filename: Optional filename to use (overrides any filename from the file)
         config: Optional configuration settings
-        client: HTTP client for downloading remote files
 
     Returns:
         dict: JSON-serializable data dictionary ready for upload

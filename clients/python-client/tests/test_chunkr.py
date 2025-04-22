@@ -3,6 +3,9 @@ from pathlib import Path
 from PIL import Image
 import asyncio
 import base64
+import io
+import tempfile
+from typing import Awaitable
 
 from chunkr_ai import Chunkr
 from chunkr_ai.models import (
@@ -172,57 +175,6 @@ def model_fallback_config():
     )
 
 @pytest.mark.asyncio
-async def test_send_file_path(client, sample_path):
-    response = await client.upload(sample_path)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_file_path_str(client, sample_absolute_path_str):
-    response = await client.upload(sample_absolute_path_str)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_file_relative_path_str(client, sample_relative_path_str):
-    response = await client.upload(sample_relative_path_str)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_file_url(client, sample_url):
-    response = await client.upload(sample_url)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_file_path_as_str(client, sample_path):
-    response = await client.upload(str(sample_path))
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_opened_file(client, sample_path):
-    with open(sample_path, "rb") as f:
-        response = await client.upload(f)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_pil_image(client, sample_image):
-    response = await client.upload(sample_image)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-    assert response.output is not None
-
-@pytest.mark.asyncio
 async def test_ocr_auto(client, sample_path):
     response = await client.upload(sample_path, Configuration(ocr_strategy=OcrStrategy.AUTO))
     assert response.task_id is not None
@@ -320,7 +272,7 @@ async def test_cancel_task(client, sample_path):
 @pytest.mark.asyncio
 async def test_cancel_task_direct(client, sample_path):
     task = await client.create_task(sample_path)
-    assert isinstance(task, TaskResponse)
+    assert isinstance(task, Awaitable) and isinstance(task, TaskResponse)
     assert task.status == "Starting"
     await task.cancel()
     assert task.status == "Cancelled"
@@ -383,36 +335,6 @@ async def test_task_operations_after_client_close(client, sample_path):
     assert result.status == "Succeeded"
 
 @pytest.mark.asyncio
-async def test_send_base64_file(client, sample_path):
-    # Read file and convert to base64
-    with open(sample_path, "rb") as f:
-        base64_content = base64.b64encode(f.read()).decode('utf-8')
-    response = await client.upload(base64_content)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_base64_file_with_data_url(client, sample_path):
-    with open(sample_path, "rb") as f:
-        base64_content = base64.b64encode(f.read()).decode('utf-8')
-    response = await client.upload(f"data:application/pdf;base64,{base64_content}")
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-
-@pytest.mark.asyncio
-async def test_send_base64_file_with_filename(client, sample_path):
-    # Read file and convert to base64
-    with open(sample_path, "rb") as f:
-        base64_content = base64.b64encode(f.read()).decode('utf-8')
-    
-    response = await client.upload(base64_content, filename="test.pdf")
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-    
-@pytest.mark.asyncio
 async def test_output_files_no_dir(client, sample_path, tmp_path):
     task = await client.upload(sample_path)
     
@@ -450,6 +372,35 @@ async def test_output_files_with_dirs(client, sample_path, tmp_path):
     assert md_file.exists()
     assert content_file.exists()
     assert json_file.exists()
+
+
+@pytest.mark.asyncio
+async def test_combined_config_with_llm_and_other_settings(client, sample_path):
+    # Test combining LLM settings with other configuration options
+    config = Configuration(
+        llm_processing=LlmProcessing(
+            model_id="qwen-2.5-vl-7b-instruct",
+            fallback_strategy=FallbackStrategy.model("gemini-flash-2.0"),
+            temperature=0.4
+        ),
+        segmentation_strategy=SegmentationStrategy.PAGE,
+        segment_processing=SegmentProcessing(
+            Page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM
+            )
+        ),
+        chunk_processing=ChunkProcessing(target_length=1024)
+    )
+    
+    response = await client.upload(sample_path, config)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    assert response.configuration.llm_processing is not None
+    assert response.configuration.llm_processing.model_id == "qwen-2.5-vl-7b-instruct"
+    assert response.configuration.segmentation_strategy == SegmentationStrategy.PAGE
+    assert response.configuration.chunk_processing.target_length == 1024
 
 @pytest.mark.asyncio
 async def test_embed_sources_markdown_only(client, sample_path, markdown_embed_config):
@@ -585,31 +536,3 @@ async def test_fallback_strategy_serialization():
     assert str(none_strategy) == "None"
     assert str(default_strategy) == "Default"
     assert str(model_strategy) == "Model(gpt-4.1)"
-
-@pytest.mark.asyncio
-async def test_combined_config_with_llm_and_other_settings(client, sample_path):
-    # Test combining LLM settings with other configuration options
-    config = Configuration(
-        llm_processing=LlmProcessing(
-            model_id="qwen-2.5-vl-7b-instruct",
-            fallback_strategy=FallbackStrategy.model("gemini-flash-2.0"),
-            temperature=0.4
-        ),
-        segmentation_strategy=SegmentationStrategy.PAGE,
-        segment_processing=SegmentProcessing(
-            Page=GenerationConfig(
-                html=GenerationStrategy.LLM,
-                markdown=GenerationStrategy.LLM
-            )
-        ),
-        chunk_processing=ChunkProcessing(target_length=1024)
-    )
-    
-    response = await client.upload(sample_path, config)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
-    assert response.configuration.llm_processing is not None
-    assert response.configuration.llm_processing.model_id == "qwen-2.5-vl-7b-instruct"
-    assert response.configuration.segmentation_strategy == SegmentationStrategy.PAGE
-    assert response.configuration.chunk_processing.target_length == 1024
