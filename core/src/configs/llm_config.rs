@@ -171,6 +171,13 @@ impl Config {
             ));
         }
 
+        let mut seen_ids = std::collections::HashSet::new();
+        for model in models {
+            if !seen_ids.insert(&model.id) {
+                return Err(format!("Duplicate model ID found: {}", model.id));
+            }
+        }
+
         Ok(())
     }
 
