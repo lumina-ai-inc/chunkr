@@ -28,4 +28,5 @@ dependencies = [
     "transformers>=4.51.3",
     "trl>=0.16.1",
     "ujson>=5.10.0",
+    "openai>=1.75.0",
 ]
