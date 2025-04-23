@@ -60,7 +60,7 @@ def qwen_2_mixed_modality_forward_with_flce(
             dummy_pixel = dummy_pixel.type(self.visual.get_dtype())
             image_embeds = self.visual(dummy_pixel, grid_thw=dummy_grid)
             # Operates as maksed_scatter for the image tokens
-            # However the values are all zeros so it dosen't affect the embeddings.
+            # However the values are all zeros so it doesn't affect the embeddings.
             # This could avoid deepspeed error when some batch only has texts.
             inputs_embeds += image_embeds.mean() * 0
 
@@ -216,7 +216,7 @@ def qwen_2_mixed_modality_forward(
             dummy_pixel = dummy_pixel.type(self.visual.get_dtype())
             image_embeds = self.visual(dummy_pixel, grid_thw=dummy_grid)
             # Operates as maksed_scatter for the image tokens
-            # However the values are all zeros so it dosen't affect the embeddings.
+            # However the values are all zeros so it doesn't affect the embeddings.
             # This could avoid deepspeed error when some batch only has texts.
             inputs_embeds += image_embeds.mean() * 0
 
@@ -360,7 +360,7 @@ def qwen2_5_mixed_modality_forward_with_flce(
             dummy_pixel = dummy_pixel.type(self.visual.dtype)
             image_embeds = self.visual(dummy_pixel, grid_thw=dummy_grid)
             # Operates as maksed_scatter for the image tokens
-            # However the values are all zeros so it dosen't affect the embeddings.
+            # However the values are all zeros so it doesn't affect the embeddings.
             # This could avoid deepspeed error when some batch only has texts.
             inputs_embeds += image_embeds.mean() * 0
             
@@ -528,7 +528,7 @@ def qwen2_5_mixed_modality_forward(
             dummy_pixel = dummy_pixel.type(self.visual.dtype)
             image_embeds = self.visual(dummy_pixel, grid_thw=dummy_grid)
             # Operates as maksed_scatter for the image tokens
-            # However the values are all zeros so it dosen't affect the embeddings.
+            # However the values are all zeros so it doesn't affect the embeddings.
             # This could avoid deepspeed error when some batch only has texts.
             inputs_embeds += image_embeds.mean() * 0
             

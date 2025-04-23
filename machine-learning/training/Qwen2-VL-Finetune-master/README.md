@@ -66,7 +66,7 @@ This repository contains a script for training [Qwen2-VL](https://huggingface.co
 
 ## Docker
 
-To simplfy the setting process for training, you could use the provided pre-build environments.<br>
+To simplify the setting process for training, you could use the provided pre-build environments.<br>
 The settings are done in the conda env named `train`.<br><br>
 You could find more information about the image [here](https://hub.docker.com/repository/docker/john119/vlm/general).
 
@@ -155,7 +155,7 @@ The script requires a dataset formatted according to the LLaVA specification. Th
     "conversations": [
       {
         "from": "human",
-        "value": "<image>\n<image>\nIs the perspective of the camera differnt?"
+        "value": "<image>\n<image>\nIs the perspective of the camera different?"
       },
       {
         "from": "gpt",
@@ -259,9 +259,9 @@ bash scripts/finetune_lora_vision.sh
 - `--bf16` (bool): Option for using bfloat16.
 - `--fp16` (bool): Option for using fp16.
 - `--image_min_pixels` (int): Option for minimum input tokens for image.
-- `--image_max_pixles` (int): Option for maximum maxmimum tokens for image.
+- `--image_max_pixles` (int): Option for maximum maximum tokens for image.
 - `--video_min_pixels` (int): Option for minimum input tokens for video.
-- `--video_max_pixles` (int): Option for maximum maxmimum tokens for video.
+- `--video_max_pixles` (int): Option for maximum maximum tokens for video.
 - `--image_resized_width` (int): Option for setting the width of the input image.
 - `--image_resized_height` (int): Option for setting the height of the input image.
 - `--video_resized_width` (int): Option for setting the width of the input video.
@@ -308,8 +308,8 @@ bash scripts/merge_lora.sh
 
 #### Image Resolution for performance boost
 
-The model supprots a wide range of resolution inputs. By default, it uses the native resolution for input.
-For better performance using native or higer pixel numbers are recommended, however it takes too much memory and computation time for large images. So you could adjust the pixel numbers for it.
+The model supports a wide range of resolution inputs. By default, it uses the native resolution for input.
+For better performance using native or higher pixel numbers are recommended, however it takes too much memory and computation time for large images. So you could adjust the pixel numbers for it.
 The model splits the image into `token * 28 * 28` so you could just change the the token_num part in the script. <br>
 For example:
 
@@ -397,7 +397,7 @@ If you find this repository useful in your project, please consider giving a :st
 This project is based on
 
 - [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT): An amazing open-source project of LMM.
-- [Mipha](https://github.com/zhuyiche/llava-phi): Open-source projcet of SMM with amazing capabilites.
+- [Mipha](https://github.com/zhuyiche/llava-phi): Open-source project of SMM with amazing capabilities.
 - [Qwen2-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2-VL-7B-Instruct): Awesome pretrained MLLM based on Qwen2.
 - [Liger-Kernel](https://github.com/linkedin/Liger-Kernel): Collection of Tirton kernels designed specifically for LLM training.
 
