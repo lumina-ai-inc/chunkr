@@ -1,4 +1,4 @@
-- if youre struggling to install unsloth 
+- if you're struggling to install unsloth 
 
 sudo apt-get update
 sudo apt-get install -y build-essential cmake libstdc++-12-dev
