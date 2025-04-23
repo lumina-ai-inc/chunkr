@@ -239,7 +239,7 @@ services:
     enabled: true
     image:
       repository: analytics-web
-      tag: 1.14.0-enterprise
+      tag: 1.11.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -256,7 +256,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: 1.14.0-enterprise
+      tag: 1.11.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
