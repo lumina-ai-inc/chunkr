@@ -198,7 +198,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 1.12.1
+      tag: 1.11.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
