@@ -178,3 +178,14 @@ models.yaml
 */temp_chunkr_processing/*
 */temp_table_downloads*
 */temp_table_downloads/*
+<<<<<<< HEAD
+=======
+unsloth_compiled_cache
+runs
+training_runs
+outputs 
+lora_model
+model_cache
+deepspeed_configs
+configs
+>>>>>>> ik/training

@@ -362,7 +362,7 @@ def main():
                       help='Maximum number of PDFs to download (default: 100)')
     parser.add_argument('--bucket', type=str, default=None,
                       help='S3 bucket name (defaults to environment variable)')
-    parser.add_argument('--dataset', type=str, default="tables-vlm-azure-distill-v1",
+    parser.add_argument('--dataset', type=str, default="sophris-datasheet-table-extraction-azure-distill-v1",
                       help='Dataset name/path in the bucket')
     parser.add_argument('--threads', type=int, default=8,
                       help='Number of parallel download threads (default: 4)')
