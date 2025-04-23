@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.2.0...chunkr-web-v1.2.1) (2025-04-23)
+
+
+### Bug Fixes
+
+* Llm models are now fetched from `VITE_API_URL` ([#457](https://github.com/lumina-ai-inc/chunkr/issues/457)) ([06ce1ea](https://github.com/lumina-ai-inc/chunkr/commit/06ce1eaa98048753fd065ddb00908b54914f4857))
+
 ## [1.2.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.1.0...chunkr-web-v1.2.0) (2025-04-23)
 
 

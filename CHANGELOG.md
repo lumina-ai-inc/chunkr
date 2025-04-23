@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.12.0...v1.12.1) (2025-04-23)
+
+
+### Bug Fixes
+
+* Llm models are now fetched from `VITE_API_URL` ([#457](https://github.com/lumina-ai-inc/chunkr/issues/457)) ([06ce1ea](https://github.com/lumina-ai-inc/chunkr/commit/06ce1eaa98048753fd065ddb00908b54914f4857))
+
 ## [1.12.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.11.2...v1.12.0) (2025-04-23)
 
 
