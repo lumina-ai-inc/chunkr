@@ -84,9 +84,10 @@ impl RateLimiter {
         let session_request = CreateSessionRequest {
             name: Some(session_name.to_string().into()),
         };
-        
+
         futures::executor::block_on(async {
-            rate_test_api::create_test_session(config, session_request).await
+            rate_test_api::create_test_session(config, session_request)
+                .await
                 .map(|session| session.id)
                 .map_err(|e| format!("Failed to create monitoring session: {}", e))
         })
