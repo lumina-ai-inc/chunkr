@@ -1,5 +1,5 @@
 import { Flex, Text } from "@radix-ui/themes";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   UploadFormData,
   OcrStrategy,
@@ -14,6 +14,7 @@ import {
   ToggleGroup,
   SegmentProcessingControls,
   ChunkProcessingControls,
+  LlmProcessingControls,
 } from "./ConfigControls";
 import { uploadFile } from "../../services/uploadFileApi";
 import { UploadForm } from "../../models/upload.model";
@@ -21,6 +22,45 @@ import { getEnvConfig, WhenEnabled } from "../../config/env.config";
 import { toast } from "react-hot-toast";
 
 const DOCS_URL = import.meta.env.VITE_DOCS_URL || "https://docs.chunkr.ai";
+
+// threshold under which we encode on main thread (10 MB)
+const SMALL_FILE_SIZE = 10 * 1024 * 1024;
+
+// Base64 on main thread
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      resolve(dataUrl.split(",", 2)[1]);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Offload Base64 to Web Worker for larger files
+function fileToBase64InWorker(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(
+      new URL("../../workers/base64.worker.ts", import.meta.url),
+      { type: "module" }
+    );
+    worker.onerror = reject;
+    worker.onmessage = (e) => {
+      resolve(e.data as string);
+      worker.terminate();
+    };
+    worker.postMessage(file);
+  });
+}
+
+// Chooses main‐thread vs worker based on file size
+async function encodeFile(file: File): Promise<string> {
+  return file.size <= SMALL_FILE_SIZE
+    ? fileToBase64(file)
+    : fileToBase64InWorker(file);
+}
 
 interface UploadMainProps {
   isAuthenticated: boolean;
@@ -39,64 +79,88 @@ export default function UploadMain({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleFileChange = (uploadedFiles: File[]) => {
-    setFiles((prev) => [...prev, ...uploadedFiles]);
+  const handleFileChange = (ufs: File[]) => {
+    setFiles((prev) => [...prev, ...ufs]);
     setUploadError(null);
   };
 
   const handleFileRemove = (fileName: string) => {
-    setFiles((prev) => prev.filter((file) => file.name !== fileName));
+    setFiles((prev) => prev.filter((f) => f.name !== fileName));
     setUploadError(null);
   };
 
-  const getEffectiveSegmentProcessing = (currentConfig: UploadFormData) => {
-    if (currentConfig.segmentation_strategy === SegmentationStrategy.Page) {
+  const getEffectiveSegmentProcessing = (current: UploadFormData) => {
+    if (current.segmentation_strategy === SegmentationStrategy.Page) {
       return {
         ...DEFAULT_SEGMENT_PROCESSING,
         Page:
-          currentConfig.segment_processing?.Page ||
-          DEFAULT_SEGMENT_PROCESSING.Page,
+          current.segment_processing?.Page || DEFAULT_SEGMENT_PROCESSING.Page,
       };
     }
-    return currentConfig.segment_processing || DEFAULT_SEGMENT_PROCESSING;
+    return current.segment_processing || DEFAULT_SEGMENT_PROCESSING;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (files.length === 0) return;
 
     setIsUploading(true);
     onUploadStart?.();
-    setUploadError(null);
 
-    try {
-      for (const file of files) {
-        const uploadPayload: UploadForm = {
-          file,
+    // show a single loading toast
+    const toastId = toast.loading("Uploading…");
+
+    let successCount = 0;
+    for (const file of files) {
+      try {
+        const b64 = await encodeFile(file);
+        const payload: UploadForm = {
+          file: b64,
+          file_name: file.name,
           chunk_processing: config.chunk_processing,
           high_resolution: config.high_resolution,
           ocr_strategy: config.ocr_strategy,
           segment_processing: getEffectiveSegmentProcessing(config),
           segmentation_strategy: config.segmentation_strategy,
           pipeline: config.pipeline,
+          llm_processing: config.llm_processing,
         };
-
-        await uploadFile(uploadPayload);
+        await uploadFile(payload);
+        successCount++;
+      } catch (err) {
+        console.error(`Upload failed for ${file.name}:`, err);
       }
-
-      setFiles([]);
-      setConfig(DEFAULT_UPLOAD_CONFIG);
-      toast.success("Documents uploaded");
-      onUploadSuccess?.();
-    } catch (error) {
-      console.error("Upload failed:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Upload failed";
-      setUploadError(errorMessage);
-      toast.error(errorMessage);
-      onUploadSuccess?.();
-    } finally {
-      setIsUploading(false);
     }
+
+    // replace loading toast with summary
+    toast.dismiss(toastId);
+    if (successCount === files.length) {
+      toast.success(`Uploaded ${successCount}/${files.length} files`);
+    } else if (successCount > 0) {
+      toast.success(`Uploaded ${successCount}/${files.length} files`);
+      toast.error(`Failed to upload ${files.length - successCount} file(s)`);
+    } else {
+      toast.error("Failed to upload any files");
+    }
+
+    // reset state and notify parent
+    setFiles([]);
+    setConfig(DEFAULT_UPLOAD_CONFIG);
+    onUploadSuccess?.();
+    setIsUploading(false);
+  }, [files, config, onUploadStart, onUploadSuccess]);
+
+  const getButtonText = () => {
+    if (isUploading) {
+      return "Processing…";
+    }
+    if (files.length === 1) {
+      return `Process Document (${files.length})`;
+    }
+    if (files.length > 1) {
+      return `Process Documents (${files.length})`;
+    }
+    // Default text when no files are selected (button is disabled)
+    return "Process Document";
   };
 
   return (
@@ -121,6 +185,45 @@ export default function UploadMain({
           className={`config-section ${!isAuthenticated ? "disabled" : ""}`}
         >
           <div className="config-grid">
+            {features.pipeline && (
+              <ToggleGroup
+                docsUrl={`${DOCS_URL}/docs/features/pipeline`}
+                label={
+                  <Flex gap="2" align="center">
+                    <svg
+                      width="20px"
+                      height="20px"
+                      viewBox="0 0 16 16"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                    >
+                      <path
+                        fill="#FFF"
+                        fill-rule="evenodd"
+                        d="M2.75 2.5A1.75 1.75 0 001 4.25v1C1 6.216 1.784 7 2.75 7h1a1.75 1.75 0 001.732-1.5H6.5a.75.75 0 01.75.75v3.5A2.25 2.25 0 009.5 12h1.018c.121.848.85 1.5 1.732 1.5h1A1.75 1.75 0 0015 11.75v-1A1.75 1.75 0 0013.25 9h-1a1.75 1.75 0 00-1.732 1.5H9.5a.75.75 0 01-.75-.75v-3.5A2.25 2.25 0 006.5 4H5.482A1.75 1.75 0 003.75 2.5h-1zM2.5 4.25A.25.25 0 012.75 4h1a.25.25 0 01.25.25v1a.25.25 0 01-.25.25h-1a.25.25 0 01-.25-.25v-1zm9.75 6.25a.25.25 0 00-.25.25v1c0 .138.112.25.25.25h1a.25.25 0 00.25-.25v-1a.25.25 0 00-.25-.25h-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <span>Pipeline</span>
+                  </Flex>
+                }
+                value={config.pipeline || Pipeline.Azure}
+                onChange={(value) =>
+                  setConfig({
+                    ...config,
+                    pipeline: (features.pipeline
+                      ? value === Pipeline.Chunkr
+                        ? Pipeline.Chunkr
+                        : Pipeline.Azure
+                      : undefined) as WhenEnabled<"pipeline", Pipeline>,
+                  })
+                }
+                options={[
+                  { label: "Azure", value: Pipeline.Azure },
+                  { label: "Chunkr", value: Pipeline.Chunkr },
+                ]}
+              />
+            )}
             <ToggleGroup
               docsUrl={`${DOCS_URL}/docs/features/layout-analysis/what`}
               label={
@@ -215,17 +318,6 @@ export default function UploadMain({
                 { label: "Auto", value: OcrStrategy.Auto },
                 { label: "All", value: OcrStrategy.All },
               ]}
-            />
-
-            <ChunkProcessingControls
-              docsUrl={`${DOCS_URL}/docs/features/chunking`}
-              value={config.chunk_processing || { target_length: 512 }}
-              onChange={(value) =>
-                setConfig({
-                  ...config,
-                  chunk_processing: value,
-                })
-              }
             />
 
             <ToggleGroup
@@ -333,46 +425,6 @@ export default function UploadMain({
                 { label: "OFF", value: "OFF" },
               ]}
             />
-
-            {features.pipeline && (
-              <ToggleGroup
-                docsUrl={`${DOCS_URL}/docs/features/pipeline`}
-                label={
-                  <Flex gap="2" align="center">
-                    <svg
-                      width="20px"
-                      height="20px"
-                      viewBox="0 0 16 16"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                    >
-                      <path
-                        fill="#FFF"
-                        fill-rule="evenodd"
-                        d="M2.75 2.5A1.75 1.75 0 001 4.25v1C1 6.216 1.784 7 2.75 7h1a1.75 1.75 0 001.732-1.5H6.5a.75.75 0 01.75.75v3.5A2.25 2.25 0 009.5 12h1.018c.121.848.85 1.5 1.732 1.5h1A1.75 1.75 0 0015 11.75v-1A1.75 1.75 0 0013.25 9h-1a1.75 1.75 0 00-1.732 1.5H9.5a.75.75 0 01-.75-.75v-3.5A2.25 2.25 0 006.5 4H5.482A1.75 1.75 0 003.75 2.5h-1zM2.5 4.25A.25.25 0 012.75 4h1a.25.25 0 01.25.25v1a.25.25 0 01-.25.25h-1a.25.25 0 01-.25-.25v-1zm9.75 6.25a.25.25 0 00-.25.25v1c0 .138.112.25.25.25h1a.25.25 0 00.25-.25v-1a.25.25 0 00-.25-.25h-1z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <span>Pipeline</span>
-                  </Flex>
-                }
-                value={config.pipeline || Pipeline.Azure}
-                onChange={(value) =>
-                  setConfig({
-                    ...config,
-                    pipeline: (features.pipeline
-                      ? value === Pipeline.Chunkr
-                        ? Pipeline.Chunkr
-                        : Pipeline.Azure
-                      : undefined) as WhenEnabled<"pipeline", Pipeline>,
-                  })
-                }
-                options={[
-                  { label: "Azure", value: Pipeline.Azure },
-                  { label: "Chunkr", value: Pipeline.Chunkr },
-                ]}
-              />
-            )}
           </div>
 
           <div className="config-card" style={{ marginTop: "32px" }}>
@@ -416,7 +468,7 @@ export default function UploadMain({
                 justify="end"
                 className="docs-text"
               >
-                <Text size="1" weight="medium" className="white ">
+                <Text size="1" weight="bold" className="white ">
                   Docs
                 </Text>
                 <svg
@@ -447,6 +499,7 @@ export default function UploadMain({
                 </svg>
               </Flex>
             </div>
+
             <SegmentProcessingControls
               value={config.segment_processing || DEFAULT_SEGMENT_PROCESSING}
               onChange={(value) =>
@@ -458,6 +511,36 @@ export default function UploadMain({
               showOnlyPage={
                 config.segmentation_strategy === SegmentationStrategy.Page
               }
+            />
+            <Flex direction="row" mt="3" align="center">
+              <Text
+                size="1"
+                weight="medium"
+                className="white"
+                style={{ opacity: 0.8 }}
+              >
+                * Use checkboxes to select which sources to include in the embed
+                field.
+              </Text>
+            </Flex>
+          </div>
+
+          <ChunkProcessingControls
+            docsUrl={`${DOCS_URL}/docs/features/chunking`}
+            value={config.chunk_processing || { target_length: 512 }}
+            onChange={(value) =>
+              setConfig({
+                ...config,
+                chunk_processing: value,
+              })
+            }
+          />
+
+          <div style={{ marginTop: 32 }}>
+            <LlmProcessingControls
+              value={config.llm_processing!}
+              onChange={(llm) => setConfig({ ...config, llm_processing: llm })}
+              docsUrl={`${DOCS_URL}/docs/features/llm-processing`}
             />
           </div>
         </section>
@@ -471,7 +554,7 @@ export default function UploadMain({
             disabled={files.length === 0 || !isAuthenticated || isUploading}
           >
             <Text size="3" weight="bold">
-              {isUploading ? "Processing..." : "Process Document"}
+              {getButtonText()}
             </Text>
           </button>
         </section>
