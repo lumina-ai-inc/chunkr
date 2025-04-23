@@ -1,3 +1,12 @@
+import { WhenEnabled } from "../config/env.config";
+
+export enum Tokenizer {
+  Word = "Word",
+  CL100K_BASE = "Cl100kBase",
+  XLM_ROBERTA_BASE = "XlmRobertaBase",
+  BERT_BASE_UNCASED = "BertBaseUncased",
+}
+
 /**
  * OCR Strategy options for document processing
  * - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
@@ -34,6 +43,12 @@ export interface ChunkProcessing {
    * @default 512
    */
   target_length: number;
+
+  /**
+   * Which tokenizer to use when splitting into chunks.
+   * - an object with an `Enum` key containing one of the predefined enums below, or any Hugging Face ID string.
+   */
+  tokenizer?: { Enum: Tokenizer | string };
 }
 
 /** Controls how content should be generated */
@@ -48,12 +63,19 @@ export enum CroppingStrategy {
   Auto = "Auto",
 }
 
+export enum EmbedSource {
+  MARKDOWN = "Markdown",
+  HTML = "HTML",
+  LLM = "LLM",
+}
+
 /** Base configuration for automatic content generation */
 export interface SegmentProcessingConfig {
   crop_image: CroppingStrategy;
   html: GenerationStrategy;
   llm?: string;
   markdown: GenerationStrategy;
+  embed_sources?: EmbedSource[];
 }
 
 /**
@@ -78,52 +100,41 @@ export interface SegmentProcessing {
   Title: SegmentProcessingConfig;
 }
 
-import { WhenEnabled } from "../config/env.config";
+export enum FallbackStrategyType {
+
+  Default = "Default",
+  Model = "Model",
+}
+
+/**
+ * Defines the fallback strategy for LLM processing.
+ * - `{ None: null }`: No fallback strategy.
+ * - `{ Default: null }`: Use the system default fallback.
+ * - `{ Model: string }`: Use the specified model ID as fallback.
+ */
+export type FallbackStrategy =
+
+  | { [FallbackStrategyType.Default]: null }
+  | { [FallbackStrategyType.Model]: string }; // string is the model_id
+
+export interface LlmProcessing {
+  /** ID of the model to use. undefined ⇒ system default */
+  model_id?: string;
+  /** what to do if primary fails */
+  fallback_strategy?: FallbackStrategy;
+  /** max tokens to generate */
+  max_completion_tokens?: number;
+  /** randomness (0.0 = deterministic) */
+  temperature?: number;
+}
 
 export interface UploadFormData {
-  /** Optional chunk processing configuration */
-  chunk_processing?: ChunkProcessing;
-
-  /**
-   * The number of seconds until task is deleted.
-   * Expired tasks can **not** be updated, polled or accessed via web interface.
-   */
-  expires_in?: number;
-
-  /** The file to be uploaded */
-  file: File;
-
-  /**
-   * Whether to use high-resolution images for cropping and post-processing.
-   * (Latency penalty: ~7 seconds per page)
-   * @default false
-   */
-  high_resolution?: boolean;
-
-  /**
-   * OCR strategy to use for document processing
-   * @default "Auto"
-   */
-  ocr_strategy?: OcrStrategy;
-
-  /** Optional segment processing configuration */
-  segment_processing?: SegmentProcessing;
-
-  /**
-   * Segmentation strategy to use
-   * @default "LayoutAnalysis"
-   */
-  segmentation_strategy?: SegmentationStrategy;
-
-  /**
-   * @deprecated Use `chunk_processing` instead
-   * The target chunk length to be used for chunking.
-   * If 0, each chunk will contain a single segment.
-   * @default 512
-   */
-  target_chunk_length?: number;
-
-  /** Pipeline to use for processing */
+  chunk_processing: ChunkProcessing;
+  high_resolution: boolean;
+  ocr_strategy: OcrStrategy;
+  segmentation_strategy: SegmentationStrategy;
+  segment_processing: SegmentProcessing;
+  llm_processing?: LlmProcessing;
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
 }
 
@@ -136,24 +147,28 @@ const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.Auto,
   html: GenerationStrategy.Auto,
   markdown: GenerationStrategy.Auto,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 const DEFAULT_TABLE_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.Auto,
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.Auto,
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.All,
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
+  embed_sources: [EmbedSource.MARKDOWN],
 };
 
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
@@ -171,12 +186,25 @@ export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
   Title: { ...DEFAULT_SEGMENT_CONFIG },
 };
 
+const DEFAULT_LLM_PROCESSING: LlmProcessing = {
+  model_id: undefined,
+  fallback_strategy: { [FallbackStrategyType.Default]: null },
+  max_completion_tokens: undefined,
+  temperature: 0.0,
+};
+
+export const DEFAULT_CHUNK_PROCESSING: ChunkProcessing = {
+  target_length: 512,
+  ignore_headers_and_footers: true,
+  tokenizer: { Enum: Tokenizer.Word },
+};
+
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
-  chunk_processing: { target_length: 512, ignore_headers_and_footers: true },
+  chunk_processing: DEFAULT_CHUNK_PROCESSING,
   high_resolution: false,
   ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
-  file: new File([], ""),
+  llm_processing: DEFAULT_LLM_PROCESSING,
   pipeline: Pipeline.Azure as unknown as WhenEnabled<"pipeline", Pipeline>,
 };
