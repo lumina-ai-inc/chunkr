@@ -1,4 +1,5 @@
 // apps/web/src/services/llmModels.service.ts
+import axiosInstance from "./axios.config";
 
 export interface LLMModel {
   id: string;
@@ -10,9 +11,12 @@ export interface LLMModel {
  * Fetches the list of available LLM models from Chunkr’s public API.
  */
 export async function fetchLLMModels(): Promise<LLMModel[]> {
-  const res = await fetch("https://api.chunkr.ai/llm/models");
-  if (!res.ok) {
-    throw new Error(`Failed to fetch LLM models: ${res.status}`);
-  }
-  return (await res.json()) as LLMModel[];
+  const res = await axiosInstance
+    .get("/llm/models")
+    .then((res) => res.data)
+    .catch((e) => {
+      console.error(e);
+      throw e;
+    });
+  return res as LLMModel[];
 }
