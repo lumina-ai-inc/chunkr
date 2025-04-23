@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.11.2...v1.12.0) (2025-04-23)
+
+
+### Features
+
+* Update web to use `/task/parse` API route and added `error_handling`, `llm_processing`, `embed_sources` and tokenization settings in the upload component ([#450](https://github.com/lumina-ai-inc/chunkr/issues/450)) ([b1a6aef](https://github.com/lumina-ai-inc/chunkr/commit/b1a6aef41ff8d73daa9ba435e37219b98c765524))
+
 ## [1.11.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.11.1...v1.11.2) (2025-04-22)
 
 

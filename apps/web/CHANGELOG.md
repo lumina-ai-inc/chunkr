@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.1.0...chunkr-web-v1.2.0) (2025-04-23)
+
+
+### Features
+
+* Update web to use `/task/parse` API route and added `error_handling`, `llm_processing`, `embed_sources` and tokenization settings in the upload component ([#450](https://github.com/lumina-ai-inc/chunkr/issues/450)) ([b1a6aef](https://github.com/lumina-ai-inc/chunkr/commit/b1a6aef41ff8d73daa9ba435e37219b98c765524))
+
 ## [1.1.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.0.0...chunkr-web-v1.1.0) (2025-03-20)
 
 
