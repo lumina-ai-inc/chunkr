@@ -3,4 +3,4 @@
 skip = .git*,*.pdf,*.svg,package-lock.json,*-lock.yaml,*.css,.codespellrc
 check-hidden = true
 ignore-regex = \bafterAll\b
-# ignore-words-list =
+ignore-words-list = AKS, aks
