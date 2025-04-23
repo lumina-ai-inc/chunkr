@@ -210,7 +210,7 @@
   gap: 4px;
   max-height: 200px;
   overflow-y: auto;
-  background: rgba(2, 5, 6, 0.95);
+  background: rgba(2, 5, 6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 8px;
@@ -355,4 +355,17 @@ select.number-input {
 
 .ml-2 {
   margin-left: 8px;
+}
+
+.chunk-processing-container {
+  /* copy whatever .segment-processing-container does */
+  display: flex;
+  flex-direction: column;
+}
+
+.chunk-processing-container .segment-config-grid {
+  /* reuse the grid styling */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }

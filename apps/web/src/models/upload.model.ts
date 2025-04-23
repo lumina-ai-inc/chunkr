@@ -4,12 +4,15 @@ import {
   SegmentProcessing,
   SegmentationStrategy,
   Pipeline,
+  LlmProcessing,
 } from "./taskConfig.model";
 import { WhenEnabled } from "../config/env.config";
 
 export interface UploadForm {
-  /** The file to be uploaded */
-  file: File;
+  /** Base64 data payload (no “data:” prefix) or a public URL */
+  file: string;
+  /** original filename for server‐side reference */
+  file_name: string;
 
   /** Optional chunk processing configuration */
   chunk_processing?: ChunkProcessing;
@@ -31,4 +34,7 @@ export interface UploadForm {
 
   /** Pipeline to run after processing */
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
+
+  /** NEW: optional LLM processing config */
+  llm_processing?: LlmProcessing;
 }

@@ -108,6 +108,9 @@ docker compose up -d
 
 # For CPU deployment, use the following command:
 docker compose -f compose-cpu.yaml up -d
+
+# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
+docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
 ```
 
 5. Access the services:
@@ -121,6 +124,9 @@ docker compose down
 
 # For CPU deployment, use the following command:
 docker compose -f compose-cpu.yaml down
+
+# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
+docker compose -f compose-cpu.yaml -f compose-mac.yaml down
 ```
 
 #### HTTPS Setup for Docker Compose
@@ -154,6 +160,9 @@ docker compose --profile proxy up -d
 
 # For CPU deployment, use the following command:
 docker compose -f compose-cpu.yaml --profile proxy up -d
+
+# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
+docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy up -d
 ```
 
 4. Access the services:
@@ -167,6 +176,9 @@ docker compose --profile proxy down
 
 # For CPU deployment, use the following command:
 docker compose -f compose-cpu.yaml --profile proxy down
+
+# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
+docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy down
 ```
 
 ### Deployment with Kubernetes
