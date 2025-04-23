@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.2.0-enterprise...chunkr-web-enterprise-v1.3.0-enterprise) (2025-04-23)
+
+
+### Features
+
+* Update web to use `/task/parse` API route and added `error_handling`, `llm_processing`, `embed_sources` and tokenization settings in the upload component ([#450](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/450)) ([13ec8c7](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/13ec8c772ecdb54983fd009be7e59e37b3695ba1))
+
+
+### Bug Fixes
+
+* Llm models are now fetched from `VITE_API_URL` ([#457](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/457)) ([6f2a261](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6f2a261fc3389cd257de4818ea302ae9920d837a))
+
 ## [1.2.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.1.0-enterprise...chunkr-web-enterprise-v1.2.0-enterprise) (2025-03-20)
 
 

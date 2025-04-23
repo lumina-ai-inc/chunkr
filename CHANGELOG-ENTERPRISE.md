@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.14.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.13.0-enterprise...v1.14.0-enterprise) (2025-04-23)
+
+
+### Features
+
+* Added vlm training code ([3904cfc](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/3904cfca5cd86c60f4ffd8df9cc6bcd09e470215))
+* Local pipe ([dae9caf](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/dae9cafaa15cf007362a88b7a81a6324313a1d87))
+* Saved myself from disaster ([eba8ce4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/eba8ce4c6f46e0a00dc86e4bc5bad664328b8630))
+* Update web to use `/task/parse` API route and added `error_handling`, `llm_processing`, `embed_sources` and tokenization settings in the upload component ([#450](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/450)) ([13ec8c7](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/13ec8c772ecdb54983fd009be7e59e37b3695ba1))
+
+
+### Bug Fixes
+
+* Improved handling of base64, bytes-like and file-like file content in the python client ([#452](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/452)) ([db87f6c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/db87f6ca2b725b617b84f788341a9ed613fe12c2))
+* Llm models are now fetched from `VITE_API_URL` ([#457](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/457)) ([6f2a261](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6f2a261fc3389cd257de4818ea302ae9920d837a))
+
 ## [1.13.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.12.0-enterprise...v1.13.0-enterprise) (2025-04-18)
 
 
