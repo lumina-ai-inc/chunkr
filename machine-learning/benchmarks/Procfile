@@ -1,0 +1,21 @@
+coordinator: uv run python coordinator.py --max-docs 100
+extractor1: uv run python extractor.py
+extractor2: uv run python extractor.py
+extractor3: uv run python extractor.py
+extractor4: uv run python extractor.py
+extractor5: uv run python extractor.py
+extractor6: uv run python extractor.py
+extractor7: uv run python extractor.py
+extractor8: uv run python extractor.py
+extractor9: uv run python extractor.py
+scorer1: uv run python scorer.py
+scorer2: uv run python scorer.py
+scorer3: uv run python scorer.py
+scorer4: uv run python scorer.py
+scorer5: uv run python scorer.py
+scorer6: uv run python scorer.py
+scorer7: uv run python scorer.py
+scorer8: uv run python scorer.py
+scorer9: uv run python scorer.py
+dashboard: uv run streamlit run dashboard.py
+viewer: uv run streamlit run viewer.py
