@@ -32,6 +32,7 @@ export interface TaskResponse {
   created_at: string;
   finished_at: string | null;
   expires_at: string | null;
+  started_at: string | null;
   message: string;
   output: Output | null;
   task_url: string | null;

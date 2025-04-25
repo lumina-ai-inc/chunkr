@@ -626,9 +626,9 @@ export default function Viewer({
                         input_file_url: task.configuration.input_file_url
                           ? task.configuration.input_file_url.length > 10
                             ? task.configuration.input_file_url.substring(
-                              0,
-                              10
-                            ) + "..."
+                                0,
+                                10
+                              ) + "..."
                             : task.configuration.input_file_url
                           : null,
                       }}
@@ -664,6 +664,7 @@ export default function Viewer({
               setLeftPanelWidth(panelElement.clientWidth);
             }
           }}
+          style={{ backgroundColor: "#0d0d0d" }}
         >
           <div className="scrollable-content">
             {output.chunks.length === 0 ? (
@@ -688,6 +689,7 @@ export default function Viewer({
                       ref={(el) => (chunkRefs.current[index] = el)}
                       onSegmentClick={scrollToSegment}
                       activeSegment={activeSegment}
+                      config={task.configuration}
                     />
                   ))}
                 {loadedChunks < output.chunks.length && (
@@ -715,7 +717,7 @@ export default function Viewer({
         <Panel
           defaultSize={50}
           minSize={20}
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
+          style={{ backgroundColor: "#0d0d0d" }}
         >
           {memoizedOutput && memoizedOutput.pdf_url && (
             <MemoizedPDF

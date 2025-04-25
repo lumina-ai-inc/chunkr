@@ -7,6 +7,7 @@ import {
   DEFAULT_UPLOAD_CONFIG,
   DEFAULT_SEGMENT_PROCESSING,
   Pipeline,
+  ErrorHandling,
 } from "../../models/taskConfig.model";
 import "./UploadMain.css";
 import Upload from "./Upload";
@@ -123,6 +124,7 @@ export default function UploadMain({
           segmentation_strategy: config.segmentation_strategy,
           pipeline: config.pipeline,
           llm_processing: config.llm_processing,
+          error_handling: config.error_handling,
         };
         await uploadFile(payload);
         successCount++;
@@ -425,6 +427,49 @@ export default function UploadMain({
                 { label: "OFF", value: "OFF" },
               ]}
             />
+
+            <ToggleGroup
+              docsUrl={`${DOCS_URL}/api-references/task/create-task#body-error-handling`} // Updated docs URL
+              label={
+                <Flex gap="2" align="center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 13.75V9.75"
+                      stroke="#FFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="12" cy="17" r="1" fill="#FFF" />
+                    <path
+                      d="M4.39877 20.25C3.64805 20.25 3.16502 19.4536 3.51196 18.7879L11.1132 4.20171C11.4869 3.48456 12.5131 3.48456 12.8868 4.20171L20.488 18.7879C20.835 19.4536 20.352 20.25 19.6012 20.25H4.39877Z"
+                      stroke="#FFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span>Error Handling</span>
+                </Flex>
+              }
+              // Use config.error_handling or default to ErrorHandling.Fail
+              value={config.error_handling || ErrorHandling.Fail}
+              onChange={(value) =>
+                // Update config.error_handling
+                setConfig({ ...config, error_handling: value as ErrorHandling })
+              }
+              // Updated options for ErrorHandling enum
+              options={[
+                { label: "Fail", value: ErrorHandling.Fail },
+                { label: "Continue", value: ErrorHandling.Continue },
+              ]}
+            />
           </div>
 
           <div className="config-card" style={{ marginTop: "32px" }}>
@@ -536,7 +581,7 @@ export default function UploadMain({
             }
           />
 
-          <div style={{ marginTop: 32 }}>
+          <div style={{ marginTop: "40px" }}>
             <LlmProcessingControls
               value={config.llm_processing!}
               onChange={(llm) => setConfig({ ...config, llm_processing: llm })}

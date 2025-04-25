@@ -6,7 +6,13 @@ import {
   useState,
   useEffect,
 } from "react";
-import { Chunk, Segment } from "../../models/taskResponse.model";
+import {
+  Chunk,
+  Segment,
+  SegmentType,
+  Configuration,
+} from "../../models/taskResponse.model";
+import { GenerationStrategy } from "../../models/taskConfig.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
@@ -90,6 +96,7 @@ export const SegmentChunk = memo(
       selectedView: "html" | "markdown" | "json";
       onSegmentClick?: (chunkId: string, segmentId: string) => void;
       activeSegment?: { chunkId: string; segmentId: string } | null;
+      config: Configuration;
     }
   >(
     (
@@ -100,6 +107,7 @@ export const SegmentChunk = memo(
         selectedView,
         onSegmentClick,
         activeSegment,
+        config,
       },
       ref
     ) => {
@@ -167,18 +175,22 @@ export const SegmentChunk = memo(
 
       const renderSegmentHtml = useCallback(
         (segment: Segment) => {
-          const mode = segmentDisplayModes[segment.segment_id];
+          const mode = segmentDisplayModes[segment.segment_id] || {
+            showJson: false,
+            showLLM: false,
+            showImage: false,
+          };
 
           // Just return the content directly without the segment-item wrapper
-          if (mode?.showJson) {
+          if (mode.showJson) {
             return <MemoizedJson segment={segment} />;
           }
 
-          if (mode?.showLLM && segment.llm) {
+          if (mode.showLLM && segment.llm) {
             return <MemoizedMarkdown content={segment.llm} />;
           }
 
-          if (mode?.showImage && segment.image) {
+          if (mode.showImage && segment.image) {
             return (
               <img
                 src={segment.image}
@@ -256,14 +268,76 @@ export const SegmentChunk = memo(
             activeSegment?.chunkId === chunkId &&
             activeSegment?.segmentId === segment.segment_id;
 
-          const mode = segmentDisplayModes[segment.segment_id];
+          // Determine if the segment type is potentially special
+          const isPotentiallySpecialType = [
+            SegmentType.Picture,
+            SegmentType.Table,
+            SegmentType.Formula,
+          ].includes(segment.segment_type);
+
+          // Determine if the processing mode is 'llm' for this type
+          let isLlmProcessing = false;
+          if (config.segment_processing) {
+            switch (segment.segment_type) {
+              case SegmentType.Picture:
+                isLlmProcessing =
+                  config.segment_processing.Picture.html ===
+                    GenerationStrategy.LLM ||
+                  config.segment_processing.Picture.markdown ===
+                    GenerationStrategy.LLM;
+                break;
+              case SegmentType.Table:
+                isLlmProcessing =
+                  config.segment_processing.Table.html ===
+                    GenerationStrategy.LLM ||
+                  config.segment_processing.Table.markdown ===
+                    GenerationStrategy.LLM;
+                break;
+              case SegmentType.Formula:
+                isLlmProcessing =
+                  config.segment_processing.Formula.html ===
+                    GenerationStrategy.LLM ||
+                  config.segment_processing.Formula.markdown ===
+                    GenerationStrategy.LLM;
+                break;
+            }
+          }
+
+          // Apply special styling only if type is special AND processing is NOT 'llm'
+          const isSpecialSegment = isPotentiallySpecialType && isLlmProcessing;
+
+          // Determine the appropriate header text based on type
+          let specialSegmentHeaderText = "";
+          if (isSpecialSegment) {
+            switch (segment.segment_type) {
+              case SegmentType.Picture:
+                specialSegmentHeaderText = "Image description";
+                break;
+              case SegmentType.Table:
+                specialSegmentHeaderText = "Rendered table";
+                break;
+              case SegmentType.Formula:
+                specialSegmentHeaderText = "Rendered formula";
+                break;
+            }
+          }
+
+          const typeClass = `type-${segment.segment_type
+            .replace(/([a-z])([A-Z])/g, "$1-$2") // camel → kebab
+            .toLowerCase()}`;
 
           const renderSegmentContent = () => {
-            if (mode?.showJson) {
+            const mode = segmentDisplayModes[segment.segment_id] || {
+              showJson: false,
+              showLLM: false,
+              showImage: false,
+            };
+
+            if (mode.showJson) {
               return <MemoizedJson segment={segment} />;
             }
 
-            if (mode?.showLLM && segment.llm) {
+            if (mode.showLLM && segment.llm) {
               if (
                 segment.llm.includes("**") ||
                 segment.llm.includes("*") ||
@@ -291,7 +365,7 @@ export const SegmentChunk = memo(
               );
             }
 
-            if (mode?.showImage && segment.image) {
+            if (mode.showImage && segment.image) {
               return (
                 <img
                   src={segment.image}
@@ -311,24 +385,135 @@ export const SegmentChunk = memo(
             );
           };
 
+          const currentButtonMode = segmentDisplayModes[segment.segment_id] || {
+            showJson: false,
+            showLLM: false,
+            showImage: false,
+          };
+
           return (
             <div
               key={segmentIndex}
-              className={`segment-item ${isActive ? "active" : ""}`}
+              className={`segment-item
+                          ${isActive ? "active" : ""}
+                          ${isSpecialSegment ? "special-segment" : ""}
+                          ${typeClass}`}
               data-chunk-id={chunkId}
               data-segment-id={segment.segment_id}
+              data-segment-type={segment.segment_type}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Only call onSegmentClick if this segment is not already active
                 if (!isActive) {
                   onSegmentClick?.(chunkId, segment.segment_id);
                 }
               }}
               style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
             >
+              {isSpecialSegment && !isActive && specialSegmentHeaderText && (
+                <Flex
+                  align="center"
+                  gap="1"
+                  className="special-segment-header"
+                  style={{ marginBottom: "8px" }}
+                >
+                  {segment.segment_type === SegmentType.Picture && (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clip-path="url(#clip0_304_23709)">
+                        <path
+                          d="M20.25 4.75H3.75C3.19772 4.75 2.75 5.19772 2.75 5.75V18.25C2.75 18.8023 3.19772 19.25 3.75 19.25H20.25C20.8023 19.25 21.25 18.8023 21.25 18.25V5.75C21.25 5.19772 20.8023 4.75 20.25 4.75Z"
+                          stroke="#ffffffb4"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M21 18.91L16.54 11.75L13.79 16.14"
+                          stroke="#ffffffb4"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M15.7002 19.2502L9.23023 8.75L2.99023 18.9002"
+                          stroke="#ffffffb4"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_304_23709">
+                          <rect width="24" height="24" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  )}
+                  {segment.segment_type === SegmentType.Table && (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 9H21M3 15H21M9 9L9 20M15 9L15 20M6.2 20H17.8C18.9201 20 19.4802 20 19.908 19.782C20.2843 19.5903 20.5903 19.2843 20.782 18.908C21 18.4802 21 17.9201 21 16.8V7.2C21 6.0799 21 5.51984 20.782 5.09202C20.5903 4.71569 20.2843 4.40973 19.908 4.21799C19.4802 4 18.9201 4 17.8 4H6.2C5.0799 4 4.51984 4 4.09202 4.21799C3.71569 4.40973 3.40973 4.71569 3.21799 5.09202C3 5.51984 3 6.07989 3 7.2V16.8C3 17.9201 3 18.4802 3.21799 18.908C3.40973 19.2843 3.71569 19.5903 4.09202 19.782C4.51984 20 5.07989 20 6.2 20Z"
+                        stroke="#ffffffb4"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                  {segment.segment_type === SegmentType.Formula && (
+                    <svg
+                      fill="#ffffffb4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 52 52"
+                      enableBackground="new 0 0 52 52"
+                      xmlSpace="preserve"
+                    >
+                      <path
+                        d="M30.2,3.2c-0.8-0.6-1.9-0.9-3.2-0.9c-0.3,0-0.6,0-0.9,0.1c-3.5,0.5-5.8,3.8-7.2,6.8
+                   c-0.6,1.4-1.2,2.9-1.7,4.4c-0.3,0.7-0.5,1.4-0.8,2.1c0,0.1-0.4,1.5-0.5,1.5c0,0-3.2,0-3.2,0l0,0h-0.4c-0.5,0-0.9,0.4-0.9,0.9
+                   c0,0.5,0.4,0.9,0.9,0.9h3.1l-1.8,7.5C12,34.7,9.7,44.2,9.1,45.9c-0.6,1.7-1.4,2.6-2.5,2.6c-0.2,0-0.4,0-0.5-0.1
+                   c-0.1-0.1-0.2-0.2-0.2-0.4c0-0.1,0.1-0.4,0.3-0.7c0.2-0.3,0.3-0.7,0.3-1c0-0.7-0.2-1.2-0.7-1.6c-0.4-0.4-0.9-0.6-1.5-0.6
+                   c-0.6,0-1.1,0.2-1.6,0.6c-0.5,0.4-0.7,1-0.7,1.7c0,1,0.4,1.8,1.2,2.5c0.8,0.7,1.8,1,3.1,1c2.1,0,4.1-1,5.5-2.6
+                   c0.9-1,1.5-2.2,2.1-3.5c1.8-3.9,2.7-8.2,3.7-12.3c1-4.2,2-8.4,2.9-12.7H24c0.5,0,0.9-0.4,0.9-0.9c0-0.5-0.4-0.9-0.9-0.9H24v0h-3.1
+                   c1.7-6.6,3.7-11.1,4.1-11.8c0.7-1.1,1.4-1.7,2.1-1.7c0.3,0,0.5,0.1,0.6,0.2c0.1,0.2,0.1,0.3,0.1,0.4c0,0.1-0.1,0.3-0.3,0.7
+                   c-0.2,0.4-0.3,0.8-0.3,1.2c0,0.6,0.2,1,0.6,1.4c0.4,0.4,0.9,0.6,1.5,0.6c0.6,0,1.1-0.2,1.5-0.6c0.4-0.4,0.6-1,0.6-1.7
+                   C31.5,4.6,31.1,3.8,30.2,3.2z"
+                      />
+                      <path
+                        d="M46.1,23.2c1.3,0,3.8-1,3.8-4.4c0-3.3-2.4-3.5-3.1-3.5c-1.5,0-2.9,1.1-4.2,3.3c-1.3,2.3-2.7,4.7-2.7,4.7l0,0
+                   c-0.3-1.6-0.6-2.9-0.7-3.5c-0.3-1.4-1.9-4.4-5.2-4.4c-3.3,0-6.3,1.9-6.3,1.9l0,0c-0.6,0.4-0.9,1-0.9,1.7c0,1.1,0.9,2,2,2
+                   c0.3,0,0.6-0.1,0.9-0.2l0,0c0,0,2.5-1.4,3,0c0.2,0.4,0.3,0.9,0.4,1.4c0.6,2.2,1.2,4.7,1.7,7l-2.2,3.1c0,0-2.4-0.9-3.7-0.9
+                   s-3.8,1-3.8,4.4s2.4,3.5,3.1,3.5c1.5,0,2.9-1.1,4.2-3.3c1.3-2.3,2.7-4.7,2.7-4.7c0.4,2,0.8,3.7,1,4.4c0.8,2.3,2.7,3.7,5.3,3.7
+                   c0,0,2.6,0,5.7-1.7c0.7-0.3,1.3-1,1.3-1.9c0-1.1-0.9-2-2-2c-0.3,0-0.6,0.1-0.9,0.2l0,0c0,0-2.2,1.2-2.9,0.3c-0.5-1-1-2.4-1.3-4
+                   c-0.3-1.5-0.7-3.2-1-4.9l2.2-3.2C42.4,22.3,44.9,23.2,46.1,23.2z"
+                      />
+                    </svg>
+                  )}
+                  <Text
+                    size="1"
+                    weight="medium"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                  >
+                    {specialSegmentHeaderText}
+                  </Text>
+                </Flex>
+              )}
               {isActive && (
-                <Flex mb="4" gap="4">
+                <Flex mb="2" mt="2" gap="4">
                   <BetterButton onClick={() => handleCopySegment(segment)}>
                     <svg
                       width="16"
@@ -352,7 +537,9 @@ export const SegmentChunk = memo(
                       Copy
                     </Text>
                   </BetterButton>
-                  {mode?.showJson || mode?.showLLM || mode?.showImage ? (
+                  {currentButtonMode.showJson ||
+                  currentButtonMode.showLLM ||
+                  currentButtonMode.showImage ? (
                     <BetterButton
                       onClick={() => {
                         setSegmentDisplayModes((prev) => ({
@@ -390,7 +577,7 @@ export const SegmentChunk = memo(
                   ) : (
                     <>
                       <BetterButton
-                        active={mode?.showJson}
+                        active={currentButtonMode.showJson}
                         onClick={() =>
                           handleSegmentDisplayMode(segment.segment_id, "json")
                         }
@@ -420,7 +607,7 @@ export const SegmentChunk = memo(
                       </BetterButton>
                       {segment.llm && (
                         <BetterButton
-                          active={mode?.showLLM}
+                          active={currentButtonMode.showLLM}
                           onClick={() =>
                             handleSegmentDisplayMode(segment.segment_id, "llm")
                           }
@@ -453,7 +640,7 @@ export const SegmentChunk = memo(
                       )}
                       {segment.image && (
                         <BetterButton
-                          active={mode?.showImage}
+                          active={currentButtonMode.showImage}
                           onClick={() =>
                             handleSegmentDisplayMode(
                               segment.segment_id,
