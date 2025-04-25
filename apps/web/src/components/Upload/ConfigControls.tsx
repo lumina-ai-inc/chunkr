@@ -807,6 +807,10 @@ export function LlmProcessingControls({
   // determine what's currently shown
   const selectedModelId = value.model_id ?? defaultModelId;
 
+  // Show "Default" in the button label when the default model is selected
+  const selectedModelDisplayText =
+    selectedModelId + (selectedModelId === defaultModelId ? " (Default)" : "");
+
   // --- Updated Fallback Logic ---
   // Get the type (key) and model ID (value) from the fallback_strategy object
   const fallbackStrategy = value.fallback_strategy ?? {
@@ -920,7 +924,7 @@ export function LlmProcessingControls({
               type="button"
             >
               <Text size="2" weight="medium">
-                {selectedModelId}
+                {selectedModelDisplayText}
               </Text>
               <svg
                 width="12"
