@@ -658,7 +658,7 @@ export function ChunkProcessingControls({
               type="button"
               onClick={() => setIsTokOpen((o) => !o)}
             >
-              <Text size="2" weight="medium">
+              <Text size="1" weight="medium">
                 {/* Display based on the actual value */}
                 {isCustom ? "Custom…" : currentTokenizerValue}
               </Text>
