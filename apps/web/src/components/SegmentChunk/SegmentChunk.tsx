@@ -92,7 +92,6 @@ export const SegmentChunk = memo(
     {
       chunk: Chunk;
       chunkId: string;
-      containerWidth: number;
       selectedView: "html" | "markdown" | "json";
       onSegmentClick?: (chunkId: string, segmentId: string) => void;
       activeSegment?: { chunkId: string; segmentId: string } | null;
@@ -100,15 +99,7 @@ export const SegmentChunk = memo(
     }
   >(
     (
-      {
-        chunk,
-        chunkId,
-        containerWidth,
-        selectedView,
-        onSegmentClick,
-        activeSegment,
-        config,
-      },
+      { chunk, chunkId, selectedView, onSegmentClick, activeSegment, config },
       ref
     ) => {
       const [segmentDisplayModes, setSegmentDisplayModes] = useState<{
@@ -393,7 +384,7 @@ export const SegmentChunk = memo(
                   onSegmentClick?.(chunkId, segment.segment_id);
                 }
               }}
-              style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
+              style={{ width: "100%" }}
             >
               <div className="scroll-x">
                 {isSpecialSegment && !isActive && specialSegmentHeaderText && (

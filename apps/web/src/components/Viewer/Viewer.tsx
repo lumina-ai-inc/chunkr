@@ -29,7 +29,6 @@ export default function Viewer({
   const inputFileUrl = task.configuration.input_file_url;
   const memoizedOutput = useMemo(() => output, [output]);
   const [showConfig, setShowConfig] = useState(false);
-  const [leftPanelWidth, setLeftPanelWidth] = useState(0);
   const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const hideTimeoutRef = useRef<NodeJS.Timeout>();
@@ -658,12 +657,6 @@ export default function Viewer({
         <Panel
           defaultSize={50}
           minSize={20}
-          onResize={() => {
-            const panelElement = document.querySelector(".scrollable-content");
-            if (panelElement) {
-              setLeftPanelWidth(panelElement.clientWidth);
-            }
-          }}
           style={{ backgroundColor: "#0d0d0d" }}
         >
           <div className="scrollable-content">
@@ -684,7 +677,6 @@ export default function Viewer({
                       key={chunk.chunk_id}
                       chunk={chunk}
                       chunkId={chunk.chunk_id}
-                      containerWidth={leftPanelWidth}
                       selectedView={selectedView}
                       ref={(el) => (chunkRefs.current[index] = el)}
                       onSegmentClick={scrollToSegment}
