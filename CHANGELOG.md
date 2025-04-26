@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.12.1...v1.13.0) (2025-04-26)
+
+
+### Features
+
+* Fixed reading of text layer (prevent whitespace in between words) ([#461](https://github.com/lumina-ai-inc/chunkr/issues/461)) ([8eba7d3](https://github.com/lumina-ai-inc/chunkr/commit/8eba7d36d108c736f0d0ca658cf90716c2c0c544))
+
 ## [1.12.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.12.0...v1.12.1) (2025-04-23)
 
 
