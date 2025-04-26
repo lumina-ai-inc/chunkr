@@ -277,30 +277,15 @@ export const SegmentChunk = memo(
 
           // Determine if the processing mode is 'llm' for this type
           let isLlmProcessing = false;
-          if (config.segment_processing) {
-            switch (segment.segment_type) {
-              case SegmentType.Picture:
-                isLlmProcessing =
-                  config.segment_processing.Picture.html ===
-                    GenerationStrategy.LLM ||
-                  config.segment_processing.Picture.markdown ===
-                    GenerationStrategy.LLM;
-                break;
-              case SegmentType.Table:
-                isLlmProcessing =
-                  config.segment_processing.Table.html ===
-                    GenerationStrategy.LLM ||
-                  config.segment_processing.Table.markdown ===
-                    GenerationStrategy.LLM;
-                break;
-              case SegmentType.Formula:
-                isLlmProcessing =
-                  config.segment_processing.Formula.html ===
-                    GenerationStrategy.LLM ||
-                  config.segment_processing.Formula.markdown ===
-                    GenerationStrategy.LLM;
-                break;
-            }
+
+          // SAFELY grab the processing options for the current segment_type
+          const processingConfig =
+            config.segment_processing?.[segment.segment_type];
+
+          if (processingConfig) {
+            isLlmProcessing =
+              processingConfig.html === GenerationStrategy.LLM ||
+              processingConfig.markdown === GenerationStrategy.LLM;
           }
 
           // Apply special styling only if type is special AND processing is NOT 'llm'
