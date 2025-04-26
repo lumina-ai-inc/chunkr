@@ -5,7 +5,7 @@
 
 ### Features
 
-* Fixed reading of text layer (prevent whitespace inbetween words) ([#461](https://github.com/lumina-ai-inc/chunkr/issues/461)) ([8eba7d3](https://github.com/lumina-ai-inc/chunkr/commit/8eba7d36d108c736f0d0ca658cf90716c2c0c544))
+* Fixed reading of text layer (prevent whitespace in between words) ([#461](https://github.com/lumina-ai-inc/chunkr/issues/461)) ([8eba7d3](https://github.com/lumina-ai-inc/chunkr/commit/8eba7d36d108c736f0d0ca658cf90716c2c0c544))
 
 ## [1.9.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.8.0...chunkr-core-v1.9.0) (2025-04-23)
 
