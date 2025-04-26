@@ -73,20 +73,21 @@ global:
   gpuWorkload:
     affinity:
       podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: workload-type
-                    operator: In
-                    values:
-                      - chunkr-gpu
-              topologyKey: kubernetes.io/hostname
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: workload-type
+                  operator: In
+                  values:
+                    - chunkr-gpu
+            topologyKey: kubernetes.io/hostname
     tolerations:
       - key: nvidia.com/gpu
         operator: Exists
         effect: NoSchedule
+      - key: DeletionCandidateOfClusterAutoscaler
+        operator: Exists
+        effect: PreferNoSchedule
     resources:
       limits:
         nvidia.com/gpu: 1
