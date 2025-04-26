@@ -5,6 +5,7 @@ import {
   SegmentationStrategy,
   Pipeline,
   LlmProcessing,
+  ErrorHandling,
 } from "./taskConfig.model";
 import { WhenEnabled } from "../config/env.config";
 
@@ -37,4 +38,7 @@ export interface UploadForm {
 
   /** NEW: optional LLM processing config */
   llm_processing?: LlmProcessing;
+
+  /** Error handling strategy */
+  error_handling?: ErrorHandling;
 }

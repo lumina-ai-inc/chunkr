@@ -1,7 +1,8 @@
 .segment {
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1px solid transparent;
+  border: 1.2px solid transparent;
+  border-radius: 2px;
 }
 
 .segment:hover {
