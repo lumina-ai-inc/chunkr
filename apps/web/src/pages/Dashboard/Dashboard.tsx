@@ -249,6 +249,10 @@ export default function Dashboard() {
       ? `${user.data.first_name} ${user.data.last_name}`
       : user?.data?.email || "User";
 
+  // Format the tier display name
+  const rawTier = user?.data?.tier || "Free";
+  const displayTier = rawTier === "SelfHosted" ? "Self Hosted" : rawTier;
+
   const showProfilePopup = user?.data && isProfileMenuOpen;
 
   const content = useMemo(() => {
@@ -458,7 +462,8 @@ export default function Dashboard() {
                     {userDisplayName}
                   </Text>
                   <Text size="1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    {user?.data?.tier || "Free"}
+                    {/* Use the formatted tier name */}
+                    {displayTier}
                   </Text>
                 </Flex>
               </Flex>

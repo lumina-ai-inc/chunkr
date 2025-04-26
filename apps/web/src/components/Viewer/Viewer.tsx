@@ -29,7 +29,6 @@ export default function Viewer({
   const inputFileUrl = task.configuration.input_file_url;
   const memoizedOutput = useMemo(() => output, [output]);
   const [showConfig, setShowConfig] = useState(false);
-  const [leftPanelWidth, setLeftPanelWidth] = useState(0);
   const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const hideTimeoutRef = useRef<NodeJS.Timeout>();
@@ -626,9 +625,9 @@ export default function Viewer({
                         input_file_url: task.configuration.input_file_url
                           ? task.configuration.input_file_url.length > 10
                             ? task.configuration.input_file_url.substring(
-                              0,
-                              10
-                            ) + "..."
+                                0,
+                                10
+                              ) + "..."
                             : task.configuration.input_file_url
                           : null,
                       }}
@@ -658,12 +657,7 @@ export default function Viewer({
         <Panel
           defaultSize={50}
           minSize={20}
-          onResize={() => {
-            const panelElement = document.querySelector(".scrollable-content");
-            if (panelElement) {
-              setLeftPanelWidth(panelElement.clientWidth);
-            }
-          }}
+          style={{ backgroundColor: "#0d0d0d" }}
         >
           <div className="scrollable-content">
             {output.chunks.length === 0 ? (
@@ -683,11 +677,11 @@ export default function Viewer({
                       key={chunk.chunk_id}
                       chunk={chunk}
                       chunkId={chunk.chunk_id}
-                      containerWidth={leftPanelWidth}
                       selectedView={selectedView}
                       ref={(el) => (chunkRefs.current[index] = el)}
                       onSegmentClick={scrollToSegment}
                       activeSegment={activeSegment}
+                      config={task.configuration}
                     />
                   ))}
                 {loadedChunks < output.chunks.length && (
@@ -715,7 +709,7 @@ export default function Viewer({
         <Panel
           defaultSize={50}
           minSize={20}
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
+          style={{ backgroundColor: "#0d0d0d" }}
         >
           {memoizedOutput && memoizedOutput.pdf_url && (
             <MemoizedPDF
