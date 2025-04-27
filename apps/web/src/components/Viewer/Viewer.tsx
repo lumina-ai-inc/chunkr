@@ -725,7 +725,6 @@ export default function Viewer({
                       ref={(el) => (chunkRefs.current[index] = el)}
                       onSegmentClick={scrollToSegment}
                       activeSegment={activeSegment}
-                      config={task.configuration}
                     />
                   ))}
                 {loadedChunks < output.chunks.length && (

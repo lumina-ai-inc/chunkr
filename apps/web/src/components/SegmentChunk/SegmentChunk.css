@@ -405,4 +405,5 @@
 .segment-chunk .math,                 /* fallback wrapper used on render errors */
 .segment-chunk .latex-content .katex  /* KaTeX that lives inside raw HTML */ {
   font-size: 1em; /* ↓ tweak this number to taste */
+  text-align: left;
 }
