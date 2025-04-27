@@ -71,8 +71,6 @@
     "react-resizable-panels": "^2.1.7",
     "react-router": "^6.26.1",
     "react-router-dom": "^6.26.1",
-    "react-virtualized-auto-sizer": "^1.0.26",
-    "react-window": "^1.8.11",
     "recharts": "^2.15.0",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
