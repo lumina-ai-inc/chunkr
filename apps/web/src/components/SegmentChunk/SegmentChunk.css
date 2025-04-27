@@ -42,7 +42,6 @@
 }
 
 .segment-content {
-  max-width: 760px; /* comfortable reading width   */
   margin-inline: auto;
   color: var(--fg-0);
   font-family: var(--font-sans);
@@ -169,46 +168,42 @@
 .segment-chunk table {
   width: 100%;
   margin-block: 1rem;
-  border-collapse: separate; /* stops collapsing */
-  border-spacing: 0; /* keeps grid look */
-  background: var(--bg-1);
-  border: 1px solid #ffffff2f !important;
+  border-collapse: collapse;
+  background: #010101;
+  outline: 1px solid #181818;
   border-radius: var(--radius-sm);
   overflow: hidden;
+  border-spacing: 0;
 }
 
-.segment-chunk thead {
+/* .segment-chunk thead {
   background: var(--bg-2);
-}
+} */
 
 .segment-chunk th,
 .segment-chunk td {
   padding: 0.75rem 1rem;
   font-size: 0.82rem;
-  border-bottom: 1px solid var(--border);
-  border-right: 1px solid var(--border);
-}
-
-.segment-chunk th {
-  color: var(--fg-1);
-  font-weight: 600;
   text-align: left;
-}
-
-.segment-chunk td {
-  color: var(--fg-0);
-}
-
-.segment-chunk tr:last-child td {
+  border: 1px solid var(--border);
+  /* border-right: 1px solid var(--border); */
   border-bottom: none;
 }
+
+/* Remove right border from the last cell in any row */
 .segment-chunk th:last-child,
 .segment-chunk td:last-child {
   border-right: none;
 }
 
-.segment-chunk tr:nth-child(even) {
-  background: hsla(0 0% 100% / 0.03);
+.segment-chunk th {
+  color: var(--fg-1);
+  font-weight: 600;
+  /* text-align: left; */ /* Moved to shared rule */
+}
+
+.segment-chunk td {
+  color: var(--fg-0);
 }
 
 /* -------------- */
@@ -268,7 +263,7 @@
 .segment-item.special-segment {
   margin-block: 0.75rem;
   border: 1px solid var(--border);
-  background: var(--bg-1);
+  /* background: var(--bg-1); */
 }
 
 /* active special segments */
@@ -372,7 +367,7 @@
 }
 
 /* List-item */
-.segment-item.active.type-listitem {
+.segment-item.active.type-list-item {
   border-color: var(--bronze-10);
   background: color-mix(in srgb, var(--bronze-4) 8%, transparent);
 }

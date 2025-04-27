@@ -110,6 +110,9 @@ export const SegmentChunk = memo(
         };
       }>({});
 
+      // Cache for KaTeX rendering results
+      const katexCache = useMemo(() => new Map<string, string>(), []);
+
       const handleSegmentDisplayMode = useCallback(
         (segmentId: string, mode: "json" | "llm" | "image") => {
           setSegmentDisplayModes((prev) => {
@@ -172,16 +175,10 @@ export const SegmentChunk = memo(
             showImage: false,
           };
 
-          // Just return the content directly without the segment-item wrapper
-          if (mode.showJson) {
-            return <MemoizedJson segment={segment} />;
-          }
-
-          if (mode.showLLM && segment.llm) {
+          if (mode.showJson) return <MemoizedJson segment={segment} />;
+          if (mode.showLLM && segment.llm)
             return <MemoizedMarkdown content={segment.llm} />;
-          }
-
-          if (mode.showImage && segment.image) {
+          if (mode.showImage && segment.image)
             return (
               <img
                 src={segment.image}
@@ -189,9 +186,7 @@ export const SegmentChunk = memo(
                 style={{ maxWidth: "100%" }}
               />
             );
-          }
 
-          // Handle table images
           if (
             segment.segment_type === "Table" &&
             segment.html?.startsWith("<span class=")
@@ -199,62 +194,89 @@ export const SegmentChunk = memo(
             return <img src={segment.image || ""} alt="Table" />;
           }
 
-          // Handle formula segments with class="formula"
+          // --- KaTeX Optimization ---
+          const renderKatex = (
+            input: string,
+            displayMode: boolean,
+            cacheKeyPrefix: string
+          ): string | null => {
+            const cacheKey = `${cacheKeyPrefix}-${input}`;
+            if (katexCache.has(cacheKey)) {
+              return katexCache.get(cacheKey)!;
+            }
+            try {
+              const rendered = katex.renderToString(input, {
+                displayMode,
+                throwOnError: false, // Don't crash on invalid LaTeX
+                output: "html", // Ensure HTML output
+                strict: false, // Be less strict about errors
+              });
+              katexCache.set(cacheKey, rendered);
+              return rendered;
+            } catch (error) {
+              console.error("KaTeX rendering error:", error, "Input:", input);
+              // Cache fallback to prevent re-rendering errors constantly
+              const fallback = displayMode
+                ? `<div class="katex-error">$$${input}$$</div>`
+                : `<span class="katex-error">\\(${input}\\)</span>`;
+              katexCache.set(cacheKey, fallback);
+              return fallback;
+            }
+          };
+
+          // Handle formula spans
           if (segment.html?.includes('class="formula"')) {
-            let html = segment.html;
-            // Process all formula spans
-            html = html.replace(
+            const processedHtml = segment.html.replace(
               /<span class="formula">(.*?)<\/span>/gs,
               (match, formula) => {
-                try {
-                  const processedFormula = formula
-                    .replace(/&gt;/g, ">")
-                    .replace(/&lt;/g, "<")
-                    .replace(/&amp;/g, "&")
-                    .replace(/\\\(|\\\)/g, "") // Remove \( and \) delimiters
-                    .trim();
-                  return katex.renderToString(processedFormula, {
-                    displayMode: false,
-                    throwOnError: false,
-                  });
-                } catch (error) {
-                  console.error("KaTeX rendering error:", error);
-                  return match; // Return original on error
-                }
+                const cleanedFormula = formula
+                  .replace(/&gt;/g, ">")
+                  .replace(/&lt;/g, "<")
+                  .replace(/&amp;/g, "&")
+                  .replace(/\\\(|\\\)/g, "") // Remove \( \) delimiters if present
+                  .trim();
+                return (
+                  renderKatex(
+                    cleanedFormula,
+                    false,
+                    `formula-${segment.segment_id}`
+                  ) || match
+                ); // Use false for inline displayMode
               }
             );
-
-            return <div dangerouslySetInnerHTML={{ __html: html }} />;
+            return <div dangerouslySetInnerHTML={{ __html: processedHtml }} />;
           }
 
-          // Handle content with LaTeX delimiters
-          if (segment.content && segment.content.includes("\\")) {
-            try {
+          // Handle content potentially containing LaTeX (check for typical delimiters)
+          // This is a basic check; more robust parsing might be needed
+          if (
+            segment.content &&
+            (segment.content.includes("$") || segment.content.includes("\\"))
+          ) {
+            // Attempt to render if it looks like LaTeX, otherwise fallback
+            // This assumes segment.content IS the formula if it contains delimiters
+            // Adjust logic if segment.content is mixed text/LaTeX
+            const renderedKatex = renderKatex(
+              segment.content,
+              true,
+              `content-${segment.segment_id}`
+            ); // Use true for displayMode
+            if (renderedKatex) {
               return (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: katex.renderToString(segment.content, {
-                      displayMode: true,
-                      throwOnError: false,
-                    }),
-                  }}
-                />
-              );
-            } catch (error) {
-              console.error("KaTeX rendering error:", error);
-              return (
-                <div className="math math-display">$$${segment.content}$$</div>
+                <div dangerouslySetInnerHTML={{ __html: renderedKatex }} />
               );
             }
           }
+          // --- End KaTeX Optimization ---
 
+          // Fallback to original MemoizedHtml if no KaTeX was handled
           return <MemoizedHtml html={segment.html || ""} />;
         },
-        [segmentDisplayModes]
+        [segmentDisplayModes, katexCache] // Add katexCache dependency
       );
 
       const renderContent = () => {
-        return chunk.segments.map((segment, segmentIndex) => {
+        return chunk.segments.map((segment) => {
           const isActive =
             activeSegment?.chunkId === chunkId &&
             activeSegment?.segmentId === segment.segment_id;
@@ -282,18 +304,23 @@ export const SegmentChunk = memo(
           // Apply special styling only if type is special AND processing is NOT 'llm'
           const isSpecialSegment = isPotentiallySpecialType && isLlmProcessing;
 
-          // Determine the appropriate header text based on type
+          // Determine the appropriate header text and color based on type
           let specialSegmentHeaderText = "";
+          let specialSegmentColorVar = "var(--fg-2)"; // Default color variable
+
           if (isSpecialSegment) {
             switch (segment.segment_type) {
               case SegmentType.Picture:
                 specialSegmentHeaderText = "Image description";
+                specialSegmentColorVar = "var(--pink-4)"; // Use light pink
                 break;
               case SegmentType.Table:
-                specialSegmentHeaderText = "Rendered table";
+                specialSegmentHeaderText = "Table";
+                specialSegmentColorVar = "var(--orange-4)"; // Use light orange
                 break;
               case SegmentType.Formula:
-                specialSegmentHeaderText = "Rendered formula";
+                specialSegmentHeaderText = "Formula";
+                specialSegmentColorVar = "var(--amber-3)"; // Use light amber
                 break;
             }
           }
@@ -353,7 +380,7 @@ export const SegmentChunk = memo(
 
             // Regular content rendering based on selected view
             return selectedView === "html" ? (
-              renderSegmentHtml(segment)
+              renderSegmentHtml(segment) // This now uses the optimized version
             ) : (
               <MemoizedMarkdown
                 content={segment.markdown || segment.content || ""}
@@ -369,7 +396,7 @@ export const SegmentChunk = memo(
 
           return (
             <div
-              key={segmentIndex}
+              key={segment.segment_id} // Use stable segment_id for key
               className={`segment-item
                           ${isActive ? "active" : ""}
                           ${isSpecialSegment ? "special-segment" : ""}
@@ -380,11 +407,14 @@ export const SegmentChunk = memo(
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                // Only trigger scroll if not already active to prevent unnecessary calls
                 if (!isActive) {
                   onSegmentClick?.(chunkId, segment.segment_id);
                 }
               }}
               style={{ width: "100%" }}
+              // Consider adding CSS containment for performance
+              // style={{ contain: 'content' }}
             >
               <div className="scroll-x">
                 {isSpecialSegment && !isActive && specialSegmentHeaderText && (
@@ -392,7 +422,7 @@ export const SegmentChunk = memo(
                     align="center"
                     gap="1"
                     className="special-segment-header"
-                    style={{ marginBottom: "8px" }}
+                    style={{ marginTop: "2px", marginBottom: "8px" }}
                   >
                     {segment.segment_type === SegmentType.Picture && (
                       <svg
@@ -405,21 +435,21 @@ export const SegmentChunk = memo(
                         <g clip-path="url(#clip0_304_23709)">
                           <path
                             d="M20.25 4.75H3.75C3.19772 4.75 2.75 5.19772 2.75 5.75V18.25C2.75 18.8023 3.19772 19.25 3.75 19.25H20.25C20.8023 19.25 21.25 18.8023 21.25 18.25V5.75C21.25 5.19772 20.8023 4.75 20.25 4.75Z"
-                            stroke="#ffffffb4"
+                            stroke={specialSegmentColorVar}
                             strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
                           <path
                             d="M21 18.91L16.54 11.75L13.79 16.14"
-                            stroke="#ffffffb4"
+                            stroke={specialSegmentColorVar}
                             strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
                           <path
                             d="M15.7002 19.2502L9.23023 8.75L2.99023 18.9002"
-                            stroke="#ffffffb4"
+                            stroke={specialSegmentColorVar}
                             strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -442,7 +472,7 @@ export const SegmentChunk = memo(
                       >
                         <path
                           d="M3 9H21M3 15H21M9 9L9 20M15 9L15 20M6.2 20H17.8C18.9201 20 19.4802 20 19.908 19.782C20.2843 19.5903 20.5903 19.2843 20.782 18.908C21 18.4802 21 17.9201 21 16.8V7.2C21 6.0799 21 5.51984 20.782 5.09202C20.5903 4.71569 20.2843 4.40973 19.908 4.21799C19.4802 4 18.9201 4 17.8 4H6.2C5.0799 4 4.51984 4 4.09202 4.21799C3.71569 4.40973 3.40973 4.71569 3.21799 5.09202C3 5.51984 3 6.07989 3 7.2V16.8C3 17.9201 3 18.4802 3.21799 18.908C3.40973 19.2843 3.71569 19.5903 4.09202 19.782C4.51984 20 5.07989 20 6.2 20Z"
-                          stroke="#ffffffb4"
+                          stroke={specialSegmentColorVar}
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -451,7 +481,7 @@ export const SegmentChunk = memo(
                     )}
                     {segment.segment_type === SegmentType.Formula && (
                       <svg
-                        fill="#ffffffb4"
+                        fill={specialSegmentColorVar}
                         xmlns="http://www.w3.org/2000/svg"
                         width="14"
                         height="14"
@@ -483,14 +513,14 @@ export const SegmentChunk = memo(
                     <Text
                       size="1"
                       weight="medium"
-                      style={{ color: "rgba(255,255,255,0.7)" }}
+                      style={{ color: specialSegmentColorVar }}
                     >
                       {specialSegmentHeaderText}
                     </Text>
                   </Flex>
                 )}
                 {isActive && (
-                  <Flex mb="2" mt="2" gap="4">
+                  <Flex mb="2" mt="2" gap="4" className="segment-actions">
                     <BetterButton onClick={() => handleCopySegment(segment)}>
                       <svg
                         width="16"
@@ -655,7 +685,9 @@ export const SegmentChunk = memo(
                     )}
                   </Flex>
                 )}
-                {renderSegmentContent()}
+                <div className="segment-render-area">
+                  {renderSegmentContent()}
+                </div>
               </div>
             </div>
           );
@@ -694,6 +726,8 @@ export const SegmentChunk = memo(
           data-chunk-id={chunkId}
           style={{
             position: "relative",
+            // Consider adding CSS containment for performance
+            // contain: 'layout paint',
           }}
         >
           <div className="segment-content">{renderContent()}</div>
