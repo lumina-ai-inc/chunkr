@@ -86,6 +86,9 @@ const MemoizedJson = memo(({ segment }: { segment: Segment }) => (
   />
 ));
 
+// Put KaTeX cache outside the component so it survives rerenders
+const katexCache = new Map<string, string>();
+
 export const SegmentChunk = memo(
   forwardRef<
     HTMLDivElement,
@@ -109,9 +112,6 @@ export const SegmentChunk = memo(
           showImage: boolean;
         };
       }>({});
-
-      // Cache for KaTeX rendering results
-      const katexCache = useMemo(() => new Map<string, string>(), []);
 
       const handleSegmentDisplayMode = useCallback(
         (segmentId: string, mode: "json" | "llm" | "image") => {
@@ -272,7 +272,7 @@ export const SegmentChunk = memo(
           // Fallback to original MemoizedHtml if no KaTeX was handled
           return <MemoizedHtml html={segment.html || ""} />;
         },
-        [segmentDisplayModes, katexCache] // Add katexCache dependency
+        [segmentDisplayModes]
       );
 
       const renderContent = () => {

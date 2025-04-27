@@ -332,74 +332,52 @@ export default function Viewer({
     }
   }, [output]);
 
-  // Define the core scroll handling logic using useCallback
-  const handleScrollLogic = useCallback(
-    (target: HTMLDivElement | null) => {
-      if (!target) return;
+  /* Keep ONE debounced fn for the lifetime of the component */
+  const debouncedScrollHandler = useRef<ReturnType<typeof debounce>>();
 
-      const { scrollTop, scrollHeight, clientHeight } = target;
-      // Consider a smaller multiplier if loading triggers too early
-      const scrolledToBottom = scrollHeight - scrollTop <= clientHeight * 1.8;
+  /* Stable listener that never changes */
+  const onScroll = useCallback((e: Event) => {
+    debouncedScrollHandler.current!(e.target as HTMLDivElement);
+  }, []);
 
-      if (target.classList.contains("scrollable-content")) {
-        // Check if output and chunks exist before accessing length
-        const totalChunks = output?.chunks?.length ?? 0;
-        if (scrolledToBottom && loadedChunks < totalChunks) {
-          console.log("Loading more chunks...");
-          setLoadedChunks((prev) =>
-            Math.min(prev + CHUNK_LOAD_SIZE, totalChunks)
-          );
-        }
-      } else if (target.classList.contains("pdf-container")) {
-        // Check if numPages has been set
-        const totalPages = numPages ?? 0;
-        if (scrolledToBottom && loadedPages < totalPages) {
-          console.log("Loading more pages...");
-          setLoadedPages((prev) =>
-            Math.min(prev + PAGE_CHUNK_SIZE, totalPages)
-          );
-        }
-      }
-    },
-    [loadedChunks, output?.chunks, loadedPages, numPages]
-  ); // Dependencies for the core logic
-
-  // Memoize the debounced version of the scroll handler logic
-  const debouncedScrollHandler = useMemo(
-    () =>
-      debounce((event: Event) => {
-        handleScrollLogic(event.target as HTMLDivElement);
-      }, 200), // Debounce delay
-    [handleScrollLogic] // Recreate debounce only if logic function changes
-  );
-
-  // Add scroll listeners to both containers using refs
+  /* Create the debounce only once */
   useEffect(() => {
-    const scrollableContent = scrollableContentRef.current;
-    const pdfContainer = pdfContainerRef.current;
+    debouncedScrollHandler.current = debounce((target: HTMLDivElement) => {
+      // <— your old handleScrollLogic body
+      const { scrollTop, scrollHeight, clientHeight } = target;
+      // use functional updates so we do NOT depend on loadedChunks/pages
+      if (target.classList.contains("scrollable-content")) {
+        setLoadedChunks((prev) => {
+          const totalChunks = output?.chunks.length ?? 0;
+          return scrollHeight - scrollTop <= clientHeight * 1.8
+            ? Math.min(prev + CHUNK_LOAD_SIZE, totalChunks)
+            : prev;
+        });
+      } else if (target.classList.contains("pdf-container")) {
+        setLoadedPages((prev) => {
+          const totalPages = numPages ?? 0;
+          return scrollHeight - scrollTop <= clientHeight * 1.8
+            ? Math.min(prev + PAGE_CHUNK_SIZE, totalPages)
+            : prev;
+        });
+      }
+    }, 200);
+  }, [output?.chunks, numPages]);
 
-    // Define the listener function type explicitly
-    const listener = (event: Event) => debouncedScrollHandler(event);
+  /* Attach listener once */
+  useEffect(() => {
+    const content = scrollableContentRef.current;
+    const pdf = pdfContainerRef.current;
 
-    if (scrollableContent) {
-      scrollableContent.addEventListener("scroll", listener);
-    }
-    if (pdfContainer) {
-      pdfContainer.addEventListener("scroll", listener);
-    }
+    content?.addEventListener("scroll", onScroll);
+    pdf?.addEventListener("scroll", onScroll);
 
     return () => {
-      // Cancel any pending debounced calls on cleanup
-      debouncedScrollHandler.cancel();
-      if (scrollableContent) {
-        scrollableContent.removeEventListener("scroll", listener);
-      }
-      if (pdfContainer) {
-        pdfContainer.removeEventListener("scroll", listener);
-      }
+      debouncedScrollHandler.current?.cancel();
+      content?.removeEventListener("scroll", onScroll);
+      pdf?.removeEventListener("scroll", onScroll);
     };
-    // useEffect depends on the memoized debounced handler
-  }, [debouncedScrollHandler]);
+  }, [onScroll]);
 
   // Change the state name to match our new dropdown
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
