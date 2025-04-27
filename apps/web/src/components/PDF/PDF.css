@@ -254,6 +254,9 @@
   flex-direction: column;
   align-items: center;
   min-width: 200px;
+  /* EDIT: Add padding to prevent pages sticking to edges */
+  padding: 0 16px; /* Adjust padding as needed */
+  box-sizing: border-box; /* Include padding in width/height */
 }
 
 /* Add scrollbar styling */
@@ -287,20 +290,39 @@
   min-width: 200px;
 }
 
+/* EDIT: Add styles for the new page container */
+.page-container {
+  width: 100%; /* Take full width of the flex container in PDF.tsx */
+  max-width: 800px; /* Optional: Set a max-width for readability */
+  margin: 8px 0; /* Keep vertical margin */
+  position: relative; /* Keep for absolute positioning of overlays */
+  display: flex; /* Ensure content inside centers if needed */
+  justify-content: center; /* Center the Page component if it's narrower */
+}
+
 .react-pdf__Page {
-  max-width: 100%;
+  max-width: 100%; /* Ensure page doesn't overflow container */
   position: relative;
-  margin: 8px 0;
+  /* margin: 8px 0; <-- Moved margin to page-container */
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
-  transition: width 0.05s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: width;
-  min-width: 200px;
+  /* REMOVE: Transitions/will-change related to JS width changes */
+  /* transition: width 0.05s cubic-bezier(0.4, 0, 0.2, 1); */
+  /* will-change: width; */
+  min-width: 200px; /* Keep minimum width */
+  /* Ensure the page itself takes available width up to its max */
+  width: 100%;
+  height: auto;
 }
 
 .react-pdf__Page canvas {
-  transition: width 0.05s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: width;
-  min-width: 200px;
+  /* EDIT: Ensure canvas scales fluidly */
+  display: block; /* Prevents extra space below */
+  width: 100% !important; /* Force canvas width to match its container */
+  height: auto !important; /* Maintain aspect ratio */
+  /* REMOVE: Transitions/will-change related to JS width changes */
+  /* transition: width 0.05s cubic-bezier(0.4, 0, 0.2, 1); */
+  /* will-change: width; */
+  min-width: 200px; /* Keep minimum width */
 }
 
 .segment-overlay-background {
