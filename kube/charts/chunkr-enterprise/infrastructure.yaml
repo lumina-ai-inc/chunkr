@@ -95,7 +95,7 @@ services:
       periodSeconds: 5
 
   minio:
-    enabled: true
+    enabled: false
     image:
       repository: minio/minio
       tag: latest
