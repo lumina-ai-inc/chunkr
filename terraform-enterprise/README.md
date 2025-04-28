@@ -19,7 +19,6 @@ cd terraform-enterprise/gcp
 
 3. Create a `terraform.tfvars` file:
 ```bash
-nano terraform.tfvars
 ```
 
 4. Set the following variables:
@@ -145,6 +144,7 @@ terraform init -backend-config=path/to/backend.hcl -reconfigure
 
 ```bash
 terraform plan -var-file="path/to/terraform.tfvars" 
+
 terraform apply -var-file="path/to/terraform.tfvars"
 ```
 

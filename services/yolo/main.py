@@ -168,15 +168,15 @@ async def process_image(image_data: bytes, conf: float = None, img_size: int = N
                     
                 mapped_classes.append(mapped_class)
             
-            # Convert to Pydantic models
+            # Convert boxes to BoundingBox instances
             bbox_list = [BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) for box in boxes]
-            
+
             # Apply reading order and merge overlapping boxes
             ordered_boxes, ordered_scores, ordered_classes, image_size = get_reading_order_and_merge(
                 bbox_list, conf.tolist(), mapped_classes, det_res[0].orig_shape, score_threshold, overlap_threshold
             )
             
-            # Convert to output format
+            # Create the output format
             bbox_output_list = [BoundingBoxOutput(
                 left=box.x1,
                 top=box.y1,
