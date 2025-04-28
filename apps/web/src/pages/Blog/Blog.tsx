@@ -13,7 +13,7 @@ const blogPosts = [
     id: 1,
     title: "Understanding Modern Web Development",
     subtitle: "A deep dive into the tools and techniques shaping the web.",
-    imageUrl: "/placeholder-image.webp", // Replace with actual image path or URL
+    imageUrl: "/placeholder-image.webp",
     imageAlt: "Abstract representation of web development concepts",
     readingTime: "7 min read",
     datePublished: "2024-07-26",
@@ -24,7 +24,7 @@ const blogPosts = [
     id: 2,
     title: "Optimizing React Applications",
     subtitle: "Strategies for building faster and more efficient React apps.",
-    imageUrl: "/placeholder-image-2.webp", // Replace with actual image path or URL
+    imageUrl: "/placeholder-image-2.webp",
     imageAlt: "Graph showing performance optimization",
     readingTime: "10 min read",
     datePublished: "2024-07-20",
@@ -53,18 +53,17 @@ export default function Blog() {
   return (
     <Flex
       direction="column"
-      style={{ minHeight: "100vh", backgroundColor: "#050609" }} // Match Home background
+      style={{ minHeight: "100vh", backgroundColor: "#050609" }}
     >
-      {/* Sticky Header */}
       <Flex
         style={{
           position: "sticky",
           top: 0,
           zIndex: 10,
           width: "100%",
-          backgroundColor: "rgba(5, 6, 9, 0.8)", // Slightly transparent background like Home scrolled
-          backdropFilter: "blur(8px)", // Blur effect like Home scrolled
-          boxShadow: "0 1px 0 0 rgba(255, 255, 255, 0.05)", // Add border effect like Home scrolled
+          backgroundColor: "rgba(5, 6, 9, 0.8)",
+          backdropFilter: "blur(8px)",
+          boxShadow: "0 1px 0 0 rgba(255, 255, 255, 0.05)",
         }}
         justify="center"
       >
@@ -86,25 +85,21 @@ export default function Blog() {
         style={{
           flex: 1,
           width: "100%",
-          padding: "64px 24px", // Add padding like Home sections
+          padding: "64px 24px",
         }}
       >
         <Flex
           direction="column"
-          style={{ maxWidth: "1024px", width: "100%", gap: "48px" }} // Container for blog content
+          style={{ maxWidth: "1024px", width: "100%", gap: "48px" }}
         >
-          {/* Updated Blog Title Section */}
           <Flex
             direction="column"
             align="center"
             gap="16px"
             onMouseEnter={() => handleLottieHover(blogIconLottieRef)}
           >
-            {/* Tag */}
             <Flex className="yc-tag" gap="8px" align="center">
               {" "}
-              {/* Use yc-tag class and align items */}
-              {/* Simple SVG Icon (e.g., document/book) */}
               <Lottie
                 lottieRef={blogIconLottieRef}
                 animationData={blogIcon}
@@ -125,24 +120,22 @@ export default function Blog() {
               </Text>
             </Flex>
 
-            {/* Main Title - Using Text styled like feature-bottom-box-title */}
             <Text
-              size="9" // Matches Home.tsx feature-bottom-box-title
-              weight="medium" // Matches Home.tsx feature-bottom-box-title
+              size="9"
+              weight="medium"
               align="center"
-              className="feature-bottom-box-title" // Use class from Home.css
+              className="feature-bottom-box-title"
             >
               Blog Posts
             </Text>
 
-            {/* Subtitle - Using Text styled like feature-left-box-subtitle */}
             <Text
-              size="5" // Matches Home.tsx feature-left-box-subtitle
-              weight="medium" // Matches Home.tsx feature-left-box-subtitle
-              className="feature-left-box-subtitle" // Use class from Home.css
+              size="5"
+              weight="medium"
+              className="feature-left-box-subtitle"
               align="center"
-              mt="16px" // Add margin like Home.tsx
-              style={{ maxWidth: "600px", color: "#ffffffbc" }} // Add max-width and subtle color
+              mt="16px"
+              style={{ maxWidth: "600px", color: "#ffffffbc" }}
             >
               Explore the latest articles, tutorials, and news from our team.
             </Text>
@@ -153,16 +146,14 @@ export default function Blog() {
             {blogPosts.map((post) => (
               <Flex key={post.id} className="blog-card">
                 <Flex align="stretch">
-                  {/* Image Placeholder */}
                   <Box className="blog-card-image-container">
                     <img
                       src={post.imageUrl}
-                      alt={post.imageAlt} // Important for SEO and accessibility
+                      alt={post.imageAlt}
                       className="blog-card-image"
                     />
                   </Box>
 
-                  {/* Text Content */}
                   <Flex
                     direction="column"
                     gap="16px"
