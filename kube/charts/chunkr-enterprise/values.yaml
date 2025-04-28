@@ -224,6 +224,15 @@ services:
     enableTopologySpreadConstraints: true
     labels:
       workload-type: chunkr-gpu
+    env:
+      - name: MAX_BATCH_SIZE
+        value: '100'
+      - name: OVERLAP_THRESHOLD
+        value: '0.1'
+      - name: SCORE_THRESHOLD
+        value: '0.15'
+      - name: CONF_THRESHOLD
+        value: '0.1'
   emails:
     enabled: true
     image:
