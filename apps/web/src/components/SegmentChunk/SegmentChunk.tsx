@@ -246,7 +246,7 @@ export const SegmentChunk = memo(
         if (isSpecialSegment) {
           switch (segment.segment_type) {
             case SegmentType.Picture:
-              specialSegmentHeaderText = "Image description";
+              specialSegmentHeaderText = "Image";
               specialSegmentColorVar = "var(--pink-4)"; // Use light pink
               break;
             case SegmentType.Table:
