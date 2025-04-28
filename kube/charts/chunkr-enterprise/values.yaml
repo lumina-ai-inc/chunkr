@@ -73,21 +73,20 @@ global:
   gpuWorkload:
     affinity:
       podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-                - key: workload-type
-                  operator: In
-                  values:
-                    - chunkr-gpu
-            topologyKey: kubernetes.io/hostname
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: workload-type
+                    operator: In
+                    values:
+                      - chunkr-gpu
+              topologyKey: kubernetes.io/hostname
     tolerations:
       - key: nvidia.com/gpu
         operator: Exists
         effect: NoSchedule
-      - key: DeletionCandidateOfClusterAutoscaler
-        operator: Exists
-        effect: PreferNoSchedule
     resources:
       limits:
         nvidia.com/gpu: 1
@@ -112,7 +111,8 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.15.0-enterprise
+      tag: 1.14.0-enterprise
+    imagePullSecretsEnabled: true
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -137,7 +137,8 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 1.15.0-enterprise
+      tag: 1.14.0-enterprise
+    imagePullSecretsEnabled: true
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -145,7 +146,7 @@ services:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
-        value: '3'
+        value: "3"
     volumes:
       - name: llm-models-config
         configMap:
@@ -159,7 +160,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.15.0-enterprise
+      tag: 1.14.0-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -173,7 +174,7 @@ services:
       - name: VITE_DOCS_URL
         value: https://docs.chunkr.ai
       - name: VITE_FEATURE_FLAG_PIPELINE
-        value: 'true'
+        value: "true"
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -208,7 +209,7 @@ services:
     enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
-        value: '100'
+        value: "100"
     labels:
       workload-type: chunkr-gpu
   segmentation:
@@ -224,20 +225,11 @@ services:
     enableTopologySpreadConstraints: true
     labels:
       workload-type: chunkr-gpu
-    env:
-      - name: MAX_BATCH_SIZE
-        value: '100'
-      - name: OVERLAP_THRESHOLD
-        value: '0.1'
-      - name: SCORE_THRESHOLD
-        value: '0.15'
-      - name: CONF_THRESHOLD
-        value: '0.1'
   emails:
     enabled: true
     image:
       repository: emails
-      tag: 1.15.0-enterprise
+      tag: 1.14.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -288,18 +280,18 @@ services:
   cleanup-failed-pods:
     enabled: false
     type: cronjob
-    schedule: '*/15 * * * *'
+    schedule: "*/15 * * * *"
     image:
       registry: bitnami
       repository: kubectl
-      tag: 1.15.0-enterprise
+      tag: 1.14.0-enterprise
     command:
       - kubectl
     args:
       - delete
       - pods
-      - '--field-selector=status.phase=Failed'
-      - '-n'
+      - "--field-selector=status.phase=Failed"
+      - "-n"
       - chunkr
     serviceAccountName: default
     podSpec:

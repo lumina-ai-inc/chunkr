@@ -41,6 +41,8 @@ print(f"Overlap threshold: {overlap_threshold}")
 print(f"Score threshold: {score_threshold}")
 print(f"Confidence threshold: {conf_threshold}")
 print(f"Image size: {imgsz}")
+print(f"Batch wait time: {batch_wait_time}")
+
 
 # Global model variable
 model = None

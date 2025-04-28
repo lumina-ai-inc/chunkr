@@ -15,7 +15,7 @@ ingress:
     replicas: 2
     image:
       repository: cloudflare/cloudflared
-      tag: 2024.12.1
+      tag: 2025.2.0
       pullPolicy: Always
     config:
       tunnelName: chunkr
@@ -40,11 +40,8 @@ common:
       value: us-east-1
     - name: LLM__MODELS_PATH
       value: /app/models.yaml
-    - name: PG__URL
-      value: >-
-        postgresql://{{ .Values.services.postgres.credentials.username }}:{{
-        .Values.services.postgres.credentials.password }}@{{- .Release.Name
-        }}-postgres:5432/chunkr
+    - name: JOB__TASK_TIMEOUT
+      value: "600"
     - name: REDIS__URL
       value: redis://{{- .Release.Name }}-redis:6379
     - name: SEARCH__DENSE_VECTOR_URL
@@ -57,19 +54,13 @@ common:
       value: >-
         https://{{ .Values.services.server.ingress.subdomain }}.{{
         .Values.ingress.domain }}
+    - name: EMAIL__SERVER_URL
+      value: http://{{- .Release.Name }}-emails:8000
 global:
   image:
     registry: luminainc
     pullPolicy: Always
   storageClass: standard
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: ScheduleAnyway
-      labelSelector:
-        matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: Exists
   gpuWorkload:
     affinity:
       podAntiAffinity:
@@ -110,8 +101,8 @@ services:
     enabled: true
     useStandardEnv: true
     image:
-      repository: server
-      tag: 1.12.1
+      repository: server-azure
+      tag: 1.14.0-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -120,7 +111,14 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
+          optional: true
     volumes:
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: chunkr
       - name: llm-models-config
         configMap:
           name: llm-models-configmap
@@ -133,15 +131,19 @@ services:
     enabled: true
     useStandardEnv: true
     image:
-      repository: task
-      tag: 1.12.1
+      repository: task-azure
+      tag: 1.14.0-enterprise
     envFrom:
       - secretRef:
           name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: '3'
+          optional: true
     volumes:
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: chunkr
       - name: llm-models-config
         configMap:
           name: llm-models-configmap
@@ -154,7 +156,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.12.1
+      tag: 1.14.0-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -167,6 +169,8 @@ services:
           .Values.ingress.domain }}
       - name: VITE_DOCS_URL
         value: https://docs.chunkr.ai
+      - name: VITE_FEATURE_FLAG_PIPELINE
+        value: "true"
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -178,23 +182,34 @@ services:
       - name: VITE_KEYCLOAK_REDIRECT_URI
         value: >-
           https://{{ .Values.services.web.ingress.subdomain }}.{{
-          .Values.ingress.domain }}
+          .Values.ingress.domain }}/dashboard
       - name: VITE_KEYCLOAK_URL
         value: >-
           https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
           .Values.ingress.domain }}
+      - name: VITE_STRIPE_API_KEY
+        value: "100"
+    volumes:
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: chunkr
   ocr:
-    enabled: true
+    enabled: false
     image:
       repository: doctr
-      tag: 1.12.1
+      tag: 1.11.0-enterprise
+    imagePullSecrets:
+      - name: regcred
     port: 8000
     targetPort: 8000
     useGPU: true
     enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
-        value: '100'
+        value: "100"
     labels:
       workload-type: chunkr-gpu
   segmentation:
@@ -202,18 +217,70 @@ services:
     image:
       repository: segmentation
       tag: 1.5.0
+    imagePullSecrets:
+      - name: regcred
     port: 8000
     targetPort: 8000
     useGPU: true
     enableTopologySpreadConstraints: true
     labels:
       workload-type: chunkr-gpu
+  analytics-web:
+    enabled: false
+    image:
+      repository: analytics-web
+      tag: 1.11.0-enterprise
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: analytics
     env:
-      - name: MAX_BATCH_SIZE
-        value: '4'
-      - name: BATCH_WAIT_TIME
-        value: '0.2'
-      - name: OVERLAP_THRESHOLD
-        value: '0.025'
-      - name: SCORE_THRESHOLD
-        value: '0.2'
+      - name: VITE_API_URL
+        value: >-
+          https://{{ index .Values.services "analytics-server" "ingress"
+          "subdomain" }}.{{ .Values.ingress.domain }}
+  analytics-server:
+    enabled: false
+    image:
+      repository: analytics-server
+      tag: 1.11.0-enterprise
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: analytics-api
+    env:
+      - name: API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: ANALYTICS-API-KEY
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: PG-URL
+  cleanup-failed-pods:
+    enabled: false
+    type: cronjob
+    schedule: "*/15 * * * *"
+    image:
+      registry: bitnami
+      repository: kubectl
+      tag: 1.14.0-enterprise
+    command:
+      - kubectl
+    args:
+      - delete
+      - pods
+      - "--field-selector=status.phase=Failed"
+      - "-n"
+      - chunkr
+    serviceAccountName: default
+    podSpec:
+      restartPolicy: OnFailure

@@ -88,7 +88,7 @@ Edit and apply your secrets:
 vim secrets/local/chunkr-secret.yaml  
 
 # 2. Apply secrets
-kubectl apply -f secrets/local/ -n chunkr
+kubectl apply -f secrets/local/chunkr-secret.yaml -n chunkr
 ```
 
 ### 3. Setup `models.yaml`
@@ -96,7 +96,7 @@ kubectl apply -f secrets/local/ -n chunkr
 Configure your models:
 ```bash
 # Copy the example models.yaml
-cp ../models.yaml.example secrets/local/models.yaml
+cp ../models.example.yaml secrets/local/models.yaml
 
 # Edit the models.yaml file with your values
 vim secrets/local/models.yaml
@@ -135,7 +135,7 @@ helm upgrade chunkr ./charts/chunkr \
   --set ingress.subdomains.root=false \
   --set "services.web.ingress.subdomain=chunkr" \
   --set "services.server.ingress.subdomain=chunkr-api" \
-  --set "services.keycloak.ingress.subdomain=chunkr-auth" \
+  --set "services.keycloak.**i**ngress.subdomain=chunkr-auth" \
   --set "services.minio.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
   --set cloudflared.enabled=true \
