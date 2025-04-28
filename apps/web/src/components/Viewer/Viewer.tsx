@@ -8,6 +8,7 @@ import { TaskResponse, Chunk } from "../../models/taskResponse.model";
 import ReactJson from "react-json-view";
 import BetterButton from "../BetterButton/BetterButton";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { debounce } from "lodash";
 
 const MemoizedPDF = memo(PDF);
 
@@ -46,6 +47,9 @@ export default function Viewer({
   const [loadedPages, setLoadedPages] = useState(PAGE_CHUNK_SIZE);
   const [numPages, setNumPages] = useState<number>();
 
+  const scrollableContentRef = useRef<HTMLDivElement>(null);
+  const pdfContainerRef = useRef<HTMLDivElement>(null);
+
   const scrollToSegment = useCallback(
     (chunkId: string, segmentId: string) => {
       // Find the chunk and segment
@@ -74,24 +78,25 @@ export default function Viewer({
         );
       }
 
-      // Wait for content to load before scrolling
-      setTimeout(
-        () => {
-          setActiveSegment({ chunkId, segmentId });
+      // Wait for content to potentially load and render before scrolling
+      // Use requestAnimationFrame for smoother timing with browser rendering
+      requestAnimationFrame(() => {
+        setActiveSegment({ chunkId, segmentId });
 
-          // Scroll PDF container to segment (keeping 30% for PDF)
-          const pdfContainer = document.querySelector(".pdf-container");
-          const targetSegmentElement = pdfContainer?.querySelector(
-            `[data-chunk-id="${chunkId}"][data-segment-id="${segmentId}"]`
+        // Scroll PDF container using the ref
+        const pdfContainer = pdfContainerRef.current;
+        if (pdfContainer) {
+          // Use more specific selector within the container
+          const targetSegmentElement = pdfContainer.querySelector(
+            `.flex[data-page-number="${targetPage}"] [data-chunk-id="${chunkId}"][data-segment-id="${segmentId}"]`
           );
 
-          if (targetSegmentElement && pdfContainer) {
+          if (targetSegmentElement) {
             const containerHeight = pdfContainer.clientHeight;
             const segmentRect = targetSegmentElement.getBoundingClientRect();
             const containerRect = pdfContainer.getBoundingClientRect();
             const relativeTop = segmentRect.top - containerRect.top;
 
-            // Keep 30% for PDF view
             const targetPosition =
               pdfContainer.scrollTop + relativeTop - containerHeight * 0.3;
 
@@ -99,35 +104,76 @@ export default function Viewer({
               top: targetPosition,
               behavior: "smooth",
             });
-          }
-
-          // Scroll text content to the specific segment (20% from top)
-          const textSegmentElement = document.querySelector(
-            `.scrollable-content [data-chunk-id="${chunkId}"][data-segment-id="${segmentId}"]`
-          );
-          if (textSegmentElement) {
-            const container = textSegmentElement.closest(".scrollable-content");
-            if (container) {
-              const containerHeight = container.clientHeight;
-              const segmentRect = textSegmentElement.getBoundingClientRect();
-              const containerRect = container.getBoundingClientRect();
-              const relativeTop = segmentRect.top - containerRect.top;
-
-              // Use 20% for text content
+          } else {
+            // Fallback or attempt scroll to page if segment not found (might be on unloaded page)
+            const pageElement = pdfContainer.querySelector(
+              `.flex[data-page-number="${targetPage}"]`
+            );
+            if (pageElement) {
+              const containerHeight = pdfContainer.clientHeight;
+              const pageRect = pageElement.getBoundingClientRect();
+              const containerRect = pdfContainer.getBoundingClientRect();
+              const relativeTop = pageRect.top - containerRect.top;
               const targetPosition =
-                container.scrollTop + relativeTop - containerHeight * 0.2;
-
-              container.scrollTo({
+                pdfContainer.scrollTop + relativeTop - containerHeight * 0.1; // Scroll closer to top for page
+              pdfContainer.scrollTo({
                 top: targetPosition,
                 behavior: "smooth",
               });
             }
           }
-        },
-        needsMorePages || needsMoreChunks ? 300 : 100
-      );
+        }
+
+        // Scroll text content using the ref
+        const scrollableContent = scrollableContentRef.current;
+        if (scrollableContent) {
+          // Use more specific selector within the container
+          const textSegmentElement = scrollableContent.querySelector(
+            `.segment-item[data-chunk-id="${chunkId}"][data-segment-id="${segmentId}"]`
+          );
+          if (textSegmentElement) {
+            const containerHeight = scrollableContent.clientHeight;
+            const segmentRect = textSegmentElement.getBoundingClientRect();
+            const containerRect = scrollableContent.getBoundingClientRect();
+            const relativeTop = segmentRect.top - containerRect.top;
+
+            const targetPosition =
+              scrollableContent.scrollTop + relativeTop - containerHeight * 0.2;
+
+            scrollableContent.scrollTo({
+              top: targetPosition,
+              behavior: "smooth",
+            });
+          } else {
+            // Fallback: Scroll towards the chunk if segment isn't rendered yet
+            const chunkElement = scrollableContent.querySelector(
+              `.segment-chunk[data-chunk-id="${chunkId}"]`
+            );
+            if (chunkElement) {
+              const containerHeight = scrollableContent.clientHeight;
+              const chunkRect = chunkElement.getBoundingClientRect();
+              const containerRect = scrollableContent.getBoundingClientRect();
+              const relativeTop = chunkRect.top - containerRect.top;
+              const targetPosition =
+                scrollableContent.scrollTop +
+                relativeTop -
+                containerHeight * 0.1; // Scroll closer to top for chunk
+              scrollableContent.scrollTo({
+                top: targetPosition,
+                behavior: "smooth",
+              });
+            }
+          }
+        }
+      });
     },
-    [output?.chunks, loadedPages, loadedChunks]
+    [
+      output?.chunks,
+      loadedPages,
+      loadedChunks,
+      pdfContainerRef,
+      scrollableContentRef,
+    ]
   );
 
   // Update the handler for PDF segment clicks
@@ -143,10 +189,9 @@ export default function Viewer({
         );
 
         // Wait for next render cycle when chunks are loaded
+
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            scrollToSegment(chunkId, segmentId);
-          });
+          scrollToSegment(chunkId, segmentId);
         });
       } else {
         scrollToSegment(chunkId, segmentId);
@@ -165,7 +210,7 @@ export default function Viewer({
   const handleMouseLeave = () => {
     hideTimeoutRef.current = setTimeout(() => {
       setShowConfig(false);
-    }, 150);
+    }, 100);
   };
 
   const handleDownloadOriginalFile = useCallback(() => {
@@ -287,53 +332,52 @@ export default function Viewer({
     }
   }, [output]);
 
-  // Add scroll handler for PDF container to load more pages
-  const handleScroll = useCallback(
-    (e: Event) => {
-      const target = e.target as HTMLDivElement;
-      const { scrollTop, scrollHeight, clientHeight } = target;
-      const scrolledToBottom = scrollHeight - scrollTop <= clientHeight * 1.5;
+  /* Keep ONE debounced fn for the lifetime of the component */
+  const debouncedScrollHandler = useRef<ReturnType<typeof debounce>>();
 
-      if (target.classList.contains("scrollable-content")) {
-        // Handle chunk loading
-        if (scrolledToBottom && loadedChunks < (output?.chunks?.length || 0)) {
-          setLoadedChunks((prev) =>
-            Math.min(prev + CHUNK_LOAD_SIZE, output?.chunks?.length || 0)
-          );
-        }
-      } else if (target.classList.contains("pdf-container")) {
-        // Handle page loading
-        if (scrolledToBottom && loadedPages < (numPages || 0)) {
-          setLoadedPages((prev) =>
-            Math.min(prev + PAGE_CHUNK_SIZE, numPages || 0)
-          );
-        }
-      }
-    },
-    [loadedChunks, output?.chunks?.length, loadedPages, numPages]
-  );
+  /* Stable listener that never changes */
+  const onScroll = useCallback((e: Event) => {
+    debouncedScrollHandler.current!(e.target as HTMLDivElement);
+  }, []);
 
-  // Add scroll listeners to both containers
+  /* Create the debounce only once */
   useEffect(() => {
-    const scrollableContent = document.querySelector(".scrollable-content");
-    const pdfContainer = document.querySelector(".pdf-container");
+    debouncedScrollHandler.current = debounce((target: HTMLDivElement) => {
+      // <— your old handleScrollLogic body
+      const { scrollTop, scrollHeight, clientHeight } = target;
+      // use functional updates so we do NOT depend on loadedChunks/pages
+      if (target.classList.contains("scrollable-content")) {
+        setLoadedChunks((prev) => {
+          const totalChunks = output?.chunks.length ?? 0;
+          return scrollHeight - scrollTop <= clientHeight * 1.8
+            ? Math.min(prev + CHUNK_LOAD_SIZE, totalChunks)
+            : prev;
+        });
+      } else if (target.classList.contains("pdf-container")) {
+        setLoadedPages((prev) => {
+          const totalPages = numPages ?? 0;
+          return scrollHeight - scrollTop <= clientHeight * 1.8
+            ? Math.min(prev + PAGE_CHUNK_SIZE, totalPages)
+            : prev;
+        });
+      }
+    }, 200);
+  }, [output?.chunks, numPages]);
 
-    if (scrollableContent) {
-      scrollableContent.addEventListener("scroll", handleScroll);
-    }
-    if (pdfContainer) {
-      pdfContainer.addEventListener("scroll", handleScroll);
-    }
+  /* Attach listener once */
+  useEffect(() => {
+    const content = scrollableContentRef.current;
+    const pdf = pdfContainerRef.current;
+
+    content?.addEventListener("scroll", onScroll);
+    pdf?.addEventListener("scroll", onScroll);
 
     return () => {
-      if (scrollableContent) {
-        scrollableContent.removeEventListener("scroll", handleScroll);
-      }
-      if (pdfContainer) {
-        pdfContainer.removeEventListener("scroll", handleScroll);
-      }
+      debouncedScrollHandler.current?.cancel();
+      content?.removeEventListener("scroll", onScroll);
+      pdf?.removeEventListener("scroll", onScroll);
     };
-  }, [handleScroll]);
+  }, [onScroll]);
 
   // Change the state name to match our new dropdown
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
@@ -652,14 +696,14 @@ export default function Viewer({
       )}
       <PanelGroup
         direction="horizontal"
-        style={{ backgroundColor: "rgba(255, 255, 255, 0.00)" }}
+        style={{ backgroundColor: "var(--bg-0)" }}
       >
         <Panel
           defaultSize={50}
           minSize={20}
-          style={{ backgroundColor: "#0d0d0d" }}
+          style={{ backgroundColor: "var(--bg-0)" }}
         >
-          <div className="scrollable-content">
+          <div className="scrollable-content" ref={scrollableContentRef}>
             {output.chunks.length === 0 ? (
               <Text
                 size="4"
@@ -681,7 +725,6 @@ export default function Viewer({
                       ref={(el) => (chunkRefs.current[index] = el)}
                       onSegmentClick={scrollToSegment}
                       activeSegment={activeSegment}
-                      config={task.configuration}
                     />
                   ))}
                 {loadedChunks < output.chunks.length && (
@@ -713,6 +756,7 @@ export default function Viewer({
         >
           {memoizedOutput && memoizedOutput.pdf_url && (
             <MemoizedPDF
+              containerRef={pdfContainerRef}
               content={memoizedOutput.chunks}
               inputFileUrl={memoizedOutput.pdf_url}
               onSegmentClick={handlePDFSegmentClick}

@@ -38,7 +38,7 @@ services:
     environment:
       - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   segmentation:
@@ -57,7 +57,7 @@ services:
     expose:
       - "8000"
     deploy:
-      replicas: 6
+      replicas: 3
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -86,7 +86,7 @@ services:
     expose:
       - "8000"
     deploy:
-      replicas: 3
+      replicas: 1
     volumes:
       - /dev/shm:/dev/shm
     restart: always
