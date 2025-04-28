@@ -14,7 +14,7 @@ import logging
 import traceback
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException  
-from typing import List
+from typing import List, Tuple, Optional
 
 from models import BoundingBox, BoundingBoxOutput, InstanceOutput, Instance, SerializablePrediction, FinalPrediction
 from prediction import map_yolo_to_segment_type, get_reading_order_and_merge
@@ -100,24 +100,41 @@ async def batch_od(
     try:
         logger.info(f"Received batch request with {len(files)} files")
         results = []
+        image_data_list = []
+
+        # Read all files first
         for i, file in enumerate(files):
             try:
-                logger.info(f"Processing file {i+1}/{len(files)}: {file.filename}")
+                logger.info(f"Reading file {i+1}/{len(files)}: {file.filename}")
                 image_data = await file.read()
                 logger.info(f"File {file.filename} size: {len(image_data)} bytes")
-                _, final_pred = await process_image(
-                    image_data,
-                    conf=conf_threshold,
-                )
-                results.append(final_pred)
-                logger.info(f"Successfully processed file: {file.filename}")
+                image_data_list.append(image_data)
             except Exception as e:
-                logger.error(f"Error processing file {file.filename}: {str(e)}")
+                logger.error(f"Error reading file {file.filename}: {str(e)}")
                 logger.error(traceback.format_exc())
-                raise HTTPException(status_code=500, detail=f"Error processing file {file.filename}: {str(e)}")
+                # Inform client about the specific file error but continue reading others
+                raise HTTPException(status_code=500, detail=f"Error reading file {file.filename}: {str(e)}")
+
+        # Process the batch if any images were successfully read
+        if image_data_list:
+            logger.info(f"Processing batch of {len(image_data_list)} images.")
+            # Call the batch processing function
+            _, final_preds = await process_image_batch(
+                image_data_list,
+                conf=conf_threshold,
+                img_size=imgsz # Pass global config or handle defaults within function
+            )
+            results.extend(final_preds)
+        else:
+            logger.warning("No image data collected for batch processing.")
+
         return results
+    except HTTPException as http_exc:
+        # Re-raise HTTPExceptions (e.g., from file reading) to ensure proper client response
+        raise http_exc
     except Exception as e:
-        logger.error(f"Batch processing failed: {str(e)}")
+        # Catch any other unexpected errors during the batch process
+        logger.error(f"Batch processing overall failed: {str(e)}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
 
@@ -215,6 +232,151 @@ async def process_image(image_data: bytes, conf: float = None, img_size: int = N
         if os.path.exists(temp_file):
             os.remove(temp_file)
         
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+        gc.collect()
+
+# Added function for batch processing
+async def process_image_batch(
+    image_data_list: List[bytes],
+    conf: Optional[float] = None,
+    img_size: Optional[int] = None
+) -> Tuple[List[SerializablePrediction], List[FinalPrediction]]:
+
+    # Use global defaults if specific values not provided
+    if conf is None:
+        conf = conf_threshold
+    if img_size is None:
+        img_size = imgsz
+
+    temp_files = []
+    serializable_preds = []
+    final_preds = []
+
+    # Prepare temporary files for batch processing
+    for image_data in image_data_list:
+        temp_file = f"temp_{uuid.uuid4()}.jpg"
+        try:
+            with open(temp_file, "wb") as f:
+                f.write(image_data)
+            temp_files.append(temp_file)
+        except Exception as e:
+            logger.error(f"Failed to write temporary file: {str(e)}")
+            # Clean up any files created so far before raising
+            for f in temp_files:
+                if os.path.exists(f):
+                    try: os.remove(f) # Add cleanup for created files
+                    except Exception as cleanup_e: logger.error(f"Failed to remove temp file during error handling: {cleanup_e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create temporary file for processing: {str(e)}")
+
+    try:
+        device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
+        logger.info(f"Using device: {device} for batch prediction on {len(temp_files)} images")
+
+        if not temp_files:
+             logger.warning("No temporary files created for batch prediction.")
+             return [], [] # Return empty lists if no files to process
+
+        # Call the predict method with a list of temp files for batch processing
+        det_res = model.predict(
+            temp_files,  # Pass the list of temp files
+            imgsz=img_size,
+            conf=conf,
+            device=device,
+            # verbose=False # Optionally reduce verbosity if needed
+        )
+        logger.info(f"Model prediction completed for {len(det_res)} images.")
+
+        # Process results for each image in the batch
+        for i, res in enumerate(det_res):
+            img_shape = res.orig_shape if hasattr(res, 'orig_shape') else (0, 0) # Get shape early
+
+            # Ensure that 'res' has the expected structure before accessing attributes
+            if hasattr(res, 'boxes') and res.boxes is not None and hasattr(res.boxes, 'xyxy'):
+                boxes = res.boxes.xyxy.cpu().numpy()
+                cls = res.boxes.cls.cpu().numpy().astype(int)
+                conf_scores = res.boxes.conf.cpu().numpy()
+
+                if boxes.shape[0] == 0: # Check if any boxes were detected
+                    logger.info(f"No boxes detected for image {i} in batch (shape: {img_shape}). Creating empty prediction.")
+                    serializable_preds.append(SerializablePrediction(instances=Instance(boxes=[], scores=[], classes=[], image_size=img_shape)))
+                    final_preds.append(FinalPrediction(instances=InstanceOutput(boxes=[], scores=[], classes=[], image_size=img_shape)))
+                    continue # Skip to next image
+
+                img_height = img_shape[0]
+
+                # Map YOLO classes to SegmentType
+                mapped_classes = []
+                found_title = False
+                for j, yolo_class in enumerate(cls):
+                    box_y = boxes[j, 1]
+                    is_first_title = not found_title and yolo_class == 0
+                    mapped_class = map_yolo_to_segment_type(yolo_class, box_y, img_height, is_first_title)
+                    if is_first_title:
+                        found_title = True
+                    mapped_classes.append(mapped_class)
+
+                # Convert boxes to BoundingBox instances
+                bbox_list = [BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) for box in boxes]
+
+                # Apply reading order and merge overlapping boxes
+                ordered_boxes, ordered_scores, ordered_classes, image_size = get_reading_order_and_merge(
+                    bbox_list, conf_scores.tolist(), mapped_classes, img_shape, score_threshold, overlap_threshold
+                )
+
+                # Create the output format
+                bbox_output_list = [BoundingBoxOutput(
+                    left=box.x1,
+                    top=box.y1,
+                    width=box.x2 - box.x1,
+                    height=box.y2 - box.y1
+                ) for box in ordered_boxes]
+
+                # Create instance objects with mapped classes
+                instance = Instance(
+                    boxes=ordered_boxes,
+                    scores=ordered_scores,
+                    classes=ordered_classes,
+                    image_size=image_size
+                )
+
+                instance_output = InstanceOutput(
+                    boxes=bbox_output_list,
+                    scores=ordered_scores,
+                    classes=ordered_classes,
+                    image_size=image_size
+                )
+
+                serializable_pred = SerializablePrediction(instances=instance)
+                final_pred = FinalPrediction(instances=instance_output)
+
+                serializable_preds.append(serializable_pred)
+                final_preds.append(final_pred)
+            else:
+                # Handle cases where 'res' or 'res.boxes' is None or lacks expected attributes
+                logger.warning(f"No boxes detected or result format unexpected for image {i} in batch (shape: {img_shape}). Creating empty prediction.")
+                serializable_preds.append(SerializablePrediction(instances=Instance(boxes=[], scores=[], classes=[], image_size=img_shape)))
+                final_preds.append(FinalPrediction(instances=InstanceOutput(boxes=[], scores=[], classes=[], image_size=img_shape)))
+
+        return serializable_preds, final_preds
+
+    except Exception as e:
+        logger.error(f"Error during batch model prediction or processing: {str(e)}")
+        logger.error(traceback.format_exc())
+        # Ensure cleanup happens before raising
+        raise HTTPException(status_code=500, detail=f"Error during batch model prediction: {str(e)}")
+    finally:
+        # Clean up temporary files
+        logger.info(f"Cleaning up {len(temp_files)} temporary files.")
+        for temp_file in temp_files:
+            if os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                except Exception as e:
+                    logger.error(f"Failed to remove temporary file {temp_file}: {str(e)}")
+
+        # Clear CUDA cache if applicable
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
             torch.cuda.synchronize()
