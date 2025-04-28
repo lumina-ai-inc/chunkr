@@ -115,6 +115,18 @@ export default function Header({ auth }: HeaderProps) {
           </a>
 
           <Flex direction="row" gap="2" py="12px" px="12px" align="center">
+            <Link
+              to="/blog"
+              style={{ textDecoration: "none" }}
+              className="nav-item"
+            >
+              <Text size="2" weight="medium" className="nav-item">
+                Blog
+              </Text>
+            </Link>
+          </Flex>
+
+          <Flex direction="row" gap="2" py="12px" px="12px" align="center">
             <a
               href="https://cal.com/mehulc/30min"
               target="_blank"
@@ -239,6 +251,12 @@ export default function Header({ auth }: HeaderProps) {
                 >
                   <Text size="2">Docs</Text>
                 </a>
+              </DropdownMenu.Item>
+
+              <DropdownMenu.Item className="dropdown-item">
+                <Link to="/blog" className="dropdown-link">
+                  <Text size="2">Blog</Text>
+                </Link>
               </DropdownMenu.Item>
 
               {isAuthenticated ? (

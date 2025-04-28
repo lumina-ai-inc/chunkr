@@ -13,6 +13,7 @@ import AuthGuard from "./auth/AuthGuard.tsx";
 import store from "./store/store";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 import Checkout from "./pages/Checkout/Checkout";
+import Blog from "./pages/Blog/Blog.tsx";
 
 const oidcConfig: AuthProviderProps = {
   authority:
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
         <Checkout />
       </AuthGuard>
     ),
+  },
+  {
+    path: "/blog",
+    element: <Blog />,
   },
   {
     path: "*",
