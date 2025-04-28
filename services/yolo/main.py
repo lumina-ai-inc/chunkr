@@ -30,7 +30,7 @@ load_dotenv(dotenv_path=ENV_PATH)
 
 # Configuration from environment variables
 batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.1))
-max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
+max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 10))
 overlap_threshold = float(os.getenv("OVERLAP_THRESHOLD", 0.1))
 score_threshold = float(os.getenv("SCORE_THRESHOLD", 0.15))
 conf_threshold = float(os.getenv("CONF_THRESHOLD", 0.1))
