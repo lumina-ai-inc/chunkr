@@ -1,0 +1,119 @@
+/* Blog Card Styling */
+.blog-card {
+  background: rgba(0, 0, 0, 0.5); /* Match PricingCard background */
+  border-radius: 8px; /* Match PricingCard border-radius */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* Same initial border */
+  box-shadow: 0 4px 16px -6px rgba(0, 0, 0, 0.05),
+    /* Keep initial shadow subtle */ 0 8px 24px -12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Match PricingCard transition */
+  cursor: pointer;
+  /* Removed overflow: hidden and position: relative as shimmer is gone */
+}
+
+/* Removed .blog-card::before shimmer effect */
+
+.blog-card:hover {
+  border-color: rgba(
+    255,
+    255,
+    255,
+    0.08
+  ); /* Keep border consistent on hover like PricingCard */
+  transform: translateY(-8px); /* Match PricingCard hover transform */
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.3),
+    /* Match PricingCard hover shadow */ 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Removed .blog-card:hover::before */
+
+/* Removed z-index rule for .blog-card > .rt-Flex */
+
+/* Image Container */
+.blog-card-image-container {
+  width: 160px; /* Fixed width for the image */
+  height: 120px; /* Fixed height */
+  flex-shrink: 0; /* Prevent container from shrinking */
+  border-radius: 8px; /* Rounded corners for the image area */
+  overflow: hidden; /* Clip the image */
+  background-color: rgba(255, 255, 255, 0.05); /* Placeholder background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blog-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the container */
+  transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-card-image {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Text Styling */
+.blog-card-title {
+  color: #fff; /* Match primary text color */
+  line-height: 1.3;
+}
+
+.blog-card-subtitle {
+  color: rgba(255, 255, 255, 0.8); /* Slightly dimmer for subtitle */
+  line-height: 1.5;
+}
+
+.blog-card-metadata {
+  color: rgba(255, 255, 255, 0.7); /* Dimmer for metadata */
+}
+
+/* Tags Styling */
+.blog-card-tags {
+  margin-top: 8px;
+}
+
+.blog-card-tag {
+  padding: 4px 10px; /* Adjusted padding */
+  border-radius: 6px; /* Slightly rounded */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Match container border */
+  background: linear-gradient(
+    /* Subtle gradient like .tag-container */ 135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(4px); /* Subtle blur */
+  color: rgba(255, 255, 255, 0.85); /* Brighter tag text */
+  transition: all 0.2s ease;
+  cursor: default; /* Or pointer if tags are interactive */
+  white-space: nowrap;
+}
+
+.blog-card-tag:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .blog-card {
+    padding: 24px; /* Adjust padding for smaller screens if needed */
+  }
+
+  .blog-card .rt-Flex {
+    /* Target the inner Flex of the Card */
+    flex-direction: column;
+    align-items: flex-start; /* Align items to start in column layout */
+  }
+
+  .blog-card-image-container {
+    width: 100%; /* Full width image on small screens */
+    height: 180px; /* Adjust height */
+    margin-bottom: 16px; /* Add space below image */
+  }
+}
