@@ -52,7 +52,7 @@ services:
     restart: always
 
   segmentation-backend:
-    image: luminainc/segmentation-yolo:1.16.0-enterprise
+    image: luminainc/segmentation-yolo:1.15.0-enterprise
     expose:
       - "8001"
     deploy:
