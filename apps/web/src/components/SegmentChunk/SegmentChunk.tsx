@@ -6,7 +6,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import { Chunk, Segment } from "../../models/taskResponse.model";
+import { Chunk, Segment, SegmentType } from "../../models/taskResponse.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
@@ -14,11 +14,12 @@ import "./SegmentChunk.css";
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
 import "katex/dist/katex.min.css";
-import katex from "katex";
 import { useHorizontalDragScroll } from "../../hooks/useHorizontalDragScroll";
 import BetterButton from "../BetterButton/BetterButton";
 import { Flex, Text } from "@radix-ui/themes";
 import toast from "react-hot-toast";
+import { useKatexRenderer } from "../../hooks/useKatexRenderer";
+
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
   const processedHtml = useMemo(() => {
@@ -80,105 +81,229 @@ const MemoizedJson = memo(({ segment }: { segment: Segment }) => (
   />
 ));
 
+// Put KaTeX cache outside the component so it survives rerenders
+// const katexCache = new Map<string, string>();
+
+/* ──────────────────────────────────────────────────────────
+   Small helper component that uses the new hook.
+   It keeps the main JSX clean and guarantees that the heavy
+   renderToString never runs on the UI thread.
+   -------------------------------------------------------- */
+const KaTeXContent = memo(
+  ({ latex, display }: { latex: string; display: boolean }) => {
+    const html = useKatexRenderer(latex, display);
+    if (html === null) {
+      /* optional skeleton while the worker is busy */
+      return <span>{latex}</span>;
+    }
+    return (
+      <span
+        className="latex-content"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  }
+);
+
 export const SegmentChunk = memo(
   forwardRef<
     HTMLDivElement,
     {
       chunk: Chunk;
       chunkId: string;
-      containerWidth: number;
       selectedView: "html" | "markdown" | "json";
       onSegmentClick?: (chunkId: string, segmentId: string) => void;
       activeSegment?: { chunkId: string; segmentId: string } | null;
     }
-  >(
-    (
-      {
-        chunk,
-        chunkId,
-        containerWidth,
-        selectedView,
-        onSegmentClick,
-        activeSegment,
-      },
-      ref
-    ) => {
-      const [segmentDisplayModes, setSegmentDisplayModes] = useState<{
-        [key: string]: {
-          showJson: boolean;
-          showLLM: boolean;
-          showImage: boolean;
-        };
-      }>({});
+  >(({ chunk, chunkId, selectedView, onSegmentClick, activeSegment }, ref) => {
+    const [segmentDisplayModes, setSegmentDisplayModes] = useState<{
+      [key: string]: {
+        showJson: boolean;
+        showLLM: boolean;
+        showImage: boolean;
+      };
+    }>({});
 
-      const handleSegmentDisplayMode = useCallback(
-        (segmentId: string, mode: "json" | "llm" | "image") => {
-          setSegmentDisplayModes((prev) => {
-            const current = prev[segmentId] || {
-              showJson: false,
-              showLLM: false,
-              showImage: false,
-            };
-            const updated = { ...current };
+    const handleSegmentDisplayMode = useCallback(
+      (segmentId: string, mode: "json" | "llm" | "image") => {
+        setSegmentDisplayModes((prev) => {
+          const current = prev[segmentId] || {
+            showJson: false,
+            showLLM: false,
+            showImage: false,
+          };
+          const updated = { ...current };
 
-            if (mode === "json") {
-              updated.showJson = !current.showJson;
-              updated.showLLM = false;
-              updated.showImage = false;
-            } else if (mode === "llm") {
-              updated.showLLM = !current.showLLM;
-              updated.showJson = false;
-              updated.showImage = false;
-            } else if (mode === "image") {
-              updated.showImage = !current.showImage;
-              updated.showJson = false;
-              updated.showLLM = false;
-            }
-
-            return { ...prev, [segmentId]: updated };
-          });
-        },
-        []
-      );
-
-      const handleCopySegment = useCallback(
-        (segment: Segment) => {
-          const mode = segmentDisplayModes[segment.segment_id];
-          let textToCopy = "";
-
-          if (mode?.showJson) {
-            textToCopy = JSON.stringify(segment, null, 2);
-          } else if (mode?.showLLM) {
-            textToCopy = segment.llm || "";
-          } else if (mode?.showImage) {
-            textToCopy = segment.image || "";
-          } else {
-            textToCopy =
-              selectedView === "html"
-                ? segment.html || ""
-                : segment.markdown || segment.content || "";
+          if (mode === "json") {
+            updated.showJson = !current.showJson;
+            updated.showLLM = false;
+            updated.showImage = false;
+          } else if (mode === "llm") {
+            updated.showLLM = !current.showLLM;
+            updated.showJson = false;
+            updated.showImage = false;
+          } else if (mode === "image") {
+            updated.showImage = !current.showImage;
+            updated.showJson = false;
+            updated.showLLM = false;
           }
 
-          navigator.clipboard.writeText(textToCopy);
-          toast.success("Copied to clipboard");
-        },
-        [segmentDisplayModes, selectedView]
-      );
+          return { ...prev, [segmentId]: updated };
+        });
+      },
+      []
+    );
 
-      const renderSegmentHtml = useCallback(
-        (segment: Segment) => {
-          const mode = segmentDisplayModes[segment.segment_id];
+    const handleCopySegment = useCallback(
+      (segment: Segment) => {
+        const mode = segmentDisplayModes[segment.segment_id];
+        let textToCopy = "";
 
-          // Just return the content directly without the segment-item wrapper
-          if (mode?.showJson) {
+        if (mode?.showJson) {
+          textToCopy = JSON.stringify(segment, null, 2);
+        } else if (mode?.showLLM) {
+          textToCopy = segment.llm || "";
+        } else if (mode?.showImage) {
+          textToCopy = segment.image || "";
+        } else {
+          textToCopy =
+            selectedView === "html"
+              ? segment.html || ""
+              : segment.markdown || segment.content || "";
+        }
+
+        navigator.clipboard.writeText(textToCopy);
+        toast.success("Copied to clipboard");
+      },
+      [segmentDisplayModes, selectedView]
+    );
+
+    const renderSegmentHtml = useCallback(
+      (segment: Segment) => {
+        const mode = segmentDisplayModes[segment.segment_id] || {
+          showJson: false,
+          showLLM: false,
+          showImage: false,
+        };
+
+        if (mode.showJson) return <MemoizedJson segment={segment} />;
+        if (mode.showLLM && segment.llm)
+          return <MemoizedMarkdown content={segment.llm} />;
+        if (mode.showImage && segment.image)
+          return (
+            <img
+              src={segment.image}
+              alt="Cropped segment"
+              style={{ maxWidth: "100%" }}
+            />
+          );
+
+        if (
+          segment.segment_type === "Table" &&
+          segment.html?.startsWith("<span class=")
+        ) {
+          return <img src={segment.image || ""} alt="Table" />;
+        }
+
+        // --- KaTeX (async via Worker) -------------------------------
+        if (
+          segment.segment_type === "Formula" ||
+          (segment.content &&
+            (segment.content.includes("$") || segment.content.includes("\\")))
+        ) {
+          return (
+            <KaTeXContent
+              latex={segment.content ?? ""}
+              display={true /* block mode */}
+            />
+          );
+        }
+        // ------------------------------------------------------------
+
+        // Fallback to original MemoizedHtml if no KaTeX was handled
+        return <MemoizedHtml html={segment.html || ""} />;
+      },
+      [segmentDisplayModes]
+    );
+
+    const renderContent = () => {
+      return chunk.segments.map((segment) => {
+        const isActive =
+          activeSegment?.chunkId === chunkId &&
+          activeSegment?.segmentId === segment.segment_id;
+
+        // Determine if the segment is of a "special" type
+        const isSpecialSegment = [
+          SegmentType.Picture,
+          SegmentType.Table,
+          SegmentType.Formula,
+        ].includes(segment.segment_type);
+
+        // Determine the appropriate header text and color based on type
+        let specialSegmentHeaderText = "";
+        let specialSegmentColorVar = "var(--fg-2)"; // Default color variable
+
+        if (isSpecialSegment) {
+          switch (segment.segment_type) {
+            case SegmentType.Picture:
+              specialSegmentHeaderText = "Image";
+              specialSegmentColorVar = "var(--pink-4)"; // Use light pink
+              break;
+            case SegmentType.Table:
+              specialSegmentHeaderText = "Table";
+              specialSegmentColorVar = "var(--orange-4)"; // Use light orange
+              break;
+            case SegmentType.Formula:
+              specialSegmentHeaderText = "Formula";
+              specialSegmentColorVar = "var(--amber-3)"; // Use light amber
+              break;
+          }
+        }
+
+        const typeClass = `type-${segment.segment_type
+          .replace(/([a-z])([A-Z])/g, "$1-$2") // camel → kebab
+          .toLowerCase()}`;
+
+        const renderSegmentContent = () => {
+          const mode = segmentDisplayModes[segment.segment_id] || {
+            showJson: false,
+            showLLM: false,
+            showImage: false,
+          };
+
+          if (mode.showJson) {
             return <MemoizedJson segment={segment} />;
           }
 
-          if (mode?.showLLM && segment.llm) {
-            return <MemoizedMarkdown content={segment.llm} />;
+          if (mode.showLLM && segment.llm) {
+            if (
+              segment.llm.includes("**") ||
+              segment.llm.includes("*") ||
+              segment.llm.includes("#")
+            ) {
+              return <MemoizedMarkdown content={segment.llm} />;
+            }
+
+            return (
+              <div
+                className="latex-content"
+                dangerouslySetInnerHTML={{
+                  __html: segment.llm
+                    .replace(/\n\n/g, "<br/><br/>")
+                    .replace(
+                      /([a-zA-Z])<sub>([^<]+)<\/sub>/g,
+                      "$1<sub>$2</sub>"
+                    )
+                    .replace(
+                      /([a-zA-Z])<sup>([^<]+)<\/sup>/g,
+                      "$1<sup>$2</sup>"
+                    ),
+                }}
+              />
+            );
           }
 
-          if (mode?.showImage && segment.image) {
+          if (mode.showImage && segment.image) {
             return (
               <img
                 src={segment.image}
@@ -188,147 +313,149 @@ export const SegmentChunk = memo(
             );
           }
 
-          // Handle table images
-          if (
-            segment.segment_type === "Table" &&
-            segment.html?.startsWith("<span class=")
-          ) {
-            return <img src={segment.image || ""} alt="Table" />;
-          }
+          // Regular content rendering based on selected view
+          return selectedView === "html" ? (
+            renderSegmentHtml(segment) // This now uses the optimized version
+          ) : (
+            <MemoizedMarkdown
+              content={segment.markdown || segment.content || ""}
+            />
+          );
+        };
 
-          // Handle formula segments with class="formula"
-          if (segment.html?.includes('class="formula"')) {
-            let html = segment.html;
-            // Process all formula spans
-            html = html.replace(
-              /<span class="formula">(.*?)<\/span>/gs,
-              (match, formula) => {
-                try {
-                  const processedFormula = formula
-                    .replace(/&gt;/g, ">")
-                    .replace(/&lt;/g, "<")
-                    .replace(/&amp;/g, "&")
-                    .replace(/\\\(|\\\)/g, "") // Remove \( and \) delimiters
-                    .trim();
-                  return katex.renderToString(processedFormula, {
-                    displayMode: false,
-                    throwOnError: false,
-                  });
-                } catch (error) {
-                  console.error("KaTeX rendering error:", error);
-                  return match; // Return original on error
-                }
+        const currentButtonMode = segmentDisplayModes[segment.segment_id] || {
+          showJson: false,
+          showLLM: false,
+          showImage: false,
+        };
+
+        return (
+          <div
+            key={segment.segment_id} // Use stable segment_id for key
+            className={`segment-item
+                          ${isActive ? "active" : ""}
+                          ${isSpecialSegment ? "special-segment" : ""}
+                          ${typeClass}`}
+            data-chunk-id={chunkId}
+            data-segment-id={segment.segment_id}
+            data-segment-type={segment.segment_type}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // Only trigger scroll if not already active to prevent unnecessary calls
+              if (!isActive) {
+                onSegmentClick?.(chunkId, segment.segment_id);
               }
-            );
-
-            return <div dangerouslySetInnerHTML={{ __html: html }} />;
-          }
-
-          // Handle content with LaTeX delimiters
-          if (segment.content && segment.content.includes("\\")) {
-            try {
-              return (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: katex.renderToString(segment.content, {
-                      displayMode: true,
-                      throwOnError: false,
-                    }),
-                  }}
-                />
-              );
-            } catch (error) {
-              console.error("KaTeX rendering error:", error);
-              return (
-                <div className="math math-display">$$${segment.content}$$</div>
-              );
-            }
-          }
-
-          return <MemoizedHtml html={segment.html || ""} />;
-        },
-        [segmentDisplayModes]
-      );
-
-      const renderContent = () => {
-        return chunk.segments.map((segment, segmentIndex) => {
-          const isActive =
-            activeSegment?.chunkId === chunkId &&
-            activeSegment?.segmentId === segment.segment_id;
-
-          const mode = segmentDisplayModes[segment.segment_id];
-
-          const renderSegmentContent = () => {
-            if (mode?.showJson) {
-              return <MemoizedJson segment={segment} />;
-            }
-
-            if (mode?.showLLM && segment.llm) {
-              if (
-                segment.llm.includes("**") ||
-                segment.llm.includes("*") ||
-                segment.llm.includes("#")
-              ) {
-                return <MemoizedMarkdown content={segment.llm} />;
-              }
-
-              return (
-                <div
-                  className="latex-content"
-                  dangerouslySetInnerHTML={{
-                    __html: segment.llm
-                      .replace(/\n\n/g, "<br/><br/>")
-                      .replace(
-                        /([a-zA-Z])<sub>([^<]+)<\/sub>/g,
-                        "$1<sub>$2</sub>"
-                      )
-                      .replace(
-                        /([a-zA-Z])<sup>([^<]+)<\/sup>/g,
-                        "$1<sup>$2</sup>"
-                      ),
-                  }}
-                />
-              );
-            }
-
-            if (mode?.showImage && segment.image) {
-              return (
-                <img
-                  src={segment.image}
-                  alt="Cropped segment"
-                  style={{ maxWidth: "100%" }}
-                />
-              );
-            }
-
-            // Regular content rendering based on selected view
-            return selectedView === "html" ? (
-              renderSegmentHtml(segment)
-            ) : (
-              <MemoizedMarkdown
-                content={segment.markdown || segment.content || ""}
-              />
-            );
-          };
-
-          return (
-            <div
-              key={segmentIndex}
-              className={`segment-item ${isActive ? "active" : ""}`}
-              data-chunk-id={chunkId}
-              data-segment-id={segment.segment_id}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // Only call onSegmentClick if this segment is not already active
-                if (!isActive) {
-                  onSegmentClick?.(chunkId, segment.segment_id);
-                }
-              }}
-              style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
-            >
+            }}
+            style={{ width: "100%" }}
+            // Consider adding CSS containment for performance
+            // style={{ contain: 'content' }}
+          >
+            <div className="scroll-x">
+              {isSpecialSegment && !isActive && specialSegmentHeaderText && (
+                <Flex
+                  align="center"
+                  gap="1"
+                  className="special-segment-header"
+                  style={{ marginTop: "2px", marginBottom: "8px" }}
+                >
+                  {segment.segment_type === SegmentType.Picture && (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clip-path="url(#clip0_304_23709)">
+                        <path
+                          d="M20.25 4.75H3.75C3.19772 4.75 2.75 5.19772 2.75 5.75V18.25C2.75 18.8023 3.19772 19.25 3.75 19.25H20.25C20.8023 19.25 21.25 18.8023 21.25 18.25V5.75C21.25 5.19772 20.8023 4.75 20.25 4.75Z"
+                          stroke={specialSegmentColorVar}
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M21 18.91L16.54 11.75L13.79 16.14"
+                          stroke={specialSegmentColorVar}
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M15.7002 19.2502L9.23023 8.75L2.99023 18.9002"
+                          stroke={specialSegmentColorVar}
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_304_23709">
+                          <rect width="24" height="24" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  )}
+                  {segment.segment_type === SegmentType.Table && (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 9H21M3 15H21M9 9L9 20M15 9L15 20M6.2 20H17.8C18.9201 20 19.4802 20 19.908 19.782C20.2843 19.5903 20.5903 19.2843 20.782 18.908C21 18.4802 21 17.9201 21 16.8V7.2C21 6.0799 21 5.51984 20.782 5.09202C20.5903 4.71569 20.2843 4.40973 19.908 4.21799C19.4802 4 18.9201 4 17.8 4H6.2C5.0799 4 4.51984 4 4.09202 4.21799C3.71569 4.40973 3.40973 4.71569 3.21799 5.09202C3 5.51984 3 6.07989 3 7.2V16.8C3 17.9201 3 18.4802 3.21799 18.908C3.40973 19.2843 3.71569 19.5903 4.09202 19.782C4.51984 20 5.07989 20 6.2 20Z"
+                        stroke={specialSegmentColorVar}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                  {segment.segment_type === SegmentType.Formula && (
+                    <svg
+                      fill={specialSegmentColorVar}
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 52 52"
+                      enableBackground="new 0 0 52 52"
+                      xmlSpace="preserve"
+                    >
+                      <path
+                        d="M30.2,3.2c-0.8-0.6-1.9-0.9-3.2-0.9c-0.3,0-0.6,0-0.9,0.1c-3.5,0.5-5.8,3.8-7.2,6.8
+                   c-0.6,1.4-1.2,2.9-1.7,4.4c-0.3,0.7-0.5,1.4-0.8,2.1c0,0.1-0.4,1.5-0.5,1.5c0,0-3.2,0-3.2,0l0,0h-0.4c-0.5,0-0.9,0.4-0.9,0.9
+                   c0,0.5,0.4,0.9,0.9,0.9h3.1l-1.8,7.5C12,34.7,9.7,44.2,9.1,45.9c-0.6,1.7-1.4,2.6-2.5,2.6c-0.2,0-0.4,0-0.5-0.1
+                   c-0.1-0.1-0.2-0.2-0.2-0.4c0-0.1,0.1-0.4,0.3-0.7c0.2-0.3,0.3-0.7,0.3-1c0-0.7-0.2-1.2-0.7-1.6c-0.4-0.4-0.9-0.6-1.5-0.6
+                   c-0.6,0-1.1,0.2-1.6,0.6c-0.5,0.4-0.7,1-0.7,1.7c0,1,0.4,1.8,1.2,2.5c0.8,0.7,1.8,1,3.1,1c2.1,0,4.1-1,5.5-2.6
+                   c0.9-1,1.5-2.2,2.1-3.5c1.8-3.9,2.7-8.2,3.7-12.3c1-4.2,2-8.4,2.9-12.7H24c0.5,0,0.9-0.4,0.9-0.9c0-0.5-0.4-0.9-0.9-0.9H24v0h-3.1
+                   c1.7-6.6,3.7-11.1,4.1-11.8c0.7-1.1,1.4-1.7,2.1-1.7c0.3,0,0.5,0.1,0.6,0.2c0.1,0.2,0.1,0.3,0.1,0.4c0,0.1-0.1,0.3-0.3,0.7
+                   c-0.2,0.4-0.3,0.8-0.3,1.2c0,0.6,0.2,1,0.6,1.4c0.4,0.4,0.9,0.6,1.5,0.6c0.6,0,1.1-0.2,1.5-0.6c0.4-0.4,0.6-1,0.6-1.7
+                   C31.5,4.6,31.1,3.8,30.2,3.2z"
+                      />
+                      <path
+                        d="M46.1,23.2c1.3,0,3.8-1,3.8-4.4c0-3.3-2.4-3.5-3.1-3.5c-1.5,0-2.9,1.1-4.2,3.3c-1.3,2.3-2.7,4.7-2.7,4.7l0,0
+                   c-0.3-1.6-0.6-2.9-0.7-3.5c-0.3-1.4-1.9-4.4-5.2-4.4c-3.3,0-6.3,1.9-6.3,1.9l0,0c-0.6,0.4-0.9,1-0.9,1.7c0,1.1,0.9,2,2,2
+                   c0.3,0,0.6-0.1,0.9-0.2l0,0c0,0,2.5-1.4,3,0c0.2,0.4,0.3,0.9,0.4,1.4c0.6,2.2,1.2,4.7,1.7,7l-2.2,3.1c0,0-2.4-0.9-3.7-0.9
+                   s-3.8,1-3.8,4.4s2.4,3.5,3.1,3.5c1.5,0,2.9-1.1,4.2-3.3c1.3-2.3,2.7-4.7,2.7-4.7c0.4,2,0.8,3.7,1,4.4c0.8,2.3,2.7,3.7,5.3,3.7
+                   c0,0,2.6,0,5.7-1.7c0.7-0.3,1.3-1,1.3-1.9c0-1.1-0.9-2-2-2c-0.3,0-0.6,0.1-0.9,0.2l0,0c0,0-2.2,1.2-2.9,0.3c-0.5-1-1-2.4-1.3-4
+                   c-0.3-1.5-0.7-3.2-1-4.9l2.2-3.2C42.4,22.3,44.9,23.2,46.1,23.2z"
+                      />
+                    </svg>
+                  )}
+                  <Text
+                    size="1"
+                    weight="medium"
+                    style={{ color: specialSegmentColorVar }}
+                  >
+                    {specialSegmentHeaderText}
+                  </Text>
+                </Flex>
+              )}
               {isActive && (
-                <Flex mb="4" gap="4">
+                <Flex mb="2" mt="2" gap="4" className="segment-actions">
                   <BetterButton onClick={() => handleCopySegment(segment)}>
                     <svg
                       width="16"
@@ -352,7 +479,9 @@ export const SegmentChunk = memo(
                       Copy
                     </Text>
                   </BetterButton>
-                  {mode?.showJson || mode?.showLLM || mode?.showImage ? (
+                  {currentButtonMode.showJson ||
+                  currentButtonMode.showLLM ||
+                  currentButtonMode.showImage ? (
                     <BetterButton
                       onClick={() => {
                         setSegmentDisplayModes((prev) => ({
@@ -390,7 +519,7 @@ export const SegmentChunk = memo(
                   ) : (
                     <>
                       <BetterButton
-                        active={mode?.showJson}
+                        active={currentButtonMode.showJson}
                         onClick={() =>
                           handleSegmentDisplayMode(segment.segment_id, "json")
                         }
@@ -420,7 +549,7 @@ export const SegmentChunk = memo(
                       </BetterButton>
                       {segment.llm && (
                         <BetterButton
-                          active={mode?.showLLM}
+                          active={currentButtonMode.showLLM}
                           onClick={() =>
                             handleSegmentDisplayMode(segment.segment_id, "llm")
                           }
@@ -453,7 +582,7 @@ export const SegmentChunk = memo(
                       )}
                       {segment.image && (
                         <BetterButton
-                          active={mode?.showImage}
+                          active={currentButtonMode.showImage}
                           onClick={() =>
                             handleSegmentDisplayMode(
                               segment.segment_id,
@@ -488,51 +617,55 @@ export const SegmentChunk = memo(
                   )}
                 </Flex>
               )}
-              {renderSegmentContent()}
+              <div className="segment-render-area">
+                {renderSegmentContent()}
+              </div>
             </div>
-          );
-        });
-      };
+          </div>
+        );
+      });
+    };
 
-      const horizontalScrollRef = useHorizontalDragScroll();
+    const horizontalScrollRef = useHorizontalDragScroll();
 
-      // Reset segment display mode when it becomes inactive
-      useEffect(() => {
-        chunk.segments.forEach((segment) => {
-          if (activeSegment?.segmentId !== segment.segment_id) {
-            setSegmentDisplayModes((prev) => ({
-              ...prev,
-              [segment.segment_id]: {
-                showJson: false,
-                showLLM: false,
-                showImage: false,
-              },
-            }));
+    // Reset segment display mode when it becomes inactive
+    useEffect(() => {
+      chunk.segments.forEach((segment) => {
+        if (activeSegment?.segmentId !== segment.segment_id) {
+          setSegmentDisplayModes((prev) => ({
+            ...prev,
+            [segment.segment_id]: {
+              showJson: false,
+              showLLM: false,
+              showImage: false,
+            },
+          }));
+        }
+      });
+    }, [activeSegment, chunk.segments]);
+
+    return (
+      <div
+        className="segment-chunk"
+        ref={(el) => {
+          if (typeof ref === "function") {
+            ref(el);
+          } else if (ref) {
+            ref.current = el;
           }
-        });
-      }, [activeSegment, chunk.segments]);
-
-      return (
-        <div
-          className="segment-chunk"
-          ref={(el) => {
-            if (typeof ref === "function") {
-              ref(el);
-            } else if (ref) {
-              ref.current = el;
-            }
-            horizontalScrollRef.current = el;
-          }}
-          data-chunk-id={chunkId}
-          style={{
-            position: "relative",
-          }}
-        >
-          <div className="segment-content">{renderContent()}</div>
-        </div>
-      );
-    }
-  )
+          horizontalScrollRef.current = el;
+        }}
+        data-chunk-id={chunkId}
+        style={{
+          position: "relative",
+          // Consider adding CSS containment for performance
+          // contain: 'layout paint',
+        }}
+      >
+        <div className="segment-content">{renderContent()}</div>
+      </div>
+    );
+  })
 );
 
 SegmentChunk.displayName = "SegmentChunk";

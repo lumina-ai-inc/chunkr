@@ -1,17 +1,159 @@
+/* Define light and dark segment colors as CSS variables */
+:root {
+  /* REMOVED: Color variables like --jade-4, --orange-9 etc. */
+  /* These are assumed to be provided globally (likely by Radix Themes) */
+
+  /* Add a default border color variable if needed, or rely on type classes */
+  --segment-default-border: transparent; /* Or a subtle default like var(--gray-5) */
+}
+
 .segment {
   cursor: pointer;
-  transition: all 0.15s ease;
-  border: 1px solid transparent;
+  /* EDIT: Removed border-color from transition */
+  transition: background-color 0.02s ease;
+  /* EDIT: Set border style and width, color will be set by type */
+  border: 1.2px solid var(--segment-default-border);
+  border-radius: 2px;
 }
 
-.segment:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.02);
+/* EDIT: Add type-specific DEFAULT borders */
+/* These rules now rely on globally defined variables */
+.segment.type-text {
+  border-color: var(--jade-10);
+}
+.segment.type-table {
+  border-color: var(--orange-9);
+}
+.segment.type-title {
+  border-color: var(--blue-9);
+}
+.segment.type-picture {
+  border-color: var(--pink-10);
+}
+.segment.type-formula {
+  border-color: var(--amber-8);
+}
+.segment.type-caption {
+  border-color: var(--crimson-8);
+}
+.segment.type-footnote {
+  border-color: var(--pink-10);
+}
+.segment.type-listitem {
+  border-color: var(--bronze-10);
+}
+.segment.type-pagefooter {
+  border-color: var(--red-12);
+}
+.segment.type-pageheader {
+  border-color: var(--violet-9);
+}
+.segment.type-sectionheader {
+  border-color: var(--cyan-8); /* Cyan vars are in index.css */
+}
+.segment.type-page {
+  border-color: var(--gray-8);
 }
 
-.segment.active {
-  border: 1px solid var(--accent-6);
-  background-color: var(--accent-2);
+/* EDIT: Hover states now ONLY change background */
+.segment.type-text:hover {
+  background-color: color-mix(in srgb, var(--jade-4) 30%, transparent);
+  /* border-color: var(--jade-10); REMOVED */
+}
+.segment.type-table:hover {
+  background-color: color-mix(in srgb, var(--orange-4) 30%, transparent);
+  /* border-color: var(--orange-9); REMOVED */
+}
+.segment.type-title:hover {
+  background-color: color-mix(in srgb, var(--blue-4) 30%, transparent);
+  /* border-color: var(--blue-9); REMOVED */
+}
+.segment.type-picture:hover {
+  background-color: color-mix(in srgb, var(--pink-4) 30%, transparent);
+  /* border-color: var(--pink-10); REMOVED */
+}
+.segment.type-formula:hover {
+  background-color: color-mix(in srgb, var(--amber-3) 30%, transparent);
+  /* border-color: var(--amber-8); REMOVED */
+}
+.segment.type-caption:hover {
+  background-color: color-mix(in srgb, var(--crimson-2) 40%, transparent);
+  /* border-color: var(--crimson-8); REMOVED */
+}
+.segment.type-footnote:hover {
+  background-color: color-mix(in srgb, var(--pink-4) 30%, transparent);
+  /* border-color: var(--pink-10); REMOVED */
+}
+.segment.type-listitem:hover {
+  background-color: color-mix(in srgb, var(--bronze-4) 50%, transparent);
+  /* border-color: var(--bronze-10); REMOVED */
+}
+.segment.type-pagefooter:hover {
+  background-color: color-mix(in srgb, var(--red-4) 30%, transparent);
+  /* border-color: var(--red-12); REMOVED */
+}
+.segment.type-pageheader:hover {
+  background-color: color-mix(in srgb, var(--violet-4) 30%, transparent);
+  /* border-color: var(--violet-9); REMOVED */
+}
+.segment.type-sectionheader:hover {
+  background-color: color-mix(in srgb, var(--cyan-2) 30%, transparent);
+  /* border-color: var(--cyan-8); REMOVED */
+}
+.segment.type-page:hover {
+  background-color: color-mix(in srgb, var(--gray-3) 30%, transparent);
+  /* border-color: var(--gray-8); REMOVED */
+}
+
+/* EDIT: Active states now ONLY change background */
+/* Border color is already set by the type class */
+.segment.active.type-text {
+  /* border-color: var(--jade-10); REMOVED */
+  background-color: color-mix(in srgb, var(--jade-4) 30%, transparent);
+}
+.segment.active.type-table {
+  /* border-color: var(--orange-9); REMOVED */
+  background-color: color-mix(in srgb, var(--orange-4) 30%, transparent);
+}
+.segment.active.type-title {
+  /* border-color: var(--blue-9); REMOVED */
+  background-color: color-mix(in srgb, var(--blue-4) 30%, transparent);
+}
+.segment.active.type-picture {
+  /* border-color: var(--pink-10); REMOVED */
+  background-color: color-mix(in srgb, var(--pink-4) 30%, transparent);
+}
+.segment.active.type-formula {
+  /* border-color: var(--amber-8); REMOVED */
+  background-color: color-mix(in srgb, var(--amber-3) 30%, transparent);
+}
+.segment.active.type-caption {
+  /* border-color: var(--crimson-8); REMOVED */
+  background-color: color-mix(in srgb, var(--crimson-2) 40%, transparent);
+}
+.segment.active.type-footnote {
+  /* border-color: var(--pink-10); REMOVED */
+  background-color: color-mix(in srgb, var(--pink-4) 30%, transparent);
+}
+.segment.active.type-listitem {
+  /* border-color: var(--bronze-10); REMOVED */
+  background-color: color-mix(in srgb, var(--bronze-4) 50%, transparent);
+}
+.segment.active.type-pagefooter {
+  /* border-color: var(--red-12); REMOVED */
+  background-color: color-mix(in srgb, var(--red-4) 30%, transparent);
+}
+.segment.active.type-pageheader {
+  /* border-color: var(--violet-9); REMOVED */
+  background-color: color-mix(in srgb, var(--violet-4) 30%, transparent);
+}
+.segment.active.type-sectionheader {
+  /* border-color: var(--cyan-8); REMOVED */
+  background-color: color-mix(in srgb, var(--cyan-2) 30%, transparent);
+}
+.segment.active.type-page {
+  /* border-color: var(--gray-8); REMOVED */
+  background-color: color-mix(in srgb, var(--gray-3) 30%, transparent);
 }
 
 .segment.active .segment-text-container {
@@ -27,13 +169,82 @@
   font-size: 12px !important;
   font-weight: 500;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  /* EDIT: Added background-color to transition */
+  transition: opacity 0.05s ease, background-color 0.05s ease;
   pointer-events: none;
   width: max-content;
+  /* EDIT: Default background is transparent */
+  background-color: transparent;
+  /* EDIT: Add default border style for the label */
+  border: 1px solid transparent;
+  /* EDIT: Add default text color (will be overridden on hover) */
+  color: transparent; /* Or a default like var(--gray-12) if needed when not hovered */
 }
 
 .segment:hover .segment-overlay {
   opacity: 1;
+}
+
+/* EDIT: Add type-specific background, border, and text colors for the overlay label on hover */
+.segment.type-text:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--jade-4) 100%, transparent);
+  border-color: var(--jade-10);
+  color: var(--jade-11); /* Use a dark variant for text */
+}
+.segment.type-table:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--orange-4) 100%, transparent);
+  border-color: var(--orange-9);
+  color: var(--orange-11); /* Use a dark variant for text */
+}
+.segment.type-title:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--blue-4) 100%, transparent);
+  border-color: var(--blue-9);
+  color: var(--blue-11); /* Use a dark variant for text */
+}
+.segment.type-picture:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--pink-4) 100%, transparent);
+  border-color: var(--pink-10);
+  color: var(--pink-11); /* Use a dark variant for text */
+}
+.segment.type-formula:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--amber-3) 100%, transparent);
+  border-color: var(--amber-8);
+  color: var(--amber-11); /* Use a dark variant for text */
+}
+.segment.type-caption:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--crimson-2) 100%, transparent);
+  border-color: var(--crimson-8);
+  color: var(--crimson-11); /* Use a dark variant for text */
+}
+.segment.type-footnote:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--pink-4) 100%, transparent);
+  border-color: var(--pink-10);
+  color: var(--pink-11); /* Use a dark variant for text */
+}
+.segment.type-listitem:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--bronze-4) 100%, transparent);
+  border-color: var(--bronze-10);
+  color: var(--bronze-11); /* Use a dark variant for text */
+}
+.segment.type-pagefooter:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--red-4) 100%, transparent);
+  border-color: var(--red-12);
+  color: var(--red-11); /* Use a dark variant for text */
+}
+.segment.type-pageheader:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--violet-4) 100%, transparent);
+  border-color: var(--violet-9);
+  color: var(--violet-11); /* Use a dark variant for text */
+}
+.segment.type-sectionheader:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--cyan-2) 100%, transparent);
+  border-color: var(--cyan-8);
+  color: var(--cyan-11); /* Use a dark variant for text */
+}
+.segment.type-page:hover .segment-overlay {
+  background-color: color-mix(in srgb, var(--gray-3) 100%, transparent);
+  border-color: var(--gray-8);
+  color: var(--gray-11); /* Use a dark variant for text */
 }
 
 .pdf-container {
@@ -43,6 +254,9 @@
   flex-direction: column;
   align-items: center;
   min-width: 200px;
+  /* EDIT: Add padding to prevent pages sticking to edges */
+  padding: 0 16px; /* Adjust padding as needed */
+  box-sizing: border-box; /* Include padding in width/height */
 }
 
 /* Add scrollbar styling */
@@ -76,23 +290,183 @@
   min-width: 200px;
 }
 
+/* EDIT: Add styles for the new page container */
+.page-container {
+  width: 100%; /* Take full width of the flex container in PDF.tsx */
+  max-width: 800px; /* Optional: Set a max-width for readability */
+  margin: 8px 0; /* Keep vertical margin */
+  position: relative; /* Keep for absolute positioning of overlays */
+  display: flex; /* Ensure content inside centers if needed */
+  justify-content: center; /* Center the Page component if it's narrower */
+}
+
 .react-pdf__Page {
-  max-width: 100%;
+  max-width: 100%; /* Ensure page doesn't overflow container */
   position: relative;
-  margin: 8px 0;
+  /* margin: 8px 0; <-- Moved margin to page-container */
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: width;
-  min-width: 200px;
+  /* REMOVE: Transitions/will-change related to JS width changes */
+  /* transition: width 0.05s cubic-bezier(0.4, 0, 0.2, 1); */
+  /* will-change: width; */
+  min-width: 200px; /* Keep minimum width */
+  /* Ensure the page itself takes available width up to its max */
+  width: 100%;
+  height: auto;
 }
 
 .react-pdf__Page canvas {
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: width;
-  min-width: 200px;
+  /* EDIT: Ensure canvas scales fluidly */
+  display: block; /* Prevents extra space below */
+  width: 100% !important; /* Force canvas width to match its container */
+  height: auto !important; /* Maintain aspect ratio */
+  /* REMOVE: Transitions/will-change related to JS width changes */
+  /* transition: width 0.05s cubic-bezier(0.4, 0, 0.2, 1); */
+  /* will-change: width; */
+  min-width: 200px; /* Keep minimum width */
 }
 
 .segment-overlay-background {
   background-color: rgb(2, 5, 6);
   opacity: 0.25;
+}
+
+/* Styles for the individual OCR bounding boxes */
+.ocr-box {
+  position: absolute;
+  border: 1px solid transparent;
+  /* EDIT: Hide OCR boxes by default */
+  opacity: 0;
+  visibility: hidden;
+  /* EDIT: Add transition for opacity and visibility */
+  transition: border-color 0.05s ease-in-out, opacity 0.05s ease-in-out,
+    visibility 0.05s ease-in-out;
+  pointer-events: auto; /* Allow hover events on the box itself */
+  /* EDIT: Ensure boxes don't block hover on the main segment initially */
+  /* pointer-events: none;  <-- Let's try auto first, might need none if issues arise */
+}
+
+/* EDIT: Show OCR boxes when the parent segment is hovered */
+.segment:hover .ocr-box {
+  opacity: 1;
+  visibility: visible;
+  /* pointer-events: auto; /* Ensure they are interactive when visible */
+}
+
+/* EDIT: Add type-specific border colors for OCR boxes (applied when visible via segment hover) */
+.segment.type-text:hover .ocr-box {
+  border-color: var(--jade-10);
+}
+.segment.type-table:hover .ocr-box {
+  border-color: var(--orange-9);
+}
+.segment.type-title:hover .ocr-box {
+  border-color: var(--blue-9);
+}
+.segment.type-picture:hover .ocr-box {
+  border-color: var(--pink-10);
+}
+.segment.type-formula:hover .ocr-box {
+  border-color: var(--amber-8);
+}
+.segment.type-caption:hover .ocr-box {
+  border-color: var(--crimson-8);
+}
+.segment.type-footnote:hover .ocr-box {
+  border-color: var(--pink-10);
+}
+.segment.type-listitem:hover .ocr-box {
+  border-color: var(--bronze-10);
+}
+.segment.type-pagefooter:hover .ocr-box {
+  border-color: var(--red-12);
+}
+.segment.type-pageheader:hover .ocr-box {
+  border-color: var(--violet-9);
+}
+.segment.type-sectionheader:hover .ocr-box {
+  border-color: var(--cyan-8);
+}
+.segment.type-page:hover .ocr-box {
+  border-color: var(--gray-8);
+}
+
+/* Styles for the OCR text popup tooltip */
+.ocr-tooltip {
+  position: absolute;
+  z-index: 9999;
+  left: -1px;
+  top: -4px;
+  transform: translateY(-100%);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none; /* Tooltip should not be interactive */
+  isolation: isolate;
+  background-color: var(--gray-12); /* Default background */
+  color: var(--gray-1); /* Default text color */
+  /* EDIT: Hide tooltip by default */
+  opacity: 0;
+  visibility: hidden;
+  /* EDIT: Add transition for opacity and visibility */
+  transition: opacity 0.05s ease-in-out, visibility 0.05s ease-in-out;
+  /* Type-specific colors are applied below, no need for defaults here if always overridden */
+}
+
+/* EDIT: Show the tooltip when its parent ocr-box is hovered */
+.ocr-box:hover .ocr-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Type-specific colors for OCR tooltip (applied when visible) */
+/* These selectors remain the same, as the tooltip inherits the context from the segment type */
+.segment.type-text .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--jade-10) 90%, transparent);
+  color: var(--jade-1); /* Light text on dark background */
+}
+.segment.type-table .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--orange-9) 90%, transparent);
+  color: var(--orange-1);
+}
+.segment.type-title .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--blue-9) 90%, transparent);
+  color: var(--blue-1);
+}
+.segment.type-picture .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--pink-10) 90%, transparent);
+  color: var(--pink-1);
+}
+.segment.type-formula .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--amber-8) 90%, transparent);
+  color: var(--amber-1);
+}
+.segment.type-caption .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--crimson-8) 90%, transparent);
+  color: var(--crimson-1);
+}
+.segment.type-footnote .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--pink-10) 90%, transparent);
+  color: var(--pink-1);
+}
+.segment.type-listitem .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--bronze-10) 90%, transparent);
+  color: var(--bronze-1);
+}
+.segment.type-pagefooter .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--red-12) 90%, transparent);
+  color: var(--red-1);
+}
+.segment.type-pageheader .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--violet-9) 90%, transparent);
+  color: var(--violet-1);
+}
+.segment.type-sectionheader .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--cyan-8) 90%, transparent);
+  color: var(--cyan-1);
+}
+.segment.type-page .ocr-tooltip {
+  background-color: color-mix(in srgb, var(--gray-8) 90%, transparent);
+  color: var(--gray-1);
 }

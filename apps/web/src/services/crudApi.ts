@@ -1,4 +1,5 @@
 import axiosInstance from "./axios.config";
+import { UploadForm } from "../models/upload.model";
 
 export const deleteTasks = async (taskIds: string[]): Promise<void> => {
   try {
@@ -23,6 +24,27 @@ export const cancelTasks = async (taskIds: string[]): Promise<void> => {
     await Promise.all(cancelPromises);
   } catch (error) {
     console.error("Error cancelling tasks:", error);
+    throw error;
+  }
+};
+
+export const updateTask = async (
+  taskId: string,
+  task: Partial<UploadForm>
+): Promise<void> => {
+  try {
+    await axiosInstance.patch(`/api/v1/task/${taskId}/parse`, task);
+  } catch (error) {
+    console.error("Error updating task:", error);
+    throw error;
+  }
+};
+
+export const cancelTask = async (taskId: string): Promise<void> => {
+  try {
+    await axiosInstance.get(`/api/v1/task/${taskId}/cancel`);
+  } catch (error) {
+    console.error("Error cancelling task:", error);
     throw error;
   }
 };

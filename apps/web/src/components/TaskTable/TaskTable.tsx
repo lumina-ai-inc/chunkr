@@ -14,7 +14,7 @@ import useUser from "../../hooks/useUser";
 import { useAuth } from "react-oidc-context";
 import "./TaskTable.css";
 import { Flex, Text } from "@radix-ui/themes";
-import { deleteTasks, cancelTasks } from "../../services/crudApi";
+import { deleteTasks, cancelTasks, updateTask } from "../../services/crudApi";
 import toast from "react-hot-toast";
 import { Box } from "@mui/material";
 import { Status } from "../../models/taskResponse.model";
@@ -84,8 +84,10 @@ const TaskTable = () => {
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(
-      `/dashboard?taskId=${task.task_id}&pageCount=${task.output?.page_count || 10
-      }&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize
+      `/dashboard?taskId=${task.task_id}&pageCount=${
+        task.output?.page_count || 10
+      }&tablePageIndex=${pagination.pageIndex}&tablePageSize=${
+        pagination.pageSize
       }`
     );
   };
@@ -140,10 +142,10 @@ const TaskTable = () => {
                   row.original.status === Status.Starting
                     ? "#3498db" // blue
                     : row.original.status === Status.Processing
-                      ? "#f39c12" // orange
-                      : row.original.status === Status.Failed
-                        ? "#e74c3c" // red
-                        : "transparent",
+                    ? "#f39c12" // orange
+                    : row.original.status === Status.Failed
+                    ? "#e74c3c" // red
+                    : "transparent",
                 display:
                   row.original.status === Status.Succeeded ? "none" : "block",
               }}
@@ -161,6 +163,14 @@ const TaskTable = () => {
         accessorKey: "created_at",
         header: "Created At",
         Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
+      },
+      {
+        accessorKey: "started_at",
+        header: "Started At",
+        Cell: ({ cell }) => {
+          const dateValue = cell.getValue<string>();
+          return dateValue ? new Date(dateValue).toLocaleString() : "N/A";
+        },
       },
       {
         accessorKey: "finished_at",
@@ -397,9 +407,7 @@ const TaskTable = () => {
     });
 
     if (deletableTaskIds.length === 0) {
-      toast.error(
-        "No tasks can be deleted. Only Succeeded, Failed, or Cancelled tasks can be deleted."
-      );
+      toast.error("Only Succeeded, Failed, or Cancelled tasks can be deleted.");
       return;
     }
 
@@ -410,13 +418,16 @@ const TaskTable = () => {
       await deleteTasks(deletableTaskIds);
 
       toast.success(
-        `Successfully deleted ${deletableTaskIds.length} task${deletableTaskIds.length === 1 ? "" : "s"
+        `Successfully deleted ${deletableTaskIds.length} task${
+          deletableTaskIds.length === 1 ? "" : "s"
         }` +
-        (nonDeletableCount > 0
-          ? `. ${nonDeletableCount} task${nonDeletableCount === 1 ? " was" : "s were"
-          } skipped as ${nonDeletableCount === 1 ? "it wasn't" : "they weren't"
-          } completed.`
-          : "")
+          (nonDeletableCount > 0
+            ? `. ${nonDeletableCount} task${
+                nonDeletableCount === 1 ? " was" : "s were"
+              } skipped as ${
+                nonDeletableCount === 1 ? "it wasn't" : "they weren't"
+              } completed.`
+            : "")
       );
 
       refetch();
@@ -448,8 +459,10 @@ const TaskTable = () => {
           ? "already processing"
           : "already completed";
       toast.error(
-        `Cannot cancel ${selectedTaskIds.length === 1 ? "this task" : "these tasks"
-        } as ${selectedTaskIds.length === 1 ? "it is" : "they are"
+        `Cannot cancel ${
+          selectedTaskIds.length === 1 ? "this task" : "these tasks"
+        } as ${
+          selectedTaskIds.length === 1 ? "it is" : "they are"
         } ${statusMessage}.`
       );
       return;
@@ -460,13 +473,16 @@ const TaskTable = () => {
       setRowSelection({});
 
       toast.success(
-        `Successfully cancelled ${cancellableTaskIds.length} task${cancellableTaskIds.length === 1 ? "" : "s"
+        `Successfully cancelled ${cancellableTaskIds.length} task${
+          cancellableTaskIds.length === 1 ? "" : "s"
         }` +
-        (nonCancellableTaskDetails.length > 0
-          ? `. ${nonCancellableTaskDetails.length} task${nonCancellableTaskDetails.length === 1 ? " was" : "s were"
-          } skipped as ${nonCancellableTaskDetails.length === 1 ? "it was" : "they were"
-          } already ${nonCancellableTaskDetails[0]}.`
-          : "")
+          (nonCancellableTaskDetails.length > 0
+            ? `. ${nonCancellableTaskDetails.length} task${
+                nonCancellableTaskDetails.length === 1 ? " was" : "s were"
+              } skipped as ${
+                nonCancellableTaskDetails.length === 1 ? "it was" : "they were"
+              } already ${nonCancellableTaskDetails[0]}.`
+            : "")
       );
 
       refetch();
@@ -476,10 +492,61 @@ const TaskTable = () => {
     }
   };
 
+  const handleRetrySelected = async () => {
+    const selectedTaskIds = Object.keys(rowSelection);
+    if (selectedTaskIds.length === 0) return;
+
+    const retryableTaskIds = selectedTaskIds.filter((taskId) => {
+      const task = tasks?.find((t) => t.task_id === taskId);
+      return task?.status === Status.Failed;
+    });
+
+    if (retryableTaskIds.length === 0) {
+      toast.error("No tasks can be retried. Only Failed tasks can be retried.");
+      return;
+    }
+
+    const nonRetryableCount = selectedTaskIds.length - retryableTaskIds.length;
+
+    try {
+      setRowSelection({});
+      // Call updateTask for each failed task with an empty object to trigger retry
+      const retryPromises = retryableTaskIds.map((taskId) =>
+        updateTask(taskId, {})
+      );
+      await Promise.all(retryPromises);
+
+      toast.success(
+        `Successfully initiated retry for ${retryableTaskIds.length} task${
+          retryableTaskIds.length === 1 ? "" : "s"
+        }` +
+          (nonRetryableCount > 0
+            ? `. ${nonRetryableCount} task${
+                nonRetryableCount === 1 ? " was" : "s were"
+              } skipped as ${
+                nonRetryableCount === 1 ? "it wasn't" : "they weren't"
+              } in a Failed state.`
+            : "")
+      );
+
+      refetch();
+    } catch (error) {
+      console.error("Error retrying tasks:", error);
+      toast.error("Failed to retry tasks. Please try again.");
+    }
+  };
+
   const hasSelectedCancellableTasks = () => {
     return Object.keys(rowSelection).some((taskId) => {
       const task = tasks?.find((t) => t.task_id === taskId);
       return task?.status === Status.Starting;
+    });
+  };
+
+  const hasSelectedFailedTasks = () => {
+    return Object.keys(rowSelection).some((taskId) => {
+      const task = tasks?.find((t) => t.task_id === taskId);
+      return task?.status === Status.Failed;
     });
   };
 
@@ -611,9 +678,9 @@ const TaskTable = () => {
             muiToolbarAlertBannerProps={
               isError
                 ? {
-                  color: "error",
-                  children: "Error loading data",
-                }
+                    color: "error",
+                    children: "Error loading data",
+                  }
                 : undefined
             }
             renderTopToolbarCustomActions={() => (
@@ -670,6 +737,54 @@ const TaskTable = () => {
                             </defs>
                           </svg>
                           <Text size="1">Cancel Tasks</Text>
+                        </BetterButton>
+                      </Tooltip>
+                    )}
+                    {hasSelectedFailedTasks() && (
+                      <Tooltip arrow title="Retry Selected Failed Tasks">
+                        <BetterButton onClick={handleRetrySelected}>
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 25 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g clip-path="url(#clip0_113_1417)">
+                              <path
+                                d="M16.25 15.25H20.75V19.75"
+                                stroke="#FFF"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M8.75 8.25H4.25V3.75"
+                                stroke="#FFF"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M4.31523 8.25135C5.73695 5.15233 8.86701 3 12.4998 3C17.2006 3 21.0597 6.65439 21.4647 11.25M20.7508 15.6003C19.3619 18.7788 16.1902 21 12.4998 21C7.78048 21 3.90956 17.3676 3.53027 12.7462"
+                                stroke="#FFF"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                              />
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_113_1417">
+                                <rect
+                                  width="24"
+                                  height="24"
+                                  fill="white"
+                                  transform="translate(0.5)"
+                                />
+                              </clipPath>
+                            </defs>
+                          </svg>
+
+                          <Text size="1">Retry Tasks</Text>
                         </BetterButton>
                       </Tooltip>
                     )}
@@ -753,15 +868,15 @@ const TaskTable = () => {
               sx: {
                 cursor:
                   row.original.message === "Task succeeded" ||
-                    (row.original.status !== Status.Failed &&
-                      row.original.status !== Status.Succeeded)
+                  (row.original.status !== Status.Failed &&
+                    row.original.status !== Status.Succeeded)
                     ? "pointer"
                     : "default",
                 "&:hover": {
                   backgroundColor:
                     row.original.message === "Task succeeded" ||
-                      (row.original.status !== Status.Failed &&
-                        row.original.status !== Status.Succeeded)
+                    (row.original.status !== Status.Failed &&
+                      row.original.status !== Status.Succeeded)
                       ? "rgba(255, 255, 255, 0.05) !important"
                       : "rgb(2, 8, 9) !important",
                 },
