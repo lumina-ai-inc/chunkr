@@ -1,14 +1,16 @@
 {
   "name": "chunk-my-docs",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "copy-pdf-worker": "node copyPdfWorker.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:deploy": "pnpm exec env-cmd -f .env vite build",
+    "preview:deploy": "pnpm run build:deploy && vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -90,8 +92,10 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/react-dropzone": "^5.1.0",
+    "@types/react-window": "^1.8.8",
     "@types/sanitize-html": "^2.13.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "env-cmd": "^10.1.0",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",

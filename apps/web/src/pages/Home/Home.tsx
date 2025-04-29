@@ -401,7 +401,7 @@ const Home = () => {
           <Header auth={auth} />
         </div>
       </Flex>
-      <MomentumScroll>
+      <MomentumScroll pricingRef={pricingRef}>
         <Flex
           direction="column"
           style={{

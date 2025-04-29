@@ -1,24 +1,17 @@
 import { ReactLenis } from "lenis/react";
 import type { LenisRef } from "lenis/react";
 import { useEffect, useRef } from "react";
-import { frame, cancelFrame } from "framer-motion";
 
 interface MomentumScrollProps {
   children: React.ReactNode;
+  pricingRef?: React.RefObject<HTMLElement>;
 }
 
-const MomentumScroll = ({ children }: MomentumScrollProps): JSX.Element => {
+const MomentumScroll = ({
+  children,
+  pricingRef,
+}: MomentumScrollProps): JSX.Element => {
   const lenisRef = useRef<LenisRef>(null);
-
-  useEffect(() => {
-    function update(data: { timestamp: number }) {
-      const time = data.timestamp;
-      lenisRef.current?.lenis?.raf(time);
-    }
-
-    frame.update(update, true);
-    return () => cancelFrame(update);
-  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -40,6 +33,39 @@ const MomentumScroll = ({ children }: MomentumScrollProps): JSX.Element => {
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  useEffect(() => {
+    // grab your Lenis instance
+    const lenis = lenisRef.current?.lenis;
+    if (!lenis) return;
+
+    // subscribe to Lenis's scroll callback
+    const unsubscribe = lenis.on("scroll", () => {
+      if (window.location.hash === "#pricing" && pricingRef?.current) {
+        const { top } = pricingRef.current.getBoundingClientRect();
+        if (top >= -100 && top <= 100) {
+          history.replaceState(null, "", window.location.pathname);
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [pricingRef]);
+
+  // remove hash when #pricing comes into view
+  useEffect(() => {
+    if (!pricingRef) return;
+    const unsubscribe = lenisRef.current?.lenis?.on("scroll", () => {
+      if (window.location.hash !== "#pricing") return;
+      const el = pricingRef.current;
+      if (!el) return;
+      const { top } = el.getBoundingClientRect();
+      if (top >= -100 && top <= 100) {
+        history.replaceState(null, "", window.location.pathname);
+      }
+    });
+    return unsubscribe;
+  }, [pricingRef]);
 
   return (
     <ReactLenis

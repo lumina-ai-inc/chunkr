@@ -101,7 +101,6 @@ export interface SegmentProcessing {
 }
 
 export enum FallbackStrategyType {
-
   Default = "Default",
   Model = "Model",
 }
@@ -113,7 +112,6 @@ export enum FallbackStrategyType {
  * - `{ Model: string }`: Use the specified model ID as fallback.
  */
 export type FallbackStrategy =
-
   | { [FallbackStrategyType.Default]: null }
   | { [FallbackStrategyType.Model]: string }; // string is the model_id
 
@@ -128,6 +126,16 @@ export interface LlmProcessing {
   temperature?: number;
 }
 
+/**
+ * Controls how errors are handled during processing.
+ * - `Fail`: Stops processing and fails the task when any error occurs.
+ * - `Continue`: Attempts to continue processing despite non-critical errors (e.g., LLM refusals).
+ */
+export enum ErrorHandling {
+  Fail = "Fail",
+  Continue = "Continue",
+}
+
 export interface UploadFormData {
   chunk_processing: ChunkProcessing;
   high_resolution: boolean;
@@ -136,6 +144,7 @@ export interface UploadFormData {
   segment_processing: SegmentProcessing;
   llm_processing?: LlmProcessing;
   pipeline?: WhenEnabled<"pipeline", Pipeline>;
+  error_handling?: ErrorHandling;
 }
 
 export enum Pipeline {
@@ -207,4 +216,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   llm_processing: DEFAULT_LLM_PROCESSING,
   pipeline: Pipeline.Azure as unknown as WhenEnabled<"pipeline", Pipeline>,
+  error_handling: ErrorHandling.Fail,
 };
