@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-runtime
+FROM pytorch/pytorch:2.6.0-cuda11.8-cudnn8-runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
