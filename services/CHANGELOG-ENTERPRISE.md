@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.5-enterprise...chunkr-services-enterprise-v0.1.6-enterprise) (2025-04-29)
+
+
+### Bug Fixes
+
+* Updated problematic ML dependencies ([#468](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/468)) ([5e60961](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5e6096122d333b832c8fff1437cb47f70979683e))
+
 ## [0.1.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.4-enterprise...chunkr-services-enterprise-v0.1.5-enterprise) (2025-03-28)
 
 

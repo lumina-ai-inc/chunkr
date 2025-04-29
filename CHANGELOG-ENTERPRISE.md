@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.16.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.15.0-enterprise...v1.16.0-enterprise) (2025-04-29)
+
+
+### Features
+
+* Added task retries, started at time, border boxes and more UI enhancements for special segment types like tables, formulas and image descriptions, modified self-host tier based usage section and always showing overage ticker ([#460](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/460)) ([40a4a69](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/40a4a6987f82fa01a5cadcbedeee4264bcdb7916))
+
+
+### Bug Fixes
+
+* Compose-cpu web server replicas ([#467](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/467)) ([41b2433](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/41b2433e6ce747c21a0e157e3759b7f1a27ec5ad))
+* Updated problematic ML dependencies ([#468](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/468)) ([5e60961](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5e6096122d333b832c8fff1437cb47f70979683e))
+* Viewer optimizations and momentum scroll fix ([#466](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/466)) ([671f840](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/671f84083eb796b9a120e3ad3f57c7a61cbfcde3))
+
 ## [1.15.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.14.0-enterprise...v1.15.0-enterprise) (2025-04-26)
 
 
