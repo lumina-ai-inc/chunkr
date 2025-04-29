@@ -112,7 +112,24 @@ def save_base64_to_file():
 if __name__ == "__main__":
     from chunkr_ai.models import Configuration, Status, LlmProcessing, FallbackStrategy
 
-    task = chunkr.upload("./files/test.pdf", 
+    def try_with_details(func, *args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            if hasattr(e, 'response'):
+                # Extract error details from response
+                response = e.response
+                error_msg = f"HTTP Error {response.status_code}"
+                print(error_msg)
+                try:
+                    error_data = response.json()
+                    print(f"Error details: {error_data}")
+                except:
+                    print(f"Error details: {response.text}")
+            raise 
+
+    # Example usage in main.py
+    task = try_with_details(chunkr.upload, "https://www.google.com", 
         config=Configuration(
             llm_processing=LlmProcessing(
                 model_id="gemini-pro-2.5",
@@ -121,12 +138,22 @@ if __name__ == "__main__":
             ),
         )
     )
-    print(task.configuration) # type: ignore
-    if task.status == Status.FAILED:
-        print(task.message) # type: ignore
-    else:
-        markdown = task.markdown() # type: ignore
-        print(markdown)
+
+    # task = chunkr.upload("./files/test.pdf", 
+    #     config=Configuration(
+    #         llm_processing=LlmProcessing(
+    #             model_id="gemini-pro-2.5",
+    #             max_completion_tokens=500,
+    #             temperature=0.2
+    #         ),
+    #     )
+    # )
+    # print(task.configuration) # type: ignore
+    # if task.status == Status.FAILED:
+    #     print(task.message) # type: ignore
+    # else:
+    #     markdown = task.markdown() # type: ignore
+    #     print(markdown)
     # task.markdown("./output/markdown.md")
     # print(task.output.chunks[1].embed)
     # print(task.output.chunks[0].segments[0].confidence)
