@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.2.1...chunkr-web-v1.3.0) (2025-04-29)
+
+
+### Features
+
+* Added task retries, started at time, border boxes and more UI enhancements for special segment types like tables, formulas and image descriptions, modified self-host tier based usage section and always showing overage ticker ([#460](https://github.com/lumina-ai-inc/chunkr/issues/460)) ([40a4a69](https://github.com/lumina-ai-inc/chunkr/commit/40a4a6987f82fa01a5cadcbedeee4264bcdb7916))
+
+
+### Bug Fixes
+
+* Viewer optimizations and momentum scroll fix ([#466](https://github.com/lumina-ai-inc/chunkr/issues/466)) ([671f840](https://github.com/lumina-ai-inc/chunkr/commit/671f84083eb796b9a120e3ad3f57c7a61cbfcde3))
+
 ## [1.2.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.2.0...chunkr-web-v1.2.1) (2025-04-23)
 
 
