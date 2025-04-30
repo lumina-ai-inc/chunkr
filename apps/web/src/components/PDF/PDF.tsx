@@ -199,7 +199,13 @@ function CurrentPage({
 
   return (
     <div className="flex relative items-center" data-page-number={pageNumber}>
-      <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={width}>
+      <Page
+        key={`page_${pageNumber}`}
+        pageNumber={pageNumber}
+        width={width}
+        renderAnnotationLayer={false}
+        renderTextLayer={false}
+      >
         {!structureExtractionView && pageSegmentElements}
       </Page>
     </div>
