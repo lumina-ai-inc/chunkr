@@ -8,7 +8,6 @@ import { getBillingPortalSession } from "../../services/stripeService";
 
 interface PricingCardProps {
   title: string;
-  credits: number;
   price: number | "Custom" | "Free";
   period: string;
   annualPrice?: number;
@@ -30,7 +29,6 @@ interface PricingCardProps {
 
 const PricingCard = ({
   title,
-  credits,
   price,
   period,
   annualPrice,
@@ -130,10 +128,6 @@ const PricingCard = ({
 
       <Text className="pricing-tag" size="6" weight="medium">
         {title}
-      </Text>
-
-      <Text size="3" color="gray">
-        {credits.toLocaleString()} credits {period}
       </Text>
 
       <Flex align="baseline" gap="1" className="pricing-amount">

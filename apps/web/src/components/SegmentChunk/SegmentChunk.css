@@ -188,6 +188,7 @@
   border: 1px solid var(--bg-2);
   /* border-right: 1px solid var(--border); */
   border-bottom: none;
+  background-color: inherit;
 }
 
 /* Remove right border from the last cell in any row */

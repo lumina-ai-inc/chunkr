@@ -158,7 +158,6 @@ export const SegmentChunk = memo(
       (segment: Segment) => {
         const mode = segmentDisplayModes[segment.segment_id];
         let textToCopy = "";
-
         if (mode?.showJson) {
           textToCopy = JSON.stringify(segment, null, 2);
         } else if (mode?.showLLM) {
@@ -169,7 +168,7 @@ export const SegmentChunk = memo(
           textToCopy =
             selectedView === "html"
               ? segment.html || ""
-              : segment.markdown || segment.content || "";
+              : segment.markdown || "";
         }
 
         navigator.clipboard.writeText(textToCopy);
@@ -198,29 +197,6 @@ export const SegmentChunk = memo(
             />
           );
 
-        if (
-          segment.segment_type === "Table" &&
-          segment.html?.startsWith("<span class=")
-        ) {
-          return <img src={segment.image || ""} alt="Table" />;
-        }
-
-        // --- KaTeX (async via Worker) -------------------------------
-        if (
-          segment.segment_type === "Formula" ||
-          (segment.content &&
-            (segment.content.includes("$") || segment.content.includes("\\")))
-        ) {
-          return (
-            <KaTeXContent
-              latex={segment.content ?? ""}
-              display={true /* block mode */}
-            />
-          );
-        }
-        // ------------------------------------------------------------
-
-        // Fallback to original MemoizedHtml if no KaTeX was handled
         return <MemoizedHtml html={segment.html || ""} />;
       },
       [segmentDisplayModes]
@@ -313,14 +289,21 @@ export const SegmentChunk = memo(
             );
           }
 
-          // Regular content rendering based on selected view
-          return selectedView === "html" ? (
-            renderSegmentHtml(segment) // This now uses the optimized version
-          ) : (
-            <MemoizedMarkdown
-              content={segment.markdown || segment.content || ""}
-            />
-          );
+          // === new formula special-case ===
+          if (selectedView === "html") {
+            if (segment.segment_type === SegmentType.Formula) {
+              // strip surrounding "$" from markdown before rendering
+              const raw = segment.markdown || "";
+              // removes one or more "$" at the start/end
+              const latex = raw.replace(/^\$+|\$+$/g, "");
+
+              return <KaTeXContent latex={latex} display={true} />;
+            }
+            return renderSegmentHtml(segment);
+          }
+
+          // Markdown-mode: still just print markdown
+          return <MemoizedMarkdown content={segment.markdown || ""} />;
         };
 
         const currentButtonMode = segmentDisplayModes[segment.segment_id] || {
@@ -347,7 +330,7 @@ export const SegmentChunk = memo(
                 onSegmentClick?.(chunkId, segment.segment_id);
               }
             }}
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginBottom: "4px" }}
             // Consider adding CSS containment for performance
             // style={{ contain: 'content' }}
           >

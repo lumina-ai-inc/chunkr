@@ -1,0 +1,15 @@
+services:
+  server:
+    platform: linux/amd64
+  task:
+    platform: linux/amd64
+  web:
+    platform: linux/amd64
+  segmentation-backend:
+    platform: linux/amd64
+  ocr-backend:
+    platform: linux/amd64
+  redis:
+    platform: linux/arm64
+  keycloak:
+    platform: linux/arm64

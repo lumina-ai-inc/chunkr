@@ -1128,7 +1128,6 @@ const Home = () => {
                     isUsageDataLoading) && (
                     <PricingCard
                       title="Free"
-                      credits={100}
                       price="Free"
                       period="month"
                       features={[
@@ -1148,7 +1147,6 @@ const Home = () => {
 
                   <PricingCard
                     title="Starter"
-                    credits={10000}
                     price={50}
                     period="month"
                     features={[
@@ -1167,7 +1165,6 @@ const Home = () => {
 
                   <PricingCard
                     title="Dev"
-                    credits={150000}
                     price={200}
                     period="month"
                     features={[
@@ -1186,7 +1183,6 @@ const Home = () => {
 
                   <PricingCard
                     title="Growth"
-                    credits={500000}
                     price={500}
                     period="month"
                     features={[
@@ -1511,7 +1507,6 @@ const Home = () => {
                 >
                   <PricingCard
                     title="Research"
-                    credits={0}
                     price="Free"
                     period=""
                     features={[
@@ -1532,7 +1527,6 @@ const Home = () => {
 
                   <PricingCard
                     title="Commercial License"
-                    credits={0}
                     price="Custom"
                     period="month"
                     features={[
