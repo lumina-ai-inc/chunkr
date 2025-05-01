@@ -24,20 +24,21 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 30
+      replicas: 10
     restart: always
     volumes:
       - ./models.yaml:/app/models.yaml:ro
 
   web:
     image: luminainc/web:1.14.0
-    platform: linux/amd64
     ports:
       - "5173:8000"
     env_file:
       - .env
+    environment:
+      - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   segmentation:
@@ -52,24 +53,21 @@ services:
     restart: always
 
   segmentation-backend:
-    image: luminainc/segmentation:1.4.2
+    image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
     expose:
       - "8000"
     deploy:
-      replicas: 6
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
+      replicas: 4
     volumes:
       - /dev/shm:/dev/shm
     environment:
-      - MAX_BATCH_SIZE=4
+      - MAX_BATCH_SIZE=64
       - BATCH_WAIT_TIME=0.2
-      - OVERLAP_THRESHOLD=0.025
-      - SCORE_THRESHOLD=0.2
+      - OVERLAP_THRESHOLD=0.2
+      - SCORE_THRESHOLD=0.14
+      - OMP_NUM_THREADS=12
+      - MKL_NUM_THREADS=12
+      - NUMEXPR_NUM_THREADS=12
     restart: always
 
   ocr:
@@ -84,17 +82,11 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:1.14.0
+    image: luminainc/doctr-small:1.14.0
     expose:
       - "8000"
     deploy:
-      replicas: 3
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
+      replicas: 2
     volumes:
       - /dev/shm:/dev/shm
     restart: always
@@ -112,7 +104,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -135,7 +127,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -154,7 +146,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 1
@@ -171,16 +163,6 @@ services:
         /usr/bin/mc anonymous set public myminio/chunkr
       "
 
-  emails:
-    image: luminainc/emails:fb17c8f1
-    platform: linux/amd64
-    ports:
-      - "8009:8000"
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.2
     ports:
@@ -189,10 +171,8 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KC_PROXY=edge
-      - KC_DB=postgres
-      - KC_HOSTNAME_STRICT=false
-      - KC_HOSTNAME_STRICT_HTTPS=false
       - KC_HTTP_ENABLED=true
+      - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
       - KC_DB_USERNAME=postgres
       - KC_DB_PASSWORD=postgres
@@ -200,9 +180,9 @@ services:
       - KC_TRANSACTION_XA_ENABLED=false
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: [ "start-dev", "--import-realm" ]
+    command: ["start-dev", "--import-realm"]
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -215,8 +195,8 @@ services:
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8090:8090"   # HTTP port
-      - "8443:8443"  # HTTPS port
+      - "8090:8090" # HTTP port
+      - "8443:8443" # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -227,8 +207,8 @@ services:
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"    # HTTP port
-      - "443:443"  # HTTPS port
+      - "80:80" # HTTP port
+      - "443:443" # HTTPS port
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -241,8 +221,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:8010"   # HTTP port
-      - "8444:8444"  # HTTPS port
+      - "8010:8010" # HTTP port
+      - "8444:8444" # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -270,4 +250,3 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
-  
