@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.3.0...chunkr-web-v1.3.1) (2025-04-30)
+
+
+### Bug Fixes
+
+* Solved latex rendering errors and final viewer optimizations in place ([#472](https://github.com/lumina-ai-inc/chunkr/issues/472)) ([1fd05c4](https://github.com/lumina-ai-inc/chunkr/commit/1fd05c4ca3b499ddeb7549dbf03988a4e30ea1a8))
+
 ## [1.3.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.2.1...chunkr-web-v1.3.0) (2025-04-29)
 
 
