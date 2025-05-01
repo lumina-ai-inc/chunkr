@@ -26,7 +26,7 @@ VLLM_API_BASE_URL = f"http://{VLLM_HOST}:{VLLM_PORT}/v1" # Standard vLLM OpenAI 
 # when the vLLM server is launched, not by this script.
 # We still need a placeholder model name for the API call,
 # even if vLLM ignores it. Use the expected model name.
-VLLM_EXPECTED_MODEL_NAME = "ChunkrAI/chunkr-table-v1-qwen2_5VL-3B" # Or your fine-tuned model name if served directly
+VLLM_EXPECTED_MODEL_NAME = "ChunkrAI/chunkr-table-v1-qwen2_5VL-7B" # Or your fine-tuned model name if served directly
 
 # Data configuration
 DATA_DIR_BASE = "data/sophris-datasheet-table-extraction-azure-distill-v1"
@@ -35,7 +35,7 @@ IMAGE_DIR = "data/sophris-datasheet-table-extraction-azure-distill-v1/sophris-da
 # IMAGE_DIR = os.path.join(DATA_DIR_BASE, DATASET_BASENAME) # Original path construction
 TEST_DATA_PATH = "data/llava-format/test.json"
 NUM_SAMPLES = 1000
-MAX_NEW_TOKENS = 6000
+MAX_NEW_TOKENS = 1024
 
 # --- Initialize OpenAI client ---
 try:

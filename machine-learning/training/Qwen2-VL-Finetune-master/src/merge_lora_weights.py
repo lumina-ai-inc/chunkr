@@ -6,8 +6,13 @@ from peft import PeftModel
 from huggingface_hub import HfApi, upload_folder
 import os
 import torch
+import dotenv
+
+dotenv.load_dotenv(override=True)
 
 def merge_lora(args):
+    dotenv.load_dotenv(override=True)
+
     print(f"Loading base model: {args.model_base}...")
     processor = AutoProcessor.from_pretrained(args.model_base)
     base_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
@@ -55,6 +60,8 @@ if __name__ == "__main__":
     parser.add_argument("--save-model-path", type=str, required=True, help="Path to save the merged model")
     parser.add_argument("--safe-serialization", action='store_true', help="Use safetensors for saving")
     parser.add_argument("--hub-model-id", type=str, default=None, help="Hugging Face Hub model ID to upload the merged model to")
+    dotenv.load_dotenv(override=True)
+
 
     args = parser.parse_args()
 
