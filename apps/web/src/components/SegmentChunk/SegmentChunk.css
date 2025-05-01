@@ -103,6 +103,7 @@
   margin-block: 1.1rem;
   padding-inline-start: 1.4rem;
   color: var(--fg-0);
+  list-style: unset;
 }
 
 .segment-chunk li {
