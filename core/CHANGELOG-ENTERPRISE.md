@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.11.0-enterprise...chunkr-core-enterprise-v1.11.1-enterprise) (2025-05-01)
+
+
+### Bug Fixes
+
+* New mu trigger ([#69](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/69)) ([7a6993e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7a6993e1a36860e238a38626b12c7350be909afa))
+
 ## [1.11.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.10.0-enterprise...chunkr-core-enterprise-v1.11.0-enterprise) (2025-04-26)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.4.1-enterprise...chunkr-web-enterprise-v1.4.2-enterprise) (2025-05-01)
+
+
+### Bug Fixes
+
+* New mu trigger ([#69](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/69)) ([7a6993e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7a6993e1a36860e238a38626b12c7350be909afa))
+
 ## [1.4.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.4.0-enterprise...chunkr-web-enterprise-v1.4.1-enterprise) (2025-05-01)
 
 
