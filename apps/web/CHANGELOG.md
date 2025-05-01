@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.3.1...chunkr-web-v1.3.2) (2025-05-01)
+
+
+### Bug Fixes
+
+* List style points visible now ([#476](https://github.com/lumina-ai-inc/chunkr/issues/476)) ([95a9844](https://github.com/lumina-ai-inc/chunkr/commit/95a98449bf6b6c8f0befd728ceb8206656966b8d))
+
 ## [1.3.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.3.0...chunkr-web-v1.3.1) (2025-04-30)
 
 
