@@ -201,7 +201,7 @@ services:
     enabled: true
     image:
       repository: segmentation
-      tag: 1.14.2
+      tag: 1.5.0
     port: 8000
     targetPort: 8000
     useGPU: true
