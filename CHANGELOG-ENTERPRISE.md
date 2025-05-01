@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.16.0-enterprise...v1.16.1-enterprise) (2025-05-01)
+
+
+### Bug Fixes
+
+* Solved latex rendering errors and final viewer optimizations in place ([#472](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/472)) ([1fd05c4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1fd05c4ca3b499ddeb7549dbf03988a4e30ea1a8))
+
 ## [1.16.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.15.0-enterprise...v1.16.0-enterprise) (2025-04-29)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.4.0-enterprise...chunkr-web-enterprise-v1.4.1-enterprise) (2025-05-01)
+
+
+### Bug Fixes
+
+* Solved latex rendering errors and final viewer optimizations in place ([#472](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/472)) ([1fd05c4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1fd05c4ca3b499ddeb7549dbf03988a4e30ea1a8))
+
 ## [1.4.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.3.0-enterprise...chunkr-web-enterprise-v1.4.0-enterprise) (2025-04-29)
 
 
