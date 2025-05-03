@@ -1,0 +1,1 @@
+az network bastion ssh --name "mgx-chunkr-bastion" --resource-group "Chunkr-rg" --target-resource-id "/subscriptions/275ecc09-28f2-48aa-a7fc-afbdeb9531cb/resourceGroups/Chunkr-rg/providers/Microsoft.Compute/virtualMachines/mgx-chunkr-jumpbox" --auth-type "ssh-key" --username adminuser --ssh-key ~/.ssh/id_rsa
