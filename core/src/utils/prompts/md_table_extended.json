@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "The image provided is a table segment ({image_url}). Use the context of the full page it came from ({page_image_url}) if necessary for understanding headers or structure. Convert it to Markdown perfectly. Pay close attention to preserve merged columns and cells. \nSometimes there are graphics or images within the table. If there are, describe the graphic or image in text within the Markdown.\nOutput the table directly in ```markdown``` tags."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+] 

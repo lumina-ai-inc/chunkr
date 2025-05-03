@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "OCR the table segment ({image_url}), using the context of the full page it came from ({page_image_url}) if necessary for understanding headers or structure, and convert it to HTML. Output the HTML directly in ```html``` tags."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+] 

@@ -26,26 +26,48 @@ trait ContentGenerator {
             .to_string()
     }
     fn generate_auto(&self, content: &str) -> String;
-    fn template_key(&self) -> &'static str;
+    fn template_key(&self, use_extended_context: bool) -> &'static str;
     fn segment_type(&self) -> SegmentType;
     async fn process_llm(
         &self,
         segment_id: &str,
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
+        page_image: Option<Arc<NamedTempFile>>,
+        use_extended_context: bool,
         llm_fallback_content: Option<String>,
         configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let mut values = HashMap::new();
-        let file_url = get_file_url(
+        let segment_image_url = get_file_url(
             &segment_image,
             &format!("{}/{}.jpg", image_folder_location, segment_id),
         )
         .await?;
-        values.insert("image_url".to_string(), file_url);
-        let messages = create_messages_from_template(self.template_key(), &values)?;
+        values.insert("image_url".to_string(), segment_image_url);
 
-        let fence_type = match (self.template_key(), self.segment_type()) {
+        if use_extended_context {
+            if let Some(page_img) = page_image {
+                let page_image_url = get_file_url(
+                    &page_img,
+                    &format!("{}/{}_page.jpg", image_folder_location, segment_id), // Assuming page image name convention
+                )
+                .await?;
+                values.insert("page_image_url".to_string(), page_image_url);
+            } else {
+                // Handle case where extended context is requested but page image is missing
+                // For now, proceed without it, but logging a warning might be good
+                println!(
+                    "Warning: Extended context requested for segment {} but page image not found.",
+                    segment_id
+                );
+            }
+        }
+
+        let template_key = self.template_key(use_extended_context);
+        let messages = create_messages_from_template(template_key, &values)?;
+
+        let fence_type = match (template_key, self.segment_type()) {
             (_, SegmentType::Formula) => Some("latex"),
             (key, _) if key.starts_with("md_") => Some("markdown"),
             _ => Some("html"),
@@ -64,6 +86,8 @@ trait ContentGenerator {
         segment_id: &str,
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
+        page_image: Option<Arc<NamedTempFile>>,
+        use_extended_context: bool,
         llm_fallback_content: Option<String>,
         configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
@@ -99,20 +123,30 @@ impl ContentGenerator for HtmlGenerator {
         }
     }
 
-    fn template_key(&self) -> &'static str {
-        match self.segment_type {
-            SegmentType::Caption => "html_caption",
-            SegmentType::Footnote => "html_footnote",
-            SegmentType::Formula => "formula",
-            SegmentType::ListItem => "html_list_item",
-            SegmentType::Page => "html_page",
-            SegmentType::PageFooter => "html_page_footer",
-            SegmentType::PageHeader => "html_page_header",
-            SegmentType::Picture => "html_picture",
-            SegmentType::SectionHeader => "html_section_header",
-            SegmentType::Table => "html_table",
-            SegmentType::Text => "html_text",
-            SegmentType::Title => "html_title",
+    fn template_key(&self, use_extended_context: bool) -> &'static str {
+        match (self.segment_type.clone(), use_extended_context) {
+            (SegmentType::Caption, false) => "html_caption",
+            (SegmentType::Caption, true) => "html_caption_extended",
+            (SegmentType::Footnote, false) => "html_footnote",
+            (SegmentType::Footnote, true) => "html_footnote_extended",
+            (SegmentType::Formula, _) => "formula_extended",
+            (SegmentType::ListItem, false) => "html_list_item",
+            (SegmentType::ListItem, true) => "html_list_item_extended",
+            (SegmentType::Page, _) => "html_page",
+            (SegmentType::PageFooter, false) => "html_page_footer",
+            (SegmentType::PageFooter, true) => "html_page_footer_extended",
+            (SegmentType::PageHeader, false) => "html_page_header",
+            (SegmentType::PageHeader, true) => "html_page_header_extended",
+            (SegmentType::Picture, false) => "html_picture",
+            (SegmentType::Picture, true) => "html_picture_extended",
+            (SegmentType::SectionHeader, false) => "html_section_header",
+            (SegmentType::SectionHeader, true) => "html_section_header_extended",
+            (SegmentType::Table, false) => "html_table",
+            (SegmentType::Table, true) => "html_table_extended",
+            (SegmentType::Text, false) => "html_text",
+            (SegmentType::Text, true) => "html_text_extended",
+            (SegmentType::Title, false) => "html_title",
+            (SegmentType::Title, true) => "html_title_extended",
         }
     }
 
@@ -125,6 +159,8 @@ impl ContentGenerator for HtmlGenerator {
         segment_id: &str,
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
+        page_image: Option<Arc<NamedTempFile>>,
+        use_extended_context: bool,
         llm_fallback_content: Option<String>,
         configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
@@ -133,6 +169,8 @@ impl ContentGenerator for HtmlGenerator {
                 segment_id,
                 image_folder_location,
                 segment_image,
+                page_image,
+                use_extended_context,
                 llm_fallback_content,
                 configuration,
             )
@@ -177,20 +215,30 @@ impl ContentGenerator for MarkdownGenerator {
         }
     }
 
-    fn template_key(&self) -> &'static str {
-        match self.segment_type {
-            SegmentType::Caption => "md_caption",
-            SegmentType::Footnote => "md_footnote",
-            SegmentType::Formula => "formula",
-            SegmentType::ListItem => "md_list_item",
-            SegmentType::Page => "md_page",
-            SegmentType::PageFooter => "md_page_footer",
-            SegmentType::PageHeader => "md_page_header",
-            SegmentType::Picture => "md_picture",
-            SegmentType::SectionHeader => "md_section_header",
-            SegmentType::Table => "md_table",
-            SegmentType::Text => "md_text",
-            SegmentType::Title => "md_title",
+    fn template_key(&self, use_extended_context: bool) -> &'static str {
+        match (self.segment_type.clone(), use_extended_context) {
+            (SegmentType::Caption, false) => "md_caption",
+            (SegmentType::Caption, true) => "md_caption_extended",
+            (SegmentType::Footnote, false) => "md_footnote",
+            (SegmentType::Footnote, true) => "md_footnote_extended",
+            (SegmentType::Formula, _) => "formula_extended",
+            (SegmentType::ListItem, false) => "md_list_item",
+            (SegmentType::ListItem, true) => "md_list_item_extended",
+            (SegmentType::Page, _) => "md_page",
+            (SegmentType::PageFooter, false) => "md_page_footer",
+            (SegmentType::PageFooter, true) => "md_page_footer_extended",
+            (SegmentType::PageHeader, false) => "md_page_header",
+            (SegmentType::PageHeader, true) => "md_page_header_extended",
+            (SegmentType::Picture, false) => "md_picture",
+            (SegmentType::Picture, true) => "md_picture_extended",
+            (SegmentType::SectionHeader, false) => "md_section_header",
+            (SegmentType::SectionHeader, true) => "md_section_header_extended",
+            (SegmentType::Table, false) => "md_table",
+            (SegmentType::Table, true) => "md_table_extended",
+            (SegmentType::Text, false) => "md_text",
+            (SegmentType::Text, true) => "md_text_extended",
+            (SegmentType::Title, false) => "md_title",
+            (SegmentType::Title, true) => "md_title_extended",
         }
     }
 
@@ -203,6 +251,8 @@ impl ContentGenerator for MarkdownGenerator {
         segment_id: &str,
         image_folder_location: &str,
         segment_image: Arc<NamedTempFile>,
+        page_image: Option<Arc<NamedTempFile>>,
+        use_extended_context: bool,
         llm_fallback_content: Option<String>,
         configuration: &Configuration,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
@@ -211,6 +261,8 @@ impl ContentGenerator for MarkdownGenerator {
                 segment_id,
                 image_folder_location,
                 segment_image,
+                page_image,
+                use_extended_context,
                 llm_fallback_content,
                 configuration,
             )
@@ -248,7 +300,9 @@ async fn apply_generation_strategy<T: ContentGenerator>(
     generator: &T,
     auto_content: &str,
     segment_image: Option<Arc<NamedTempFile>>,
+    page_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
+    use_extended_context: bool,
     override_auto: String,
     llm_fallback_content: Option<String>,
     configuration: &Configuration,
@@ -258,15 +312,19 @@ async fn apply_generation_strategy<T: ContentGenerator>(
     }
 
     if segment_image.is_none() {
+        // Cannot use LLM without segment image, fallback to auto
         return Ok(generator.generate_auto(auto_content));
     }
+    let segment_image = segment_image.unwrap(); // Safe unwrap due to check above
 
     match generation_strategy {
         GenerationStrategy::LLM => Ok(generator
             .generate_llm(
                 segment_id,
                 image_folder_location,
-                segment_image.unwrap(),
+                segment_image,
+                page_image,
+                use_extended_context,
                 llm_fallback_content,
                 configuration,
             )
@@ -278,7 +336,9 @@ async fn apply_generation_strategy<T: ContentGenerator>(
 async fn generate_html(
     segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
+    page_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
+    use_extended_context: bool,
     fallback_content: Option<String>,
     image_folder_location: &str,
     configuration: &Configuration,
@@ -293,7 +353,9 @@ async fn generate_html(
             &generator,
             &segment.content.clone(),
             segment_image,
+            page_image,
             generation_strategy,
+            use_extended_context && generation_strategy == &GenerationStrategy::LLM, // Only pass true if LLM is used
             segment.html.clone(),
             fallback_content,
             configuration,
@@ -305,7 +367,9 @@ async fn generate_html(
 async fn generate_markdown(
     segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
+    page_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
+    use_extended_context: bool,
     fallback_content: Option<String>,
     image_folder_location: &str,
     configuration: &Configuration,
@@ -320,7 +384,9 @@ async fn generate_markdown(
             &generator,
             &segment.content.clone(),
             segment_image,
+            page_image,
             generation_strategy,
+            use_extended_context && generation_strategy == &GenerationStrategy::LLM, // Only pass true if LLM is used
             segment.markdown.clone(),
             fallback_content,
             configuration,
@@ -332,7 +398,9 @@ async fn generate_markdown(
 async fn generate_llm(
     segment: &Segment,
     segment_image: Option<Arc<NamedTempFile>>,
+    page_image: Option<Arc<NamedTempFile>>,
     llm_prompt: Option<String>,
+    use_extended_context: bool,
     llm_fallback_content: Option<String>,
     image_folder_location: &str,
     configuration: &Configuration,
@@ -340,21 +408,42 @@ async fn generate_llm(
     if llm_prompt.is_none() || segment_image.is_none() {
         return Ok(None);
     }
+    let segment_image = segment_image.unwrap(); // Safe unwrap
 
     let mut values = HashMap::new();
-    let file_url = get_file_url(
-        segment_image.as_ref().unwrap(),
+    let segment_image_url = get_file_url(
+        &segment_image,
         &format!("{}/{}.jpg", image_folder_location, segment.segment_id),
     )
     .await?;
     values.insert("segment_type".to_string(), segment.segment_type.to_string());
     values.insert("user_prompt".to_string(), llm_prompt.unwrap());
-    values.insert("image_url".to_string(), file_url);
+    values.insert("image_url".to_string(), segment_image_url);
 
-    let messages = create_messages_from_template("llm_segment", &values)?;
+    let template_key = if use_extended_context {
+        if let Some(page_img) = page_image {
+            let page_image_url = get_file_url(
+                &page_img,
+                &format!("{}/{}_page.jpg", image_folder_location, segment.segment_id), // Assuming page image name convention
+            )
+            .await?;
+            values.insert("page_image_url".to_string(), page_image_url);
+            "llm_segment_extended"
+        } else {
+            println!(
+                "Warning: Extended context requested for LLM field segment {} but page image not found.",
+                segment.segment_id
+            );
+            "llm_segment" // Fallback to non-extended if page image missing
+        }
+    } else {
+        "llm_segment"
+    };
+
+    let messages = create_messages_from_template(template_key, &values)?;
     let result = llm::try_extract_from_llm(
         messages,
-        None,
+        None, // LLM field extraction doesn't assume a fence type by default
         llm_fallback_content,
         configuration.llm_processing.clone(),
     )
@@ -367,9 +456,13 @@ async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
     segment_image: Option<Arc<NamedTempFile>>,
+    page_image: Option<Arc<NamedTempFile>>,
     image_folder_location: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let (html_strategy, markdown_strategy, llm_prompt) = match segment.segment_type.clone() {
+    let (html_strategy, markdown_strategy, llm_prompt, use_extended_context) = match segment
+        .segment_type
+        .clone()
+    {
         SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
             let config: &LlmGenerationConfig = match segment.segment_type {
                 SegmentType::Table => configuration.segment_processing.table.as_ref().unwrap(),
@@ -377,12 +470,22 @@ async fn process_segment(
                 SegmentType::Page => configuration.segment_processing.page.as_ref().unwrap(),
                 _ => unreachable!(),
             };
-            (&config.html, &config.markdown, &config.llm)
+            (
+                &config.html,
+                &config.markdown,
+                &config.llm,
+                config.use_extended_context,
+            )
         }
         SegmentType::Picture => {
             let config: &PictureGenerationConfig =
                 configuration.segment_processing.picture.as_ref().unwrap();
-            (&config.html, &config.markdown, &config.llm)
+            (
+                &config.html,
+                &config.markdown,
+                &config.llm,
+                config.use_extended_context,
+            )
         }
         segment_type => {
             let config: &AutoGenerationConfig = match segment_type {
@@ -412,7 +515,12 @@ async fn process_segment(
                     .unwrap(),
                 _ => unreachable!(),
             };
-            (&config.html, &config.markdown, &config.llm)
+            (
+                &config.html,
+                &config.markdown,
+                &config.llm,
+                config.use_extended_context,
+            )
         }
     };
 
@@ -429,7 +537,9 @@ async fn process_segment(
     let html = match generate_html(
         segment,
         segment_image.clone(),
+        page_image.clone(),
         html_strategy,
+        use_extended_context,
         fallback_html,
         image_folder_location,
         configuration,
@@ -453,7 +563,9 @@ async fn process_segment(
     let markdown = match generate_markdown(
         segment,
         segment_image.clone(),
+        page_image.clone(),
         markdown_strategy,
+        use_extended_context,
         fallback_markdown,
         image_folder_location,
         configuration,
@@ -477,7 +589,9 @@ async fn process_segment(
     let llm = match generate_llm(
         segment,
         segment_image.clone(),
+        page_image.clone(),
         llm_prompt.clone(),
+        use_extended_context,
         fallback_llm,
         image_folder_location,
         configuration,
@@ -519,15 +633,39 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     .await?;
     let configuration = pipeline.get_task()?.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
+    // Get the vector of page images generated by convert_to_images step
+    let page_images_vec = pipeline.page_images.as_ref().ok_or_else(|| {
+        Box::<dyn std::error::Error>::from("Page images vector not found in pipeline")
+    })?;
+
     let futures: Vec<_> = pipeline
         .chunks
         .iter_mut()
         .flat_map(|chunk| {
             chunk.segments.iter_mut().map(|segment| {
+                // Get the corresponding page image using the segment's page number
+                // Cast u32 page_number to usize for indexing
+                let segment_page_image = page_images_vec
+                    .get(segment.page_number as usize) // Cast to usize here
+                    .cloned();
+
+                // Handle potential missing page image
+                if segment_page_image.is_none() {
+                    println!(
+                        "Warning: Page image not found for segment {} on page {}",
+                        segment.segment_id, segment.page_number
+                    );
+                }
+
+                // Correctly get and clone the Arc from the DashMap Ref
+                let segment_image_ref = segment_images.get(&segment.segment_id);
+                let segment_image_cloned = segment_image_ref.map(|r| r.value().clone());
+
                 process_segment(
                     segment,
                     &configuration,
-                    segment_images.get(&segment.segment_id).map(|r| r.clone()),
+                    segment_image_cloned, // Pass the cloned Arc
+                    segment_page_image,
                     &task.image_folder_location,
                 )
             })

@@ -109,6 +109,10 @@ pub struct AutoGenerationConfig {
     #[serde(default = "default_embed_sources")]
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
+    /// Use the full page image as context for LLM generation
+    #[serde(default)]
+    #[schema(default = true)]
+    pub use_extended_context: bool,
 }
 
 fn default_cropping_strategy() -> CroppingStrategy {
@@ -135,6 +139,7 @@ impl Default for AutoGenerationConfig {
             markdown: GenerationStrategy::Auto,
             crop_image: default_cropping_strategy(),
             embed_sources: default_embed_sources(),
+            use_extended_context: false,
         }
     }
 }
@@ -165,6 +170,10 @@ pub struct LlmGenerationConfig {
     #[serde(default = "default_embed_sources")]
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
+    /// Use the full page image as context for LLM generation
+    #[serde(default)]
+    #[schema(default = false)]
+    pub use_extended_context: bool,
 }
 
 impl Default for LlmGenerationConfig {
@@ -175,6 +184,7 @@ impl Default for LlmGenerationConfig {
             markdown: GenerationStrategy::LLM,
             crop_image: default_cropping_strategy(),
             embed_sources: default_embed_sources(),
+            use_extended_context: false,
         }
     }
 }
@@ -205,6 +215,10 @@ pub struct PictureGenerationConfig {
     #[serde(default = "default_embed_sources")]
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
+    /// Use the full page image as context for LLM generation
+    #[serde(default)]
+    #[schema(default = false)]
+    pub use_extended_context: bool,
 }
 
 impl Default for PictureGenerationConfig {
@@ -215,6 +229,7 @@ impl Default for PictureGenerationConfig {
             markdown: GenerationStrategy::Auto,
             crop_image: default_picture_cropping_strategy(),
             embed_sources: default_embed_sources(),
+            use_extended_context: false,
         }
     }
 }
