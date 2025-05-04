@@ -55,9 +55,9 @@ common:
     - name: EMAIL__SERVER_URL
       value: http://{{- .Release.Name }}-emails:8000
     - name: LLM__MODEL
-      value: gpt-4.1-mini-2025-04-14
+      value: gpt-4.1-2025-04-14
     - name: LLM__FALLBACK_MODEL
-      value: gpt-4o-2024-08-06
+      value: gpt-4.1-mini-2025-04-14
     - name: LLM__URL
       value: https://api.openai.com/v1/chat/completions
 global:
