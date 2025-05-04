@@ -200,3 +200,8 @@ services:
           readOnly: true
           volumeAttributes:
             secretProviderClass: chunkr
+  ocr:
+    enabled: false
+  segmentation:
+    enabled: false
+
