@@ -1,7 +1,7 @@
 [
   {
     "role": "user",
-    "content": "OCR the table segment ({image_url}), using the context of the full page it came from ({page_image_url}) if necessary for understanding headers or structure, and convert it to HTML. Output the HTML directly in ```html``` tags."
+    "content": "OCR the table segment ({image_url}), using the context of the full page it came from ({page_image_url}) if necessary as augmentation for the specific segment (dont just copy paste extra text - use full page context to fill in visual gaps - e.g. finding out if there is a legend for the image). FOCUS ONLY ON THE CONTENT IN THE SEGMENT IMAGE, not other parts of the page. Convert it to HTML. When visual information like legends or color coding exists, incorporate it directly into the table structure (e.g., as column headers) when possible or include it separately if needed. If you make a table, do not add any styling, color fill or CSS. In your output DO NOT add any coloring or fill. If there is visual context (e.g. a legend or color coding) tactfully include it as text (do not render any colors) in the table/description you generate. Do not use any meta commentary like 'the table contains...', just focus on extraction. Output the HTML directly in ```html``` tags."
   },
   {
     "role": "user",

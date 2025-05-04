@@ -23,6 +23,7 @@ class GenerationConfig(BaseModel):
     markdown: Optional[GenerationStrategy] = None
     crop_image: Optional[CroppingStrategy] = None
     embed_sources: Optional[List[EmbedSource]] = Field(default_factory=lambda: [EmbedSource.MARKDOWN])
+    use_extended_context: Optional[bool] = None
 
 class SegmentProcessing(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=str.title)

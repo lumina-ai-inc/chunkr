@@ -1,0 +1,15 @@
+[
+  {
+    "role": "user",
+    "content": "OCR the table segment ({image_url}), using the context of the full page it came from ({page_image_url}) if necessary for understanding headers or structure, and convert it to HTML. If you make a table, do not add any styling, color fill or CSS. In your output DO NOT add any coloring or fill. If there is visual context (e.g. a legend or color coding) tactfully include it as text (do not render any colors) in the table/description you generate. Do not mention that the content comes from the full page context (e.g., avoid phrases like 'as seen in the full page context'). Output the HTML directly in ```html``` tags."
+  },
+  {
+    "role": "user",
+    "content": [
+      { "type": "text", "text": "Segment Image:" },
+      { "type": "image_url", "image_url": { "url": "{image_url}" } },
+      { "type": "text", "text": "Full Page Image:" },
+      { "type": "image_url", "image_url": { "url": "{page_image_url}" } }
+    ]
+  }
+] 

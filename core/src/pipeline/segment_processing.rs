@@ -125,28 +125,44 @@ impl ContentGenerator for HtmlGenerator {
 
     fn template_key(&self, use_extended_context: bool) -> &'static str {
         match (self.segment_type.clone(), use_extended_context) {
-            (SegmentType::Caption, false) => "html_caption",
-            (SegmentType::Caption, true) => "html_caption_extended",
-            (SegmentType::Footnote, false) => "html_footnote",
-            (SegmentType::Footnote, true) => "html_footnote_extended",
-            (SegmentType::Formula, _) => "formula_extended",
-            (SegmentType::ListItem, false) => "html_list_item",
-            (SegmentType::ListItem, true) => "html_list_item_extended",
+            (SegmentType::Table | SegmentType::Picture, true) => {
+                println!(
+                    "Using HTML extended context for segment_type={:?}",
+                    self.segment_type
+                );
+                match self.segment_type {
+                    SegmentType::Table => "html_table_extended",
+                    SegmentType::Picture => "html_picture_extended",
+                    _ => unreachable!(),
+                }
+            }
             (SegmentType::Page, _) => "html_page",
-            (SegmentType::PageFooter, false) => "html_page_footer",
-            (SegmentType::PageFooter, true) => "html_page_footer_extended",
-            (SegmentType::PageHeader, false) => "html_page_header",
-            (SegmentType::PageHeader, true) => "html_page_header_extended",
-            (SegmentType::Picture, false) => "html_picture",
-            (SegmentType::Picture, true) => "html_picture_extended",
-            (SegmentType::SectionHeader, false) => "html_section_header",
-            (SegmentType::SectionHeader, true) => "html_section_header_extended",
-            (SegmentType::Table, false) => "html_table",
-            (SegmentType::Table, true) => "html_table_extended",
-            (SegmentType::Text, false) => "html_text",
-            (SegmentType::Text, true) => "html_text_extended",
-            (SegmentType::Title, false) => "html_title",
-            (SegmentType::Title, true) => "html_title_extended",
+            (segment_type, true) => match segment_type {
+                SegmentType::Caption => "html_caption_extended",
+                SegmentType::Footnote => "html_footnote_extended",
+                SegmentType::Formula => "formula_extended",
+                SegmentType::ListItem => "html_list_item_extended",
+                SegmentType::PageFooter => "html_page_footer_extended",
+                SegmentType::PageHeader => "html_page_header_extended",
+                SegmentType::SectionHeader => "html_section_header_extended",
+                SegmentType::Text => "html_text_extended",
+                SegmentType::Title => "html_title_extended",
+                _ => unreachable!(),
+            },
+            (segment_type, false) => match segment_type {
+                SegmentType::Caption => "html_caption",
+                SegmentType::Footnote => "html_footnote",
+                SegmentType::Formula => "formula_extended",
+                SegmentType::ListItem => "html_list_item",
+                SegmentType::PageFooter => "html_page_footer",
+                SegmentType::PageHeader => "html_page_header",
+                SegmentType::Picture => "html_picture",
+                SegmentType::SectionHeader => "html_section_header",
+                SegmentType::Table => "html_table",
+                SegmentType::Text => "html_text",
+                SegmentType::Title => "html_title",
+                _ => unreachable!(),
+            },
         }
     }
 
@@ -216,7 +232,18 @@ impl ContentGenerator for MarkdownGenerator {
     }
 
     fn template_key(&self, use_extended_context: bool) -> &'static str {
-        match (self.segment_type.clone(), use_extended_context) {
+        let (segment_type, result) = match (self.segment_type.clone(), use_extended_context) {
+            (SegmentType::Table | SegmentType::Picture, true) => {
+                println!(
+                    "Using Markdown extended context for segment_type={:?}",
+                    self.segment_type
+                );
+                (self.segment_type.clone(), true)
+            }
+            (segment_type, _) => (segment_type, false),
+        };
+
+        match (segment_type, result) {
             (SegmentType::Caption, false) => "md_caption",
             (SegmentType::Caption, true) => "md_caption_extended",
             (SegmentType::Footnote, false) => "md_footnote",
@@ -643,11 +670,12 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .iter_mut()
         .flat_map(|chunk| {
             chunk.segments.iter_mut().map(|segment| {
-                // Get the corresponding page image using the segment's page number
-                // Cast u32 page_number to usize for indexing
-                let segment_page_image = page_images_vec
-                    .get(segment.page_number as usize) // Cast to usize here
-                    .cloned();
+                let page_index = if segment.page_number > 0 {
+                    (segment.page_number - 1) as usize
+                } else {
+                    0
+                };
+                let segment_page_image = page_images_vec.get(page_index).cloned();
 
                 // Handle potential missing page image
                 if segment_page_image.is_none() {
