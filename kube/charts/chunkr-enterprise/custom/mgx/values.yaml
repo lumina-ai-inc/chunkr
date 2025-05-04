@@ -6,7 +6,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
   domain: chunkr.ai
   subdomains:
-    root: true
+    root: false
   tls:
     enabled: false
     secretName: tls-secret
@@ -18,7 +18,7 @@ ingress:
       tag: 2025.2.0
       pullPolicy: Always
     config:
-      tunnelName: chunkr
+      tunnelName: mgx-tunnel
       services:
         - name: server
         - name: keycloak
@@ -62,9 +62,9 @@ common:
       value: https://api.openai.com/v1/chat/completions
 global:
   image:
-    registry: luminainc
+    registry: mgxchunkracr.azurecr.io
     pullPolicy: Always
-  storageClass: standard
+  storageClass: default
   gpuWorkload:
     affinity:
       podAntiAffinity:
@@ -106,12 +106,12 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.14.0-enterprise
+      tag: 1.15.0-enterprise-mgx-0.0.2
     port: 8000
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: api
+      subdomain: mgx-api
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -136,7 +136,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 1.14.0-enterprise
+      tag: 1.15.0-enterprise-mgx-0.0.2
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -160,12 +160,12 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.14.0-enterprise
+      tag: 1.15.0-enterprise-mgx-0.0.2
     port: 8000
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: www
+      subdomain: mgx
     env:
       - name: VITE_API_URL
         value: >-
@@ -200,91 +200,3 @@ services:
           readOnly: true
           volumeAttributes:
             secretProviderClass: chunkr
-  ocr:
-    enabled: false
-    image:
-      repository: doctr
-      tag: 1.11.0-enterprise
-    imagePullSecrets:
-      - name: regcred
-    port: 8000
-    targetPort: 8000
-    useGPU: true
-    enableTopologySpreadConstraints: true
-    env:
-      - name: MAX_BATCH_SIZE
-        value: "100"
-    labels:
-      workload-type: chunkr-gpu
-  segmentation:
-    enabled: true
-    image:
-      repository: segmentation
-      tag: 1.5.0
-    imagePullSecrets:
-      - name: regcred
-    port: 8000
-    targetPort: 8000
-    useGPU: true
-    enableTopologySpreadConstraints: true
-    labels:
-      workload-type: chunkr-gpu
-  analytics-web:
-    enabled: false
-    image:
-      repository: analytics-web
-      tag: 1.11.0-enterprise
-    imagePullSecrets:
-      - name: regcred
-    port: 8000
-    targetPort: 8000
-    ingress:
-      enabled: true
-      subdomain: analytics
-    env:
-      - name: VITE_API_URL
-        value: >-
-          https://{{ index .Values.services "analytics-server" "ingress"
-          "subdomain" }}.{{ .Values.ingress.domain }}
-  analytics-server:
-    enabled: false
-    image:
-      repository: analytics-server
-      tag: 1.11.0-enterprise
-    imagePullSecrets:
-      - name: regcred
-    port: 8000
-    targetPort: 8000
-    ingress:
-      enabled: true
-      subdomain: analytics-api
-    env:
-      - name: API_KEY
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: ANALYTICS-API-KEY
-      - name: DATABASE_URL
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: PG-URL
-  cleanup-failed-pods:
-    enabled: false
-    type: cronjob
-    schedule: "*/15 * * * *"
-    image:
-      registry: bitnami
-      repository: kubectl
-      tag: 1.14.0-enterprise
-    command:
-      - kubectl
-    args:
-      - delete
-      - pods
-      - "--field-selector=status.phase=Failed"
-      - "-n"
-      - chunkr
-    serviceAccountName: default
-    podSpec:
-      restartPolicy: OnFailure
