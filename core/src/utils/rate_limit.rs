@@ -200,11 +200,7 @@ fn create_general_ocr_timeout() -> Option<u64> {
 }
 
 fn create_llm_rate_limiter(bucket_name: &str, rate_limit: Option<f32>) -> Option<RateLimiter> {
-    if let Some(rate_limit) = rate_limit {
-        Some(RateLimiter::new(rate_limit, bucket_name))
-    } else {
-        None
-    }
+    rate_limit.map(|rate_limit| RateLimiter::new(rate_limit, bucket_name))
 }
 
 fn create_llm_timeout() -> Option<u64> {

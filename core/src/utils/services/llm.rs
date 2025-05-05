@@ -33,7 +33,7 @@ pub async fn open_ai_call(
     let mut messages_with_images = 0;
     let mut total_image_parts = 0;
 
-    for (_i, message) in messages.iter().enumerate() {
+    for message in messages.iter() {
         total_messages += 1;
         let mut has_images = false;
 

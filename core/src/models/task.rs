@@ -358,7 +358,7 @@ impl Task {
                 {
                     self.message = Some(msg.clone());
                     return Err(Box::new(TimeoutError {
-                        message: format!("Task has timed out and cannot be updated"),
+                        message: "Task has timed out and cannot be updated".to_string(),
                     }));
                 }
             }
