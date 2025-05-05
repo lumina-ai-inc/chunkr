@@ -170,11 +170,11 @@ def extended_context_config():
     return Configuration(
         segment_processing=SegmentProcessing(
             picture=GenerationConfig(
-                use_extended_context=True,
+                extended_context=True,
                 html=GenerationStrategy.LLM,
             ),
             table=GenerationConfig(
-                use_extended_context=True,
+                extended_context=True,
                 html=GenerationStrategy.LLM,
             )
         ),
