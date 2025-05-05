@@ -8,7 +8,6 @@ use crate::models::task::{Configuration, Status};
 use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
-use image;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
@@ -485,7 +484,7 @@ async fn process_segment(
     page_image: Option<Arc<NamedTempFile>>,
     image_folder_location: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let (html_strategy, markdown_strategy, llm_prompt, use_extended_context) = match segment
+    let (html_strategy, markdown_strategy, llm_prompt, use_extended_context_config) = match segment
         .segment_type
         .clone()
     {
@@ -549,6 +548,15 @@ async fn process_segment(
             )
         }
     };
+
+    // Determine effective use_extended_context based on config AND page_image presence
+    let use_extended_context = use_extended_context_config && page_image.is_some();
+    if use_extended_context_config && page_image.is_none() {
+        println!(
+            "Warning: Extended context requested for segment {} but page image not found. Falling back.",
+            segment.segment_id
+        );
+    }
 
     let (fallback_html, fallback_markdown, fallback_llm) = match segment.segment_type.clone() {
         SegmentType::Table => (
