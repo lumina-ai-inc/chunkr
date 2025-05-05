@@ -76,6 +76,7 @@ export interface SegmentProcessingConfig {
   llm?: string;
   markdown: GenerationStrategy;
   embed_sources?: EmbedSource[];
+  extended_context: boolean;
 }
 
 /**
@@ -157,6 +158,7 @@ const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
   html: GenerationStrategy.Auto,
   markdown: GenerationStrategy.Auto,
   embed_sources: [EmbedSource.MARKDOWN],
+  extended_context: false,
 };
 
 const DEFAULT_TABLE_CONFIG: SegmentProcessingConfig = {
@@ -164,6 +166,7 @@ const DEFAULT_TABLE_CONFIG: SegmentProcessingConfig = {
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
   embed_sources: [EmbedSource.MARKDOWN],
+  extended_context: false,
 };
 
 const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
@@ -171,6 +174,7 @@ const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
   embed_sources: [EmbedSource.MARKDOWN],
+  extended_context: false,
 };
 
 const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
@@ -178,6 +182,7 @@ const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
   html: GenerationStrategy.LLM,
   markdown: GenerationStrategy.LLM,
   embed_sources: [EmbedSource.MARKDOWN],
+  extended_context: false,
 };
 
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
