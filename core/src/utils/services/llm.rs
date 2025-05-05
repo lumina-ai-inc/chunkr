@@ -1,6 +1,6 @@
 use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
 use crate::models::llm::LlmProcessing;
-use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
+use crate::models::open_ai::{ContentPart, Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
@@ -27,6 +27,35 @@ pub async fn open_ai_call(
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     println!("OpenAI call with model: {:?}", model);
+
+    // Count message types and structure
+    let mut total_messages = 0;
+    let mut messages_with_images = 0;
+    let mut total_image_parts = 0;
+
+    for (i, message) in messages.iter().enumerate() {
+        total_messages += 1;
+        let mut has_images = false;
+
+        if let MessageContent::Array { content: parts } = &message.content {
+            for part in parts {
+                if part.content_type == "image_url" && part.image_url.is_some() {
+                    has_images = true;
+                    total_image_parts += 1;
+                }
+            }
+        }
+
+        if has_images {
+            messages_with_images += 1;
+        }
+    }
+
+    println!(
+        "LLM Request structure: {} messages total, {} messages with images, {} total image parts",
+        total_messages, messages_with_images, total_image_parts
+    );
+
     let request = OpenAiRequest {
         model: model.clone(),
         messages,

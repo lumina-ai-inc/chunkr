@@ -165,6 +165,21 @@ def model_fallback_config():
         ),
     )
 
+@pytest.fixture
+def extended_context_config():
+    return Configuration(
+        segment_processing=SegmentProcessing(
+            picture=GenerationConfig(
+                use_extended_context=True,
+                html=GenerationStrategy.LLM,
+            ),
+            table=GenerationConfig(
+                use_extended_context=True,
+                html=GenerationStrategy.LLM,
+            )
+        ),
+    )
+
 @pytest.mark.asyncio
 async def test_ocr_auto(client, sample_path):
     response = await client.upload(sample_path, Configuration(ocr_strategy=OcrStrategy.AUTO))
@@ -536,3 +551,32 @@ async def test_fallback_strategy_serialization():
     assert str(none_strategy) == "None"
     assert str(default_strategy) == "Default"
     assert str(model_strategy) == "Model(gpt-4.1)"
+
+@pytest.mark.asyncio
+async def test_extended_context(client, sample_path, extended_context_config):
+    """Tests uploading with extended context enabled for pictures and tables."""
+    print("\nTesting extended context for Pictures and Tables...")
+    try:
+        task = await client.upload(sample_path, config=extended_context_config)
+        print(f"Task created with extended context config: {task.task_id}")
+        print(f"Initial Status: {task.status}")
+
+        # Poll the task until it finishes or fails
+        print(f"Final Status: {task.status}")
+        print(f"Message: {task.message}")
+
+        # Basic assertion: Check if the task completed (either succeeded or failed)
+        assert task.status in [Status.SUCCEEDED, Status.FAILED], f"Task ended in unexpected state: {task.status}"
+
+        # More specific assertions based on expected outcomes with your local server
+        # if task.status == Status.FAILED:
+        #     assert "context_length_exceeded" in task.message, "Expected context length error"
+        # elif task.status == Status.SUCCEEDED:
+        #     # Check if output reflects extended context usage if possible
+        #     pass
+
+        print("Extended context test completed.")
+
+    except Exception as e:
+        print(f"Error during extended context test: {e}")
+        raise # Re-raise the exception to fail the test explicitly

@@ -1,14 +1,14 @@
 [
   {
     "role": "user",
-    "content": "Describe the image segment provided ({image_url}), using the context of the full page it came from ({page_image_url}) if necessary as augmentation for the specific segment (dont just copy paste extra text - use full page context to fill in visual gaps - e.g. finding out if there is a legend for the image). FOCUS ONLY ON THE CONTENT IN THE SEGMENT IMAGE, not other parts of the page. Use and maintain all values and text from the image. Additionally and optionally, if the picture can logically be converted into a table, do so, preserving all values and text from the image. When visual information like legends or color coding exists, incorporate it directly into the table structure (e.g., as column headers) when possible or include it separately if needed. Do not turn schematics into ASCII representations. Be detailed, include any visible text. Use HTML (<p> or <table>) to structure the text. If you make a table, do not add any styling, color fill or CSS. In your output DO NOT add any coloring or fill. If there is visual context (e.g. a legend or color coding) tactfully include it as text (do not render any colors) in the table/description you generate. Do not use any meta commentary like 'the image contains...', just focus on extraction. Output the text directly in ```html``` tags."
+    "content": "Your task is to analyze the content strictly *within* the provided picture segment image. Use the accompanying full page image *only* as context to better understand the segment, for example, to interpret chart axes, legends, or resolve ambiguities in labels or connections shown within the segment. **Do not include any content from the full page image that falls outside the picture segment's boundaries.**\n\nDescribe the segment's content using HTML, often by converting charts or diagrams into an HTML `<table>` or descriptive `<p>` tags. Use and maintain all text and data visible *within the segment*. **Crucially, if visual information *within the segment* (like colors, line styles, symbols, arrows, positional relationships) relies on context from the full page (like a legend or axis labels), integrate the *meaning* of that context directly into the generated HTML.** For example, if a bar in the segment is red and the legend on the full page indicates red means 'Error', represent this in the table/description (e.g., a column named 'Status' with value 'Error', or text stating '...represents an Error state'). The goal is to make the HTML output self-contained, conveying the segment's visual information and its contextually derived meaning textually.\n\nFollow these rules:\n- Focus **exclusively** on the content visible within the picture segment image.\n- Use the full page image for interpretation context **only**.\n- If converting to a table, structure it logically based on the segment's content and context.\n- Integrate the *meaning* of contextual elements (like legends, axes) relevant to the segment's content, not the contextual elements themselves if they are outside the segment.\n- Do not turn schematics into ASCII art.\n- Be detailed in descriptions or table data based *only* on the segment.\n- Do not add styling, color fill, or CSS. Do not render any colors directly in the output. Instead, represent the *meaning* derived from color purely through text (e.g., add a 'Status' column, or include it parenthetically like 'Value (Color: Red, Meaning: Error)' or 'Category A (Red): 30%').\n- Do not use meta commentary (e.g., 'the image contains...').\n- Output **only** the final HTML markup enclosed in ```html``` tags. No explanations."
   },
   {
     "role": "user",
     "content": [
       {
         "type": "text",
-        "text": "Segment Image:"
+        "text": "Segment Image (Picture):"
       },
       {
         "type": "image_url",
@@ -18,7 +18,7 @@
       },
       {
         "type": "text",
-        "text": "Full Page Image:"
+        "text": "Full Page Image (Context):"
       },
       {
         "type": "image_url",
@@ -28,4 +28,4 @@
       }
     ]
   }
-] 
+]

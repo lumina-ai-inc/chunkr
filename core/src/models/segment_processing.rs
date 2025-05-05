@@ -111,7 +111,7 @@ pub struct AutoGenerationConfig {
     pub embed_sources: Vec<EmbedSource>,
     /// Use the full page image as context for LLM generation
     #[serde(default)]
-    #[schema(default = true)]
+    #[schema(default = false)]
     pub use_extended_context: bool,
 }
 
@@ -139,7 +139,7 @@ impl Default for AutoGenerationConfig {
             markdown: GenerationStrategy::Auto,
             crop_image: default_cropping_strategy(),
             embed_sources: default_embed_sources(),
-            use_extended_context: true,
+            use_extended_context: false,
         }
     }
 }
@@ -171,9 +171,13 @@ pub struct LlmGenerationConfig {
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
     /// Use the full page image as context for LLM generation
-    #[serde(default = "default_extended_context")]
+    #[serde(default = "default_table_extended_context")]
     #[schema(default = true)]
     pub use_extended_context: bool,
+}
+
+fn default_table_extended_context() -> bool {
+    true
 }
 
 impl Default for LlmGenerationConfig {
@@ -184,7 +188,7 @@ impl Default for LlmGenerationConfig {
             markdown: GenerationStrategy::LLM,
             crop_image: default_cropping_strategy(),
             embed_sources: default_embed_sources(),
-            use_extended_context: true,
+            use_extended_context: default_extended_context(),
         }
     }
 }
@@ -216,9 +220,13 @@ pub struct PictureGenerationConfig {
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
     /// Use the full page image as context for LLM generation
-    #[serde(default = "default_extended_context")]
-    #[schema(default = true)]
+    #[serde(default = "default_picture_extended_context")]
+    #[schema(default = false)]
     pub use_extended_context: bool,
+}
+
+fn default_picture_extended_context() -> bool {
+    true
 }
 
 impl Default for PictureGenerationConfig {
@@ -229,7 +237,7 @@ impl Default for PictureGenerationConfig {
             markdown: GenerationStrategy::Auto,
             crop_image: default_picture_cropping_strategy(),
             embed_sources: default_embed_sources(),
-            use_extended_context: true,
+            use_extended_context: default_picture_extended_context(),
         }
     }
 }

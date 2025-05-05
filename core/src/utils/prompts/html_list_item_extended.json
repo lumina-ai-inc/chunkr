@@ -1,7 +1,7 @@
 [
   {
     "role": "user",
-    "content": "Convert the following list item segment ({image_url}), using the context of the full page it came from ({page_image_url}) if necessary, to HTML. Return only the HTML with no explanation text. Do not exclude any content from the list item.\n\nSometimes this list item contains a table, image, text-heavy image, or other content. If it is not a list item, analyze and convert the content appropriately to HTML format while maintaining the original structure and content. If there is a table, convert it to HTML table format. If there are images, describe them in text within the HTML.\nYou must transcribe all the text.\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.\n"
+    "content": "Convert the following list item segment, using the context of the full page it came from if necessary, to HTML. Return only the HTML with no explanation text. Do not exclude any content from the list item.\n\nSometimes this list item contains a table, image, text-heavy image, or other content. If it is not a list item, analyze and convert the content appropriately to HTML format while maintaining the original structure and content. If there is a table, convert it to HTML table format. If there are images, describe them in text within the HTML.\nYou must transcribe all the text.\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.\n"
   },
   {
     "role": "user",
@@ -28,4 +28,4 @@
       }
     ]
   }
-] 
+]
