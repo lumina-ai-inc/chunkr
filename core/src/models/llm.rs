@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, PartialEq, Eq, Default)]
 /// Specifies the fallback strategy for LLM processing
 ///
 /// This can be:
@@ -15,16 +15,10 @@ pub enum FallbackStrategy {
     /// No fallback will be used
     None,
     /// Use the system default fallback model
+    #[default]
     Default,
     /// Use a specific model as fallback
     Model(String),
-}
-
-// Default implementation for FallbackStrategy
-impl Default for FallbackStrategy {
-    fn default() -> Self {
-        FallbackStrategy::Default
-    }
 }
 
 // Manual implementation of ToSql for FallbackStrategy
