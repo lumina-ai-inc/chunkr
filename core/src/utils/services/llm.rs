@@ -1,6 +1,6 @@
 use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
 use crate::models::llm::LlmProcessing;
-use crate::models::open_ai::{ContentPart, Message, MessageContent, OpenAiRequest, OpenAiResponse};
+use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
