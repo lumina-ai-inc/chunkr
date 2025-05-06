@@ -208,3 +208,7 @@ services:
     enabled: false
   embeddings:
     enabled: false
+  analytics-web:
+    enabled: false
+  analytics-api:
+    enabled: false
