@@ -193,10 +193,7 @@ trait ContentGenerator {
                 ).await?;
                 values.insert("page_image_url".to_string(), page_image_url);
             } else {
-                println!(
-                    "Warning: Extended context requested for segment {} but page image not found.",
-                    params.segment_id
-                );
+                return Err("Page image not found".into());
             }
         }
 
@@ -256,7 +253,7 @@ impl ContentGenerator for HtmlGenerator {
     fn template_key(&self, extended_context: bool) -> &'static str {
         match (self.segment_type.clone(), extended_context) {
             (SegmentType::Table | SegmentType::Picture, true) => {
-                println!("Using HTML extended context for segment_type={:?}", self.segment_type);
+                println!("Using HTML extended context for {:?}", self.segment_type);
                 match self.segment_type {
                     SegmentType::Table => "html_table_extended",
                     SegmentType::Picture => "html_picture_extended",
@@ -348,7 +345,7 @@ impl ContentGenerator for MarkdownGenerator {
         let (segment_type, result) = match (self.segment_type.clone(), extended_context) {
             (SegmentType::Table | SegmentType::Picture, true) => {
                 println!(
-                    "Using Markdown extended context for segment_type={:?}",
+                    "Using Markdown extended context for {:?}",
                     self.segment_type
                 );
                 (self.segment_type.clone(), true)
@@ -519,7 +516,7 @@ async fn process_segment(
     page_image: Option<Arc<NamedTempFile>>,
     image_folder_location: &str
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let (html_strategy, markdown_strategy, llm_prompt, extended_context_config) = match
+    let (html_strategy, markdown_strategy, llm_prompt, extended_context) = match
         segment.segment_type.clone()
     {
         SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
@@ -559,15 +556,6 @@ async fn process_segment(
             (&config.html, &config.markdown, &config.llm, config.extended_context)
         }
     };
-
-    // Determine effective extended_context based on config AND page_image presence
-    let extended_context = extended_context_config && page_image.is_some();
-    if extended_context_config && page_image.is_none() {
-        println!(
-            "Warning: Extended context requested for segment {} but page image not found. Falling back.",
-            segment.segment_id
-        );
-    }
 
     let (fallback_html, fallback_markdown, fallback_llm) = match segment.segment_type.clone() {
         SegmentType::Table =>
@@ -692,15 +680,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
                     0
                 };
                 let segment_page_image = page_images.get(page_index).cloned();
-
-                // Handle potential missing page image
-                if segment_page_image.is_none() {
-                    println!(
-                        "Warning: Page image not found for segment {} on page {}",
-                        segment.segment_id,
-                        segment.page_number
-                    );
-                }
 
                 let segment_image_ref = segment_images.get(&segment.segment_id);
                 let segment_image_cloned = segment_image_ref.map(|r| r.value().clone());
