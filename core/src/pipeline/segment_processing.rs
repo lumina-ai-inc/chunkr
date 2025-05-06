@@ -344,10 +344,7 @@ impl ContentGenerator for MarkdownGenerator {
     fn template_key(&self, extended_context: bool) -> &'static str {
         let (segment_type, result) = match (self.segment_type.clone(), extended_context) {
             (SegmentType::Table | SegmentType::Picture, true) => {
-                println!(
-                    "Using Markdown extended context for {:?}",
-                    self.segment_type
-                );
+                println!("Using Markdown extended context for {:?}", self.segment_type);
                 (self.segment_type.clone(), true)
             }
             (segment_type, _) => (segment_type, false),
@@ -579,20 +576,6 @@ async fn process_segment(
         configuration
     );
 
-    let html = match generate_html(&html_params).await {
-        Ok(content) => content,
-        Err(e) => {
-            if configuration.error_handling == ErrorHandlingStrategy::Continue {
-                let html_generator = HtmlGenerator {
-                    segment_type: segment.segment_type.clone(),
-                };
-                html_generator.generate_auto(&segment.content)
-            } else {
-                return Err(e);
-            }
-        }
-    };
-
     // Process Markdown with error handling using new parameter struct
     let markdown_params = ContentGenerationParams::new(
         segment,
@@ -604,20 +587,6 @@ async fn process_segment(
         image_folder_location,
         configuration
     );
-
-    let markdown = match generate_markdown(&markdown_params).await {
-        Ok(content) => content,
-        Err(e) => {
-            if configuration.error_handling == ErrorHandlingStrategy::Continue {
-                let markdown_generator = MarkdownGenerator {
-                    segment_type: segment.segment_type.clone(),
-                };
-                markdown_generator.generate_auto(&segment.content)
-            } else {
-                return Err(e);
-            }
-        }
-    };
 
     // Process LLM with error handling using new parameter struct
     let llm_params = StandaloneLlmParams::new(
@@ -631,16 +600,53 @@ async fn process_segment(
         configuration
     );
 
-    let llm = match generate_llm(&llm_params).await {
-        Ok(content) => content,
-        Err(e) => {
-            if configuration.error_handling == ErrorHandlingStrategy::Continue {
-                None
-            } else {
-                return Err(e);
+    // Create futures for all three operations so they can run concurrently
+    let html_future = async {
+        match generate_html(&html_params).await {
+            Ok(content) => Ok(content),
+            Err(e) => {
+                if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                    let html_generator = HtmlGenerator {
+                        segment_type: segment.segment_type.clone(),
+                    };
+                    Ok(html_generator.generate_auto(&segment.content))
+                } else {
+                    Err(e)
+                }
             }
         }
     };
+
+    let markdown_future = async {
+        match generate_markdown(&markdown_params).await {
+            Ok(content) => Ok(content),
+            Err(e) => {
+                if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                    let markdown_generator = MarkdownGenerator {
+                        segment_type: segment.segment_type.clone(),
+                    };
+                    Ok(markdown_generator.generate_auto(&segment.content))
+                } else {
+                    Err(e)
+                }
+            }
+        }
+    };
+
+    let llm_future = async {
+        match generate_llm(&llm_params).await {
+            Ok(content) => Ok(content),
+            Err(e) => {
+                if configuration.error_handling == ErrorHandlingStrategy::Continue {
+                    Ok(None)
+                } else {
+                    Err(e)
+                }
+            }
+        }
+    };
+
+    let (html, markdown, llm) = tokio::try_join!(html_future, markdown_future, llm_future)?;
 
     segment.content = convert_checkboxes(&segment.content);
     segment.html = convert_checkboxes_html(&html);
@@ -680,7 +686,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
                     0
                 };
                 let segment_page_image = page_images.get(page_index).cloned();
-
                 let segment_image_ref = segment_images.get(&segment.segment_id);
                 let segment_image_cloned = segment_image_ref.map(|r| r.value().clone());
 
