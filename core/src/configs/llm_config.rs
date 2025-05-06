@@ -1,9 +1,9 @@
-use crate::models::llm::{FallbackStrategy, LlmProcessing};
+use crate::models::llm::{ FallbackStrategy, LlmProcessing };
 use crate::models::open_ai::Message;
-use config::{Config as ConfigTrait, ConfigError};
+use config::{ Config as ConfigTrait, ConfigError };
 use dotenvy::dotenv_override;
 use once_cell::sync::Lazy;
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 use std::collections::HashMap;
 use std::fs;
 use std::sync::RwLock;
@@ -86,14 +86,16 @@ impl Config {
             }
         }
 
-        if config.llm_models.is_none()
-            && config.model.is_some()
-            && config.url.is_some()
-            && config.key.is_some()
+        if
+            config.llm_models.is_none() &&
+            config.model.is_some() &&
+            config.url.is_some() &&
+            config.key.is_some()
         {
+            let default_model_id = config.model.clone().unwrap();
             let default_model = LlmModel {
-                id: "default".to_string(),
-                model: config.model.clone().unwrap(),
+                id: default_model_id.clone(),
+                model: default_model_id.clone(),
                 provider_url: config.url.clone().unwrap(),
                 api_key: config.key.clone().unwrap(),
                 default: true,
@@ -101,12 +103,12 @@ impl Config {
                 rate_limit: None,
             };
 
+            let fallback_model_id = config.fallback_model
+                .clone()
+                .unwrap_or_else(|| default_model_id.clone());
             let fallback_model = LlmModel {
-                id: "fallback".to_string(),
-                model: config
-                    .fallback_model
-                    .clone()
-                    .unwrap_or_else(|| config.model.clone().unwrap()),
+                id: fallback_model_id.clone(),
+                model: fallback_model_id.clone(),
                 provider_url: config.url.clone().unwrap(),
                 api_key: config.key.clone().unwrap(),
                 default: false,
@@ -119,31 +121,38 @@ impl Config {
         }
 
         if config.llm_models.is_none() && config.model.is_none() {
-            return Err(ConfigError::Message(
-                "No models defined in config file or environment variables".to_string(),
-            ));
+            return Err(
+                ConfigError::Message(
+                    "No models defined in config file or environment variables".to_string()
+                )
+            );
         }
 
         Ok(config)
     }
 
     fn load_models_from_file(file_path: &str) -> Result<Option<Vec<LlmModel>>, ConfigError> {
-        let contents = fs::read_to_string(file_path).map_err(|_| {
-            ConfigError::Message(format!("Could not read file at path: {}", file_path))
-        })?;
+        let contents = fs
+            ::read_to_string(file_path)
+            .map_err(|_| {
+                ConfigError::Message(format!("Could not read file at path: {}", file_path))
+            })?;
 
-        let yaml = serde_yaml::from_str::<serde_yaml::Value>(&contents)
+        let yaml = serde_yaml
+            ::from_str::<serde_yaml::Value>(&contents)
             .map_err(|e| ConfigError::Message(format!("Error parsing YAML: {:?}", e)))?;
 
         let models = yaml
             .get("models")
             .ok_or_else(|| ConfigError::Message("No 'models' key found in YAML".to_string()))?;
 
-        let parsed_models: Vec<LlmModel> = serde_yaml::from_value(models.clone())
+        let parsed_models: Vec<LlmModel> = serde_yaml
+            ::from_value(models.clone())
             .map_err(|e| ConfigError::Message(format!("Error parsing models: {:?}", e)))?;
 
-        Self::validate_models(&parsed_models)
-            .map_err(|err| ConfigError::Message(format!("Invalid model configuration: {}", err)))?;
+        Self::validate_models(&parsed_models).map_err(|err|
+            ConfigError::Message(format!("Invalid model configuration: {}", err))
+        )?;
 
         println!("Successfully loaded models configuration");
         Ok(Some(parsed_models))
@@ -154,21 +163,25 @@ impl Config {
             return Err("No models defined".to_string());
         }
 
-        let default_count = models.iter().filter(|m| m.default).count();
-        let fallback_count = models.iter().filter(|m| m.fallback).count();
+        let default_count = models
+            .iter()
+            .filter(|m| m.default)
+            .count();
+        let fallback_count = models
+            .iter()
+            .filter(|m| m.fallback)
+            .count();
 
         if default_count != 1 {
-            return Err(format!(
-                "Exactly one model must be set as default, found {}",
-                default_count
-            ));
+            return Err(
+                format!("Exactly one model must be set as default, found {}", default_count)
+            );
         }
 
         if fallback_count != 1 {
-            return Err(format!(
-                "Exactly one model must be set as fallback, found {}",
-                fallback_count
-            ));
+            return Err(
+                format!("Exactly one model must be set as fallback, found {}", fallback_count)
+            );
         }
 
         let mut seen_ids = std::collections::HashSet::new();
@@ -207,12 +220,11 @@ impl Config {
 
     pub fn get_fallback_model(
         &self,
-        fallback_strategy: FallbackStrategy,
+        fallback_strategy: FallbackStrategy
     ) -> Result<Option<LlmModel>, ConfigError> {
         match fallback_strategy {
             FallbackStrategy::Default => {
-                let default_fallback_model = self
-                    .llm_models
+                let default_fallback_model = self.llm_models
                     .as_ref()
                     .ok_or_else(|| ConfigError::Message("No LLM models configured".to_string()))?
                     .iter()
@@ -233,8 +245,7 @@ impl Config {
             match self.get_model(Some(model_id.clone())) {
                 Ok(_) => {}
                 Err(_) => {
-                    let available_models = self
-                        .llm_models
+                    let available_models = self.llm_models
                         .as_ref()
                         .map(|models| {
                             models
@@ -245,10 +256,13 @@ impl Config {
                         })
                         .unwrap_or_default();
 
-                    return Err(format!(
-                        "Unknown model_id '{}'. Supported model IDs are: {}",
-                        model_id, available_models
-                    ));
+                    return Err(
+                        format!(
+                            "Unknown model_id '{}'. Supported model IDs are: {}",
+                            model_id,
+                            available_models
+                        )
+                    );
                 }
             }
         }
@@ -258,8 +272,7 @@ impl Config {
             match self.get_model(Some(fallback_model_id.clone())) {
                 Ok(_) => {}
                 Err(_) => {
-                    let available_models = self
-                        .llm_models
+                    let available_models = self.llm_models
                         .as_ref()
                         .map(|models| {
                             models
@@ -270,10 +283,13 @@ impl Config {
                         })
                         .unwrap_or_default();
 
-                    return Err(format!(
-                        "Unknown fallback model_id '{}'. Supported model IDs are: {}",
-                        fallback_model_id, available_models
-                    ));
+                    return Err(
+                        format!(
+                            "Unknown fallback model_id '{}'. Supported model IDs are: {}",
+                            fallback_model_id,
+                            available_models
+                        )
+                    );
                 }
             }
         }
@@ -337,25 +353,24 @@ const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "md_text",
     "md_text_extended",
     "md_title",
-    "md_title_extended",
+    "md_title_extended"
 ];
 
 fn load_prompt_template(prompt_name: &str) -> Result<String, std::io::Error> {
-    PROMPT_TEMPLATES
-        .iter()
+    PROMPT_TEMPLATES.iter()
         .find(|&&(name, _)| name == prompt_name)
         .map(|(_, content)| content.to_string())
         .ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
-                format!("Prompt '{}' not found", prompt_name),
+                format!("Prompt '{}' not found", prompt_name)
             )
         })
 }
 
 fn substitute_template_placeholders(
     template_json: &str,
-    values: &HashMap<String, String>,
+    values: &HashMap<String, String>
 ) -> Result<String, serde_json::Error> {
     let mut template = template_json.to_string();
 
@@ -374,7 +389,7 @@ fn substitute_template_placeholders(
 
 pub fn create_messages_from_template(
     template_name: &str,
-    values: &HashMap<String, String>,
+    values: &HashMap<String, String>
 ) -> Result<Vec<Message>, Box<dyn std::error::Error + Send + Sync>> {
     let template_json = load_prompt_template(template_name)?;
     let filled_json = substitute_template_placeholders(&template_json, values)?;
@@ -386,7 +401,8 @@ pub fn create_messages_from_template(
 mod tests {
     use super::*;
 
-    const TEST_TEMPLATE_JSON: &str = r#"[
+    const TEST_TEMPLATE_JSON: &str =
+        r#"[
         {
             "role": "system",
             "content": "You are a helpful AI assistant for {purpose}."
@@ -428,10 +444,7 @@ mod tests {
     #[tokio::test]
     async fn test_md_table_template() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut values = HashMap::new();
-        values.insert(
-            "image_url".to_string(),
-            "https://example.com/image.jpg".to_string(),
-        );
+        values.insert("image_url".to_string(), "https://example.com/image.jpg".to_string());
         let messages = create_messages_from_template("md_table", &values)?;
         println!("Message: {:?}", messages);
         Ok(())
@@ -440,10 +453,7 @@ mod tests {
     #[tokio::test]
     async fn test_all_templates() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut values = HashMap::new();
-        values.insert(
-            "image_url".to_string(),
-            "https://example.com/image.jpg".to_string(),
-        );
+        values.insert("image_url".to_string(), "https://example.com/image.jpg".to_string());
         for &(template_name, _) in PROMPT_TEMPLATES {
             let messages = create_messages_from_template(template_name, &values)?;
             println!("Message: {:?}", messages);

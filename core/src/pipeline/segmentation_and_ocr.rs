@@ -160,7 +160,7 @@ async fn segmentation_pages_batch(
 
 pub async fn process_segmentation(
     task: &mut Task,
-    pages: &Vec<&NamedTempFile>,
+    pages: &[&NamedTempFile],
     ocr_results: Vec<Vec<OCRResult>>,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
     let configuration = task.configuration.clone();
@@ -182,7 +182,7 @@ async fn process_ocr(
     task: &mut Task,
     pdf_file: &NamedTempFile,
     scaling_factor: f32,
-    pages: &Vec<&NamedTempFile>,
+    pages: &[&NamedTempFile],
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
     let configuration = task.configuration.clone();
     let error_handling = configuration.error_handling;
