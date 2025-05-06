@@ -210,5 +210,5 @@ services:
     enabled: false
   analytics-web:
     enabled: false
-  analytics-api:
+  analytics-server:
     enabled: false
