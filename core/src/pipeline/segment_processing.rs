@@ -276,7 +276,7 @@ impl ContentGenerator for HtmlGenerator {
                     "formula"
                 }
             }
-            SegmentType::Page => "html_page", // Page type doesn't have a separate extended key in this logic
+            SegmentType::Page => "html_page",
 
             SegmentType::Caption => {
                 if extended_context {
@@ -333,8 +333,7 @@ impl ContentGenerator for HtmlGenerator {
                 } else {
                     "html_title"
                 }
-            } // If SegmentType were to expand, the compiler would warn about unhandled variants here,
-              // which is a good thing for maintainability.
+            }
         }
     }
 
@@ -410,7 +409,7 @@ impl ContentGenerator for MarkdownGenerator {
                     "formula"
                 }
             }
-            SegmentType::Page => "md_page", // Page type doesn't have a separate extended key
+            SegmentType::Page => "md_page",
 
             SegmentType::Caption => {
                 if extended_context {
@@ -467,7 +466,7 @@ impl ContentGenerator for MarkdownGenerator {
                 } else {
                     "md_title"
                 }
-            } // If SegmentType were to expand, the compiler would warn about unhandled variants here.
+            }
         }
     }
 
