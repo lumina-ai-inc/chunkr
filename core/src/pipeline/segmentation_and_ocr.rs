@@ -30,8 +30,8 @@ fn page_segmentation(
 }
 
 async fn ocr_pages_batch(
-    pages: &Vec<&NamedTempFile>,
-    pdf_ocr_results: &Vec<Vec<OCRResult>>,
+    pages: &[&NamedTempFile],
+    pdf_ocr_results: &[Vec<OCRResult>],
     error_handling: ErrorHandlingStrategy,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
     let throttle_config = ThrottleConfig::from_env().unwrap();
@@ -85,7 +85,7 @@ async fn ocr_pages_batch(
 }
 
 async fn segmentation_pages_batch(
-    pages: &Vec<&NamedTempFile>,
+    pages: &[&NamedTempFile],
     ocr_results: Vec<Vec<OCRResult>>,
     configuration: Configuration,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {

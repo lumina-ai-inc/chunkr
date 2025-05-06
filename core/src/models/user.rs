@@ -1,8 +1,10 @@
-use chrono::{DateTime, Utc};
-use postgres_types::{FromSql, ToSql};
-use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumString};
+use chrono::{ DateTime, Utc };
+use postgres_types::{ FromSql, ToSql };
+use serde::{ Deserialize, Serialize };
+use strum_macros::{ Display, EnumString };
 use utoipa::ToSchema;
+use std::fmt;
+
 #[derive(
     Serialize,
     Deserialize,
@@ -14,7 +16,7 @@ use utoipa::ToSchema;
     EnumString,
     FromSql,
     ToSql,
-    ToSchema,
+    ToSchema
 )]
 #[postgres(name = "tier")]
 pub enum Tier {
@@ -39,7 +41,7 @@ pub enum Tier {
     Hash,
     ToSchema,
     ToSql,
-    FromSql,
+    FromSql
 )]
 #[postgres(name = "usage_type")]
 pub enum UsageType {
@@ -61,48 +63,55 @@ impl UsageType {
 
     pub fn get_usage_limit(&self, tier: &Tier) -> i32 {
         match tier {
-            Tier::Free => match self {
-                UsageType::Fast => 1000,
-                UsageType::HighQuality => 500,
-                UsageType::Segment => 250,
-                UsageType::Page => 1000,
-            },
-            Tier::PayAsYouGo => match self {
-                UsageType::Fast => 1000000,
-                UsageType::HighQuality => 1000000,
-                UsageType::Segment => 1000000,
-                UsageType::Page => 10000000,
-            },
-            Tier::Enterprise => match self {
-                UsageType::Fast => 10000000,
-                UsageType::HighQuality => 10000000,
-                UsageType::Segment => 10000000,
-                UsageType::Page => 10000000,
-            },
-            Tier::Starter => match self {
-                UsageType::Fast => 100000,
-                UsageType::HighQuality => 100000,
-                UsageType::Segment => 100000,
-                UsageType::Page => 100000,
-            },
-            Tier::Dev => match self {
-                UsageType::Fast => 100000,
-                UsageType::HighQuality => 100000,
-                UsageType::Segment => 100000,
-                UsageType::Page => 100000,
-            },
-            Tier::Team => match self {
-                UsageType::Fast => 25000,
-                UsageType::HighQuality => 25000,
-                UsageType::Segment => 25000,
-                UsageType::Page => 25000,
-            },
-            Tier::SelfHosted => match self {
-                UsageType::Fast => 10000000,
-                UsageType::HighQuality => 10000000,
-                UsageType::Segment => 10000000,
-                UsageType::Page => 10000000,
-            },
+            Tier::Free =>
+                match self {
+                    UsageType::Fast => 1000,
+                    UsageType::HighQuality => 500,
+                    UsageType::Segment => 250,
+                    UsageType::Page => 1000,
+                }
+            Tier::PayAsYouGo =>
+                match self {
+                    UsageType::Fast => 1000000,
+                    UsageType::HighQuality => 1000000,
+                    UsageType::Segment => 1000000,
+                    UsageType::Page => 10000000,
+                }
+            Tier::Enterprise =>
+                match self {
+                    UsageType::Fast => 10000000,
+                    UsageType::HighQuality => 10000000,
+                    UsageType::Segment => 10000000,
+                    UsageType::Page => 10000000,
+                }
+            Tier::Starter =>
+                match self {
+                    UsageType::Fast => 100000,
+                    UsageType::HighQuality => 100000,
+                    UsageType::Segment => 100000,
+                    UsageType::Page => 100000,
+                }
+            Tier::Dev =>
+                match self {
+                    UsageType::Fast => 100000,
+                    UsageType::HighQuality => 100000,
+                    UsageType::Segment => 100000,
+                    UsageType::Page => 100000,
+                }
+            Tier::Team =>
+                match self {
+                    UsageType::Fast => 25000,
+                    UsageType::HighQuality => 25000,
+                    UsageType::Segment => 25000,
+                    UsageType::Page => 25000,
+                }
+            Tier::SelfHosted =>
+                match self {
+                    UsageType::Fast => 10000000,
+                    UsageType::HighQuality => 10000000,
+                    UsageType::Segment => 10000000,
+                    UsageType::Page => 10000000,
+                }
         }
     }
 }
@@ -148,16 +157,16 @@ pub enum InvoiceStatus {
     Executed,
 }
 
-impl ToString for InvoiceStatus {
-    fn to_string(&self) -> String {
+impl fmt::Display for InvoiceStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            InvoiceStatus::Paid => "Paid".to_string(),
-            InvoiceStatus::Ongoing => "ongoing".to_string(),
-            InvoiceStatus::PastDue => "PastDue".to_string(),
-            InvoiceStatus::Canceled => "Canceled".to_string(),
-            InvoiceStatus::NoInvoice => "NoInvoice".to_string(),
-            InvoiceStatus::NeedsAction => "NeedsAction".to_string(),
-            InvoiceStatus::Executed => "Executed".to_string(),
+            InvoiceStatus::Paid => write!(f, "Paid"),
+            InvoiceStatus::Ongoing => write!(f, "ongoing"),
+            InvoiceStatus::PastDue => write!(f, "PastDue"),
+            InvoiceStatus::Canceled => write!(f, "Canceled"),
+            InvoiceStatus::NoInvoice => write!(f, "NoInvoice"),
+            InvoiceStatus::NeedsAction => write!(f, "NeedsAction"),
+            InvoiceStatus::Executed => write!(f, "Executed"),
         }
     }
 }
