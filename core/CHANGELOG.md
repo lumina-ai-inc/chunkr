@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.11.0...chunkr-core-v1.11.1) (2025-05-06)
+
+
+### Bug Fixes
+
+* Formula prompt selection bug ([#484](https://github.com/lumina-ai-inc/chunkr/issues/484)) ([3b0942b](https://github.com/lumina-ai-inc/chunkr/commit/3b0942b4745739199aa6a8ef11567f05acf4d4cc))
+
 ## [1.11.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.10.0...chunkr-core-v1.11.0) (2025-05-06)
 
 
