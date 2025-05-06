@@ -254,42 +254,85 @@ impl ContentGenerator for HtmlGenerator {
     }
 
     fn template_key(&self, extended_context: bool) -> &'static str {
-        match (self.segment_type.clone(), extended_context) {
-            (SegmentType::Table | SegmentType::Picture, true) => {
-                println!("Using HTML extended context for {:?}", self.segment_type);
-                match self.segment_type {
-                    SegmentType::Table => "html_table_extended",
-                    SegmentType::Picture => "html_picture_extended",
-                    _ => unreachable!(),
+        match self.segment_type.clone() {
+            SegmentType::Table => {
+                if extended_context {
+                    "html_table_extended"
+                } else {
+                    "html_table"
                 }
             }
-            (SegmentType::Page, _) => "html_page",
-            (segment_type, true) => match segment_type {
-                SegmentType::Caption => "html_caption_extended",
-                SegmentType::Footnote => "html_footnote_extended",
-                SegmentType::Formula => "formula_extended",
-                SegmentType::ListItem => "html_list_item_extended",
-                SegmentType::PageFooter => "html_page_footer_extended",
-                SegmentType::PageHeader => "html_page_header_extended",
-                SegmentType::SectionHeader => "html_section_header_extended",
-                SegmentType::Text => "html_text_extended",
-                SegmentType::Title => "html_title_extended",
-                _ => unreachable!(),
-            },
-            (segment_type, false) => match segment_type {
-                SegmentType::Caption => "html_caption",
-                SegmentType::Footnote => "html_footnote",
-                SegmentType::Formula => "formula",
-                SegmentType::ListItem => "html_list_item",
-                SegmentType::PageFooter => "html_page_footer",
-                SegmentType::PageHeader => "html_page_header",
-                SegmentType::Picture => "html_picture",
-                SegmentType::SectionHeader => "html_section_header",
-                SegmentType::Table => "html_table",
-                SegmentType::Text => "html_text",
-                SegmentType::Title => "html_title",
-                _ => unreachable!(),
-            },
+            SegmentType::Picture => {
+                if extended_context {
+                    "html_picture_extended"
+                } else {
+                    "html_picture"
+                }
+            }
+            SegmentType::Formula => {
+                if extended_context {
+                    "formula_extended"
+                } else {
+                    "formula"
+                }
+            }
+            SegmentType::Page => "html_page",
+            SegmentType::Caption => {
+                if extended_context {
+                    "html_caption_extended"
+                } else {
+                    "html_caption"
+                }
+            }
+            SegmentType::Footnote => {
+                if extended_context {
+                    "html_footnote_extended"
+                } else {
+                    "html_footnote"
+                }
+            }
+            SegmentType::ListItem => {
+                if extended_context {
+                    "html_list_item_extended"
+                } else {
+                    "html_list_item"
+                }
+            }
+            SegmentType::PageFooter => {
+                if extended_context {
+                    "html_page_footer_extended"
+                } else {
+                    "html_page_footer"
+                }
+            }
+            SegmentType::PageHeader => {
+                if extended_context {
+                    "html_page_header_extended"
+                } else {
+                    "html_page_header"
+                }
+            }
+            SegmentType::SectionHeader => {
+                if extended_context {
+                    "html_section_header_extended"
+                } else {
+                    "html_section_header"
+                }
+            }
+            SegmentType::Text => {
+                if extended_context {
+                    "html_text_extended"
+                } else {
+                    "html_text"
+                }
+            }
+            SegmentType::Title => {
+                if extended_context {
+                    "html_title_extended"
+                } else {
+                    "html_title"
+                }
+            }
         }
     }
 
@@ -343,55 +386,86 @@ impl ContentGenerator for MarkdownGenerator {
     }
 
     fn template_key(&self, extended_context: bool) -> &'static str {
-        match (self.segment_type.clone(), extended_context) {
-            (SegmentType::Table | SegmentType::Picture, true) => {
-                println!(
-                    "Using Markdown extended context for {:?}",
-                    self.segment_type
-                );
-                match self.segment_type {
-                    SegmentType::Table => "md_table_extended",
-                    SegmentType::Picture => "md_picture_extended",
-                    _ => unreachable!(),
+        match self.segment_type.clone() {
+            SegmentType::Table => {
+                if extended_context {
+                    "md_table_extended"
+                } else {
+                    "md_table"
                 }
             }
-            (SegmentType::Formula, true) => "formula_extended",
-            (SegmentType::Formula, false) => "formula",
-            (SegmentType::Page, _) => "md_page",
-            (segment_type, true) => match segment_type {
-                SegmentType::Caption => "md_caption_extended",
-                SegmentType::Footnote => "md_footnote_extended",
-                SegmentType::ListItem => "md_list_item_extended",
-                SegmentType::PageFooter => "md_page_footer_extended",
-                SegmentType::PageHeader => "md_page_header_extended",
-                SegmentType::SectionHeader => "md_section_header_extended",
-                SegmentType::Text => "md_text_extended",
-                SegmentType::Title => "md_title_extended",
-                _ => match segment_type {
-                    SegmentType::Caption => "md_caption",
-                    SegmentType::Footnote => "md_footnote",
-                    SegmentType::ListItem => "md_list_item",
-                    SegmentType::PageFooter => "md_page_footer",
-                    SegmentType::PageHeader => "md_page_header",
-                    SegmentType::SectionHeader => "md_section_header",
-                    SegmentType::Text => "md_text",
-                    SegmentType::Title => "md_title",
-                    _ => unreachable!(),
-                },
-            },
-            (segment_type, false) => match segment_type {
-                SegmentType::Caption => "md_caption",
-                SegmentType::Footnote => "md_footnote",
-                SegmentType::ListItem => "md_list_item",
-                SegmentType::PageFooter => "md_page_footer",
-                SegmentType::PageHeader => "md_page_header",
-                SegmentType::Picture => "md_picture",
-                SegmentType::SectionHeader => "md_section_header",
-                SegmentType::Table => "md_table",
-                SegmentType::Text => "md_text",
-                SegmentType::Title => "md_title",
-                _ => unreachable!(),
-            },
+            SegmentType::Picture => {
+                if extended_context {
+                    "md_picture_extended"
+                } else {
+                    "md_picture"
+                }
+            }
+            SegmentType::Formula => {
+                if extended_context {
+                    "formula_extended"
+                } else {
+                    "formula"
+                }
+            }
+            SegmentType::Page => "md_page",
+
+            SegmentType::Caption => {
+                if extended_context {
+                    "md_caption_extended"
+                } else {
+                    "md_caption"
+                }
+            }
+            SegmentType::Footnote => {
+                if extended_context {
+                    "md_footnote_extended"
+                } else {
+                    "md_footnote"
+                }
+            }
+            SegmentType::ListItem => {
+                if extended_context {
+                    "md_list_item_extended"
+                } else {
+                    "md_list_item"
+                }
+            }
+            SegmentType::PageFooter => {
+                if extended_context {
+                    "md_page_footer_extended"
+                } else {
+                    "md_page_footer"
+                }
+            }
+            SegmentType::PageHeader => {
+                if extended_context {
+                    "md_page_header_extended"
+                } else {
+                    "md_page_header"
+                }
+            }
+            SegmentType::SectionHeader => {
+                if extended_context {
+                    "md_section_header_extended"
+                } else {
+                    "md_section_header"
+                }
+            }
+            SegmentType::Text => {
+                if extended_context {
+                    "md_text_extended"
+                } else {
+                    "md_text"
+                }
+            }
+            SegmentType::Title => {
+                if extended_context {
+                    "md_title_extended"
+                } else {
+                    "md_title"
+                }
+            }
         }
     }
 
