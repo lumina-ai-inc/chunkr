@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.1.0...chunkr-chart-enterprise-v1.2.0) (2025-05-06)
+
+
+### Features
+
+* Added MGX terraform and kube ([#66](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/66)) ([d922754](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d9227543f0544722691c7e7235d955a36416d74d))
+
 ## [1.1.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.0.2...chunkr-chart-enterprise-v1.1.0) (2025-04-18)
 
 

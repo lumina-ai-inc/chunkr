@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.4.2-enterprise...chunkr-web-enterprise-v1.5.0-enterprise) (2025-05-06)
+
+
+### Features
+
+* Added extended context (full page + segment) in `segment_processing` ([#480](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/480)) ([542377b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/542377b904aef5fb215bdea3f837315a23eb37de))
+
 ## [1.4.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.4.1-enterprise...chunkr-web-enterprise-v1.4.2-enterprise) (2025-05-01)
 
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.12.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.11.1-enterprise...chunkr-core-enterprise-v1.12.0-enterprise) (2025-05-06)
+
+
+### Features
+
+* Added extended context (full page + segment) in `segment_processing` ([#480](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/480)) ([542377b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/542377b904aef5fb215bdea3f837315a23eb37de))
+
+
+### Bug Fixes
+
+* Add Default trait implementation to FallbackStrategy enum ([#479](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/479)) ([d9a2eaf](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d9a2eaf86470d82e8dfed9af874d3cc49ca76ba5))
+
 ## [1.11.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.11.0-enterprise...chunkr-core-enterprise-v1.11.1-enterprise) (2025-05-01)
 
 
