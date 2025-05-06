@@ -1,7 +1,7 @@
-use crate::configs::llm_config::{ Config as LlmConfig, LlmModel };
+use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
 use crate::models::llm::LlmProcessing;
-use crate::models::open_ai::{ Message, MessageContent, OpenAiRequest, OpenAiResponse };
-use crate::utils::rate_limit::{ get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT };
+use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
+use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
 use std::fmt;
@@ -24,7 +24,7 @@ pub async fn open_ai_call(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
-    response_format: Option<serde_json::Value>
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     println!("OpenAI call with model: {:?}", model);
 
@@ -45,7 +45,11 @@ pub async fn open_ai_call(
         openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
     }
 
-    let response = openai_request.json(&request).send().await?.error_for_status()?;
+    let response = openai_request
+        .json(&request)
+        .send()
+        .await?
+        .error_for_status()?;
 
     let text = response.text().await?;
     let response: OpenAiResponse = match serde_json::from_str(&text) {
@@ -64,15 +68,17 @@ async fn open_ai_call_handler(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
-    response_format: Option<serde_json::Value>
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = get_llm_rate_limiter(&model.id)?;
     retry_with_backoff(|| async {
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
-            rate_limiter.acquire_token_with_timeout(
-                std::time::Duration::from_secs(*TOKEN_TIMEOUT.get().unwrap())
-            ).await?;
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
+                .await?;
         }
         open_ai_call(
             model.provider_url.clone(),
@@ -81,9 +87,11 @@ async fn open_ai_call_handler(
             messages.clone(),
             max_completion_tokens,
             temperature,
-            response_format.clone()
-        ).await
-    }).await
+            response_format.clone(),
+        )
+        .await
+    })
+    .await
 }
 
 /// Process an OpenAI request
@@ -94,29 +102,28 @@ async fn process_openai_request(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
-    response_format: Option<serde_json::Value>
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    match
-        open_ai_call_handler(
-            model.clone(),
-            messages.clone(),
-            max_completion_tokens,
-            temperature,
-            response_format.clone()
-        ).await
+    match open_ai_call_handler(
+        model.clone(),
+        messages.clone(),
+        max_completion_tokens,
+        temperature,
+        response_format.clone(),
+    )
+    .await
     {
         Ok(response) => Ok(response),
         Err(e) => {
             if let Some(fallback_model) = fallback_model {
-                Ok(
-                    open_ai_call_handler(
-                        fallback_model.clone(),
-                        messages,
-                        max_completion_tokens,
-                        temperature,
-                        response_format
-                    ).await?
+                Ok(open_ai_call_handler(
+                    fallback_model.clone(),
+                    messages,
+                    max_completion_tokens,
+                    temperature,
+                    response_format,
                 )
+                .await?)
             } else {
                 println!("No fallback model provided");
                 Err(e)
@@ -150,7 +157,7 @@ fn extract_fenced_content(content: &str, fence_type: Option<&str>) -> Option<Str
 /// Returns Some(content) if extraction succeeds, None otherwise
 fn try_extract_from_response(
     response: &OpenAiResponse,
-    fence_type: Option<&str>
+    fence_type: Option<&str>,
 ) -> Option<String> {
     if response.choices.is_empty() {
         println!("Response contains no choices");
@@ -181,22 +188,22 @@ pub async fn try_extract_from_llm(
     messages: Vec<Message>,
     fence_type: Option<&str>,
     fallback_content: Option<String>,
-    llm_processing: LlmProcessing
+    llm_processing: LlmProcessing,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let llm_config = LlmConfig::from_env().unwrap();
     let model = llm_config.get_model(llm_processing.model_id)?;
     let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
 
     // Try with primary model
-    let response = match
-        process_openai_request(
-            model,
-            fallback_model.clone(),
-            messages.clone(),
-            llm_processing.max_completion_tokens,
-            Some(llm_processing.temperature),
-            None
-        ).await
+    let response = match process_openai_request(
+        model,
+        fallback_model.clone(),
+        messages.clone(),
+        llm_processing.max_completion_tokens,
+        Some(llm_processing.temperature),
+        None,
+    )
+    .await
     {
         Ok(response) => response,
         Err(e) => {
@@ -217,15 +224,15 @@ pub async fn try_extract_from_llm(
     // Try with fallback model if content extraction failed
     if let Some(fallback) = fallback_model {
         println!("Trying fallback model after primary model failed to produce extractable content");
-        if
-            let Ok(fallback_response) = process_openai_request(
-                fallback,
-                None,
-                messages.clone(),
-                llm_processing.max_completion_tokens,
-                Some(llm_processing.temperature),
-                None
-            ).await
+        if let Ok(fallback_response) = process_openai_request(
+            fallback,
+            None,
+            messages.clone(),
+            llm_processing.max_completion_tokens,
+            Some(llm_processing.temperature),
+            None,
+        )
+        .await
         {
             if let Some(content) = try_extract_from_response(&fallback_response, fence_type) {
                 return Ok(content);
@@ -241,9 +248,8 @@ pub async fn try_extract_from_llm(
         return Ok(fallback_content);
     }
 
-    Err(
-        Box::new(
-            LLMError(format!("No valid content found | fence_type: {}", fence_type.unwrap_or("")))
-        )
-    )
+    Err(Box::new(LLMError(format!(
+        "No valid content found | fence_type: {}",
+        fence_type.unwrap_or("")
+    ))))
 }

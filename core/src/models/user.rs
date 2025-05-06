@@ -1,9 +1,9 @@
-use chrono::{ DateTime, Utc };
-use postgres_types::{ FromSql, ToSql };
-use serde::{ Deserialize, Serialize };
-use strum_macros::{ Display, EnumString };
-use utoipa::ToSchema;
+use chrono::{DateTime, Utc};
+use postgres_types::{FromSql, ToSql};
+use serde::{Deserialize, Serialize};
 use std::fmt;
+use strum_macros::{Display, EnumString};
+use utoipa::ToSchema;
 
 #[derive(
     Serialize,
@@ -16,7 +16,7 @@ use std::fmt;
     EnumString,
     FromSql,
     ToSql,
-    ToSchema
+    ToSchema,
 )]
 #[postgres(name = "tier")]
 pub enum Tier {
@@ -41,7 +41,7 @@ pub enum Tier {
     Hash,
     ToSchema,
     ToSql,
-    FromSql
+    FromSql,
 )]
 #[postgres(name = "usage_type")]
 pub enum UsageType {
@@ -63,55 +63,48 @@ impl UsageType {
 
     pub fn get_usage_limit(&self, tier: &Tier) -> i32 {
         match tier {
-            Tier::Free =>
-                match self {
-                    UsageType::Fast => 1000,
-                    UsageType::HighQuality => 500,
-                    UsageType::Segment => 250,
-                    UsageType::Page => 1000,
-                }
-            Tier::PayAsYouGo =>
-                match self {
-                    UsageType::Fast => 1000000,
-                    UsageType::HighQuality => 1000000,
-                    UsageType::Segment => 1000000,
-                    UsageType::Page => 10000000,
-                }
-            Tier::Enterprise =>
-                match self {
-                    UsageType::Fast => 10000000,
-                    UsageType::HighQuality => 10000000,
-                    UsageType::Segment => 10000000,
-                    UsageType::Page => 10000000,
-                }
-            Tier::Starter =>
-                match self {
-                    UsageType::Fast => 100000,
-                    UsageType::HighQuality => 100000,
-                    UsageType::Segment => 100000,
-                    UsageType::Page => 100000,
-                }
-            Tier::Dev =>
-                match self {
-                    UsageType::Fast => 100000,
-                    UsageType::HighQuality => 100000,
-                    UsageType::Segment => 100000,
-                    UsageType::Page => 100000,
-                }
-            Tier::Team =>
-                match self {
-                    UsageType::Fast => 25000,
-                    UsageType::HighQuality => 25000,
-                    UsageType::Segment => 25000,
-                    UsageType::Page => 25000,
-                }
-            Tier::SelfHosted =>
-                match self {
-                    UsageType::Fast => 10000000,
-                    UsageType::HighQuality => 10000000,
-                    UsageType::Segment => 10000000,
-                    UsageType::Page => 10000000,
-                }
+            Tier::Free => match self {
+                UsageType::Fast => 1000,
+                UsageType::HighQuality => 500,
+                UsageType::Segment => 250,
+                UsageType::Page => 1000,
+            },
+            Tier::PayAsYouGo => match self {
+                UsageType::Fast => 1000000,
+                UsageType::HighQuality => 1000000,
+                UsageType::Segment => 1000000,
+                UsageType::Page => 10000000,
+            },
+            Tier::Enterprise => match self {
+                UsageType::Fast => 10000000,
+                UsageType::HighQuality => 10000000,
+                UsageType::Segment => 10000000,
+                UsageType::Page => 10000000,
+            },
+            Tier::Starter => match self {
+                UsageType::Fast => 100000,
+                UsageType::HighQuality => 100000,
+                UsageType::Segment => 100000,
+                UsageType::Page => 100000,
+            },
+            Tier::Dev => match self {
+                UsageType::Fast => 100000,
+                UsageType::HighQuality => 100000,
+                UsageType::Segment => 100000,
+                UsageType::Page => 100000,
+            },
+            Tier::Team => match self {
+                UsageType::Fast => 25000,
+                UsageType::HighQuality => 25000,
+                UsageType::Segment => 25000,
+                UsageType::Page => 25000,
+            },
+            Tier::SelfHosted => match self {
+                UsageType::Fast => 10000000,
+                UsageType::HighQuality => 10000000,
+                UsageType::Segment => 10000000,
+                UsageType::Page => 10000000,
+            },
         }
     }
 }
