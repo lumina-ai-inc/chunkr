@@ -27,6 +27,7 @@ pub async fn open_ai_call(
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     println!("OpenAI call with model: {:?}", model);
+
     let request = OpenAiRequest {
         model: model.clone(),
         messages,
@@ -40,10 +41,8 @@ pub async fn open_ai_call(
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", key));
 
-    if let Some(timeout) = LLM_TIMEOUT.get() {
-        if let Some(timeout_value) = timeout {
-            openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
-        }
+    if let Some(Some(timeout_value)) = LLM_TIMEOUT.get() {
+        openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
     }
 
     let response = openai_request

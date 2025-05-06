@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "Convert the following section header segment, using the context of the full page it came from if necessary, to HTML. Return only the HTML with no explanation text. Do not exclude any content from the header.\n\nSometimes this content may not be a section header. If it is not a section header, analyze and convert the content appropriately to HTML format while maintaining the original structure and content. If there is a table, convert it to HTML table format. If there are images, describe them in text within the HTML.\nIf it is a section header, put it in a <h2> tag. \nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+]

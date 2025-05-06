@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "Your task is to OCR the content strictly *within* the provided table segment image. Use the accompanying full page image *only* as context to better understand the segment, for example, to interpret abbreviations, understand structure if the segment shows only part of a larger table, or connect to legends located elsewhere on the page. **Do not include any content from the full page image that falls outside the table segment's boundaries.**\n\nConvert the extracted segment content into a well-structured Markdown table. **Crucially, if visual information *within the segment* (like color coding, symbols, arrows) relies on context from the full page (like a legend), integrate the *meaning* of that context directly into the Markdown table.** For example, if a cell in the segment is colored blue and the legend on the full page indicates blue means 'Approved', you might add an 'Status' column to your Markdown table with the value 'Approved' for that row, or add text within the cell like `Value (Approved)`. The goal is to make the Markdown output self-contained and accurately represent the segment's data and its contextually derived meaning.\n\nFollow these rules:\n- Focus **exclusively** on the content visible within the table segment image.\n- Use the full page image for interpretation context **only**.\n- Preserve the table structure, including merged cells/columns where possible in Markdown, as seen in the segment.\n- Integrate the *meaning* of contextual elements (like legends) relevant to the segment's content, not the contextual elements themselves if they are outside the segment.\n- If there are graphics/images *within* the table segment, describe them briefly in text within the Markdown cell.\n- Do not render colors directly in the output. Instead, represent the *meaning* derived from color purely through text (e.g., add a 'Status' column, or include it parenthetically like 'Value (Color: Blue, Meaning: Approved)' or 'Category X (Blue): 50%').\n- Do not use meta commentary (e.g., 'the table contains...').\n- Output **only** the final Markdown table enclosed in ```markdown``` tags. No explanations."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image (Table):"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image (Context):"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+]

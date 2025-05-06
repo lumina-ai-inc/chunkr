@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "Your task is to follow the users prompt and generate a response based on the segment and its surrounding page context.\n\nThe segment has the type: {segment_type}.\n\nFollow the user's prompt carefully to extract and format the relevant information from the segment, using the page context if needed. Only extract information that matches the prompt's requirements.\n\nReturn your response in a clear, structured format that aligns with the user's request. You output must be in fenced like ```[INSERT_OUTPUT]```.\n\nUser prompt: {user_prompt}"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+]
