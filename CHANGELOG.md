@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.15.0...v1.15.1) (2025-05-06)
+
+
+### Bug Fixes
+
+* Formula prompt selection bug ([#484](https://github.com/lumina-ai-inc/chunkr/issues/484)) ([3b0942b](https://github.com/lumina-ai-inc/chunkr/commit/3b0942b4745739199aa6a8ef11567f05acf4d4cc))
+
 ## [1.15.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.14.2...v1.15.0) (2025-05-06)
 
 
