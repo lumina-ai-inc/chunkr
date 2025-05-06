@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.12.0-enterprise...chunkr-core-enterprise-v1.12.1-enterprise) (2025-05-06)
+
+
+### Bug Fixes
+
+* Formula prompt selection bug ([#484](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/484)) ([1762c26](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1762c264b1c8e8989d51ebfada461fe85c7b6e10))
+
 ## [1.12.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.11.1-enterprise...chunkr-core-enterprise-v1.12.0-enterprise) (2025-05-06)
 
 

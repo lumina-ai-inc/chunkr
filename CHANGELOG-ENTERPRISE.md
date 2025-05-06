@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.17.0-enterprise...v1.17.1-enterprise) (2025-05-06)
+
+
+### Bug Fixes
+
+* Formula prompt selection bug ([#484](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/484)) ([1762c26](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1762c264b1c8e8989d51ebfada461fe85c7b6e10))
+* Removed vunerabilties from dockers ([cda1141](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/cda1141f2307a9b9f29e456c135b4d405d049a8c))
+
 ## [1.17.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.16.2-enterprise...v1.17.0-enterprise) (2025-05-06)
 
 
