@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.3.2...chunkr-web-v1.4.0) (2025-05-06)
+
+
+### Features
+
+* Added extended context (full page + segment) in `segment_processing` ([#480](https://github.com/lumina-ai-inc/chunkr/issues/480)) ([542377b](https://github.com/lumina-ai-inc/chunkr/commit/542377b904aef5fb215bdea3f837315a23eb37de))
+
 ## [1.3.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.3.1...chunkr-web-v1.3.2) (2025-05-01)
 
 
