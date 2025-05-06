@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
+
 #[derive(
     Serialize,
     Deserialize,

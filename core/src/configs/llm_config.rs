@@ -101,6 +101,10 @@ impl Config {
                 rate_limit: None,
             };
 
+            let fallback_model_id = config
+                .fallback_model
+                .clone()
+                .unwrap_or_else(|| default_model_id.clone());
             let fallback_model = LlmModel {
                 id: "fallback".to_string(),
                 model: config

@@ -109,7 +109,7 @@ async fn segmentation_pages_batch(
             .await?
         }
         ErrorHandlingStrategy::Continue => {
-            let results = join_all(pages.iter().chunks(batch_size).into_iter().map(|chunk| {
+            join_all(pages.iter().chunks(batch_size).into_iter().map(|chunk| {
                 let chunk_vec = chunk.copied().collect::<Vec<_>>();
                 let current_offset = page_offset;
                 page_offset += chunk_vec.len();
