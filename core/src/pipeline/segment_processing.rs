@@ -277,7 +277,6 @@ impl ContentGenerator for HtmlGenerator {
                 }
             }
             SegmentType::Page => "html_page",
-
             SegmentType::Caption => {
                 if extended_context {
                     "html_caption_extended"
