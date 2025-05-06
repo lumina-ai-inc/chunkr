@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "Convert this title text segment, using the context of the full page it came from if necessary, to HTML. Return only the HTML with no explanation text. Preserve all text content and formatting.\nPut it in a <h1> tag.\nReturn ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+]

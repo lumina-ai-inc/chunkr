@@ -30,8 +30,8 @@ fn page_segmentation(
 }
 
 async fn ocr_pages_batch(
-    pages: &Vec<&NamedTempFile>,
-    pdf_ocr_results: &Vec<Vec<OCRResult>>,
+    pages: &[&NamedTempFile],
+    pdf_ocr_results: &[Vec<OCRResult>],
     error_handling: ErrorHandlingStrategy,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
     let throttle_config = ThrottleConfig::from_env().unwrap();
@@ -85,7 +85,7 @@ async fn ocr_pages_batch(
 }
 
 async fn segmentation_pages_batch(
-    pages: &Vec<&NamedTempFile>,
+    pages: &[&NamedTempFile],
     ocr_results: Vec<Vec<OCRResult>>,
     configuration: Configuration,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
@@ -109,7 +109,7 @@ async fn segmentation_pages_batch(
             .await?
         }
         ErrorHandlingStrategy::Continue => {
-            let results = join_all(pages.iter().chunks(batch_size).into_iter().map(|chunk| {
+            join_all(pages.iter().chunks(batch_size).into_iter().map(|chunk| {
                 let chunk_vec = chunk.copied().collect::<Vec<_>>();
                 let current_offset = page_offset;
                 page_offset += chunk_vec.len();
@@ -151,8 +151,7 @@ async fn segmentation_pages_batch(
                         .collect::<Result<Vec<_>, _>>()
                 }
             })
-            .collect::<Result<Vec<_>, _>>()?;
-            results
+            .collect::<Result<Vec<_>, _>>()?
         }
     };
     Ok(results.into_iter().flatten().collect())
@@ -160,7 +159,7 @@ async fn segmentation_pages_batch(
 
 pub async fn process_segmentation(
     task: &mut Task,
-    pages: &Vec<&NamedTempFile>,
+    pages: &[&NamedTempFile],
     ocr_results: Vec<Vec<OCRResult>>,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
     let configuration = task.configuration.clone();
@@ -182,7 +181,7 @@ async fn process_ocr(
     task: &mut Task,
     pdf_file: &NamedTempFile,
     scaling_factor: f32,
-    pages: &Vec<&NamedTempFile>,
+    pages: &[&NamedTempFile],
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
     let configuration = task.configuration.clone();
     let error_handling = configuration.error_handling;

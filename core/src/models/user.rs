@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
+
 #[derive(
     Serialize,
     Deserialize,
@@ -148,16 +150,16 @@ pub enum InvoiceStatus {
     Executed,
 }
 
-impl ToString for InvoiceStatus {
-    fn to_string(&self) -> String {
+impl fmt::Display for InvoiceStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            InvoiceStatus::Paid => "Paid".to_string(),
-            InvoiceStatus::Ongoing => "ongoing".to_string(),
-            InvoiceStatus::PastDue => "PastDue".to_string(),
-            InvoiceStatus::Canceled => "Canceled".to_string(),
-            InvoiceStatus::NoInvoice => "NoInvoice".to_string(),
-            InvoiceStatus::NeedsAction => "NeedsAction".to_string(),
-            InvoiceStatus::Executed => "Executed".to_string(),
+            InvoiceStatus::Paid => write!(f, "Paid"),
+            InvoiceStatus::Ongoing => write!(f, "ongoing"),
+            InvoiceStatus::PastDue => write!(f, "PastDue"),
+            InvoiceStatus::Canceled => write!(f, "Canceled"),
+            InvoiceStatus::NoInvoice => write!(f, "NoInvoice"),
+            InvoiceStatus::NeedsAction => write!(f, "NeedsAction"),
+            InvoiceStatus::Executed => write!(f, "Executed"),
         }
     }
 }

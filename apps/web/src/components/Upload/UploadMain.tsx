@@ -557,14 +557,14 @@ export default function UploadMain({
                 config.segmentation_strategy === SegmentationStrategy.Page
               }
             />
-            <Flex direction="row" mt="3" align="center">
+            <Flex direction="row" mt="4" align="center">
               <Text
                 size="1"
                 weight="medium"
                 className="white"
                 style={{ opacity: 0.8 }}
               >
-                * Use checkboxes to select which sources to include in the embed
+                * Use checkboxes to select sources to include in the embed
                 field.
               </Text>
             </Flex>

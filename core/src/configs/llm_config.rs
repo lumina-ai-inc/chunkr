@@ -91,9 +91,10 @@ impl Config {
             && config.url.is_some()
             && config.key.is_some()
         {
+            let default_model_id = config.model.clone().unwrap();
             let default_model = LlmModel {
-                id: "default".to_string(),
-                model: config.model.clone().unwrap(),
+                id: default_model_id.clone(),
+                model: default_model_id.clone(),
                 provider_url: config.url.clone().unwrap(),
                 api_key: config.key.clone().unwrap(),
                 default: true,
@@ -101,12 +102,13 @@ impl Config {
                 rate_limit: None,
             };
 
+            let fallback_model_id = config
+                .fallback_model
+                .clone()
+                .unwrap_or_else(|| default_model_id.clone());
             let fallback_model = LlmModel {
-                id: "fallback".to_string(),
-                model: config
-                    .fallback_model
-                    .clone()
-                    .unwrap_or_else(|| config.model.clone().unwrap()),
+                id: fallback_model_id.clone(),
+                model: fallback_model_id.clone(),
                 provider_url: config.url.clone().unwrap(),
                 api_key: config.key.clone().unwrap(),
                 default: false,
@@ -295,28 +297,49 @@ macro_rules! prompt_templates {
 const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "formula",
     "html_caption",
+    "html_caption_extended",
     "html_footnote",
+    "html_footnote_extended",
     "html_list_item",
+    "html_list_item_extended",
     "html_page_footer",
+    "html_page_footer_extended",
     "html_page_header",
+    "html_page_header_extended",
     "html_page",
     "html_picture",
+    "html_picture_extended",
     "html_section_header",
+    "html_section_header_extended",
     "html_table",
+    "html_table_extended",
     "html_text",
+    "html_text_extended",
     "html_title",
+    "html_title_extended",
     "llm_segment",
+    "llm_segment_extended",
     "md_caption",
+    "md_caption_extended",
     "md_footnote",
+    "md_footnote_extended",
     "md_list_item",
+    "md_list_item_extended",
     "md_page_footer",
+    "md_page_footer_extended",
     "md_page_header",
+    "md_page_header_extended",
     "md_page",
     "md_picture",
+    "md_picture_extended",
     "md_section_header",
+    "md_section_header_extended",
     "md_table",
+    "md_table_extended",
     "md_text",
+    "md_text_extended",
     "md_title",
+    "md_title_extended"
 ];
 
 fn load_prompt_template(prompt_name: &str) -> Result<String, std::io::Error> {

@@ -231,11 +231,14 @@ export function SegmentProcessingControls({
       defaultConfig.html !== currentConfig.html ||
       defaultConfig.markdown !== currentConfig.markdown ||
       (!!currentConfig.llm && currentConfig.llm.trim() !== "") ||
-      JSON.stringify(defaultSources) !== JSON.stringify(currentSources)
+      JSON.stringify(defaultSources.sort()) !==
+        JSON.stringify(currentSources.sort()) ||
+      (defaultConfig.extended_context ?? false) !==
+        (currentConfig.extended_context ?? false)
     );
   };
 
-  const updateConfig = (field: string, newValue: string) => {
+  const updateConfig = (field: string, newValue: string | boolean) => {
     onChange({
       ...value,
       [selectedType]: {
@@ -468,7 +471,7 @@ export function SegmentProcessingControls({
           />
         </div>
 
-        {/** ==== Image Cropping (unchanged) ==== **/}
+        {/** ==== Image Cropping ==== **/}
         <ToggleGroup
           docHover={false}
           label="Image Cropping"
@@ -477,6 +480,18 @@ export function SegmentProcessingControls({
           options={[
             { label: "Auto", value: CroppingStrategy.Auto },
             { label: "All", value: CroppingStrategy.All },
+          ]}
+        />
+
+        {/** ==== Extended Context ==== **/}
+        <ToggleGroup
+          docHover={false}
+          label="Extended Context"
+          value={value[selectedType].extended_context ? "ON" : "OFF"}
+          onChange={(v) => updateConfig("extended_context", v === "ON")}
+          options={[
+            { label: "ON", value: "ON" },
+            { label: "OFF", value: "OFF" },
           ]}
         />
       </div>

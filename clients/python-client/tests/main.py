@@ -1,4 +1,14 @@
 from chunkr_ai import Chunkr
+# Import necessary models for configuration
+from chunkr_ai.models import (
+    Configuration,
+    SegmentProcessing,
+    GenerationConfig,
+    Status,
+    LlmProcessing, # Import LlmProcessing if you want to specify LLM details
+    # FallbackStrategy, GenerationStrategy, CroppingStrategy, EmbedSource # Import others if needed
+    FallbackStrategy # Needed for the original main block below
+)
 import asyncio
 import multiprocessing
 import time
@@ -47,7 +57,7 @@ def upload_file_sync(file_path):
     task = chunkr.upload(file_path)
     print(f"Uploaded {file_path}: {task.task_id}") # type: ignore
     task.poll() # type: ignore
-    return task.task_id # type: ignore 
+    return task.task_id # type: ignore
 
 
 def test_multiprocessing():
@@ -101,7 +111,7 @@ def save_base64_to_file():
     with open(output_path, "wb") as f:
         f.write(pdf_data)
 
-    segment_image = task.output.chunks[0].segments[0].image 
+    segment_image = task.output.chunks[0].segments[0].image
     segment_image_data = base64.b64decode(segment_image)
     output_path = "./output/segment_image.jpg"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -110,9 +120,13 @@ def save_base64_to_file():
 
 
 if __name__ == "__main__":
+    # --- Keep your existing __main__ block ---
+    # You can comment out the original upload call if you want to focus on the test
+
+    # Original main block:
     from chunkr_ai.models import Configuration, Status, LlmProcessing, FallbackStrategy
 
-    task = chunkr.upload("./files/test.pdf", 
+    task = chunkr.upload("./files/test.pdf",
         config=Configuration(
             llm_processing=LlmProcessing(
                 model_id="gemini-pro-2.5",
@@ -122,7 +136,7 @@ if __name__ == "__main__":
         )
     )
     print(task.configuration) # type: ignore
-    if task.status == Status.FAILED:
+    if task.status == Status.FAILED: # type: ignore
         print(task.message) # type: ignore
     else:
         markdown = task.markdown() # type: ignore
@@ -152,3 +166,8 @@ if __name__ == "__main__":
     # print(task.configuration.chunk_processing)
     # print(task.configuration.chunk_processing.tokenizer)
     # assert task.configuration.chunk_processing.tokenizer == tokenizer
+
+    # --- OR call the new test function here ---
+    # print("-" * 20)
+    # test_extended_context()
+    # print("-" * 20)
