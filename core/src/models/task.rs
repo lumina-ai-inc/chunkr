@@ -359,7 +359,7 @@ impl Task {
                 {
                     self.message = Some(msg.clone());
                     return Err(Box::new(TimeoutError {
-                        message: format!("Task has timed out and cannot be updated"),
+                        message: "Task has timed out and cannot be updated".to_string(),
                     }));
                 }
             }
@@ -578,7 +578,7 @@ impl Task {
         });
 
         let mut output_temp_file = NamedTempFile::new()?;
-        output_temp_file.write(serde_json::to_string(&output_response)?.as_bytes())?;
+        output_temp_file.write_all(serde_json::to_string(&output_response)?.as_bytes())?;
         upload_to_s3(&self.output_location, output_temp_file.path()).await?;
         upload_to_s3(&self.pdf_location, pdf_file.path()).await?;
 
@@ -797,7 +797,7 @@ pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
     #[serde(alias = "expires_at")]
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// Whether to use high-resolution images for cropping and post-processing.
     pub high_resolution: bool,

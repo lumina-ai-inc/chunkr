@@ -214,7 +214,7 @@ impl Pipeline {
                 .await?;
                 Ok(())
             } else {
-                return revert_to_previous(&mut task, &task_payload).await;
+                revert_to_previous(&mut task, &task_payload).await
             }
         } else {
             match update_success(

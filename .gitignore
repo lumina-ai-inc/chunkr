@@ -187,3 +187,11 @@ model_cache
 deepspeed_configs
 configs
 keyvault.sh
+/pdfs
+*.pdf
+*.pdfs
+*.pdfs.zip
+*.pdfs.zip.part
+*.pdfs.zip.part.1
+*.pdfs.zip.part.2
+*.pdfs.zip.part.3

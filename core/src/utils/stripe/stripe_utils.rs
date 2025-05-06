@@ -43,10 +43,7 @@ pub async fn update_invoice_status(
         )
         .await?;
 
-    let is_paid = match status {
-        "Paid" | "Open" => true,
-        _ => false,
-    };
+    let is_paid = matches!(status, "Paid" | "Open");
 
     client
         .execute(
