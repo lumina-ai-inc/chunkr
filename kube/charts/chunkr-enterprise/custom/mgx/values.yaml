@@ -106,7 +106,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.15.0-enterprise-mgx-0.0.2
+      tag: 1.17.0-enterprise-mgx-0.0.3
     port: 8000
     targetPort: 8000
     ingress:
@@ -136,7 +136,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 1.15.0-enterprise-mgx-0.0.2
+      tag: 1.17.0-enterprise-mgx-0.0.3
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -160,7 +160,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.15.0-enterprise-mgx-0.0.2
+      tag: 1.17.0-enterprise-mgx-0.0.3
     port: 8000
     targetPort: 8000
     ingress:
