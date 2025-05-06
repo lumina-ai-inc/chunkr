@@ -279,7 +279,7 @@ impl ContentGenerator for HtmlGenerator {
             (segment_type, false) => match segment_type {
                 SegmentType::Caption => "html_caption",
                 SegmentType::Footnote => "html_footnote",
-                SegmentType::Formula => "formula_extended",
+                SegmentType::Formula => "formula",
                 SegmentType::ListItem => "html_list_item",
                 SegmentType::PageFooter => "html_page_footer",
                 SegmentType::PageHeader => "html_page_header",
@@ -343,40 +343,55 @@ impl ContentGenerator for MarkdownGenerator {
     }
 
     fn template_key(&self, extended_context: bool) -> &'static str {
-        let (segment_type, result) = match (self.segment_type.clone(), extended_context) {
+        match (self.segment_type.clone(), extended_context) {
             (SegmentType::Table | SegmentType::Picture, true) => {
                 println!(
                     "Using Markdown extended context for {:?}",
                     self.segment_type
                 );
-                (self.segment_type.clone(), true)
+                match self.segment_type {
+                    SegmentType::Table => "md_table_extended",
+                    SegmentType::Picture => "md_picture_extended",
+                    _ => unreachable!(),
+                }
             }
-            (segment_type, _) => (segment_type, false),
-        };
-
-        match (segment_type, result) {
-            (SegmentType::Caption, false) => "md_caption",
-            (SegmentType::Caption, true) => "md_caption_extended",
-            (SegmentType::Footnote, false) => "md_footnote",
-            (SegmentType::Footnote, true) => "md_footnote_extended",
-            (SegmentType::Formula, _) => "formula_extended",
-            (SegmentType::ListItem, false) => "md_list_item",
-            (SegmentType::ListItem, true) => "md_list_item_extended",
+            (SegmentType::Formula, true) => "formula_extended",
+            (SegmentType::Formula, false) => "formula",
             (SegmentType::Page, _) => "md_page",
-            (SegmentType::PageFooter, false) => "md_page_footer",
-            (SegmentType::PageFooter, true) => "md_page_footer_extended",
-            (SegmentType::PageHeader, false) => "md_page_header",
-            (SegmentType::PageHeader, true) => "md_page_header_extended",
-            (SegmentType::Picture, false) => "md_picture",
-            (SegmentType::Picture, true) => "md_picture_extended",
-            (SegmentType::SectionHeader, false) => "md_section_header",
-            (SegmentType::SectionHeader, true) => "md_section_header_extended",
-            (SegmentType::Table, false) => "md_table",
-            (SegmentType::Table, true) => "md_table_extended",
-            (SegmentType::Text, false) => "md_text",
-            (SegmentType::Text, true) => "md_text_extended",
-            (SegmentType::Title, false) => "md_title",
-            (SegmentType::Title, true) => "md_title_extended",
+            (segment_type, true) => match segment_type {
+                SegmentType::Caption => "md_caption_extended",
+                SegmentType::Footnote => "md_footnote_extended",
+                SegmentType::ListItem => "md_list_item_extended",
+                SegmentType::PageFooter => "md_page_footer_extended",
+                SegmentType::PageHeader => "md_page_header_extended",
+                SegmentType::SectionHeader => "md_section_header_extended",
+                SegmentType::Text => "md_text_extended",
+                SegmentType::Title => "md_title_extended",
+                _ => match segment_type {
+                    SegmentType::Caption => "md_caption",
+                    SegmentType::Footnote => "md_footnote",
+                    SegmentType::ListItem => "md_list_item",
+                    SegmentType::PageFooter => "md_page_footer",
+                    SegmentType::PageHeader => "md_page_header",
+                    SegmentType::SectionHeader => "md_section_header",
+                    SegmentType::Text => "md_text",
+                    SegmentType::Title => "md_title",
+                    _ => unreachable!(),
+                },
+            },
+            (segment_type, false) => match segment_type {
+                SegmentType::Caption => "md_caption",
+                SegmentType::Footnote => "md_footnote",
+                SegmentType::ListItem => "md_list_item",
+                SegmentType::PageFooter => "md_page_footer",
+                SegmentType::PageHeader => "md_page_header",
+                SegmentType::Picture => "md_picture",
+                SegmentType::SectionHeader => "md_section_header",
+                SegmentType::Table => "md_table",
+                SegmentType::Text => "md_text",
+                SegmentType::Title => "md_title",
+                _ => unreachable!(),
+            },
         }
     }
 
