@@ -237,7 +237,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: 1.17.0-enterprise
+      tag: 1.16.2-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
