@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "Your task is to analyze the content strictly *within* the provided picture segment image. Use the accompanying full page image *only* as context to better understand the segment, for example, to interpret chart axes, legends, or resolve ambiguities in labels or connections shown within the segment. **Do not include any content from the full page image that falls outside the picture segment's boundaries.**\n\nDescribe the segment's content using Markdown, often by converting charts or diagrams into a Markdown `table` or descriptive text. Use and maintain all text and data visible *within the segment*. **Crucially, if visual information *within the segment* (like colors, line styles, symbols, arrows, positional relationships) relies on context from the full page (like a legend or axis labels), integrate the *meaning* of that context directly into the generated Markdown.** For example, if a bar in the segment is red and the legend on the full page indicates red means 'Error', represent this in the table/description (e.g., a column named 'Status' with value 'Error', or text stating '...represents an Error state'). The goal is to make the Markdown output self-contained, conveying the segment's visual information and its contextually derived meaning textually.\n\nFollow these rules:\n- Focus **exclusively** on the content visible within the picture segment image.\n- Use the full page image for interpretation context **only**.\n- If converting to a table, structure it logically based on the segment's content and context.\n- Integrate the *meaning* of contextual elements (like legends, axes) relevant to the segment's content, not the contextual elements themselves if they are outside the segment.\n- Do not turn schematics into ASCII art.\n- Be detailed in descriptions or table data based *only* on the segment.\n- Use standard Markdown for structure.\n- Do not render colors directly in the output. Instead, represent the *meaning* derived from color purely through text (e.g., add a 'Status' column, or include it parenthetically like 'Value (Color: Red, Meaning: Error)' or 'Category A (Red): 30%').\n- Do not use meta commentary (e.g., 'the image contains...').\n- Output **only** the final Markdown enclosed in ```markdown``` tags. No explanations."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image (Picture):"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image (Context):"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+]
