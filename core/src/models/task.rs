@@ -720,7 +720,7 @@ pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
     #[serde(alias = "expires_at")]
     /// The number of seconds until task is deleted.
-    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
     /// Whether to use high-resolution images for cropping and post-processing.
     pub high_resolution: bool,

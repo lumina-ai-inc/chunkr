@@ -88,9 +88,9 @@ fn default_embed_sources() -> Vec<EmbedSource> {
 /// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
 ///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
 ///   or `Auto` to only crop when needed for post-processing.
-/// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
+/// - `html` is the HTML output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
-/// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
+/// - `markdown` is the Markdown output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
 ///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
 ///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
@@ -198,9 +198,9 @@ impl Default for LlmGenerationConfig {
 /// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
 ///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
 ///   or `Auto` to only crop when needed for post-processing.
-/// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
+/// - `html` is the HTML output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
-/// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
+/// - `markdown` is the Markdown output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
 ///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
 ///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
