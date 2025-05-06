@@ -326,6 +326,7 @@ async def test_pipeline_type_azure(client, sample_path):
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
+    assert response.configuration.pipeline == Pipeline.AZURE
     
 @pytest.mark.asyncio
 async def test_pipeline_type_chunkr(client, sample_path):
@@ -333,7 +334,8 @@ async def test_pipeline_type_chunkr(client, sample_path):
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
-
+    assert response.configuration.pipeline == Pipeline.CHUNKR
+    
 @pytest.mark.asyncio
 async def test_client_lifecycle(client, sample_path):
     response1 = await client.upload(sample_path)
