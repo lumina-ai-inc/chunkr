@@ -26,17 +26,11 @@ RUN apt-get update -y && \
     libssl-dev \
     libpq-dev \
     ca-certificates \
+    libreoffice \
     file \
     curl \
     imagemagick && \
     rm -rf /var/lib/apt/lists/*
-
-# Download & install LibreOffice 25.2.2 directly from TDF
-RUN curl -fsSL -o /tmp/libreoffice.tar.gz \
-    https://download.documentfoundation.org/libreoffice/stable/25.2.2/deb/x86_64/LibreOffice_25.2.2_Linux_x86-64_deb.tar.gz && \
-    tar -xzf /tmp/libreoffice.tar.gz -C /tmp && \
-    dpkg -i /tmp/LibreOffice_*/DEBS/*.deb && \
-    rm -rf /tmp/LibreOffice_* /tmp/libreoffice.tar.gz
 
 # Tweak ImageMagick policy
 RUN sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
