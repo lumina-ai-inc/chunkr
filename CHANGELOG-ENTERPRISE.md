@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.17.1-enterprise...v1.17.2-enterprise) (2025-05-07)
+
+
+### Bug Fixes
+
+* Added libreoffice to new dockers ([0ad0052](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0ad0052d1bb233a34f5ad683249f30b25e0cff79))
+
 ## [1.17.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.17.0-enterprise...v1.17.1-enterprise) (2025-05-06)
 
 

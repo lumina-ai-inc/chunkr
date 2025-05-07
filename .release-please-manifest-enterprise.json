@@ -3,6 +3,6 @@
     "services": "0.1.6-enterprise",
     "apps/web": "1.5.0-enterprise",
     "kube/charts/chunkr": "1.1.0-enterprise",
-    ".": "1.17.1-enterprise",
+    ".": "1.17.2-enterprise",
     "kube/charts/chunkr-enterprise": "1.2.0"
 }
