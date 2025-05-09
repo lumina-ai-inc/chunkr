@@ -1,7 +1,7 @@
 [
   {
     "role": "user",
-    "content": "Convert the following page to HTML. Convert tables into HTML tables\n- Describe any images, charts, diagrams, or visuals in text\n- Convert formulas to in text latex HTML format\n- Preserve all content from the original page\n- Maintain the original structure and organization\n\nReturn ONLY the HTML markup enclosed in ```html``` tags."
+    "content": "Convert the following page to HTML. Convert tables into HTML tables\n- Describe any images, charts, diagrams, or visuals in text\n- Convert formulas to in text latex HTML format\n- If there are any forms, preserve their key-value areas as HTML tables, regardless of whether the fields are filled in or not.\n- Preserve all content from the original page\n- Maintain the original structure and organization\n\n. The goal is not to remake the page in HTML - it is to capture each element (include everything) and organize them into a structured text-only (do not render color or images) HTML document. Simplify complex layouts (e.g., from multi-column to single-column) if necessary to achieve this clear, structured, text-only representation, ensuring all content and its logical order are preserved. Return ONLY the HTML markup enclosed in ```html``` tags."
   },
   {
     "role": "user",
