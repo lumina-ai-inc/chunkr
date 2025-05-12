@@ -68,6 +68,7 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 - **GitHub Releases** or version tagging.
 - **Cookbook, blogs** or other forms of writing to express your code.
 - **Docker Compose** for local deployment.
+- **Search Layer** integrating Pinecone or other vector DBs.
 > Any other creative feature or technology, just cook basically.
 
 ---
