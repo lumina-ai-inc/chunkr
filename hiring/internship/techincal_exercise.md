@@ -1,7 +1,7 @@
 # Technical Exercise: RAG Chat Tool with Chunkr API
 
 **Time allotment:** 24 hours  
-**Language(s):** Rust, Python or TypeScript  
+**Language(s):** Rust, Python, or TypeScript  
 **Modalities accepted:** CLI, API server, React app, Streamlit app, etc.
 
 ---
@@ -52,7 +52,7 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 
 ## 💡 Tips & Guidelines
 
-- **Context window**: You can retrieve top-k chunks with search or put entire pdf in context.
+- **Context window**: You can retrieve top-k chunks with search or put the entire pdf in context.
 - **Tech stack**: Feel free to combine any frameworks (e.g., React + FastAPI) or keep it simple (Streamlit).
 - **LLM choice**: Any model supported by OpenRouter.
 - **UV** preferred if using python.
@@ -66,7 +66,7 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 - **Multi-file** ingestion & chat support.
 - **CI/CD**: GitHub Actions workflows, linting, formatting, tests.
 - **GitHub Releases** or version tagging.
-- **Cookbook, blogs** or other forms of writing to express your code.
+- **Cookbook, blogs**, or other forms of writing to express your code.
 - **Docker Compose** for local deployment.
 - **Search Layer** integrating Pinecone or other vector DBs.
 > Any other creative feature or technology, just cook basically.
@@ -82,7 +82,7 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 2. A complete `README.md` (see Requirements).
 3. Source code and configuration (e.g., `package.json`, `pyproject.toml`, `cargo.toml`) via GitHub.
 
-Please submit a link to your repo within 24 hours.
+Please email a link to your repo within 24 hours.
 
 ---
 
@@ -93,5 +93,3 @@ Please submit a link to your repo within 24 hours.
 - **Code quality:** Readability, maintainability, tests.
 - **Documentation:** Clarity of setup and design in README.
 - **Bonus:** UI polish, deployment, CI, multi-file, etc.
-
-Good luck, and we look forward to seeing your creativity shine! 🚀
