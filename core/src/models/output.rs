@@ -492,6 +492,7 @@ mod tests {
     }
 
     fn create_test_config() -> Configuration {
+        #[allow(unused_mut)]
         let mut config = Configuration {
             chunk_processing: ChunkProcessing {
                 ignore_headers_and_footers: true,
@@ -509,6 +510,8 @@ mod tests {
             target_chunk_length: None,
             error_handling: ErrorHandlingStrategy::default(),
             llm_processing: LlmProcessing::default(),
+            #[cfg(feature = "azure")]
+            pipeline: None,
         };
 
         config

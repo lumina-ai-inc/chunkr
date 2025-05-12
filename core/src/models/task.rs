@@ -85,7 +85,7 @@ impl Task {
         let name = file_name.clone().unwrap_or_default();
         let original_extension = name
             .split('.')
-            .last()
+            .next_back()
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
         let (mime_type, extension) = check_file_type(file, original_extension)?;
@@ -331,6 +331,7 @@ impl Task {
         Ok(output_response)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn update(
         &mut self,
         status: Option<Status>,

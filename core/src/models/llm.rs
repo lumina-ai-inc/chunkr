@@ -53,6 +53,7 @@ impl<'a> FromSql<'a> for FallbackStrategy {
         match s.as_str() {
             "none" => Ok(FallbackStrategy::None),
             "default" => Ok(FallbackStrategy::Default),
+            #[allow(clippy::manual_strip)]
             s if s.starts_with("model:") => Ok(FallbackStrategy::Model(s[6..].to_string())),
             _ => Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
@@ -105,7 +106,7 @@ impl<'de> Deserialize<'de> for LlmProcessing {
             || helper
                 .model_id
                 .as_ref()
-                .map_or(false, |id| id.trim().is_empty())
+                .is_some_and(|id| id.trim().is_empty())
         {
             // Use the Config to get the default model ID
             if let Ok(config) = Config::from_env() {
@@ -117,13 +118,10 @@ impl<'de> Deserialize<'de> for LlmProcessing {
 
         if helper.fallback_strategy == FallbackStrategy::Default {
             if let Ok(config) = Config::from_env() {
-                if let Ok(default_fallback_model) =
+                if let Ok(Some(default_fallback_model)) =
                     config.get_fallback_model(FallbackStrategy::Default)
                 {
-                    if let Some(default_fallback_model) = default_fallback_model {
-                        helper.fallback_strategy =
-                            FallbackStrategy::Model(default_fallback_model.id);
-                    }
+                    helper.fallback_strategy = FallbackStrategy::Model(default_fallback_model.id);
                 }
             }
         }

@@ -185,7 +185,8 @@ pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<
         if filename.is_none() {
             if let Ok(url) = url::Url::parse(&input) {
                 if let Some(path_segments) = url.path_segments() {
-                    if let Some(last_segment) = path_segments.last() {
+                    let segments: Vec<_> = path_segments.collect();
+                    if let Some(last_segment) = segments.last() {
                         if !last_segment.is_empty() {
                             filename = Some(
                                 urlencoding::decode(last_segment)

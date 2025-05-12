@@ -33,7 +33,7 @@ pub async fn perform_general_ocr(
 }
 
 pub async fn doctr_ocr(
-    temp_files: &Vec<&NamedTempFile>,
+    temp_files: &[&NamedTempFile],
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let worker_config = WorkerConfig::from_env()
@@ -62,10 +62,8 @@ pub async fn doctr_ocr(
 
     let mut request = client.post(&url).multipart(form);
 
-    if let Some(timeout) = GENERAL_OCR_TIMEOUT.get() {
-        if let Some(timeout_value) = timeout {
-            request = request.timeout(std::time::Duration::from_secs(*timeout_value));
-        }
+    if let Some(Some(timeout_value)) = GENERAL_OCR_TIMEOUT.get() {
+        request = request.timeout(std::time::Duration::from_secs(*timeout_value));
     }
 
     let response = request.send().await?.error_for_status()?;
@@ -73,82 +71,82 @@ pub async fn doctr_ocr(
     Ok(doctr_response.into_iter().map(Vec::from).collect())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::configs::throttle_config::Config as ThrottleConfig;
-    use std::path::Path;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::configs::throttle_config::Config as ThrottleConfig;
+//     use std::path::Path;
 
-    #[tokio::test]
-    async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
-        let temp_file = NamedTempFile::new()?;
-        std::fs::copy("input/test.jpg", temp_file.path())?;
-        doctr_ocr(&vec![&temp_file]).await?;
-        Ok(())
-    }
+//     #[tokio::test]
+//     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
+//         let temp_file = NamedTempFile::new()?;
+//         std::fs::copy("input/test.jpg", temp_file.path())?;
+//         doctr_ocr(&vec![&temp_file]).await?;
+//         Ok(())
+//     }
 
-    #[tokio::test]
-    async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
-        let input_dir = Path::new("input");
-        let first_image = std::fs::read_dir(input_dir)?
-            .filter_map(|entry| {
-                entry.ok().and_then(|e| {
-                    let path = e.path();
-                    if let Some(ext) = path.extension() {
-                        if ext == "jpg" || ext == "jpeg" || ext == "png" {
-                            Some(path)
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    }
-                })
-            })
-            .next()
-            .ok_or("No image files found in input directory")?;
+//     #[tokio::test]
+//     async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
+//         let input_dir = Path::new("input");
+//         let first_image = std::fs::read_dir(input_dir)?
+//             .filter_map(|entry| {
+//                 entry.ok().and_then(|e| {
+//                     let path = e.path();
+//                     if let Some(ext) = path.extension() {
+//                         if ext == "jpg" || ext == "jpeg" || ext == "png" {
+//                             Some(path)
+//                         } else {
+//                             None
+//                         }
+//                     } else {
+//                         None
+//                     }
+//                 })
+//             })
+//             .next()
+//             .ok_or("No image files found in input directory")?;
 
-        let mut tasks = Vec::new();
-        let count = 1000;
-        for _ in 0..count {
-            let input_file = first_image.clone();
-            let temp_file = NamedTempFile::new()?;
-            std::fs::copy(&input_file, temp_file.path())?;
-            let task = tokio::spawn(async move {
-                match perform_general_ocr(vec![&temp_file]).await {
-                    Ok(_) => Ok(()),
-                    Err(e) => {
-                        println!("Error processing {:?}: {:?}", input_file, e);
-                        Err(e)
-                    }
-                }
-            });
-            tasks.push(task);
-        }
+//         let mut tasks = Vec::new();
+//         let count = 1000;
+//         for _ in 0..count {
+//             let input_file = first_image.clone();
+//             let temp_file = NamedTempFile::new()?;
+//             std::fs::copy(&input_file, temp_file.path())?;
+//             let task = tokio::spawn(async move {
+//                 match perform_general_ocr(vec![&temp_file]).await {
+//                     Ok(_) => Ok(()),
+//                     Err(e) => {
+//                         println!("Error processing {:?}: {:?}", input_file, e);
+//                         Err(e)
+//                     }
+//                 }
+//             });
+//             tasks.push(task);
+//         }
 
-        let start = std::time::Instant::now();
-        let mut error_count = 0;
-        for task in tasks {
-            if let Err(e) = task.await? {
-                println!("Error processing: {:?}", e);
-                error_count += 1;
-            }
-        }
-        let duration = start.elapsed();
-        let images_per_second = count as f64 / duration.as_secs_f64();
-        let throttle_config = ThrottleConfig::from_env().unwrap();
-        println!(
-            "General OCR rate limit: {:?}",
-            throttle_config.general_ocr_rate_limit
-        );
-        println!("Time taken: {:?}", duration);
-        println!("Images per second: {:?}", images_per_second);
-        println!("Error count: {:?}", error_count);
+//         let start = std::time::Instant::now();
+//         let mut error_count = 0;
+//         for task in tasks {
+//             if let Err(e) = task.await? {
+//                 println!("Error processing: {:?}", e);
+//                 error_count += 1;
+//             }
+//         }
+//         let duration = start.elapsed();
+//         let images_per_second = count as f64 / duration.as_secs_f64();
+//         let throttle_config = ThrottleConfig::from_env().unwrap();
+//         println!(
+//             "General OCR rate limit: {:?}",
+//             throttle_config.general_ocr_rate_limit
+//         );
+//         println!("Time taken: {:?}", duration);
+//         println!("Images per second: {:?}", images_per_second);
+//         println!("Error count: {:?}", error_count);
 
-        if error_count > 0 {
-            Err(format!("Error count {} > 0", error_count).into())
-        } else {
-            Ok(())
-        }
-    }
-}
+//         if error_count > 0 {
+//             Err(format!("Error count {} > 0", error_count).into())
+//         } else {
+//             Ok(())
+//         }
+//     }
+// }

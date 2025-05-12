@@ -110,6 +110,7 @@ impl<'a, T: ContentGenerator> StrategyParams<'a, T> {
 }
 
 impl<'a> ContentGenerationParams<'a> {
+    #[allow(clippy::too_many_arguments)]
     fn new(
         segment: &'a Segment,
         segment_image: Option<Arc<NamedTempFile>>,
@@ -134,6 +135,7 @@ impl<'a> ContentGenerationParams<'a> {
 }
 
 impl<'a> StandaloneLlmParams<'a> {
+    #[allow(clippy::too_many_arguments)]
     fn new(
         segment: &'a Segment,
         segment_image: Option<Arc<NamedTempFile>>,
