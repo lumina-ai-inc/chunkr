@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.12.1-enterprise...chunkr-core-enterprise-v1.12.2-enterprise) (2025-05-12)
+
+
+### Bug Fixes
+
+* Address Clippy warnings ([5fee794](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5fee794ef7bc3cc9fcc6b684a839c67281d7e566))
+
 ## [1.12.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.12.0-enterprise...chunkr-core-enterprise-v1.12.1-enterprise) (2025-05-06)
 
 
