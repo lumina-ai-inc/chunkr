@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server-azure:1.16.0-enterprise
+    image: luminainc/server-azure:1.17.3-enterprise
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task-azure:1.16.0-enterprise
+    image: luminainc/task-azure:1.17.3-enterprise
     platform: linux/amd64
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:1.16.0-enterprise
+    image: luminainc/web:1.17.3-enterprise
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -84,7 +84,7 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:1.16.0-enterprise
+    image: luminainc/doctr:1.17.3-enterprise
     platform: linux/amd64
     expose:
       - "8000"
