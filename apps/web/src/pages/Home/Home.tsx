@@ -68,9 +68,7 @@ const DOCUMENT_CATEGORIES: DocumentCategory[] = [
   { id: "legal", label: "Legal", pdfName: "legal" },
   { id: "medical", label: "Medical", pdfName: "medical" },
   { id: "patent", label: "Patent", pdfName: "patent" },
-  { id: "real_estate", label: "Real Estate", pdfName: "real_estate" },
   { id: "research", label: "Research", pdfName: "research" },
-  { id: "supply_chain", label: "Supply Chain", pdfName: "supply_chain" },
 ];
 
 const BASE_URL =
@@ -496,9 +494,8 @@ const Home = () => {
               <Flex
                 align="center"
                 gap="6px"
-                className={`hero-content-switch ${
-                  selectedFormat === "HTML" ? "active" : ""
-                }`}
+                className={`hero-content-switch ${selectedFormat === "HTML" ? "active" : ""
+                  }`}
                 onClick={() => handleFormatSwitch("HTML")}
               >
                 <svg
@@ -530,9 +527,8 @@ const Home = () => {
               <Flex
                 align="center"
                 gap="6px"
-                className={`hero-content-switch ${
-                  selectedFormat === "Markdown" ? "active" : ""
-                }`}
+                className={`hero-content-switch ${selectedFormat === "Markdown" ? "active" : ""
+                  }`}
                 onClick={() => handleFormatSwitch("Markdown")}
               >
                 <svg
@@ -1117,24 +1113,24 @@ const Home = () => {
                 {(!auth.isAuthenticated ||
                   currentTier === "Free" ||
                   isUsageDataLoading) && (
-                  <PricingCard
-                    title="Free"
-                    price="Free"
-                    period="month"
-                    features={[
-                      "200 pages included",
-                      "No payment info required",
-                      "Discord community support",
-                    ]}
-                    buttonText="Get Started"
-                    tier="Free"
-                    onCheckout={handleCheckout}
-                    stripePromise={stripePromise}
-                    clientSecret={checkoutClientSecret || undefined}
-                    currentTier={currentTier}
-                    isAuthenticated={auth.isAuthenticated}
-                  />
-                )}
+                    <PricingCard
+                      title="Free"
+                      price="Free"
+                      period="month"
+                      features={[
+                        "200 pages included",
+                        "No payment info required",
+                        "Discord community support",
+                      ]}
+                      buttonText="Get Started"
+                      tier="Free"
+                      onCheckout={handleCheckout}
+                      stripePromise={stripePromise}
+                      clientSecret={checkoutClientSecret || undefined}
+                      currentTier={currentTier}
+                      isAuthenticated={auth.isAuthenticated}
+                    />
+                  )}
 
                 <PricingCard
                   title="Starter"
