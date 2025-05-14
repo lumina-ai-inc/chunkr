@@ -68,7 +68,6 @@ const DOCUMENT_CATEGORIES: DocumentCategory[] = [
   { id: "legal", label: "Legal", pdfName: "legal" },
   { id: "medical", label: "Medical", pdfName: "medical" },
   { id: "miscellaneous", label: "Miscellaneous", pdfName: "miscellaneous" },
-  { id: "newspaper", label: "Newspaper", pdfName: "newspaper" },
   { id: "patent", label: "Patent", pdfName: "patent" },
   { id: "real_estate", label: "Real Estate", pdfName: "real_estate" },
   { id: "research", label: "Research", pdfName: "research" },
