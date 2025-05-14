@@ -113,7 +113,7 @@ button:focus-visible {
 .hero-content-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 128px);
+  height: calc(100vh - 112px);
   max-height: 869px;
   max-width: 1388px;
   margin-top: 64px;
@@ -137,6 +137,8 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
   padding-bottom: 0px;
 }
 
