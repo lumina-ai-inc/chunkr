@@ -153,7 +153,6 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
   background: rgba(5, 6, 9, 0.2);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -1766,4 +1765,26 @@ button:focus-visible {
     margin-top: 8px !important;
     margin-left: 8px !important;
   }
+}
+
+/* Make the category scroll-bar 4px wide, hide the track, style the thumb */
+.category-scroll-container {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* thumb, track */
+}
+
+/* WebKit browsers */
+.category-scroll-container::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.category-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 4px;
 }

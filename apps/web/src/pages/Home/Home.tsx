@@ -164,11 +164,8 @@ const Home = () => {
           align="center"
           overflow="auto"
           gap="8px"
-          style={{
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
-            paddingBottom: "4px",
-          }}
+          p="16px"
+          pb="12px"
           className="category-scroll-container"
         >
           {DOCUMENT_CATEGORIES.map((category) => (
@@ -179,7 +176,11 @@ const Home = () => {
               onClick={() => setSelectedCategory(category.id)}
               active={selectedCategory === category.id}
             >
-              <Text size="1" weight="medium" style={{ color: "white" }}>
+              <Text
+                size="1"
+                weight="medium"
+                style={{ color: "white", width: "max-content" }}
+              >
                 {category.label}
               </Text>
             </BetterButton>

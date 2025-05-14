@@ -43,13 +43,18 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
       /<span class="formula">([^<]+)<\/span>/g,
       (match, latexContent) => {
         try {
-          return katex.renderToString(latexContent, {
+          // Decode HTML entities so KaTeX sees real characters
+          const decoded = latexContent
+            .replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">");
+          return katex.renderToString(decoded, {
             throwOnError: false,
-            displayMode: false, // Ensure it's inline
+            displayMode: false, // inline
           });
         } catch (e) {
           console.error("Error rendering LaTeX:", e);
-          return match; // Return original span on error
+          return match; // fallback
         }
       }
     );
