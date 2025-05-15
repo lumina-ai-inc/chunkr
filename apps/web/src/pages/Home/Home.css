@@ -1775,6 +1775,7 @@ button:focus-visible {
   /* Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* thumb, track */
+  justify-content: space-between;
 }
 
 /* WebKit browsers */
