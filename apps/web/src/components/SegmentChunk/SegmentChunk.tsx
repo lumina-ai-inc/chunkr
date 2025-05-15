@@ -45,9 +45,9 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
         try {
           // Decode HTML entities so KaTeX sees real characters
           const decoded = latexContent
-            .replace(/&amp;/g, "&")
             .replace(/&lt;/g, "<")
-            .replace(/&gt;/g, ">");
+            .replace(/&gt;/g, ">")
+            .replace(/&amp;/g, "&");
           return katex.renderToString(decoded, {
             throwOnError: false,
             displayMode: false, // inline
