@@ -272,9 +272,10 @@ button:focus-visible {
   line-height: 96px !important;
   letter-spacing: -0.01em !important;
   color: #fff;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3))
+  /* filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3))
     drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))
-    drop-shadow(0 0 24px rgba(135, 206, 235, 0.2));
+    drop-shadow(0 0 24px rgba(135, 206, 235, 0.2)); */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
 .credit-main-container {
