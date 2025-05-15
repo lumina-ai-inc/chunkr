@@ -19,6 +19,7 @@ import BetterButton from "../BetterButton/BetterButton";
 import { Flex, Text } from "@radix-ui/themes";
 import toast from "react-hot-toast";
 import { useKatexRenderer } from "../../hooks/useKatexRenderer";
+import katex from "katex";
 
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
@@ -34,6 +35,27 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
           return match.replace(src, `data:image/jpeg;base64,${src}`);
         }
         return match;
+      }
+    );
+
+    // Process inline formulas <span class="formula">...</span>
+    tempHtml = tempHtml.replace(
+      /<span class="formula">([^<]+)<\/span>/g,
+      (match, latexContent) => {
+        try {
+          // Decode HTML entities so KaTeX sees real characters
+          const decoded = latexContent
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/&amp;/g, "&");
+          return katex.renderToString(decoded, {
+            throwOnError: false,
+            displayMode: false, // inline
+          });
+        } catch (e) {
+          console.error("Error rendering LaTeX:", e);
+          return match; // fallback
+        }
       }
     );
 
@@ -213,6 +235,8 @@ export const SegmentChunk = memo(
           SegmentType.Picture,
           SegmentType.Table,
           SegmentType.Formula,
+          SegmentType.PageHeader,
+          SegmentType.PageFooter,
         ].includes(segment.segment_type);
 
         // Determine the appropriate header text and color based on type
@@ -232,6 +256,14 @@ export const SegmentChunk = memo(
             case SegmentType.Formula:
               specialSegmentHeaderText = "Formula";
               specialSegmentColorVar = "var(--amber-3)"; // Use light amber
+              break;
+            case SegmentType.PageHeader:
+              specialSegmentHeaderText = "Page Header";
+              specialSegmentColorVar = "var(--violet-4)";
+              break;
+            case SegmentType.PageFooter:
+              specialSegmentHeaderText = "Page Footer";
+              specialSegmentColorVar = "var(--red-4)";
               break;
           }
         }
@@ -425,6 +457,42 @@ export const SegmentChunk = memo(
                    s-3.8,1-3.8,4.4s2.4,3.5,3.1,3.5c1.5,0,2.9-1.1,4.2-3.3c1.3-2.3,2.7-4.7,2.7-4.7c0.4,2,0.8,3.7,1,4.4c0.8,2.3,2.7,3.7,5.3,3.7
                    c0,0,2.6,0,5.7-1.7c0.7-0.3,1.3-1,1.3-1.9c0-1.1-0.9-2-2-2c-0.3,0-0.6,0.1-0.9,0.2l0,0c0,0-2.2,1.2-2.9,0.3c-0.5-1-1-2.4-1.3-4
                    c-0.3-1.5-0.7-3.2-1-4.9l2.2-3.2C42.4,22.3,44.9,23.2,46.1,23.2z"
+                      />
+                    </svg>
+                  )}
+                  {segment.segment_type === SegmentType.PageHeader && (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4 2L4 22L20 22L20 2L4 2 Z M 6 4L18 4L18 8L6 8L6 4 Z"
+                        stroke={specialSegmentColorVar}
+                        fill={specialSegmentColorVar}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                  {segment.segment_type === SegmentType.PageFooter && (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4 2L4 22L20 22L20 2L4 2 Z M 6 16L18 16L18 20L6 20L6 16 Z"
+                        stroke={specialSegmentColorVar}
+                        fill={specialSegmentColorVar}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </svg>
                   )}

@@ -113,7 +113,7 @@ button:focus-visible {
 .hero-content-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 128px);
+  height: calc(100vh - 112px);
   max-height: 869px;
   max-width: 1388px;
   margin-top: 64px;
@@ -137,6 +137,8 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
   padding-bottom: 0px;
 }
 
@@ -153,7 +155,6 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
   background: rgba(5, 6, 9, 0.2);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -271,9 +272,10 @@ button:focus-visible {
   line-height: 96px !important;
   letter-spacing: -0.01em !important;
   color: #fff;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3))
+  /* filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3))
     drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))
-    drop-shadow(0 0 24px rgba(135, 206, 235, 0.2));
+    drop-shadow(0 0 24px rgba(135, 206, 235, 0.2)); */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
 .credit-main-container {
@@ -1766,4 +1768,27 @@ button:focus-visible {
     margin-top: 8px !important;
     margin-left: 8px !important;
   }
+}
+
+/* Make the category scroll-bar 4px wide, hide the track, style the thumb */
+.category-scroll-container {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* thumb, track */
+  justify-content: space-between;
+}
+
+/* WebKit browsers */
+.category-scroll-container::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.category-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 4px;
 }
