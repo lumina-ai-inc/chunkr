@@ -105,7 +105,7 @@ impl<'de> Deserialize<'de> for LlmProcessing {
             || helper
                 .model_id
                 .as_ref()
-                .map_or(false, |id| id.trim().is_empty())
+                .is_some_and(|id| id.trim().is_empty())
         {
             // Use the Config to get the default model ID
             if let Ok(config) = Config::from_env() {

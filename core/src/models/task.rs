@@ -84,7 +84,7 @@ impl Task {
         let name = file_name.clone().unwrap_or_default();
         let original_extension = name
             .split('.')
-            .last()
+            .next_back()
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
         let (mime_type, extension) = check_file_type(file, original_extension)?;

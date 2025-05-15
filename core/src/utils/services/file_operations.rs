@@ -34,8 +34,7 @@ pub fn check_file_type(
                         }
                         Err(e) => {
                             println!("Error counting pages in PDF file: {}", e);
-                            return Err(Box::new(std::io::Error::new(
-                                std::io::ErrorKind::Other,
+                            return Err(Box::new(std::io::Error::other(
                                 format!("Unsupported file type: {}", mime_type),
                             )));
                         }
@@ -43,8 +42,7 @@ pub fn check_file_type(
                 }
             }
 
-            Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            Err(Box::new(std::io::Error::other(
                 format!("Unsupported file type: {}", mime_type),
             )))
         }
@@ -62,8 +60,7 @@ pub fn check_file_type(
         "application/vnd.ms-excel" => Ok((mime_type, "xls".to_string())),
         "image/jpeg" | "image/jpg" => Ok((mime_type, "jpg".to_string())),
         "image/png" => Ok((mime_type, "png".to_string())),
-        _ => Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
+        _ => Err(Box::new(std::io::Error::other(
             format!("Unsupported file type: {}", mime_type),
         ))),
     }
@@ -96,8 +93,7 @@ pub fn convert_to_pdf(
             .output()?;
 
         if !output.status.success() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            return Err(Box::new(std::io::Error::other(
                 format!("ImageMagick conversion failed: {:?}", output),
             )));
         }
@@ -127,8 +123,7 @@ pub fn convert_to_pdf(
             .output()?;
 
         if !output.status.success() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            return Err(Box::new(std::io::Error::other(
                 format!("LibreOffice conversion failed: {:?}", output),
             )));
         }
@@ -184,8 +179,8 @@ pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<
 
         if filename.is_none() {
             if let Ok(url) = url::Url::parse(&input) {
-                if let Some(path_segments) = url.path_segments() {
-                    if let Some(last_segment) = path_segments.last() {
+                if let Some(mut path_segments) = url.path_segments() {
+                    if let Some(last_segment) = path_segments.next_back() {
                         if !last_segment.is_empty() {
                             filename = Some(
                                 urlencoding::decode(last_segment)
