@@ -9,6 +9,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -211,21 +213,69 @@ export default function UsagePage({ customerId }: UsageProps) {
           starting: 0,
         };
       }
-
-      const pageCount = task.output?.page_count || 0;
-
+      // Count one per task rather than summing pages
+      const taskCount = 1;
       switch (task.status) {
         case Status.Succeeded:
-          dailyPages[date].successful += pageCount;
+          dailyPages[date].successful += taskCount;
           break;
         case Status.Failed:
-          dailyPages[date].failed += pageCount;
+          dailyPages[date].failed += taskCount;
           break;
         case Status.Processing:
-          dailyPages[date].processing += pageCount;
+          dailyPages[date].processing += taskCount;
           break;
         case Status.Starting:
-          dailyPages[date].starting += pageCount;
+          dailyPages[date].starting += taskCount;
+          break;
+      }
+    });
+
+    return Object.values(dailyPages).sort(
+      (a, b) =>
+        new Date(format(new Date(), "yyyy ") + a.date).getTime() -
+        new Date(format(new Date(), "yyyy ") + b.date).getTime()
+    );
+  };
+
+  // Helper to aggregate daily data for the stacked bar chart
+  const getBarChartData = () => {
+    if (!tasks) return [];
+    const dailyPages: {
+      [key: string]: {
+        date: string;
+        successful: number;
+        failed: number;
+        processing: number;
+        starting: number;
+      };
+    } = {};
+
+    tasks.forEach((task) => {
+      const date = format(new Date(task.created_at), "MMM dd");
+      if (!dailyPages[date]) {
+        dailyPages[date] = {
+          date,
+          successful: 0,
+          failed: 0,
+          processing: 0,
+          starting: 0,
+        };
+      }
+      // Count one per task rather than summing pages
+      const taskCount = 1;
+      switch (task.status) {
+        case Status.Succeeded:
+          dailyPages[date].successful += taskCount;
+          break;
+        case Status.Failed:
+          dailyPages[date].failed += taskCount;
+          break;
+        case Status.Processing:
+          dailyPages[date].processing += taskCount;
+          break;
+        case Status.Starting:
+          dailyPages[date].starting += taskCount;
           break;
       }
     });
@@ -240,34 +290,64 @@ export default function UsagePage({ customerId }: UsageProps) {
   return (
     <Flex direction="column" className="usage-container" gap="5">
       <Flex direction="row" gap="4" align="center">
-        <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
-          Overview
-        </Text>
-        <Flex direction="row" gap="4" width="fit-content">
-          <Dropdown
-            value={
-              timeRange === "today"
-                ? "Today"
-                : timeRange === "week"
-                ? "Last 7 Days"
-                : timeRange === "14days"
-                ? "Last 14 Days"
-                : "Last 30 Days"
-            }
-            options={["Today", "Last 7 Days", "Last 14 Days", "Last 30 Days"]}
-            onChange={handleTimeRangeChange}
-          />
+        <Flex direction="row" align="center" justify="between" width="100%">
+          <Flex direction="row" align="center" gap="4">
+            <Text
+              size="5"
+              align="center"
+              weight="bold"
+              style={{ color: "#FFF" }}
+            >
+              Overview
+            </Text>
+            <BetterButton onClick={() => refetchTasks()}>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M21.25 12C21.25 17.1086 17.1086 21.25 12 21.25C6.89137 21.25 2.75 17.1086 2.75 12C2.75 6.89137 6.89137 2.75 12 2.75C15.0183 2.75 17.7158 4.17505 19.4317 6.37837"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M21.25 2.75V6.375C21.25 6.92728 20.8023 7.375 20.25 7.375H16.625"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <Text size="2" className="white">
+                Refresh
+              </Text>
+            </BetterButton>
+          </Flex>
+          <Flex direction="row" gap="4" width="fit-content">
+            <Dropdown
+              value={
+                timeRange === "today"
+                  ? "Today"
+                  : timeRange === "week"
+                  ? "Last 7 Days"
+                  : timeRange === "14days"
+                  ? "Last 14 Days"
+                  : "Last 30 Days"
+              }
+              options={["Today", "Last 7 Days", "Last 14 Days", "Last 30 Days"]}
+              onChange={handleTimeRangeChange}
+            />
+          </Flex>
         </Flex>
       </Flex>
 
-      <Flex direction="column" gap="4" width="fit-content" minWidth="600px">
-        <Flex
-          direction="row"
-          gap="2"
-          align="center"
-          justify="between"
-          width="100%"
-        >
+      <Flex direction="row" gap="4" width="100%">
+        <Flex direction="column" gap="2" style={{ flex: 1 }}>
           <Flex direction="row" gap="2" align="center">
             <svg
               width="24"
@@ -299,139 +379,221 @@ export default function UsagePage({ customerId }: UsageProps) {
               Pages Processed (UTC)
             </Text>
           </Flex>
-          <BetterButton onClick={() => refetchTasks()}>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M21.25 12C21.25 17.1086 17.1086 21.25 12 21.25C6.89137 21.25 2.75 17.1086 2.75 12C2.75 6.89137 6.89137 2.75 12 2.75C15.0183 2.75 17.7158 4.17505 19.4317 6.37837"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M21.25 2.75V6.375C21.25 6.92728 20.8023 7.375 20.25 7.375H16.625"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <Text size="2" className="white">
-              Refresh
-            </Text>
-          </BetterButton>
+          <Flex className="chart-container">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart
+                data={getChartData()}
+                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid
+                  horizontal={true}
+                  vertical={false}
+                  stroke="rgba(255,255,255,0.1)"
+                  strokeDasharray="3 3"
+                />
+                <XAxis
+                  dataKey={timeRange === "today" ? "hour" : "date"}
+                  stroke="rgba(255,255,255,0.2)"
+                  tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  dy={10}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  stroke="rgba(255,255,255,0.2)"
+                  tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  dx={-10}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "rgba(0,0,0,0.9)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                    padding: "12px",
+                  }}
+                  itemStyle={{
+                    color: "rgba(255,255,255,0.95)",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                  }}
+                  labelStyle={{
+                    color: "rgba(255,255,255,0.8)",
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                  }}
+                  cursor={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="successful"
+                  stroke="#00FF9D"
+                  strokeWidth={2.5}
+                  dot={false}
+                  name="Successfully Processed"
+                  activeDot={{
+                    r: 4,
+                    fill: "#00FF9D",
+                    stroke: "#00FF9D",
+                    strokeWidth: 2,
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="failed"
+                  stroke="#FF4D4D"
+                  strokeWidth={2.5}
+                  dot={false}
+                  name="Failed"
+                  activeDot={{
+                    r: 4,
+                    fill: "#FF4D4D",
+                    stroke: "#FF4D4D",
+                    strokeWidth: 2,
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="processing"
+                  stroke="#FFB800"
+                  strokeWidth={2.5}
+                  dot={false}
+                  name="Processing"
+                  activeDot={{
+                    r: 4,
+                    fill: "#FFB800",
+                    stroke: "#FFB800",
+                    strokeWidth: 2,
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="starting"
+                  stroke="#4D9EFF"
+                  strokeWidth={2.5}
+                  dot={false}
+                  name="Starting"
+                  activeDot={{
+                    r: 4,
+                    fill: "#4D9EFF",
+                    stroke: "#4D9EFF",
+                    strokeWidth: 2,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Flex>
         </Flex>
-        <Flex className="chart-container">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-              data={getChartData()}
-              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+        <Flex direction="column" gap="2" style={{ flex: 1 }}>
+          <Flex direction="row" gap="2" align="center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="24"
+              fill="none"
+              viewBox="0 0 25 24"
             >
-              <CartesianGrid
-                horizontal={true}
-                vertical={false}
-                stroke="rgba(255,255,255,0.1)"
-                strokeDasharray="3 3"
-              />
-              <XAxis
-                dataKey={timeRange === "today" ? "hour" : "date"}
-                stroke="rgba(255,255,255,0.2)"
-                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                dy={10}
-              />
-              <YAxis
-                stroke="rgba(255,255,255,0.2)"
-                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                dx={-10}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(0,0,0,0.9)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-                  padding: "12px",
-                }}
-                itemStyle={{
-                  color: "rgba(255,255,255,0.95)",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                }}
-                labelStyle={{
-                  color: "rgba(255,255,255,0.8)",
-                  fontSize: "12px",
-                  marginBottom: "4px",
-                }}
-                cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="successful"
-                stroke="#00FF9D"
-                strokeWidth={2.5}
-                dot={false}
-                name="Successfully Processed"
-                activeDot={{
-                  r: 4,
-                  fill: "#00FF9D",
-                  stroke: "#00FF9D",
-                  strokeWidth: 2,
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="failed"
-                stroke="#FF4D4D"
-                strokeWidth={2.5}
-                dot={false}
-                name="Failed"
-                activeDot={{
-                  r: 4,
-                  fill: "#FF4D4D",
-                  stroke: "#FF4D4D",
-                  strokeWidth: 2,
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="processing"
-                stroke="#FFB800"
-                strokeWidth={2.5}
-                dot={false}
-                name="Processing"
-                activeDot={{
-                  r: 4,
-                  fill: "#FFB800",
-                  stroke: "#FFB800",
-                  strokeWidth: 2,
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="starting"
-                stroke="#4D9EFF"
-                strokeWidth={2.5}
-                dot={false}
-                name="Starting"
-                activeDot={{
-                  r: 4,
-                  fill: "#4D9EFF",
-                  stroke: "#4D9EFF",
-                  strokeWidth: 2,
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+              <g
+                stroke="#FFF"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1"
+                clipPath="url(#D2kmTpLHc2a)"
+              >
+                <path d="M5.25 20.25h1.5a1 1 0 0 0 1-1v-5.5a1 1 0 0 0-1-1h-1.5a1 1 0 0 0-1 1v5.5a1 1 0 0 0 1 1m13 0h1.5a1 1 0 0 0 1-1v-9.5a1 1 0 0 0-1-1h-1.5a1 1 0 0 0-1 1v9.5a1 1 0 0 0 1 1m-6.5 0h1.5a1 1 0 0 0 1-1V5.75a1 1 0 0 0-1-1h-1.5a1 1 0 0 0-1 1v13.5a1 1 0 0 0 1 1" />
+              </g>
+              <defs>
+                <clipPath id="D2kmTpLHc2a">
+                  <path fill="#fff" d="M.5 0h24v24H.5z" />
+                </clipPath>
+              </defs>
+            </svg>
+            <Text
+              size="3"
+              weight="bold"
+              style={{ color: "rgba(255,255,255,0.9)" }}
+            >
+              Tasks by Status (UTC)
+            </Text>
+          </Flex>
+          <Flex className="chart-container">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={getBarChartData()}
+                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid
+                  horizontal={true}
+                  vertical={false}
+                  stroke="rgba(255,255,255,0.1)"
+                  strokeDasharray="3 3"
+                />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(255,255,255,0.2)"
+                  tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  dy={10}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  stroke="rgba(255,255,255,0.2)"
+                  tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  dx={-10}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "rgba(0,0,0,0.9)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                    padding: "12px",
+                  }}
+                  itemStyle={{
+                    color: "rgba(255,255,255,0.95)",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                  }}
+                  labelStyle={{
+                    color: "rgba(255,255,255,0.8)",
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                  }}
+                  cursor={false}
+                />
+                <Bar
+                  stackId="a"
+                  dataKey="starting"
+                  fill="#4D9EFF"
+                  name="Starting"
+                />
+                <Bar
+                  stackId="a"
+                  dataKey="processing"
+                  fill="#FFB800"
+                  name="Processing"
+                />
+                <Bar
+                  stackId="a"
+                  dataKey="failed"
+                  fill="#FF4D4D"
+                  name="Failed"
+                />
+                <Bar
+                  stackId="a"
+                  dataKey="successful"
+                  fill="#00FF9D"
+                  name="Successfully Processed"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </Flex>
         </Flex>
       </Flex>
       {tier !== "SelfHosted" && (
