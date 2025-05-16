@@ -1,7 +1,7 @@
 use crate::configs::throttle_config::Config as ThrottleConfig;
 use crate::models::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
 use crate::models::pipeline::Pipeline;
-use crate::models::task::{Configuration, Status, Task};
+use crate::models::task::{Configuration, Task};
 use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 use crate::utils::services::images;
 use crate::utils::services::ocr;
@@ -221,17 +221,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .map(|x| x.as_ref())
         .collect();
 
-    task.update(
-        Some(Status::Processing),
-        Some("Performing OCR".to_string()),
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    .await?;
-
     let ocr_results = match process_ocr(&mut task, pdf_file, scaling_factor, &pages).await {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
@@ -239,17 +228,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             return Err(e.to_string().into());
         }
     };
-
-    task.update(
-        Some(Status::Processing),
-        Some("Performing segmentation".to_string()),
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    .await?;
 
     let page_segments = match process_segmentation(&mut task, &pages, ocr_results).await {
         Ok(page_segments) => page_segments,

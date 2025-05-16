@@ -793,18 +793,8 @@ async fn process_segment(
 /// This function will generate the html, llm and markdown fields for all the segments in parallel.
 /// Depending on the configuration, each segment will either be processed using heuristic or by a LLM.
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
-    let mut task = pipeline.get_task()?;
-    task.update(
-        Some(Status::Processing),
-        Some("Processing segments".to_string()),
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    .await?;
-    let configuration = pipeline.get_task()?.configuration.clone();
+    let task = pipeline.get_task()?;
+    let configuration = task.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
 
     // Simply clone out the Option<Vec<…>> and default to an empty Vec if missing

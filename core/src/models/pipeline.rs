@@ -45,7 +45,7 @@ impl PipelineStepMessages for PipelineStep {
             PipelineStep::ChunkrAnalysis => "Running Chunkr analysis".to_string(),
             PipelineStep::ConvertToImages => "Converting pages to images".to_string(),
             PipelineStep::Crop => "Cropping segments".to_string(),
-            PipelineStep::SegmentProcessing => "Processing segments via LLM".to_string(),
+            PipelineStep::SegmentProcessing => "Processing segments".to_string(),
         }
     }
 
@@ -53,11 +53,13 @@ impl PipelineStepMessages for PipelineStep {
         match self {
             #[cfg(feature = "azure")]
             PipelineStep::AzureAnalysis => "Failed to run Azure analysis".to_string(),
-            PipelineStep::Chunking => "Failed to chunk document".to_string(),
+            PipelineStep::Chunking => "Failed to chunk".to_string(),
             PipelineStep::ChunkrAnalysis => "Failed to run Chunkr analysis".to_string(),
             PipelineStep::ConvertToImages => "Failed to convert pages to images".to_string(),
             PipelineStep::Crop => "Failed to crop segments".to_string(),
-            PipelineStep::SegmentProcessing => "Failed to process segments via LLM".to_string(),
+            PipelineStep::SegmentProcessing => {
+                "Failed to process segments - LLM processing error".to_string()
+            }
         }
     }
 }
