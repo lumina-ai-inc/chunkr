@@ -16,20 +16,50 @@ use memtrack::track_mem;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString)]
 pub enum PipelineStep {
-    #[strum(serialize = "convert_to_images")]
-    ConvertToImages,
+    #[cfg(feature = "azure")]
+    #[strum(serialize = "azure_analysis")]
+    AzureAnalysis,
+    #[strum(serialize = "chunking")]
+    Chunking,
     #[strum(serialize = "chunkr_analysis")]
     ChunkrAnalysis,
+    #[strum(serialize = "convert_to_images")]
+    ConvertToImages,
     #[strum(serialize = "crop")]
     Crop,
     #[strum(serialize = "segment_processing")]
     SegmentProcessing,
-    #[strum(serialize = "chunking")]
-    Chunking,
-    #[cfg(feature = "azure")]
-    #[strum(serialize = "azure_analysis")]
-    AzureAnalysis,
-    // StructuredExtraction,
+}
+
+pub trait PipelineStepMessages {
+    fn start_message(&self) -> String;
+    fn error_message(&self) -> String;
+}
+
+impl PipelineStepMessages for PipelineStep {
+    fn start_message(&self) -> String {
+        match self {
+            #[cfg(feature = "azure")]
+            PipelineStep::AzureAnalysis => "Running Azure analysis".to_string(),
+            PipelineStep::Chunking => "Chunking".to_string(),
+            PipelineStep::ChunkrAnalysis => "Running Chunkr analysis".to_string(),
+            PipelineStep::ConvertToImages => "Converting pages to images".to_string(),
+            PipelineStep::Crop => "Cropping segments".to_string(),
+            PipelineStep::SegmentProcessing => "Processing segments via LLM".to_string(),
+        }
+    }
+
+    fn error_message(&self) -> String {
+        match self {
+            #[cfg(feature = "azure")]
+            PipelineStep::AzureAnalysis => "Failed to run Azure analysis".to_string(),
+            PipelineStep::Chunking => "Failed to chunk document".to_string(),
+            PipelineStep::ChunkrAnalysis => "Failed to run Chunkr analysis".to_string(),
+            PipelineStep::ConvertToImages => "Failed to convert pages to images".to_string(),
+            PipelineStep::Crop => "Failed to crop segments".to_string(),
+            PipelineStep::SegmentProcessing => "Failed to process segments via LLM".to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -166,20 +196,30 @@ impl Pipeline {
         println!("Executing step: {}", step.to_string());
         let start = std::time::Instant::now();
 
+        let mut task = self.get_task()?;
+        task.update(
+            Some(Status::Processing),
+            Some(step.start_message()),
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+        .await?;
+
         let result = match step {
             #[cfg(feature = "azure")]
-            PipelineStep::AzureAnalysis => crate::pipeline::azure::process(self).await,
+            PipelineStep::AzureAnalysis => crate::pipeline::azure_analysis::process(self).await,
             PipelineStep::Chunking => crate::pipeline::chunking::process(self).await,
             PipelineStep::ConvertToImages => {
                 crate::pipeline::convert_to_images::process(self).await
             }
             PipelineStep::Crop => crate::pipeline::crop::process(self).await,
-            PipelineStep::ChunkrAnalysis => {
-                crate::pipeline::segmentation_and_ocr::process(self).await
-            }
+            PipelineStep::ChunkrAnalysis => crate::pipeline::chunkr_analysis::process(self).await,
             PipelineStep::SegmentProcessing => {
                 crate::pipeline::segment_processing::process(self).await
-            } // PipelineStep::StructuredExtraction => crate::pipeline::structured_extraction::process(self).await,
+            }
         };
 
         result?;
