@@ -35,11 +35,12 @@ async def process_file(chunkr: Chunkr, file_path: str) -> Optional[TaskResponse]
         #     )      
         config = Configuration(
                 segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS,
-                ocr_strategy=OcrStrategy.AUTO,
+                ocr_strategy=OcrStrategy.ALL,
                 segment_processing=SegmentProcessing(
-                    Page=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
-                    Picture=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
-                    Table=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.LLM),
+                    Page=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.AUTO),
+                    Picture=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.AUTO),
+                    Table=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.AUTO),
+                    Formula=GenerationConfig(html=GenerationStrategy.AUTO, markdown=GenerationStrategy.AUTO),
                 ),
                 pipeline=Pipeline.CHUNKR
             )         
