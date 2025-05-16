@@ -4,7 +4,7 @@ use crate::models::pipeline::Pipeline;
 use crate::models::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
 };
-use crate::models::task::{Configuration, Status};
+use crate::models::task::Configuration;
 use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
@@ -800,8 +800,10 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     // Simply clone out the Option<Vec<…>> and default to an empty Vec if missing
     let page_images: Vec<_> = pipeline.page_images.clone().unwrap_or_default();
 
-    let futures: Vec<_> = pipeline
-        .chunks
+    // Clone the chunks to avoid modifying originals until processing succeeds
+    let mut cloned_chunks = pipeline.chunks.clone();
+
+    let futures: Vec<_> = cloned_chunks
         .iter_mut()
         .flat_map(|chunk| {
             chunk.segments.iter_mut().map(|segment| {
@@ -827,12 +829,14 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
 
     println!("Processing {:?} segments concurrently", futures.len());
     match futures::future::try_join_all(futures).await {
-        Ok(_) => (),
+        Ok(_) => {
+            // Only update the pipeline chunks if all processing was successful
+            pipeline.chunks = cloned_chunks;
+            Ok(())
+        }
         Err(e) => {
             eprintln!("Error processing segments: {:?}", e);
-            return Err(e.to_string().into());
+            Err(e.to_string().into())
         }
     }
-
-    Ok(())
 }

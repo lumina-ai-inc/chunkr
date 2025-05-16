@@ -3,7 +3,6 @@ use core::configs::worker_config::Config as WorkerConfig;
 use core::models::pipeline::{Pipeline, PipelineStep};
 use core::models::task::Status;
 use core::models::task::TaskPayload;
-use core::models::task::TimeoutError;
 use core::utils::clients::get_redis_pool;
 use core::utils::clients::initialize;
 
@@ -35,16 +34,6 @@ fn orchestrate_task(
     steps.push(PipelineStep::Crop);
     steps.push(PipelineStep::SegmentProcessing);
     steps.push(PipelineStep::Chunking);
-
-    // let structured_extraction = pipeline
-    //     .get_task()?
-    //     .configuration
-    //     .structured_extraction
-    //     .clone();
-    // if structured_extraction.is_some() {
-    //     steps.push(PipelineStep::StructuredExtraction);
-    // }
-
     Ok(steps)
 }
 
@@ -54,83 +43,31 @@ pub async fn process(
     max_retries: u32,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut pipeline = Pipeline::new();
-    let mut retries = 0;
-
-    while retries <= max_retries {
-        let result: Result<(), Box<dyn std::error::Error>> = (async {
-            // Reset pipeline if this is a retry
-            if retries > 0 {
-                pipeline = Pipeline::new();
-            }
-
-            pipeline.init(task_payload.clone()).await?;
-            if pipeline.get_task()?.status != Status::Processing {
-                println!(
-                    "Skipping task as status is {:?}",
-                    pipeline.get_task()?.status
-                );
-                return Ok(());
-            }
-            let start_time = std::time::Instant::now();
-            for step in orchestrate_task(&mut pipeline)? {
-                pipeline.execute_step(step).await?;
-                if pipeline.get_task()?.status != Status::Processing {
-                    return Ok(());
-                }
-            }
-            let end_time = std::time::Instant::now();
-            println!(
-                "Task took {:?} to complete with page count {:?}",
-                end_time.duration_since(start_time),
-                pipeline.get_task()?.page_count.unwrap_or(0)
-            );
-
-            pipeline
-                .complete(Status::Succeeded, Some("Task succeeded".to_string()))
-                .await?;
-            Ok(())
-        })
-        .await;
-
-        match result {
-            Ok(_) => return Ok(()),
-            Err(e) => {
-                if retries < max_retries && !e.is::<TimeoutError>() {
-                    println!(
-                        "Task failed, retrying {}/{}: {}",
-                        retries + 1,
-                        max_retries,
-                        e
-                    );
-                    retries += 1;
-                    pipeline
-                        .get_task()?
-                        .update(
-                            Some(Status::Processing),
-                            Some(format!(
-                                "Task failed | retrying {}/{}",
-                                retries, max_retries
-                            )),
-                            None,
-                            None,
-                            None,
-                            None,
-                            None,
-                        )
-                        .await?;
-                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-                } else {
-                    println!("Task failed with error: {}", e);
-                    pipeline
-                        .complete(Status::Failed, Some("Task failed".to_string()))
-                        .await?;
-                    return Err(e);
-                }
-            }
+    pipeline.init(task_payload.clone()).await?;
+    if pipeline.get_task()?.status != Status::Processing {
+        println!(
+            "Skipping task as status is {:?}",
+            pipeline.get_task()?.status
+        );
+        return Ok(());
+    }
+    let start_time = std::time::Instant::now();
+    for step in orchestrate_task(&mut pipeline)? {
+        pipeline.execute_step(step, max_retries).await?;
+        if pipeline.get_task()?.status != Status::Processing {
+            return Ok(());
         }
     }
-
-    Err("Unexpected end of process function".into())
+    let end_time = std::time::Instant::now();
+    println!(
+        "Task took {:?} to complete with page count {:?}",
+        end_time.duration_since(start_time),
+        pipeline.get_task()?.page_count.unwrap_or(0)
+    );
+    pipeline
+        .complete(Status::Succeeded, Some("Task succeeded".to_string()))
+        .await?;
+    Ok(())
 }
 
 #[tokio::main]
