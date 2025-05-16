@@ -26,6 +26,7 @@ RUN apt-get update -y && \
     libssl-dev \
     libpq-dev \
     ca-certificates \
+    libreoffice \
     file \
     curl \
     imagemagick && \
