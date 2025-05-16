@@ -213,20 +213,21 @@ export default function UsagePage({ customerId }: UsageProps) {
           starting: 0,
         };
       }
-      // Count one per task rather than summing pages
-      const taskCount = 1;
+
+      const pageCount = task.output?.page_count || 0;
+
       switch (task.status) {
         case Status.Succeeded:
-          dailyPages[date].successful += taskCount;
+          dailyPages[date].successful += pageCount;
           break;
         case Status.Failed:
-          dailyPages[date].failed += taskCount;
+          dailyPages[date].failed += pageCount;
           break;
         case Status.Processing:
-          dailyPages[date].processing += taskCount;
+          dailyPages[date].processing += pageCount;
           break;
         case Status.Starting:
-          dailyPages[date].starting += taskCount;
+          dailyPages[date].starting += pageCount;
           break;
       }
     });
