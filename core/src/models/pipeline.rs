@@ -8,7 +8,29 @@ use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::error::Error;
 use std::sync::Arc;
+use strum_macros::{Display, EnumString};
 use tempfile::NamedTempFile;
+
+#[cfg(feature = "memory_profiling")]
+use memtrack::track_mem;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString)]
+pub enum PipelineStep {
+    #[strum(serialize = "convert_to_images")]
+    ConvertToImages,
+    #[strum(serialize = "chunkr_analysis")]
+    ChunkrAnalysis,
+    #[strum(serialize = "crop")]
+    Crop,
+    #[strum(serialize = "segment_processing")]
+    SegmentProcessing,
+    #[strum(serialize = "chunking")]
+    Chunking,
+    #[cfg(feature = "azure")]
+    #[strum(serialize = "azure_analysis")]
+    AzureAnalysis,
+    // StructuredExtraction,
+}
 
 #[derive(Debug, Clone)]
 pub struct Pipeline {
@@ -136,6 +158,41 @@ impl Pipeline {
         } else {
             Ok(self.pdf_file.as_ref().unwrap().clone())
         }
+    }
+
+    /// Execute a step in the pipeline
+    #[cfg_attr(feature = "memory_profiling", track_mem)]
+    pub async fn execute_step(&mut self, step: PipelineStep) -> Result<(), Box<dyn Error>> {
+        println!("Executing step: {}", step.to_string());
+        let start = std::time::Instant::now();
+
+        let result = match step {
+            #[cfg(feature = "azure")]
+            PipelineStep::AzureAnalysis => crate::pipeline::azure::process(self).await,
+            PipelineStep::Chunking => crate::pipeline::chunking::process(self).await,
+            PipelineStep::ConvertToImages => {
+                crate::pipeline::convert_to_images::process(self).await
+            }
+            PipelineStep::Crop => crate::pipeline::crop::process(self).await,
+            PipelineStep::ChunkrAnalysis => {
+                crate::pipeline::segmentation_and_ocr::process(self).await
+            }
+            PipelineStep::SegmentProcessing => {
+                crate::pipeline::segment_processing::process(self).await
+            } // PipelineStep::StructuredExtraction => crate::pipeline::structured_extraction::process(self).await,
+        };
+
+        result?;
+
+        let duration = start.elapsed();
+        println!(
+            "Step {} took {:?} with page count {:?}",
+            step.to_string(),
+            duration,
+            self.get_task()?.page_count.unwrap_or(0)
+        );
+
+        Ok(())
     }
 
     pub async fn complete(
