@@ -138,6 +138,108 @@ impl Pipeline {
         }
     }
 
+    /// Execute a step in the pipeline
+    #[cfg_attr(feature = "memory_profiling", track_mem)]
+    pub async fn execute_step(
+        &mut self,
+        step: PipelineStep,
+        max_retries: u32,
+    ) -> Result<(), Box<dyn Error>> {
+        let start = std::time::Instant::now();
+
+        let mut task = self.get_task()?;
+
+        let mut retries = 0;
+        while retries < max_retries {
+            // Update task status to processing and message to step start message
+            let message = match retries > 0 {
+                true => format!(
+                    "{} | retry {}/{}",
+                    step.start_message(),
+                    retries + 1,
+                    max_retries
+                ),
+                false => step.start_message(),
+            };
+            println!("Executing step: {}", message);
+            match task
+                .update(
+                    Some(Status::Processing),
+                    Some(message),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                .await
+            {
+                Ok(_) => (),
+                Err(e) => {
+                    if e.is::<TimeoutError>() {
+                        println!("Task timed out");
+                    } else {
+                        println!("Error in updating task: {:?}", e);
+                    }
+                    return Err(e);
+                }
+            };
+
+            // Execute step
+            let result = match step {
+                #[cfg(feature = "azure")]
+                PipelineStep::AzureAnalysis => crate::pipeline::azure_analysis::process(self).await,
+                PipelineStep::Chunking => crate::pipeline::chunking::process(self).await,
+                PipelineStep::ConvertToImages => {
+                    crate::pipeline::convert_to_images::process(self).await
+                }
+                PipelineStep::Crop => crate::pipeline::crop::process(self).await,
+                PipelineStep::ChunkrAnalysis => {
+                    crate::pipeline::chunkr_analysis::process(self).await
+                }
+                PipelineStep::SegmentProcessing => {
+                    crate::pipeline::segment_processing::process(self).await
+                }
+            };
+
+            let duration = start.elapsed();
+
+            // Check if step succeeded or failed
+            match result {
+                Ok(_) => {
+                    println!(
+                        "Step {} took {:?} with page count {:?}",
+                        step,
+                        duration,
+                        self.get_task()?.page_count.unwrap_or(0)
+                    );
+                    return Ok(());
+                }
+                Err(e) => {
+                    println!("Error {} in step {}", e, step);
+                    retries += 1;
+                    if retries < max_retries {
+                        task.update(
+                            Some(Status::Processing),
+                            Some(step.error_message()),
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        .await?;
+                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                    }
+                }
+            }
+        }
+        // If step failed after max_retries, complete task with failed status and error message
+        self.complete(Status::Failed, Some(step.error_message()))
+            .await?;
+        Err("Maximum retries exceeded".into())
+    }
+
     pub async fn complete(
         &mut self,
         status: Status,
