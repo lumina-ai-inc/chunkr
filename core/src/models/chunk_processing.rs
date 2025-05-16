@@ -112,8 +112,7 @@ impl<'a> FromSql<'a> for TokenizerType {
         raw: &'a [u8],
     ) -> Result<Self, Box<dyn std::error::Error + Sync + Send>> {
         let s = String::from_sql(ty, raw)?;
-        if s.starts_with("enum:") {
-            let tokenizer_str = &s[5..];
+        if let Some(tokenizer_str) = s.strip_prefix("enum:") {
             let tokenizer = tokenizer_str
                 .parse::<Tokenizer>()
                 .map_err(|e| Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))?;
