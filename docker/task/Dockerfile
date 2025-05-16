@@ -15,23 +15,31 @@ RUN cargo chef cook --release --recipe-path recipe.json --bin "task"
 COPY core/ .
 RUN cargo build --release --bin "task"
 
-FROM debian:bookworm-slim AS runtime
+FROM ubuntu:24.04 AS runtime
 WORKDIR /app
 
-RUN apt-get update -y; \
+# Install all deps except LibreOffice
+RUN apt-get update -y && \
     apt-get install -y \
     pkg-config \
-    build-essential\
+    build-essential \
     libssl-dev \
     libpq-dev \
     ca-certificates \
-    libreoffice \
     file \
     curl \
-    imagemagick \
-    ; \
-    mkdir -p /app/tmp && \
-    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+    imagemagick && \
+    rm -rf /var/lib/apt/lists/*
+
+# Download & install LibreOffice 25.2.2 directly from TDF
+RUN curl -fsSL -o /tmp/libreoffice.tar.gz \
+    https://download.documentfoundation.org/libreoffice/stable/25.2.2/deb/x86_64/LibreOffice_25.2.2_Linux_x86-64_deb.tar.gz && \
+    tar -xzf /tmp/libreoffice.tar.gz -C /tmp && \
+    dpkg -i /tmp/LibreOffice_*/DEBS/*.deb && \
+    rm -rf /tmp/LibreOffice_* /tmp/libreoffice.tar.gz
+
+# Tweak ImageMagick policy
+RUN sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
 
 # Download and extract PDFium binary
 RUN mkdir -p /app/pdfium-binaries && \
@@ -39,6 +47,7 @@ RUN mkdir -p /app/pdfium-binaries && \
     tar -xz -C /tmp && \
     cp /tmp/lib/libpdfium.so /app/pdfium-binaries/
 
+# Copy your built Rust binary in
 COPY --from=builder /app/target/release/task /app/task
 
 EXPOSE 8000

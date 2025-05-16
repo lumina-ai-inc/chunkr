@@ -1,0 +1,15 @@
+[project]
+name = "scripts"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.38.7",
+    "chunkr-ai>=0.0.48",
+    "img2pdf>=0.6.1",
+    "pydantic>=2.11.4",
+    "python-dotenv>=1.1.0",
+    "redis>=6.0.0",
+    "streamlit>=1.45.0",
+]

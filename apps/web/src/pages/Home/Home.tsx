@@ -58,17 +58,25 @@ type DocumentCategory = {
 };
 
 const DOCUMENT_CATEGORIES: DocumentCategory[] = [
-  { id: "technical", label: "Technical Manuals", pdfName: "specs" },
-  { id: "financial", label: "Financial Reports ", pdfName: "financial" },
-  { id: "legal", label: "Legal Documents", pdfName: "legal" },
-  { id: "scientific", label: "Research Papers", pdfName: "science" },
-  { id: "medical", label: "Medical Files", pdfName: "medical" },
-  { id: "consulting", label: "Consulting Reports", pdfName: "consulting" },
-  { id: "government", label: "Government Reports", pdfName: "gov" },
-  { id: "textbook", label: "Textbooks", pdfName: "textbook" },
+  { id: "billing", label: "Billing", pdfName: "billing" },
+  { id: "construction", label: "Construction", pdfName: "construction" },
+  { id: "consulting", label: "Consulting", pdfName: "consulting" },
+  { id: "education", label: "Education", pdfName: "education" },
+  { id: "financial", label: "Financial", pdfName: "financial" },
+  { id: "government", label: "Government", pdfName: "government" },
+  { id: "historical", label: "Historical", pdfName: "historical" },
+  { id: "legal", label: "Legal", pdfName: "legal" },
+  { id: "medical", label: "Medical", pdfName: "medical" },
+  { id: "miscellaneous", label: "Miscellaneous", pdfName: "miscellaneous" },
+  { id: "newspaper", label: "Newspaper", pdfName: "newspaper" },
+  { id: "patent", label: "Patent", pdfName: "patent" },
+  { id: "real_estate", label: "Real Estate", pdfName: "real_estate" },
+  { id: "research", label: "Research", pdfName: "research" },
+  { id: "supply_chain", label: "Supply Chain", pdfName: "supply_chain" },
+  { id: "technical", label: "Technical", pdfName: "technical" },
 ];
 
-const BASE_URL = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page";
+const BASE_URL = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page_v2";
 
 const Home = () => {
   const auth = useAuth();
@@ -120,18 +128,18 @@ const Home = () => {
   // Function to fetch task response and update PDF URL
   const fetchTaskResponse = async (pdfName: string) => {
     try {
-      // Fetch from the same base URL where PDFs are stored
+      // Updated to match new structure from frontend_pdfs.py
       const response = await fetch(
-        `${BASE_URL}/output/${pdfName}_response.json`
+        `${BASE_URL}/output/${pdfName}/${pdfName}_response.json`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: TaskResponse = await response.json();
 
-      // Update the PDF URL in the response
+      // Update the PDF URL in the response to match new structure
       if (data.output) {
-        data.output.pdf_url = `${BASE_URL}/input/${pdfName}.pdf`;
+        data.output.pdf_url = `${BASE_URL}/input/${pdfName}/${pdfName}.pdf`;
       }
 
       setTaskResponse(data);
@@ -156,10 +164,16 @@ const Home = () => {
       <div className="window-header">
         <Flex
           width="100%"
-          justify="between"
+          justify="start"
           align="center"
-          minWidth="1247px"
           overflow="auto"
+          gap="8px"
+          style={{
+            scrollbarWidth: 'none', /* Firefox */
+            msOverflowStyle: 'none', /* IE and Edge */
+            paddingBottom: '4px'
+          }}
+          className="category-scroll-container"
         >
           {DOCUMENT_CATEGORIES.map((category) => (
             <BetterButton
@@ -168,6 +182,7 @@ const Home = () => {
               padding="8px 24px"
               onClick={() => setSelectedCategory(category.id)}
               active={selectedCategory === category.id}
+              style={{ flexShrink: 0 }}
             >
               <Text size="1" weight="medium" style={{ color: "white" }}>
                 {category.label}
@@ -487,9 +502,8 @@ const Home = () => {
                 <Flex
                   align="center"
                   gap="6px"
-                  className={`hero-content-switch ${
-                    selectedFormat === "HTML" ? "active" : ""
-                  }`}
+                  className={`hero-content-switch ${selectedFormat === "HTML" ? "active" : ""
+                    }`}
                   onClick={() => handleFormatSwitch("HTML")}
                 >
                   <svg
@@ -521,9 +535,8 @@ const Home = () => {
                 <Flex
                   align="center"
                   gap="6px"
-                  className={`hero-content-switch ${
-                    selectedFormat === "Markdown" ? "active" : ""
-                  }`}
+                  className={`hero-content-switch ${selectedFormat === "Markdown" ? "active" : ""
+                    }`}
                   onClick={() => handleFormatSwitch("Markdown")}
                 >
                   <svg
@@ -766,7 +779,7 @@ const Home = () => {
                         code={scripts[selectedScript as keyof typeof scripts]}
                         language={
                           languageMap[
-                            selectedScript as keyof typeof languageMap
+                          selectedScript as keyof typeof languageMap
                           ]
                         }
                         showLineNumbers={false}
@@ -1126,24 +1139,24 @@ const Home = () => {
                   {(!auth.isAuthenticated ||
                     currentTier === "Free" ||
                     isUsageDataLoading) && (
-                    <PricingCard
-                      title="Free"
-                      price="Free"
-                      period="month"
-                      features={[
-                        "200 pages included",
-                        "No payment info required",
-                        "Discord community support",
-                      ]}
-                      buttonText="Get Started"
-                      tier="Free"
-                      onCheckout={handleCheckout}
-                      stripePromise={stripePromise}
-                      clientSecret={checkoutClientSecret || undefined}
-                      currentTier={currentTier}
-                      isAuthenticated={auth.isAuthenticated}
-                    />
-                  )}
+                      <PricingCard
+                        title="Free"
+                        price="Free"
+                        period="month"
+                        features={[
+                          "200 pages included",
+                          "No payment info required",
+                          "Discord community support",
+                        ]}
+                        buttonText="Get Started"
+                        tier="Free"
+                        onCheckout={handleCheckout}
+                        stripePromise={stripePromise}
+                        clientSecret={checkoutClientSecret || undefined}
+                        currentTier={currentTier}
+                        isAuthenticated={auth.isAuthenticated}
+                      />
+                    )}
 
                   <PricingCard
                     title="Starter"

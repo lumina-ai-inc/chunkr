@@ -26,7 +26,6 @@ RUN apt-get update -y && \
     libssl-dev \
     libpq-dev \
     ca-certificates \
-    libreoffice \
     file \
     curl \
     imagemagick && \
@@ -42,7 +41,15 @@ RUN mkdir -p /app/pdfium-binaries && \
     cp /tmp/lib/libpdfium.so /app/pdfium-binaries/
 
 # Copy your built Rust binary in
+<<<<<<< HEAD
+<<<<<<< HEAD
 COPY --from=builder /app/target/release/task /app/task
+=======
+COPY --from=builder /app/target/release/core /app/core
+>>>>>>> a8325199 (exp dockers)
+=======
+COPY --from=builder /app/target/release/task /app/task
+>>>>>>> 2f4a5ce6 (experimental compose)
 
 EXPOSE 8000
 ENTRYPOINT ["/app/task"]

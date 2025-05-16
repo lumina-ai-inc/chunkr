@@ -1,6 +1,15 @@
 services:
   server:
-    image: luminainc/server-azure:1.17.3-enterprise
+<<<<<<< HEAD
+<<<<<<< HEAD
+    image: luminainc/server-azure:1.16.0-enterprise
+
+=======
+    image: luminainc/server-azure-exp:1.16.0-enterprise
+>>>>>>> 6cf8b2c8 (new compose test ver)
+=======
+    image: luminainc/server-azure:1.14.2-enterprise
+>>>>>>> 44da56b5 (new dockers - fixed vulnerability and security issues)
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -15,7 +24,15 @@ services:
     restart: always
 
   task:
+<<<<<<< HEAD
+<<<<<<< HEAD
     image: luminainc/task-azure:1.17.3-enterprise
+=======
+    image: luminainc/task-azure-exp:1.16.0-enterprise
+>>>>>>> 6cf8b2c8 (new compose test ver)
+=======
+    image: luminainc/task-azure:1.14.2-enterprise
+>>>>>>> 44da56b5 (new dockers - fixed vulnerability and security issues)
     platform: linux/amd64
     depends_on:
       - postgres
@@ -62,7 +79,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -95,7 +112,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
     restart: always
@@ -113,7 +130,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -136,7 +153,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -155,7 +172,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 1
@@ -187,9 +204,9 @@ services:
       - KC_DB_PASSWORD=postgres
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: [ "start-dev", "--import-realm" ]
+    command: ["start-dev", "--import-realm"]
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/realms/master" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -202,7 +219,18 @@ services:
     platform: linux/amd64
     ports:
       - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    command:
+      [
+        "--model-id",
+        "BAAI/bge-m3",
+        "--max-client-batch-size",
+        "51",
+        "--max-batch-tokens",
+        "5120",
+        "--payload-limit",
+        "1000000",
+        "--auto-truncate",
+      ]
     deploy:
       replicas: 0
       resources:
@@ -210,14 +238,14 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     restart: always
 
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8090:8090"   # HTTP port
-      - "8443:8443"  # HTTPS port
+      - "8090:8090" # HTTP port
+      - "8443:8443" # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -228,8 +256,8 @@ services:
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"    # HTTP port
-      - "443:443"  # HTTPS port
+      - "80:80" # HTTP port
+      - "443:443" # HTTPS port
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -242,8 +270,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:8010"   # HTTP port
-      - "8444:8444"  # HTTPS port
+      - "8010:8010" # HTTP port
+      - "8444:8444" # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro

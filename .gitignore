@@ -195,3 +195,7 @@ keyvault.sh
 *.pdfs.zip.part.1
 *.pdfs.zip.part.2
 *.pdfs.zip.part.3
+*.db
+
+scripts/frontend_pdfs
+*.dump
