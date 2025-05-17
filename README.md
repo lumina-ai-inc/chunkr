@@ -103,14 +103,14 @@ For more information on how to set up LLMs, see [here](#llm-configuration).
 
 4. Start the services:
 ```bash
-# For GPU deployment, use the following command:
+# For GPU deployment:
 docker compose up -d
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml up -d
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml up -d
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml up -d
 ```
 
 5. Access the services:
@@ -119,14 +119,14 @@ docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
 
 6. Stop the services when done:
 ```bash
-# For GPU deployment, use the following command:
+# For GPU deployment:
 docker compose down
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml down
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml down
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml down
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml down
 ```
 
 #### HTTPS Setup for Docker Compose
@@ -153,16 +153,16 @@ VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
 VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
 ```
 
-1. Start the services:
+3. Start the services:
 ```bash
-# For GPU deployment, use the following command:
+# For GPU deployment with HTTPS:
 docker compose --profile proxy up -d
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy up -d
+# For CPU-only deployment with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy up -d
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy up -d
+# For Mac ARM architecture with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy up -d
 ```
 
 4. Access the services:
@@ -171,14 +171,14 @@ docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy up -d
 
 5. Stop the services when done:
 ```bash
-# For GPU deployment, use the following command:
+# For GPU deployment with HTTPS:
 docker compose --profile proxy down
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy down
+# For CPU-only deployment with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy down
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy down
+# For Mac ARM architecture with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy down
 ```
 
 ### Deployment with Kubernetes

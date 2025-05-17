@@ -1,0 +1,24 @@
+services:
+  task:
+    deploy:
+      replicas: 10
+
+  segmentation-backend:
+    image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
+    deploy:
+      replicas: 6
+      resources: {}
+    environment:
+      - MAX_BATCH_SIZE=64
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.2
+      - SCORE_THRESHOLD=0.14
+      - OMP_NUM_THREADS=12
+      - MKL_NUM_THREADS=12
+      - NUMEXPR_NUM_THREADS=12
+
+  ocr-backend:
+    image: luminainc/doctr-small:1.15.1
+    deploy:
+      replicas: 3
+      resources: {}
