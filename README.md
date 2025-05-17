@@ -122,14 +122,14 @@ For more information on how to set up LLMs, see [here](#llm-configuration).
 
 4. Start the services:
 ```bash
-# For GPU deployment, use the following command:
+# For GPU deployment:
 docker compose up -d
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml up -d
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml up -d
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml up -d
 ```
 
 5. Access the services:
@@ -138,15 +138,75 @@ docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
 
 6. Stop the services when done:
 ```bash
-# For GPU deployment, use the following command:
+# For GPU deployment:
 docker compose down
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml down
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml down
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml down
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml down
 ```
+
+#### HTTPS Setup for Docker Compose
+
+This section explains how to set up HTTPS using a self signed certificate with Docker Compose when hosting Chunkr on a VM. This allows you to access the web UI, API, Keycloak (authentication service) and MinIO (object storage service) over HTTPS.
+
+1. Generate a self-signed certificate:
+```bash
+# Create a certs directory
+mkdir certs
+
+# Generate the certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out certs/nginx.crt -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
+
+2. Update the .env file with your VM's IP address:
+> **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
+```bash
+AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
+WORKER__SERVER_URL=https://your_vm_ip_address:8444
+VITE_API_URL=https://your_vm_ip_address:8444
+VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=https://your_vm_ip_address
+VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
+VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
+```
+
+3. Start the services:
+```bash
+# For GPU deployment with HTTPS:
+docker compose --profile proxy up -d
+
+# For CPU-only deployment with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy up -d
+
+# For Mac ARM architecture with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy up -d
+```
+
+4. Access the services:
+   - Web UI: `https://your_vm_ip_address`
+   - API: `https://your_vm_ip_address:8444`
+
+5. Stop the services when done:
+```bash
+# For GPU deployment with HTTPS:
+docker compose --profile proxy down
+
+# For CPU-only deployment with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy down
+
+# For Mac ARM architecture with HTTPS:
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy down
+```
+
+### Deployment with Kubernetes
+
+For production environments, we provide a Helm chart and detailed deployment instructions:
+1. See our detailed guide at [`kube/README.md`](kube/README.md)
+2. Includes configurations for high availability and scaling
+
+For enterprise support and deployment assistance, [contact us](mailto:mehul@chunkr.ai).
 
 ## LLM Configuration
 
