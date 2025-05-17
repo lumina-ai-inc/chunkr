@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.11.1...chunkr-core-v1.12.0) (2025-05-17)
+
+
+### Features
+
+* Added span class instructions for all formula prompts ([#489](https://github.com/lumina-ai-inc/chunkr/issues/489)) ([5162f8f](https://github.com/lumina-ai-inc/chunkr/commit/5162f8f02fabe8eb0a0f99de1373c5295d3f9ddd))
+* **core:** Improved error messages on task failure and retry only failed steps ([#496](https://github.com/lumina-ai-inc/chunkr/issues/496)) ([2e09e11](https://github.com/lumina-ai-inc/chunkr/commit/2e09e113f8cf0b0950a77c6954cc9ded2e85c434))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#497](https://github.com/lumina-ai-inc/chunkr/issues/497)) ([8469ddf](https://github.com/lumina-ai-inc/chunkr/commit/8469ddf179709c40949965be203259231bf6b950))
+
 ## [1.11.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.11.0...chunkr-core-v1.11.1) (2025-05-06)
 
 

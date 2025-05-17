@@ -1,7 +1,7 @@
 [
   {
     "role": "user",
-    "content": "Convert the following page to markdown. Return only the markdown with no explanation text. Do not exclude any content from the page.\nEnclose your output in ```markdown``` code fences.\n\n"
+    "content": "Convert the following page to markdown. Return only the markdown with no explanation text. Do not exclude any content from the page.\nFor formulas found inline in the text segment represent them as \"<span class=\"formula\">{formula_in_latex}</span>\". For example, if the input text is 'The equation is $E=mc^2$.', the output should include 'The equation is <span class=\"formula\">E=mc^2</span>'.\nEnclose your output in ```markdown``` code fences.\n\n"
   },
   {
     "role": "user",
