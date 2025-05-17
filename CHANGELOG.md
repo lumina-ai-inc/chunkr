@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.15.1...v1.16.0) (2025-05-17)
+
+
+### Features
+
+* Added new frontend pdfs in new landing page ([#490](https://github.com/lumina-ai-inc/chunkr/issues/490)) ([bbaf911](https://github.com/lumina-ai-inc/chunkr/commit/bbaf911f205b2f81b723577155e6b5adff246a65))
+* Added span class instructions for all formula prompts ([#489](https://github.com/lumina-ai-inc/chunkr/issues/489)) ([5162f8f](https://github.com/lumina-ai-inc/chunkr/commit/5162f8f02fabe8eb0a0f99de1373c5295d3f9ddd))
+* Added task level analytics to usage page ([#498](https://github.com/lumina-ai-inc/chunkr/issues/498)) ([e4d63ff](https://github.com/lumina-ai-inc/chunkr/commit/e4d63ffb86c9d790c8bb13cf0cf71642d2f19e2b))
+* **core:** Improved error messages on task failure and retry only failed steps ([#496](https://github.com/lumina-ai-inc/chunkr/issues/496)) ([2e09e11](https://github.com/lumina-ai-inc/chunkr/commit/2e09e113f8cf0b0950a77c6954cc9ded2e85c434))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#497](https://github.com/lumina-ai-inc/chunkr/issues/497)) ([8469ddf](https://github.com/lumina-ai-inc/chunkr/commit/8469ddf179709c40949965be203259231bf6b950))
+
 ## [1.15.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.15.0...v1.15.1) (2025-05-06)
 
 
