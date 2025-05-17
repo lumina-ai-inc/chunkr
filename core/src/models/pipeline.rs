@@ -263,14 +263,14 @@ impl Pipeline {
                 Ok(_) => {
                     println!(
                         "Step {} took {:?} with page count {:?}",
-                        step.to_string(),
+                        step,
                         duration,
                         self.get_task()?.page_count.unwrap_or(0)
                     );
                     return Ok(());
                 }
                 Err(e) => {
-                    println!("Error {} in step {}", e, step.to_string());
+                    println!("Error {} in step {}", e, step);
                     retries += 1;
                     if retries < max_retries {
                         task.update(
