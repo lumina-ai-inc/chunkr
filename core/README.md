@@ -35,5 +35,3 @@ For Docker Compose setup and usage instructions, please refer to [Quick Start wi
 
 Set replicas to 0 for services you don't want to run/aren't actively being worked on.
 
-
-This is a test.

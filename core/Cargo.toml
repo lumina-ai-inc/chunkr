@@ -80,6 +80,13 @@ lru = "0.13.0"
 serde_yaml = "0.9.34"
 limit-lens = { version = "0.4.0", optional = true }
 rand = { version = "0.9.0", optional = true }
+actix-web-opentelemetry = "0.22.0"
+opentelemetry = { version = "0.18.0", features = ["rt-tokio", "metrics", "trace"] }
+opentelemetry-otlp = { version = "0.11.0", features = ["trace", "metrics"] }
+opentelemetry-semantic-conventions = { version = "0.10.0" }
+opentelemetry-proto = { version = "0.1.0"}
+tonic = { version = "0.8.2", features = ["tls-roots"] }
+
 
 
 [dev-dependencies]
