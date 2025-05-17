@@ -10,7 +10,7 @@ use tokio::time;
 pub fn run_expiration_job() {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
-        let interval = expiration_config.job_interval;
+        let interval = expiration_config.interval;
         let mut interval = time::interval(Duration::from_secs(interval));
         loop {
             interval.tick().await;
@@ -25,7 +25,7 @@ pub fn run_expiration_job() {
 pub fn run_fail_processing_task_job() {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
-        let interval = expiration_config.job_interval;
+        let interval = expiration_config.interval;
         let mut interval = time::interval(Duration::from_secs(interval));
         loop {
             interval.tick().await;

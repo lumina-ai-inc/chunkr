@@ -13,8 +13,7 @@ pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::
         .await?;
 
     if !stripe_response.status().is_success() {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
+        return Err(Box::new(std::io::Error::other(
             "Failed to create Stripe customer",
         )));
     }
@@ -86,10 +85,7 @@ pub async fn create_stripe_setup_intent(
             Ok(text) => format!("Failed to create Stripe SetupIntent: {}", text),
             Err(_) => "Failed to create Stripe SetupIntent".to_string(),
         };
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            error_message,
-        )));
+        return Err(Box::new(std::io::Error::other(error_message)));
     }
 
     let setup_intent: serde_json::Value = match stripe_response.json().await {
@@ -151,13 +147,10 @@ pub async fn create_customer_session(
 
     if !stripe_response.status().is_success() {
         let error_message = stripe_response.text().await?;
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!(
-                "Failed to create Stripe Customer Session: {}",
-                error_message
-            ),
-        )));
+        return Err(Box::new(std::io::Error::other(format!(
+            "Failed to create Stripe Customer Session: {}",
+            error_message
+        ))));
     }
 
     let session: serde_json::Value = stripe_response.json().await?;
