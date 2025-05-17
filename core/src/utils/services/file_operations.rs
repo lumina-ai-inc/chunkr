@@ -34,17 +34,19 @@ pub fn check_file_type(
                         }
                         Err(e) => {
                             println!("Error counting pages in PDF file: {}", e);
-                            return Err(Box::new(std::io::Error::other(
-                                format!("Unsupported file type: {}", mime_type),
-                            )));
+                            return Err(Box::new(std::io::Error::other(format!(
+                                "Unsupported file type: {}",
+                                mime_type
+                            ))));
                         }
                     }
                 }
             }
 
-            Err(Box::new(std::io::Error::other(
-                format!("Unsupported file type: {}", mime_type),
-            )))
+            Err(Box::new(std::io::Error::other(format!(
+                "Unsupported file type: {}",
+                mime_type
+            ))))
         }
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
             Ok((mime_type, "docx".to_string()))
@@ -60,9 +62,10 @@ pub fn check_file_type(
         "application/vnd.ms-excel" => Ok((mime_type, "xls".to_string())),
         "image/jpeg" | "image/jpg" => Ok((mime_type, "jpg".to_string())),
         "image/png" => Ok((mime_type, "png".to_string())),
-        _ => Err(Box::new(std::io::Error::other(
-            format!("Unsupported file type: {}", mime_type),
-        ))),
+        _ => Err(Box::new(std::io::Error::other(format!(
+            "Unsupported file type: {}",
+            mime_type
+        )))),
     }
 }
 
@@ -93,9 +96,10 @@ pub fn convert_to_pdf(
             .output()?;
 
         if !output.status.success() {
-            return Err(Box::new(std::io::Error::other(
-                format!("ImageMagick conversion failed: {:?}", output),
-            )));
+            return Err(Box::new(std::io::Error::other(format!(
+                "ImageMagick conversion failed: {:?}",
+                output
+            ))));
         }
 
         if output_path.exists() {
@@ -123,9 +127,10 @@ pub fn convert_to_pdf(
             .output()?;
 
         if !output.status.success() {
-            return Err(Box::new(std::io::Error::other(
-                format!("LibreOffice conversion failed: {:?}", output),
-            )));
+            return Err(Box::new(std::io::Error::other(format!(
+                "LibreOffice conversion failed: {:?}",
+                output
+            ))));
         }
 
         let pdf_file_name = input_file

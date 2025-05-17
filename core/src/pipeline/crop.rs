@@ -2,7 +2,7 @@ use crate::models::cropping::{CroppingStrategy, PictureCroppingStrategy};
 use crate::models::output::{Segment, SegmentType};
 use crate::models::pipeline::Pipeline;
 use crate::models::segment_processing::GenerationStrategy;
-use crate::models::task::{Configuration, Status};
+use crate::models::task::Configuration;
 use crate::utils::services::images::crop_image;
 use rayon::prelude::*;
 use std::error::Error;
@@ -87,19 +87,6 @@ async fn crop_segment(
 /// This function will crop the segments in parallel.
 /// It will use the configuration to determine if cropping is enabled or required for downstream processing.
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
-    pipeline
-        .get_task()?
-        .update(
-            Some(Status::Processing),
-            Some("Cropping segments".to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-        .await?;
-
     let page_images = pipeline.page_images.as_ref().unwrap();
     let configuration = pipeline.get_task()?.configuration.clone();
     let segment_images = pipeline.segment_images.clone();

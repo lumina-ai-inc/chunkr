@@ -1,5 +1,4 @@
 use crate::models::pipeline::Pipeline;
-use crate::models::task::Status;
 use crate::utils::services::chunking;
 use rayon::prelude::*;
 
@@ -7,34 +6,20 @@ use rayon::prelude::*;
 ///
 /// This function will perform chunking on the segments
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
-    let mut task = pipeline.get_task()?;
-    task.update(
-        Some(Status::Processing),
-        Some("Chunking".to_string()),
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    .await?;
-
+    let configuration = pipeline.get_task()?.configuration.clone();
     let mut chunks = pipeline.chunks.clone();
-    println!(
-        "Tokenizer: {:?}",
-        task.configuration.chunk_processing.tokenizer
-    );
-    if task.configuration.chunk_processing.target_length > 0 {
+    println!("Tokenizer: {:?}", configuration.chunk_processing.tokenizer);
+    if configuration.chunk_processing.target_length > 0 {
         let segments = chunks
             .clone()
             .into_iter()
             .flat_map(|c| c.segments)
             .collect();
-        chunks = chunking::hierarchical_chunking(segments, &task.configuration)?;
+        chunks = chunking::hierarchical_chunking(segments, &configuration)?;
     };
 
     chunks.par_iter_mut().for_each(|chunk| {
-        chunk.generate_embed_text(&task.configuration);
+        chunk.generate_embed_text(&configuration);
     });
 
     pipeline.chunks = chunks;
