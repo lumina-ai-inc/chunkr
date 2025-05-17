@@ -8,7 +8,7 @@
 
 ## 📖 Background
 
-In this exercise, you'll build a simple RAG chat application using the Chunkr API to ingest and query a single document (provided).
+In this exercise, you'll build a simple RAG chat application using the Chunkr API to ingest and query a single document of your choice.
 
 We'll supply you with:
 - An **OpenRouter API key** (for LLM calls)
@@ -28,7 +28,7 @@ Build a user-facing tool that:
 ## 📦 Requirements
 
 1. **Ingestion**  
-   - Upload the provided file to Chunkr.
+   - Upload a file to Chunkr.
 
 2. **Retrieval & Chat**  
    - Implement a query pipeline that:
@@ -53,7 +53,7 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 ## 💡 Tips & Guidelines
 
 - **Context window**: You can retrieve top-k chunks with search or put the entire pdf in context.
-- **Tech stack**: Feel free to combine any frameworks (e.g., React + FastAPI) or keep it simple (Streamlit).
+- **Tech stack**: Feel free to combine any frameworks (e.g., React + FastAPI) or keep it simple (Streamlit, CLI).
 - **LLM choice**: Any model supported by OpenRouter.
 - **UV** preferred if using python.
 
@@ -66,10 +66,10 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 - **Multi-file** ingestion & chat support.
 - **CI/CD**: GitHub Actions workflows, linting, formatting, tests.
 - **GitHub Releases** or version tagging.
-- **Cookbook, blogs**, or other forms of writing to express your code.
+- **Cookbook, blogs, extended README**, or other forms of writing to express your code.
 - **Docker Compose** for local deployment.
 - **Search Layer** integrating Pinecone or other vector DBs.
-> Any other creative feature or technology, just cook basically.
+> Any other creative feature or technology - just cook basically.
 
 ---
 
@@ -77,12 +77,12 @@ Your solution could be a CLI, API server, Full stack implementation, etc.
 
 1. A private Git repository shared with:
     - akhileshsharma99
-    - ...
-    - ...
+    - ishaan99k
+    - m-chadda
 2. A complete `README.md` (see Requirements).
 3. Source code and configuration (e.g., `package.json`, `pyproject.toml`, `cargo.toml`) via GitHub.
 
-Please email a link to your repo within 24 hours.
+Please email a link to your repo within 24 hours to mehul@chunkr.ai, ishaan@chunkr.ai and akhilesh@chunkr.ai
 
 ---
 
