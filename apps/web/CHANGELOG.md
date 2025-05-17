@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.4.0...chunkr-web-v1.5.0) (2025-05-17)
+
+
+### Features
+
+* Added new frontend pdfs in new landing page ([#490](https://github.com/lumina-ai-inc/chunkr/issues/490)) ([bbaf911](https://github.com/lumina-ai-inc/chunkr/commit/bbaf911f205b2f81b723577155e6b5adff246a65))
+* Added task level analytics to usage page ([#498](https://github.com/lumina-ai-inc/chunkr/issues/498)) ([e4d63ff](https://github.com/lumina-ai-inc/chunkr/commit/e4d63ffb86c9d790c8bb13cf0cf71642d2f19e2b))
+
 ## [1.4.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.3.2...chunkr-web-v1.4.0) (2025-05-06)
 
 
