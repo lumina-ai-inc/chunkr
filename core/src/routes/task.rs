@@ -10,6 +10,11 @@ use crate::utils::routes::update_task::update_task;
 use crate::utils::services::file_operations::get_base64;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpResponse};
+use opentelemetry::{
+    global,
+    trace::{Span, Tracer},
+    Context, KeyValue,
+};
 use tempfile;
 
 /// Get Task
@@ -95,29 +100,56 @@ pub async fn create_task_route(
     payload: web::Json<upload::CreateForm>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
+    let tracer = global::tracer("chunkr-server");
+    let mut span = tracer.start_with_context("create_task", &Context::current());
+    user_info.add_trace_attributes(&mut span);
+
     let configuration = match payload.to_configuration() {
-        Ok(config) => config,
-        Err(e) => return Ok(HttpResponse::BadRequest().body(e)),
+        Ok(config) => {
+            span.set_attribute(KeyValue::new(
+                "configuration",
+                serde_json::to_string(&config).unwrap(),
+            ));
+            config
+        }
+        Err(e) => {
+            span.set_attribute(KeyValue::new("error", e.to_string()));
+            span.end();
+            println!("Error creating task: {:?}", e);
+            return Ok(HttpResponse::BadRequest().body(e));
+        }
     };
 
     let (base64_data, filename) = match get_base64(payload.file.clone()).await {
         Ok(file) => file,
         Err(e) => match e.to_string().contains("Invalid base64 data") {
-            true => return Ok(HttpResponse::BadRequest().body("Invalid base64 data")),
-            false => return Ok(HttpResponse::InternalServerError().body("Failed to process file")),
+            true => {
+                span.set_attribute(KeyValue::new("error", e.to_string()));
+                span.end();
+                return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
+            }
+            false => {
+                span.set_attribute(KeyValue::new("error", e.to_string()));
+                span.end();
+                return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
+            }
         },
     };
 
     let mut temp_file = match tempfile::NamedTempFile::new() {
         Ok(file) => file,
         Err(e) => {
-            eprintln!("Error creating temporary file: {:?}", e);
+            span.set_attribute(KeyValue::new("error", e.to_string()));
+            span.end();
+            println!("Error creating temporary file: {:?}", e);
             return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
         }
     };
 
     if let Err(e) = std::io::Write::write_all(&mut temp_file, &base64_data) {
-        eprintln!("Error writing to temporary file: {:?}", e);
+        span.set_attribute(KeyValue::new("error", e.to_string()));
+        span.end();
+        println!("Error writing to temporary file: {:?}", e);
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
     }
 
@@ -130,8 +162,14 @@ pub async fn create_task_route(
     .await;
 
     match result {
-        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Ok(task_response) => {
+            span.set_attribute(KeyValue::new("task_id", task_response.task_id.clone()));
+            span.end();
+            Ok(HttpResponse::Ok().json(task_response))
+        }
         Err(e) => {
+            span.set_attribute(KeyValue::new("error", e.to_string()));
+            span.end();
             let error_message = e.to_string();
             if error_message
                 .to_lowercase()
