@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.5.0-enterprise...chunkr-web-enterprise-v1.6.0-enterprise) (2025-05-17)
+
+
+### Features
+
+* Added classification pipeline for PDFs (making data for DLA training) ([#86](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/86)) ([e8ca16c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e8ca16ca9b16fe02df5bfe8b01e831ce60933fde))
+* Added new frontend pdfs in new landing page ([#490](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/490)) ([bbaf911](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/bbaf911f205b2f81b723577155e6b5adff246a65))
+* Added task level analytics to usage page ([#498](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/498)) ([e4d63ff](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e4d63ffb86c9d790c8bb13cf0cf71642d2f19e2b))
+
 ## [1.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.4.2-enterprise...chunkr-web-enterprise-v1.5.0-enterprise) (2025-05-06)
 
 

@@ -1,6 +1,6 @@
 [package]
 name = "core"
-version = "1.12.0"
+version = "1.13.0-enterprise"
 edition = "2021"
 default-run = "core"
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.18.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.17.3-enterprise...v1.18.0-enterprise) (2025-05-17)
+
+
+### Features
+
+* Added classification pipeline for PDFs (making data for DLA training) ([#86](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/86)) ([e8ca16c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e8ca16ca9b16fe02df5bfe8b01e831ce60933fde))
+* Added new frontend pdfs in new landing page ([#490](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/490)) ([bbaf911](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/bbaf911f205b2f81b723577155e6b5adff246a65))
+* Added span class instructions for all formula prompts ([#489](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/489)) ([5162f8f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5162f8f02fabe8eb0a0f99de1373c5295d3f9ddd))
+* Added task level analytics to usage page ([#498](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/498)) ([e4d63ff](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e4d63ffb86c9d790c8bb13cf0cf71642d2f19e2b))
+* **core:** Improved error messages on task failure and retry only failed steps ([#496](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/496)) ([2e09e11](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/2e09e113f8cf0b0950a77c6954cc9ded2e85c434))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#497](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/497)) ([8469ddf](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/8469ddf179709c40949965be203259231bf6b950))
+* Reverted to 1.17.3 dockers ([1960a89](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1960a8983dfae846c14e2efb1dd6c023da15923a))
+
 ## [1.17.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.17.2-enterprise...v1.17.3-enterprise) (2025-05-12)
 
 
