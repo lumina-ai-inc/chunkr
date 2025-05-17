@@ -7,8 +7,6 @@ import { getBillingPortalSession } from "../../services/stripeService";
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   XAxis,
@@ -382,7 +380,7 @@ export default function UsagePage({ customerId }: UsageProps) {
           </Flex>
           <Flex className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart
+              <BarChart
                 data={getChartData()}
                 margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
               >
@@ -428,63 +426,31 @@ export default function UsagePage({ customerId }: UsageProps) {
                   }}
                   cursor={false}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="successful"
-                  stroke="#00FF9D"
-                  strokeWidth={2.5}
-                  dot={false}
-                  name="Successfully Processed"
-                  activeDot={{
-                    r: 4,
-                    fill: "#00FF9D",
-                    stroke: "#00FF9D",
-                    strokeWidth: 2,
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="failed"
-                  stroke="#FF4D4D"
-                  strokeWidth={2.5}
-                  dot={false}
-                  name="Failed"
-                  activeDot={{
-                    r: 4,
-                    fill: "#FF4D4D",
-                    stroke: "#FF4D4D",
-                    strokeWidth: 2,
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="processing"
-                  stroke="#FFB800"
-                  strokeWidth={2.5}
-                  dot={false}
-                  name="Processing"
-                  activeDot={{
-                    r: 4,
-                    fill: "#FFB800",
-                    stroke: "#FFB800",
-                    strokeWidth: 2,
-                  }}
-                />
-                <Line
-                  type="monotone"
+                <Bar
+                  stackId="a"
                   dataKey="starting"
-                  stroke="#4D9EFF"
-                  strokeWidth={2.5}
-                  dot={false}
+                  fill="#4D9EFF"
                   name="Starting"
-                  activeDot={{
-                    r: 4,
-                    fill: "#4D9EFF",
-                    stroke: "#4D9EFF",
-                    strokeWidth: 2,
-                  }}
                 />
-              </LineChart>
+                <Bar
+                  stackId="a"
+                  dataKey="processing"
+                  fill="#FFB800"
+                  name="Processing"
+                />
+                <Bar
+                  stackId="a"
+                  dataKey="failed"
+                  fill="#FF4D4D"
+                  name="Failed"
+                />
+                <Bar
+                  stackId="a"
+                  dataKey="successful"
+                  fill="#00FF9D"
+                  name="Successfully Processed"
+                />
+              </BarChart>
             </ResponsiveContainer>
           </Flex>
         </Flex>

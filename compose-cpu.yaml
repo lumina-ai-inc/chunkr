@@ -38,7 +38,7 @@ services:
     environment:
       - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   segmentation:
@@ -57,7 +57,7 @@ services:
     expose:
       - "8000"
     deploy:
-      replicas: 3
+      replicas: 6
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -86,7 +86,7 @@ services:
     expose:
       - "8000"
     deploy:
-      replicas: 1
+      replicas: 3
     volumes:
       - /dev/shm:/dev/shm
     restart: always
@@ -178,10 +178,8 @@ services:
       - KC_DB_PASSWORD=postgres
       - KC_HEALTH_ENABLED=true
       - KC_TRANSACTION_XA_ENABLED=false
-      - KC_LOGIN_THEME=my-custom-theme
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-      - ./apps/web/src/themes/my-custom-theme:/opt/keycloak/themes/my-custom-theme:ro
     command: ["start-dev", "--import-realm"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
