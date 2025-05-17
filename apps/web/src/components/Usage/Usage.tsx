@@ -347,41 +347,43 @@ export default function UsagePage({ customerId }: UsageProps) {
 
       <Flex direction="row" gap="4" width="100%">
         <Flex direction="column" gap="2" style={{ flex: 1 }}>
-          <Flex direction="row" gap="2" align="center">
+          <Flex direction="row" gap="1" align="center">
             <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="24"
+              fill="none"
+              viewBox="0 0 25 24"
             >
-              <path
-                d="M15.75 6.75H21.25V12.25"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2.75 18.25L9.38 11.58L12.92 15.13L21.25 6.75"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <g
+                stroke="#FFF"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                clip-path="url(#gRimTy0T6Ra)"
+              >
+                <path d="M9.25 6.75h6.5m-7.75 9h11.75v5.5H8c-1.52 0-2.75-1.23-2.75-2.75S6.48 15.75 8 15.75" />
+                <path d="M5.25 18.5V5.75a3 3 0 0 1 3-3h10.5a1 1 0 0 1 1 1V16" />
+              </g>
+              <defs>
+                <clipPath id="gRimTy0T6Ra">
+                  <path fill="#fff" d="M.5 0h24v24H.5z" />
+                </clipPath>
+              </defs>
             </svg>
+
             <Text
               size="3"
               weight="bold"
               style={{ color: "rgba(255,255,255,0.9)" }}
             >
-              Pages Processed (UTC)
+              Tasks Status Per Day (UTC)
             </Text>
           </Flex>
           <Flex className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
-                data={getChartData()}
+                data={getBarChartData()}
                 margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
               >
                 <CartesianGrid
@@ -391,7 +393,7 @@ export default function UsagePage({ customerId }: UsageProps) {
                   strokeDasharray="3 3"
                 />
                 <XAxis
-                  dataKey={timeRange === "today" ? "hour" : "date"}
+                  dataKey="date"
                   stroke="rgba(255,255,255,0.2)"
                   tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
                   axisLine={false}
@@ -455,7 +457,7 @@ export default function UsagePage({ customerId }: UsageProps) {
           </Flex>
         </Flex>
         <Flex direction="column" gap="2" style={{ flex: 1 }}>
-          <Flex direction="row" gap="2" align="center">
+          <Flex direction="row" gap="1" align="center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="25"
@@ -465,15 +467,19 @@ export default function UsagePage({ customerId }: UsageProps) {
             >
               <g
                 stroke="#FFF"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1"
-                clipPath="url(#D2kmTpLHc2a)"
+                stroke-linecap="round"
+                stroke-width="1.5"
+                clip-path="url(#WyWBQHSz7Ta)"
               >
-                <path d="M5.25 20.25h1.5a1 1 0 0 0 1-1v-5.5a1 1 0 0 0-1-1h-1.5a1 1 0 0 0-1 1v5.5a1 1 0 0 0 1 1m13 0h1.5a1 1 0 0 0 1-1v-9.5a1 1 0 0 0-1-1h-1.5a1 1 0 0 0-1 1v9.5a1 1 0 0 0 1 1m-6.5 0h1.5a1 1 0 0 0 1-1V5.75a1 1 0 0 0-1-1h-1.5a1 1 0 0 0-1 1v13.5a1 1 0 0 0 1 1" />
+                <path
+                  stroke-linejoin="round"
+                  d="M18.75 2.75H6.25a1 1 0 0 0-1 1v16.5a1 1 0 0 0 1 1h12.5a1 1 0 0 0 1-1V3.75a1 1 0 0 0-1-1"
+                />
+                <path stroke-linejoin="round" d="M12.75 5.75h-4.5v4.5h4.5z" />
+                <path stroke-miterlimit="10" d="M8.25 13.75h8.5m-8.5 3.5h4.5" />
               </g>
               <defs>
-                <clipPath id="D2kmTpLHc2a">
+                <clipPath id="WyWBQHSz7Ta">
                   <path fill="#fff" d="M.5 0h24v24H.5z" />
                 </clipPath>
               </defs>
@@ -483,13 +489,13 @@ export default function UsagePage({ customerId }: UsageProps) {
               weight="bold"
               style={{ color: "rgba(255,255,255,0.9)" }}
             >
-              Tasks by Status (UTC)
+              Pages Processed Per Day (UTC)
             </Text>
           </Flex>
           <Flex className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
-                data={getBarChartData()}
+                data={getChartData()}
                 margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
               >
                 <CartesianGrid
@@ -499,7 +505,7 @@ export default function UsagePage({ customerId }: UsageProps) {
                   strokeDasharray="3 3"
                 />
                 <XAxis
-                  dataKey="date"
+                  dataKey={timeRange === "today" ? "hour" : "date"}
                   stroke="rgba(255,255,255,0.2)"
                   tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
                   axisLine={false}
