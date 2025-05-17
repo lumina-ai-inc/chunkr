@@ -357,10 +357,10 @@ export default function UsagePage({ customerId }: UsageProps) {
             >
               <g
                 stroke="#FFF"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                clip-path="url(#gRimTy0T6Ra)"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                clipPath="url(#gRimTy0T6Ra)"
               >
                 <path d="M9.25 6.75h6.5m-7.75 9h11.75v5.5H8c-1.52 0-2.75-1.23-2.75-2.75S6.48 15.75 8 15.75" />
                 <path d="M5.25 18.5V5.75a3 3 0 0 1 3-3h10.5a1 1 0 0 1 1 1V16" />
@@ -467,16 +467,16 @@ export default function UsagePage({ customerId }: UsageProps) {
             >
               <g
                 stroke="#FFF"
-                stroke-linecap="round"
-                stroke-width="1.5"
-                clip-path="url(#WyWBQHSz7Ta)"
+                strokeLinecap="round"
+                strokeWidth="1.5"
+                clipPath="url(#WyWBQHSz7Ta)"
               >
                 <path
-                  stroke-linejoin="round"
+                  strokeLinejoin="round"
                   d="M18.75 2.75H6.25a1 1 0 0 0-1 1v16.5a1 1 0 0 0 1 1h12.5a1 1 0 0 0 1-1V3.75a1 1 0 0 0-1-1"
                 />
-                <path stroke-linejoin="round" d="M12.75 5.75h-4.5v4.5h4.5z" />
-                <path stroke-miterlimit="10" d="M8.25 13.75h8.5m-8.5 3.5h4.5" />
+                <path strokeLinejoin="round" d="M12.75 5.75h-4.5v4.5h4.5z" />
+                <path strokeMiterlimit="10" d="M8.25 13.75h8.5m-8.5 3.5h4.5" />
               </g>
               <defs>
                 <clipPath id="WyWBQHSz7Ta">
