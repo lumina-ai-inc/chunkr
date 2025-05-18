@@ -27,6 +27,12 @@ pub enum ServiceName {
     TaskWorker,
 }
 
+#[derive(Debug, Clone, Copy, Display, EnumString)]
+pub enum SpanName {
+    #[strum(serialize = "create_task")]
+    CreateTask,
+}
+
 fn default_endpoint() -> String {
     "http://localhost:4317".to_string()
 }
