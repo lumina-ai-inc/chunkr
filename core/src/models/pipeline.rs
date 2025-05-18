@@ -6,6 +6,8 @@ use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
+use opentelemetry::trace::{TraceContextExt, Tracer};
+use opentelemetry::Context;
 use std::error::Error;
 use std::sync::Arc;
 use strum_macros::{Display, EnumString};
@@ -208,12 +210,12 @@ impl Pipeline {
         &mut self,
         step: PipelineStep,
         max_retries: u32,
+        tracer: &opentelemetry::global::BoxedTracer,
     ) -> Result<(), Box<dyn Error>> {
         let start = std::time::Instant::now();
-
         let mut task = self.get_task()?;
-
         let mut retries = 0;
+
         while retries < max_retries {
             // Update task status to processing and message to step start message
             let message = match retries > 0 {
@@ -247,6 +249,13 @@ impl Pipeline {
                     }
                     return Err(e);
                 }
+            };
+
+            let _retry_span = if retries > 0 {
+                let span_name = format!("{}_retry_{}", step.to_string(), retries);
+                Some(tracer.start_with_context(span_name, &Context::current()))
+            } else {
+                None
             };
 
             // Execute step
@@ -283,6 +292,18 @@ impl Pipeline {
                     println!("Error {} in step {}", e, step.to_string());
                     retries += 1;
                     if retries < max_retries {
+                        opentelemetry::Context::current().span().add_event(
+                            "retry_attempt",
+                            vec![
+                                opentelemetry::KeyValue::new("retry_count", retries.to_string()),
+                                opentelemetry::KeyValue::new(
+                                    "max_retries",
+                                    max_retries.to_string(),
+                                ),
+                                opentelemetry::KeyValue::new("error", e.to_string()),
+                            ],
+                        );
+
                         task.update(
                             Some(Status::Processing),
                             Some(step.error_message()),
@@ -293,6 +314,7 @@ impl Pipeline {
                             None,
                         )
                         .await?;
+
                         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                     }
                 }

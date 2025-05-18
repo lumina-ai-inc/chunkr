@@ -93,7 +93,7 @@ pub async fn process(
     let start_time = std::time::Instant::now();
     for step in orchestrate_task(&mut pipeline)? {
         let mut step_span = tracer.start_with_context(step.to_string(), &Context::current());
-        pipeline.execute_step(step, max_retries).await?;
+        pipeline.execute_step(step, max_retries, &tracer).await?;
         step_span.end();
         if pipeline.get_task()?.status != Status::Processing {
             return Ok(());
@@ -158,13 +158,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 let context = opentelemetry::Context::current();
                                 let span = context.span();
                                 span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-                                span.add_event(
-                                    "error_occurred",
-                                    vec![opentelemetry::KeyValue::new(
-                                        "error.message",
-                                        e.to_string(),
-                                    )],
-                                );
+                                span.record_error(e.as_ref());
                             }
                         }
                     }
