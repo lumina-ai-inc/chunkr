@@ -35,6 +35,7 @@ mod tests {
             previous_version: None,
             task_id: "test_task_id".to_string(),
             user_id: "test_user_id".to_string(),
+            trace_context: None,
         };
         queue_task_payload(task_payload).await.unwrap();
     }

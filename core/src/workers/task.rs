@@ -6,6 +6,7 @@ use core::models::task::Status;
 use core::models::task::TaskPayload;
 use core::utils::clients::get_redis_pool;
 use core::utils::clients::initialize;
+use core::with_otel_span;
 use opentelemetry::global;
 use opentelemetry::trace::{TraceContextExt, Tracer};
 
@@ -55,18 +56,30 @@ pub async fn process(
     let _guard = parent_context.with_span(span).attach();
 
     let mut pipeline = Pipeline::new();
-    pipeline.init(task_payload.clone()).await?;
-    if pipeline.get_task()?.status != Status::Processing {
-        println!(
-            "Skipping task as status is {:?}",
-            pipeline.get_task()?.status
+    with_otel_span!(
+        otel_config::SpanName::PipelineInit.to_string(),
+        pipeline.init(task_payload.clone()),
+        otel_config::ServiceName::TaskWorker,
+        async
+    )?;
+    let status = pipeline.get_task()?.status;
+    if status != Status::Processing {
+        println!("Skipping task as status is {:?}", status);
+        opentelemetry::Context::current().span().add_event(
+            "task_skipped",
+            vec![opentelemetry::KeyValue::new("status", status.to_string())],
         );
         return Ok(());
     }
 
     let start_time = std::time::Instant::now();
     for step in orchestrate_task(&mut pipeline)? {
-        pipeline.execute_step(step, max_retries).await?;
+        with_otel_span!(
+            step.to_string(),
+            pipeline.execute_step(step, max_retries),
+            otel_config::ServiceName::TaskWorker,
+            async
+        )?;
         if pipeline.get_task()?.status != Status::Processing {
             return Ok(());
         }

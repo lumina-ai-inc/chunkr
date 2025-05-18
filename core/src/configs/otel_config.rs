@@ -43,6 +43,14 @@ pub enum SpanName {
     CancelTask,
     #[strum(serialize = "process_task")]
     ProcessTask,
+    #[strum(serialize = "pipeline_init")]
+    PipelineInit,
+}
+
+#[derive(Debug, Clone, Copy, Display, EnumString)]
+pub enum EventName {
+    #[strum(serialize = "task_skipped")]
+    TaskSkipped,
 }
 
 fn default_endpoint() -> String {
@@ -70,7 +78,6 @@ impl Config {
                 .separator("_"),
         );
 
-        // Add our custom environment variables
         builder = builder.add_source(
             config::Environment::default()
                 .prefix("OTEL")
@@ -153,4 +160,61 @@ impl Config {
             Context::current()
         }
     }
+}
+
+/// Macro to wrap a function call with a span
+///
+/// Usage:
+/// ```
+/// instrument!(SpanName::ProcessTask.to_string(), sync_fn_call(), ServiceName::TaskWorker)
+/// instrument!(SpanName::ProcessTask.to_string(), async_fn_call(), ServiceName::TaskWorker, async)
+/// ```
+#[macro_export]
+macro_rules! with_otel_span {
+    ($span_name:expr, $body:expr, $service:expr) => {{
+        let current = opentelemetry::Context::current();
+        let tracer = opentelemetry::global::tracer($service.to_string());
+        let span = tracer.start_with_context($span_name, &current);
+        let guard = current.with_span(span).attach();
+
+        match $body {
+            Ok(result) => Ok(result),
+            Err(e) => {
+                let current_span = current.span();
+                current_span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                current_span.add_event(
+                    "error_occurred",
+                    vec![
+                        opentelemetry::KeyValue::new("error.message", e.to_string()),
+                        opentelemetry::KeyValue::new("span_name", $span_name),
+                    ],
+                );
+                Err(e)
+            }
+        }
+    }};
+
+    // Version for async functions that need .await
+    ($span_name:expr, $body:expr, $service:expr, async) => {{
+        let current = opentelemetry::Context::current();
+        let tracer = opentelemetry::global::tracer($service.to_string());
+        let span = tracer.start_with_context($span_name, &current);
+        let _guard = current.with_span(span).attach();
+
+        match $body.await {
+            Ok(result) => Ok(result),
+            Err(e) => {
+                let current_span = current.span();
+                current_span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                current_span.add_event(
+                    "error_occurred",
+                    vec![
+                        opentelemetry::KeyValue::new("error.message", e.to_string()),
+                        opentelemetry::KeyValue::new("span_name", $span_name),
+                    ],
+                );
+                Err(e)
+            }
+        }
+    }};
 }
