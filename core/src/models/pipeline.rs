@@ -96,6 +96,16 @@ impl Pipeline {
 
     pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
         let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
+        task.update(
+            Some(Status::Processing),
+            Some("Task started".to_string()),
+            None,
+            None,
+            Some(Utc::now()),
+            None,
+            None,
+        )
+        .await?;
         if task.status == Status::Cancelled {
             if task_payload.previous_configuration.is_some() {
                 task.update(
@@ -140,10 +150,10 @@ impl Pipeline {
         let page_count = count_pages(self.pdf_file.as_ref().unwrap())?;
         task.update(
             Some(Status::Processing),
-            Some("Task started".to_string()),
+            Some("Task initialized".to_string()),
             None,
             Some(page_count),
-            Some(Utc::now()),
+            None,
             None,
             None,
         )
