@@ -1,3 +1,4 @@
+use crate::configs::otel_config;
 use crate::models::auth::UserInfo;
 use crate::models::task::{Task, TaskQuery, TaskResponse};
 use crate::models::upload;
@@ -11,7 +12,6 @@ use crate::utils::services::file_operations::get_base64;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpResponse};
 use opentelemetry::{
-    global,
     trace::{Span, Tracer},
     Context, KeyValue,
 };
@@ -100,7 +100,17 @@ pub async fn create_task_route(
     payload: web::Json<upload::CreateForm>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let tracer = global::tracer("chunkr-server");
+    let tracer = match otel_config::Config::from_env()
+        .and_then(|config| Ok(config.get_tracer(otel_config::ServiceName::Server)))
+    {
+        Ok(tracer) => tracer,
+        Err(e) => {
+            eprintln!("Error getting tracer: {:?}", e);
+            return Ok(HttpResponse::InternalServerError()
+                .body(format!("Failed to initialize tracer: {}", e)));
+        }
+    };
+
     let mut span = tracer.start_with_context("create_task", &Context::current());
     user_info.add_trace_attributes(&mut span);
 
@@ -113,7 +123,9 @@ pub async fn create_task_route(
             config
         }
         Err(e) => {
-            span.set_attribute(KeyValue::new("error", e.to_string()));
+            span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+            span.set_attribute(KeyValue::new("error.type", "configuration_error"));
+            span.set_attribute(KeyValue::new("error.message", e.to_string()));
             span.end();
             println!("Error creating task: {:?}", e);
             return Ok(HttpResponse::BadRequest().body(e));
@@ -124,12 +136,16 @@ pub async fn create_task_route(
         Ok(file) => file,
         Err(e) => match e.to_string().contains("Invalid base64 data") {
             true => {
-                span.set_attribute(KeyValue::new("error", e.to_string()));
+                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                span.set_attribute(KeyValue::new("error.type", "invalid_base64"));
+                span.set_attribute(KeyValue::new("error.message", e.to_string()));
                 span.end();
                 return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
             }
             false => {
-                span.set_attribute(KeyValue::new("error", e.to_string()));
+                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                span.set_attribute(KeyValue::new("error.type", "file_processing_error"));
+                span.set_attribute(KeyValue::new("error.message", e.to_string()));
                 span.end();
                 return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
             }
@@ -139,7 +155,9 @@ pub async fn create_task_route(
     let mut temp_file = match tempfile::NamedTempFile::new() {
         Ok(file) => file,
         Err(e) => {
-            span.set_attribute(KeyValue::new("error", e.to_string()));
+            span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+            span.set_attribute(KeyValue::new("error.type", "temp_file_creation_error"));
+            span.set_attribute(KeyValue::new("error.message", e.to_string()));
             span.end();
             println!("Error creating temporary file: {:?}", e);
             return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
@@ -147,11 +165,13 @@ pub async fn create_task_route(
     };
 
     if let Err(e) = std::io::Write::write_all(&mut temp_file, &base64_data) {
-        span.set_attribute(KeyValue::new("error", e.to_string()));
+        span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+        span.set_attribute(KeyValue::new("error.type", "file_write_error"));
+        span.set_attribute(KeyValue::new("error.message", e.to_string()));
         span.end();
         println!("Error writing to temporary file: {:?}", e);
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
-    }
+    };
 
     let result = create_task::create_task(
         &temp_file,
@@ -168,9 +188,26 @@ pub async fn create_task_route(
             Ok(HttpResponse::Ok().json(task_response))
         }
         Err(e) => {
-            span.set_attribute(KeyValue::new("error", e.to_string()));
-            span.end();
+            span.set_status(opentelemetry::trace::Status::error(e.to_string()));
             let error_message = e.to_string();
+
+            if error_message
+                .to_lowercase()
+                .contains("usage limit exceeded")
+            {
+                span.set_attribute(KeyValue::new("error.type", "usage_limit_exceeded"));
+            } else if error_message
+                .to_lowercase()
+                .contains("unsupported file type")
+            {
+                span.set_attribute(KeyValue::new("error.type", "unsupported_file_type"));
+            } else {
+                span.set_attribute(KeyValue::new("error.type", "task_creation_error"));
+            }
+
+            span.set_attribute(KeyValue::new("error.message", error_message.clone()));
+            span.end();
+
             if error_message
                 .to_lowercase()
                 .contains("usage limit exceeded")

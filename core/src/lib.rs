@@ -11,10 +11,6 @@ use actix_web::{web, App, HttpServer};
 use actix_web_opentelemetry::RequestTracing;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use env_logger::Env;
-use opentelemetry::sdk::Resource;
-use opentelemetry::KeyValue;
-use opentelemetry_otlp::WithExportConfig;
-use opentelemetry_semantic_conventions::resource;
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
     Modify, OpenApi,
@@ -135,40 +131,12 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
     web::Json(ApiDoc::openapi())
 }
 
-fn init_tracer() -> Result<(), Box<dyn std::error::Error>> {
-    let otel_config = configs::otel_config::Config::from_env()?;
-
-    std::env::set_var("OTEL_EXPORTER_OTLP_ENDPOINT", &otel_config.endpoint);
-    std::env::set_var(
-        "OTEL_RESOURCE_ATTRIBUTES",
-        otel_config.get_resource_attributes("chunkr-server"),
-    );
-
-    println!(
-        "OpenTelemetry config: OTEL_EXPORTER_OTLP_ENDPOINT={}, OTEL_RESOURCE_ATTRIBUTES={}",
-        &otel_config.endpoint,
-        otel_config.get_resource_attributes("chunkr-server")
-    );
-
-    opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(opentelemetry_otlp::new_exporter().tonic().with_env())
-        .with_trace_config(
-            opentelemetry::sdk::trace::config().with_resource(Resource::new(vec![
-                KeyValue::new(resource::SERVICE_NAME, "chunkr-server"),
-                KeyValue::new(resource::SERVICE_NAMESPACE, otel_config.service_namespace),
-                KeyValue::new("deployment.environment", otel_config.deployment_environment),
-                KeyValue::new(resource::SERVICE_VERSION, env!("CARGO_PKG_VERSION")),
-            ])),
-        )
-        .install_batch(opentelemetry::runtime::Tokio)?;
-
-    Ok(())
-}
-
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-        if let Err(e) = init_tracer() {
+        if let Err(e) = configs::otel_config::Config::from_env()
+            .and_then(|config| Ok(config.init_tracer(configs::otel_config::ServiceName::Server)))
+            .map_err(|e| e.to_string())
+        {
             eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);
         }
 
