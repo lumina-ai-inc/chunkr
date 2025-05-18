@@ -29,8 +29,18 @@ pub enum ServiceName {
 
 #[derive(Debug, Clone, Copy, Display, EnumString)]
 pub enum SpanName {
+    #[strum(serialize = "auth")]
+    Auth,
     #[strum(serialize = "create_task")]
     CreateTask,
+    #[strum(serialize = "get_task")]
+    GetTask,
+    #[strum(serialize = "update_task")]
+    UpdateTask,
+    #[strum(serialize = "delete_task")]
+    DeleteTask,
+    #[strum(serialize = "cancel_task")]
+    CancelTask,
 }
 
 fn default_endpoint() -> String {
