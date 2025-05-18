@@ -17,9 +17,8 @@ impl UserInfo {
     {
         span.set_attribute(KeyValue::new("user.user_id", self.user_id.clone()));
 
-        if let Some(api_key) = &self.api_key {
-            span.set_attribute(KeyValue::new("user.api_key", api_key.clone()));
-            // Don't include the full API key for security reasons
+        if let Some(_) = &self.api_key {
+            span.set_attribute(KeyValue::new("user.api_key_present", true));
         }
 
         if let Some(email) = &self.email {
