@@ -1,3 +1,4 @@
+use core::configs::otel_config;
 use core::configs::pdfium_config::Config as PdfiumConfig;
 use core::configs::worker_config::Config as WorkerConfig;
 use core::models::pipeline::{Pipeline, PipelineStep};
@@ -5,6 +6,8 @@ use core::models::task::Status;
 use core::models::task::TaskPayload;
 use core::utils::clients::get_redis_pool;
 use core::utils::clients::initialize;
+use opentelemetry::global;
+use opentelemetry::trace::{TraceContextExt, Tracer};
 
 #[cfg(feature = "memory_profiling")]
 use memtrack::track_mem;
@@ -42,6 +45,15 @@ pub async fn process(
     task_payload: TaskPayload,
     max_retries: u32,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let parent_context =
+        core::configs::otel_config::Config::inject_context(task_payload.trace_context.clone());
+    let tracer = global::tracer(otel_config::ServiceName::TaskWorker.to_string());
+    let span = tracer.start_with_context(
+        otel_config::SpanName::ProcessTask.to_string(),
+        &parent_context,
+    );
+    let _guard = parent_context.with_span(span).attach();
+
     let mut pipeline = Pipeline::new();
     pipeline.init(task_payload.clone()).await?;
     if pipeline.get_task()?.status != Status::Processing {
@@ -51,6 +63,7 @@ pub async fn process(
         );
         return Ok(());
     }
+
     let start_time = std::time::Instant::now();
     for step in orchestrate_task(&mut pipeline)? {
         pipeline.execute_step(step, max_retries).await?;
@@ -76,6 +89,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = WorkerConfig::from_env()?;
     PdfiumConfig::from_env()?.ensure_binary().await?;
     initialize().await;
+    if let Err(e) = core::configs::otel_config::Config::from_env()
+        .and_then(|config| {
+            Ok(config.init_tracer(core::configs::otel_config::ServiceName::TaskWorker))
+        })
+        .map_err(|e| e.to_string())
+    {
+        eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);
+    }
     println!("Listening for tasks on queue: {}", &config.queue_task);
 
     loop {

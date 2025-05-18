@@ -1,12 +1,12 @@
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
-use opentelemetry::global;
-use opentelemetry::KeyValue;
+use opentelemetry::propagation::TextMapPropagator;
+use opentelemetry::{global, trace::TraceContextExt, Context, KeyValue};
 use opentelemetry_otlp::WithExportConfig;
-use opentelemetry_sdk::propagation::TraceContextPropagator;
-use opentelemetry_sdk::Resource;
+use opentelemetry_sdk::{propagation::TraceContextPropagator, Resource};
 use opentelemetry_semantic_conventions::resource;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use strum_macros::{Display, EnumString};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -41,6 +41,8 @@ pub enum SpanName {
     DeleteTask,
     #[strum(serialize = "cancel_task")]
     CancelTask,
+    #[strum(serialize = "process_task")]
+    ProcessTask,
 }
 
 fn default_endpoint() -> String {
@@ -119,5 +121,36 @@ impl Config {
 
     pub fn get_tracer(&self, service: ServiceName) -> opentelemetry::global::BoxedTracer {
         opentelemetry::global::tracer(service.to_string())
+    }
+
+    pub fn extract_context_for_propagation() -> Option<String> {
+        let current_context = Context::current();
+        if current_context.span().is_recording() {
+            let propagator = TraceContextPropagator::new();
+            let mut carrier = HashMap::new();
+
+            propagator.inject_context(&current_context, &mut carrier);
+
+            match serde_json::to_string(&carrier) {
+                Ok(serialized) => Some(serialized),
+                Err(_) => None,
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn inject_context(serialized_context: Option<String>) -> Context {
+        if let Some(context_str) = serialized_context {
+            match serde_json::from_str::<HashMap<String, String>>(&context_str) {
+                Ok(carrier) => {
+                    let propagator = TraceContextPropagator::new();
+                    propagator.extract(&carrier)
+                }
+                Err(_) => Context::current(),
+            }
+        } else {
+            Context::current()
+        }
     }
 }

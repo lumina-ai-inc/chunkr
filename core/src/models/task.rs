@@ -1,4 +1,4 @@
-use crate::configs::worker_config;
+use crate::configs::{otel_config, worker_config};
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::llm::LlmProcessing;
 use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
@@ -663,6 +663,7 @@ impl Task {
             previous_version,
             task_id: self.task_id.clone(),
             user_id: self.user_id.clone(),
+            trace_context: otel_config::Config::extract_context_for_propagation(),
         }
     }
 }
@@ -843,6 +844,7 @@ pub struct TaskPayload {
     pub previous_version: Option<String>,
     pub task_id: String,
     pub user_id: String,
+    pub trace_context: Option<String>,
 }
 
 #[derive(Deserialize)]
