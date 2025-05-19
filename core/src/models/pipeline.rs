@@ -6,7 +6,7 @@ use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
-use opentelemetry::trace::{Span, Tracer};
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use std::error::Error;
 use std::sync::Arc;
@@ -222,6 +222,7 @@ impl Pipeline {
                 "retry_count",
                 retries.to_string(),
             ));
+            let _guard = Context::current().with_span(span).attach();
 
             // Update task status to processing and message to step start message
             let message = match retries > 0 {
@@ -273,16 +274,18 @@ impl Pipeline {
                         duration,
                         self.get_task()?.page_count.unwrap_or(0)
                     );
-                    span.end();
+                    Context::current().span().end();
                     return Ok(());
                 }
                 Err(e) => {
                     println!("Error {} in step {}", e, step.to_string());
                     retries += 1;
-
-                    span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-                    span.record_error(e.as_ref());
-                    span.end();
+                    let context = Context::current();
+                    context
+                        .span()
+                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                    context.span().record_error(e.as_ref());
+                    context.span().end();
 
                     if retries < max_retries {
                         task.update(
