@@ -92,9 +92,7 @@ pub async fn process(
 
     let start_time = std::time::Instant::now();
     for step in orchestrate_task(&mut pipeline)? {
-        let mut step_span = tracer.start_with_context(step.to_string(), &Context::current());
         pipeline.execute_step(step, max_retries, &tracer).await?;
-        step_span.end();
         if pipeline.get_task()?.status != Status::Processing {
             return Ok(());
         }

@@ -1,12 +1,12 @@
 use crate::configs::worker_config;
 use crate::models::output::Chunk;
-use crate::models::task::{Status, Task, TaskPayload, TimeoutError};
+use crate::models::task::{Status, Task, TaskPayload};
 use crate::utils::services::file_operations::convert_to_pdf;
 use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
-use opentelemetry::trace::{TraceContextExt, Tracer};
+use opentelemetry::trace::{Span, Tracer};
 use opentelemetry::Context;
 use std::error::Error;
 use std::sync::Arc;
@@ -217,6 +217,12 @@ impl Pipeline {
         let mut retries = 0;
 
         while retries < max_retries {
+            let mut span = tracer.start_with_context(step.to_string(), &Context::current());
+            span.set_attribute(opentelemetry::KeyValue::new(
+                "retry_count",
+                retries.to_string(),
+            ));
+
             // Update task status to processing and message to step start message
             let message = match retries > 0 {
                 true => format!(
@@ -228,35 +234,16 @@ impl Pipeline {
                 false => step.start_message(),
             };
             println!("Executing step: {}", message);
-            match task
-                .update(
-                    Some(Status::Processing),
-                    Some(message),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                )
-                .await
-            {
-                Ok(_) => (),
-                Err(e) => {
-                    if e.is::<TimeoutError>() {
-                        println!("Task timed out");
-                    } else {
-                        println!("Error in updating task: {:?}", e);
-                    }
-                    return Err(e);
-                }
-            };
-
-            let _retry_span = if retries > 0 {
-                let span_name = format!("{}_retry_{}", step.to_string(), retries);
-                Some(tracer.start_with_context(span_name, &Context::current()))
-            } else {
-                None
-            };
+            task.update(
+                Some(Status::Processing),
+                Some(message),
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+            .await?;
 
             // Execute step
             let result = match step {
@@ -286,24 +273,18 @@ impl Pipeline {
                         duration,
                         self.get_task()?.page_count.unwrap_or(0)
                     );
+                    span.end();
                     return Ok(());
                 }
                 Err(e) => {
                     println!("Error {} in step {}", e, step.to_string());
                     retries += 1;
-                    if retries < max_retries {
-                        opentelemetry::Context::current().span().add_event(
-                            "retry_attempt",
-                            vec![
-                                opentelemetry::KeyValue::new("retry_count", retries.to_string()),
-                                opentelemetry::KeyValue::new(
-                                    "max_retries",
-                                    max_retries.to_string(),
-                                ),
-                                opentelemetry::KeyValue::new("error", e.to_string()),
-                            ],
-                        );
 
+                    span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                    span.record_error(e.as_ref());
+                    span.end();
+
+                    if retries < max_retries {
                         task.update(
                             Some(Status::Processing),
                             Some(step.error_message()),
