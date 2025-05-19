@@ -9,6 +9,8 @@ use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
+use opentelemetry::Context;
 use regex::Regex;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -622,6 +624,7 @@ async fn process_segment(
     segment_image: Option<Arc<NamedTempFile>>,
     page_image: Option<Arc<NamedTempFile>>,
     image_folder_location: &str,
+    tracer: &opentelemetry::global::BoxedTracer,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (html_strategy, markdown_strategy, llm_prompt, extended_context) = match segment
         .segment_type
@@ -697,6 +700,17 @@ async fn process_segment(
         _ => (None, None, None),
     };
 
+    let mut span = tracer.start_with_context("process_segment", &Context::current());
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "segment_id",
+        segment.segment_id.clone(),
+    ));
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "segment_type",
+        segment.segment_type.to_string(),
+    ));
+    let parent_cx = Context::current_with_span(span);
+
     // Process HTML with error handling using new parameter struct
     let html_params = ContentGenerationParams::new(
         segment,
@@ -733,17 +747,38 @@ async fn process_segment(
         configuration,
     );
 
-    // Create futures for all three operations so they can run concurrently
+    let mut generate_html_span = tracer.start_with_context("generate_html", &parent_cx);
+    generate_html_span.set_attribute(opentelemetry::KeyValue::new(
+        "error_handling",
+        configuration.error_handling.to_string(),
+    ));
+
+    let mut generate_markdown_span = tracer.start_with_context("generate_markdown", &parent_cx);
+    generate_markdown_span.set_attribute(opentelemetry::KeyValue::new(
+        "error_handling",
+        configuration.error_handling.to_string(),
+    ));
+
+    let mut generate_llm_span = tracer.start_with_context("generate_llm", &parent_cx);
+    generate_llm_span.set_attribute(opentelemetry::KeyValue::new(
+        "error_handling",
+        configuration.error_handling.to_string(),
+    ));
+
+    // Create futures that use the spans
     let html_future = async {
         match generate_html(&html_params).await {
             Ok(content) => Ok(content),
             Err(e) => {
+                generate_html_span.record_error(e.as_ref());
                 if configuration.error_handling == ErrorHandlingStrategy::Continue {
                     let html_generator = HtmlGenerator {
                         segment_type: segment.segment_type.clone(),
                     };
                     Ok(html_generator.generate_auto(&segment.content))
                 } else {
+                    generate_html_span
+                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
                     Err(e)
                 }
             }
@@ -754,12 +789,15 @@ async fn process_segment(
         match generate_markdown(&markdown_params).await {
             Ok(content) => Ok(content),
             Err(e) => {
+                generate_markdown_span.record_error(e.as_ref());
                 if configuration.error_handling == ErrorHandlingStrategy::Continue {
                     let markdown_generator = MarkdownGenerator {
                         segment_type: segment.segment_type.clone(),
                     };
                     Ok(markdown_generator.generate_auto(&segment.content))
                 } else {
+                    generate_markdown_span
+                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
                     Err(e)
                 }
             }
@@ -770,9 +808,12 @@ async fn process_segment(
         match generate_llm(&llm_params).await {
             Ok(content) => Ok(content),
             Err(e) => {
+                generate_llm_span.record_error(e.as_ref());
                 if configuration.error_handling == ErrorHandlingStrategy::Continue {
                     Ok(None)
                 } else {
+                    generate_llm_span
+                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
                     Err(e)
                 }
             }
@@ -792,7 +833,10 @@ async fn process_segment(
 ///
 /// This function will generate the html, llm and markdown fields for all the segments in parallel.
 /// Depending on the configuration, each segment will either be processed using heuristic or by a LLM.
-pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn process(
+    pipeline: &mut Pipeline,
+    tracer: &opentelemetry::global::BoxedTracer,
+) -> Result<(), Box<dyn std::error::Error>> {
     let task = pipeline.get_task()?;
     let configuration = task.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
@@ -822,6 +866,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
                     segment_image_cloned,
                     segment_page_image,
                     &task.image_folder_location,
+                    tracer,
                 )
             })
         })

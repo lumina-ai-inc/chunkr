@@ -258,7 +258,7 @@ impl Pipeline {
                     crate::pipeline::chunkr_analysis::process(self).await
                 }
                 PipelineStep::SegmentProcessing => {
-                    crate::pipeline::segment_processing::process(self).await
+                    crate::pipeline::segment_processing::process(self, tracer).await
                 }
             };
 
