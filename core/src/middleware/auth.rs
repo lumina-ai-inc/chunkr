@@ -115,26 +115,16 @@ where
                 ));
             }
 
-            if authorization.unwrap().starts_with("Bearer ") {
+            let user_info = if authorization.unwrap().starts_with("Bearer ") {
                 let token = authorization.unwrap().split("Bearer ").nth(1).unwrap();
-                match bearer_token_validator(token).await {
-                    Ok(user_info) => {
-                        req.extensions_mut().insert(user_info);
-                        let res = srv.call(req).await?;
-                        Ok(res)
-                    }
-                    Err(e) => Err(e),
-                }
+                bearer_token_validator(token).await
             } else {
-                match api_key_validator(authorization.unwrap_or_default()).await {
-                    Ok(user_info) => {
-                        req.extensions_mut().insert(user_info);
-                        let res = srv.call(req).await?;
-                        Ok(res)
-                    }
-                    Err(e) => Err(e),
-                }
-            }
+                api_key_validator(authorization.unwrap_or_default()).await
+            }?;
+
+            user_info.add_attributes_to_ctx();
+            req.extensions_mut().insert(user_info);
+            srv.call(req).await
         })
     }
 }

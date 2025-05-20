@@ -1,10 +1,13 @@
+use core::configs::otel_config;
 use core::configs::pdfium_config::Config as PdfiumConfig;
 use core::configs::worker_config::Config as WorkerConfig;
 use core::models::pipeline::{Pipeline, PipelineStep};
-use core::models::task::Status;
 use core::models::task::TaskPayload;
+use core::models::task::{Status, Task};
 use core::utils::clients::get_redis_pool;
 use core::utils::clients::initialize;
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
+use opentelemetry::{global, Context, KeyValue};
 
 #[cfg(feature = "memory_profiling")]
 use memtrack::track_mem;
@@ -41,19 +44,56 @@ fn orchestrate_task(
 pub async fn process(
     task_payload: TaskPayload,
     max_retries: u32,
+    tracer: opentelemetry::global::BoxedTracer,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut pipeline = Pipeline::new();
-    pipeline.init(task_payload.clone()).await?;
-    if pipeline.get_task()?.status != Status::Processing {
-        println!(
-            "Skipping task as status is {:?}",
-            pipeline.get_task()?.status
+
+    let mut pipeline_init_span = tracer.start_with_context(
+        otel_config::SpanName::PipelineInit.to_string(),
+        &Context::current(),
+    );
+    match pipeline.init(task_payload.clone()).await {
+        Ok(_) => {
+            opentelemetry::Context::current()
+                .span()
+                .set_attribute(KeyValue::new(
+                    "pages_count",
+                    i64::from(pipeline.get_task()?.page_count.unwrap_or(0)),
+                ));
+        }
+        Err(e) => {
+            let mut task =
+                Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
+            if task.status == Status::Processing {
+                task.update(
+                    Some(Status::Failed),
+                    Some("Failed to initialize task".to_string()),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                .await?;
+            }
+            return Err(e);
+        }
+    }
+    pipeline_init_span.end();
+
+    let status = pipeline.get_task()?.status;
+    if status != Status::Processing {
+        println!("Skipping task as status is {:?}", status);
+        opentelemetry::Context::current().span().add_event(
+            "task_skipped",
+            vec![opentelemetry::KeyValue::new("status", status.to_string())],
         );
         return Ok(());
     }
+
     let start_time = std::time::Instant::now();
     for step in orchestrate_task(&mut pipeline)? {
-        pipeline.execute_step(step, max_retries).await?;
+        pipeline.execute_step(step, max_retries, &tracer).await?;
         if pipeline.get_task()?.status != Status::Processing {
             return Ok(());
         }
@@ -76,6 +116,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = WorkerConfig::from_env()?;
     PdfiumConfig::from_env()?.ensure_binary().await?;
     initialize().await;
+    if let Err(e) = core::configs::otel_config::Config::from_env().map(|config| config.init_tracer(core::configs::otel_config::ServiceName::TaskWorker))
+        .map_err(|e| e.to_string())
+    {
+        eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);
+    }
     println!("Listening for tasks on queue: {}", &config.queue_task);
 
     loop {
@@ -89,10 +134,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Some((_, task_json)) = result {
             {
                 match serde_json::from_str::<TaskPayload>(&task_json) {
-                    Ok(payload) => match process(payload, config.max_retries).await {
-                        Ok(_) => println!("Task processed successfully"),
-                        Err(e) => eprintln!("Error processing task: {}", e),
-                    },
+                    Ok(payload) => {
+                        let parent_context = core::configs::otel_config::Config::inject_context(
+                            payload.trace_context.clone(),
+                        );
+                        let tracer =
+                            global::tracer(otel_config::ServiceName::TaskWorker.to_string());
+                        let mut span = tracer.start_with_context(
+                            otel_config::SpanName::ProcessTask.to_string(),
+                            &parent_context,
+                        );
+                        span.set_attribute(KeyValue::new("task_id", payload.task_id.clone()));
+                        for attribute in payload.user_info.get_attributes() {
+                            span.set_attribute(attribute);
+                        }
+                        let _guard = parent_context.with_span(span).attach();
+                        match process(payload, config.max_retries, tracer).await {
+                            Ok(_) => {
+                                println!("Task processed successfully");
+                            }
+                            Err(e) => {
+                                eprintln!("Error processing task: {}", e);
+                                let context = opentelemetry::Context::current();
+                                let span = context.span();
+                                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                                span.record_error(e.as_ref());
+                                span.set_attribute(KeyValue::new("error", e.to_string()));
+                            }
+                        }
+                    }
                     Err(e) => eprintln!("Failed to parse task: {}", e),
                 }
 

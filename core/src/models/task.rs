@@ -1,4 +1,4 @@
-use crate::configs::worker_config;
+use crate::configs::{otel_config, worker_config};
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::llm::LlmProcessing;
 use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
@@ -24,12 +24,12 @@ use tempfile::NamedTempFile;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+use super::auth::UserInfo;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskDetails {
     pub task_id: String,
-    pub user_id: String,
-    pub email: Option<String>,
-    pub name: String,
+    pub user_info: UserInfo,
     pub page_count: i32,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
@@ -655,6 +655,7 @@ impl Task {
         previous_status: Option<Status>,
         previous_message: Option<String>,
         previous_version: Option<String>,
+        user_info: &UserInfo,
     ) -> TaskPayload {
         TaskPayload {
             previous_configuration,
@@ -662,7 +663,8 @@ impl Task {
             previous_message,
             previous_version,
             task_id: self.task_id.clone(),
-            user_id: self.user_id.clone(),
+            user_info: user_info.clone(),
+            trace_context: otel_config::Config::extract_context_for_propagation(),
         }
     }
 }
@@ -835,14 +837,15 @@ pub enum Model {
     HighQuality,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TaskPayload {
     pub previous_configuration: Option<Configuration>,
     pub previous_message: Option<String>,
     pub previous_status: Option<Status>,
     pub previous_version: Option<String>,
     pub task_id: String,
-    pub user_id: String,
+    pub user_info: UserInfo,
+    pub trace_context: Option<String>,
 }
 
 #[derive(Deserialize)]

@@ -3,6 +3,7 @@ pub mod azure_config;
 pub mod github_config;
 pub mod job_config;
 pub mod llm_config;
+pub mod otel_config;
 pub mod pdfium_config;
 pub mod postgres_config;
 pub mod redis_config;
