@@ -1,0 +1,66 @@
+# Sweetspot deployment helmfile
+releases:
+  - name: chunkr
+    namespace: chunkr
+    chart: ../../../charts/chunkr
+    values:
+      - ../../../charts/chunkr-enterprise/values.yaml
+      - ../../../charts/chunkr-enterprise/infrastructure.yaml
+      - ../../../charts/chunkr-enterprise/embeddings.yaml
+    set:
+      - name: ingress.subdomains.root
+        value: false
+      - name: services.web.ingress.subdomain
+        value: sweetspot
+      - name: services.server.ingress.subdomain
+        value: sweetspot-api
+      - name: services.keycloak.ingress.subdomain
+        value: sweetspot-auth
+      - name: services.minio.enabled
+        value: true
+      - name: services.minio.ingress.subdomain
+        value: sweetspot-s3
+      - name: services.embeddings.ingress.enabled
+        value: true
+      - name: services.embeddings.ingress.subdomain
+        value: sweetspot-embed
+      - name: services.reranker.enabled
+        value: true
+      - name: services.reranker.ingress.enabled
+        value: true
+      - name: services.reranker.ingress.subdomain
+        value: sweetspot-rerank
+      - name: services.sparse-doc-embeddings.enabled
+        value: true
+      - name: services.sparse-doc-embeddings.ingress.enabled
+        value: true
+      - name: services.sparse-doc-embeddings.ingress.subdomain
+        value: sweetspot-sparse-doc
+      - name: services.sparse-query-embeddings.enabled
+        value: true
+      - name: services.sparse-query-embeddings.ingress.enabled
+        value: true
+      - name: services.sparse-query-embeddings.ingress.subdomain
+        value: sweetspot-sparse-query
+      - name: services.analytics-web.ingress.subdomain
+        value: sweetspot-analytics
+      - name: services.analytics-server.ingress.subdomain
+        value: sweetspot-analytics-api
+      - name: services.emails.enabled
+        value: false
+      - name: services.emails.ingress.enabled
+        value: false
+      - name: services.segmentation.enableTopologySpreadConstraints
+        value: false
+      - name: services.ocr.enableTopologySpreadConstraints
+        value: false
+      - name: ingress.type
+        value: cloudflare
+      - name: cloudflared.enabled
+        value: true
+      - name: cloudflared.config.tunnelName
+        value: sweetspot-tunnel
+      - name: services.postgres.enabled
+        value: false
+      - name: global.storageClass
+        value: default 

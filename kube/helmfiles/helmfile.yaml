@@ -1,0 +1,6 @@
+helmfiles:
+  - path: environments/*/helmfile.yaml
+  
+repositories:
+  - name: chunkr
+    path: ../charts 

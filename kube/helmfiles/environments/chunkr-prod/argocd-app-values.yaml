@@ -1,0 +1,27 @@
+server:
+  service:
+    type: ClusterIP
+
+configs:
+  repositories:
+    github:
+      url: https://github.com/lumina-ai-inc/chunkr-enterprise.git
+      type: git
+  secret:
+    githubSecret: argocd-github-secret
+    
+applications:
+  - name: chunkr-app
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://github.com/lumina-ai-inc/chunkr-enterprise.git
+      targetRevision: HEAD
+      path: kube/helmfiles/environments/chunkr-prod
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: chunkr
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true

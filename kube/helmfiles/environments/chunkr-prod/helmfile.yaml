@@ -1,0 +1,42 @@
+# GCP Production deployment helmfile
+releases:
+  - name: chunkr
+    namespace: chunkr
+    chart: ../../../charts/chunkr-enterprise
+    values:
+      - ../../../charts/chunkr-enterprise/values.yaml
+      - ../../../charts/chunkr-enterprise/infrastructure.yaml
+      - ../../../charts/chunkr-enterprise/embeddings.yaml
+    set:
+      - name: services.postgres.enabled
+        value: false
+      - name: services.minio.enabled
+        value: false
+      - name: services.minio.ingress.enabled
+        value: false
+      - name: services.embeddings.ingress.enabled
+        value: true
+      - name: services.embeddings.ingress.subdomain
+        value: embed
+      - name: services.sparse-doc-embeddings.enabled
+        value: true
+      - name: services.sparse-doc-embeddings.ingress.enabled
+        value: true
+      - name: services.sparse-doc-embeddings.ingress.subdomain
+        value: sparse-doc
+      - name: services.sparse-query-embeddings.enabled
+        value: true
+      - name: services.sparse-query-embeddings.ingress.enabled
+        value: true
+      - name: services.sparse-query-embeddings.ingress.subdomain
+        value: sparse-query
+      - name: services.reranker.enabled
+        value: true
+      - name: services.reranker.ingress.enabled
+        value: true
+      - name: services.reranker.ingress.subdomain
+        value: rerank
+      - name: ingress.cloudflare.config.tunnelName
+        value: chunkr-prod
+      - name: global.storageClass
+        value: standard 

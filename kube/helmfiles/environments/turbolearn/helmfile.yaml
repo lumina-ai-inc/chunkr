@@ -1,0 +1,58 @@
+# Turbolearn deployment helmfile
+releases:
+  - name: chunkr
+    namespace: chunkr
+    chart: ../../../charts/chunkr-enterprise
+    values:
+      - ../../../charts/chunkr-enterprise/values.yaml
+      - ../../../charts/chunkr-enterprise/infrastructure.yaml
+      - ../../../charts/chunkr-enterprise/embeddings.yaml
+    set:
+      - name: ingress.subdomains.root
+        value: false
+      - name: services.web.ingress.subdomain
+        value: turbolearn
+      - name: services.server.ingress.subdomain
+        value: turbolearn-api
+      - name: services.keycloak.ingress.subdomain
+        value: turbolearn-auth
+      - name: services.analytics-web.ingress.subdomain
+        value: turbolearn-analytics
+      - name: services.analytics-server.ingress.subdomain
+        value: turbolearn-analytics-api
+      - name: ingress.type
+        value: cloudflare
+      - name: cloudflared.enabled
+        value: true
+      - name: cloudflared.config.tunnelName
+        value: turbolearn-tunnel
+      - name: services.postgres.enabled
+        value: false
+      - name: services.minio.enabled
+        value: false
+      - name: services.minio-init.enabled
+        value: false
+      - name: services.minio.ingress.enabled
+        value: false
+      - name: services.emails.enabled
+        value: false
+      - name: services.emails.ingress.enabled
+        value: false
+      - name: services.embeddings.enabled
+        value: false
+      - name: services.reranker.enabled
+        value: false
+      - name: services.sparse-doc-embeddings.enabled
+        value: false
+      - name: services.sparse-query-embeddings.enabled
+        value: false
+      - name: services.ocr.image.repository
+        value: doctr-small
+      - name: services.ocr.image.tag
+        value: 1.10.0
+      - name: services.segmentation.image.repository
+        value: segmentation-yolo
+      - name: services.segmentation.image.tag
+        value: 1.15.0-enterprise
+      - name: global.storageClass
+        value: standard 

@@ -1,0 +1,69 @@
+# GCP Dev deployment helmfile
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+
+releases:
+  - name: chunkr
+    namespace: chunkr
+    chart: ../../../charts/chunkr-enterprise
+    values:
+      - ../../../charts/chunkr-enterprise/values.yaml
+      - ../../../charts/chunkr-enterprise/infrastructure.yaml
+      - ../../../charts/chunkr-enterprise/embeddings.yaml
+    set:
+      - name: services.embeddings.ingress.enabled
+        value: true
+      - name: services.embeddings.ingress.subdomain
+        value: dev-embed
+      - name: services.reranker.enabled
+        value: true
+      - name: services.reranker.ingress.enabled
+        value: true
+      - name: services.reranker.ingress.subdomain
+        value: dev-rerank
+      - name: services.sparse-doc-embeddings.enabled
+        value: true
+      - name: services.sparse-doc-embeddings.ingress.enabled
+        value: true
+      - name: services.sparse-doc-embeddings.ingress.subdomain
+        value: dev-sparse-doc
+      - name: services.sparse-query-embeddings.enabled
+        value: true
+      - name: services.sparse-query-embeddings.ingress.enabled
+        value: true
+      - name: services.sparse-query-embeddings.ingress.subdomain
+        value: dev-sparse-query
+      - name: ingress.subdomains.root
+        value: false
+      - name: services.web.ingress.subdomain
+        value: dev
+      - name: services.server.ingress.subdomain
+        value: dev-api
+      - name: services.keycloak.ingress.subdomain
+        value: dev-auth
+      - name: services.analytics-web.ingress.subdomain
+        value: dev-analytics
+      - name: services.analytics-server.ingress.subdomain
+        value: dev-analytics-api
+      - name: ingress.type
+        value: cloudflare
+      - name: cloudflared.enabled
+        value: true
+      - name: cloudflared.config.tunnelName
+        value: chunkr-gcp-dev
+      - name: services.minio.enabled
+        value: false
+      - name: global.storageClass
+        value: standard 
+      - name: services.emails.enabled
+        value: false
+
+  - name: argocd
+    namespace: argocd
+    chart: argo/argo-cd
+    version: 8.0.0
+    installed: true
+    createNamespace: true
+    values:
+      - ./argocd-app-values.yaml

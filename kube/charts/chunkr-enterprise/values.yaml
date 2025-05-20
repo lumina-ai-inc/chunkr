@@ -65,6 +65,8 @@ common:
         .Values.ingress.domain }}
     - name: EMAIL__SERVER_URL
       value: http://{{- .Release.Name }}-emails:8000
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://kubelet-otel-k8s-infra-otel-agent.signoz.svc.cluster.local:4317
 global:
   image:
     registry: luminainc

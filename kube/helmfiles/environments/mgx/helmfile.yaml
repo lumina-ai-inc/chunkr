@@ -1,0 +1,13 @@
+# MGX deployment helmfile
+releases:
+  - name: chunkr
+    namespace: chunkr
+    chart: ../../../charts/chunkr-enterprise
+    values:
+      - ../../../charts/chunkr-enterprise/custom/mgx/values.yaml
+      - ../../../charts/chunkr-enterprise/infrastructure.yaml
+    set:
+      - name: services.keycloak.ingress.subdomain
+        value: mgx-auth
+      - name: services.minio.ingress.subdomain
+        value: mgx-s3 
