@@ -3,7 +3,7 @@ use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
-use opentelemetry::trace::{Span, Tracer};
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use std::error::Error;
 use std::fmt;
@@ -72,27 +72,31 @@ async fn open_ai_call_handler(
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
     tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = get_llm_rate_limiter(&model.id)?;
 
     retry_with_backoff(|| async {
-        let mut span = tracer.start_with_context("open_ai_call", &Context::current());
+        let mut span = tracer.start_with_context("open_ai_call", parent_context);
         span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
         span.set_attribute(opentelemetry::KeyValue::new(
             "provider_url",
             model.provider_url.clone(),
         ));
+        let ctx = parent_context.with_span(span);
 
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
-            span.set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
+            ctx.span()
+                .set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
             rate_limiter
                 .acquire_token_with_timeout(std::time::Duration::from_secs(
                     *TOKEN_TIMEOUT.get().unwrap(),
                 ))
                 .await?;
         } else {
-            span.set_attribute(opentelemetry::KeyValue::new("rate_limited", false));
+            ctx.span()
+                .set_attribute(opentelemetry::KeyValue::new("rate_limited", false));
         }
 
         match open_ai_call(
@@ -108,8 +112,9 @@ async fn open_ai_call_handler(
         {
             Ok(response) => Ok(response),
             Err(e) => {
-                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-                span.record_error(e.as_ref());
+                ctx.span()
+                    .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                ctx.span().record_error(e.as_ref());
                 Err(e)
             }
         }
@@ -127,9 +132,11 @@ async fn process_openai_request(
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
     tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    let mut span = tracer.start_with_context("process_openai_request", &Context::current());
+    let mut span = tracer.start_with_context("process_openai_request", parent_context);
     span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+    let ctx = parent_context.with_span(span);
 
     match open_ai_call_handler(
         model.clone(),
@@ -138,14 +145,16 @@ async fn process_openai_request(
         temperature,
         response_format.clone(),
         tracer,
+        &ctx,
     )
     .await
     {
         Ok(response) => Ok(response),
         Err(e) => {
             if let Some(fallback_model) = fallback_model {
-                span.set_attribute(opentelemetry::KeyValue::new("using_fallback", true));
-                span.set_attribute(opentelemetry::KeyValue::new(
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("using_fallback", true));
+                ctx.span().set_attribute(opentelemetry::KeyValue::new(
                     "fallback_model",
                     fallback_model.model.clone(),
                 ));
@@ -157,19 +166,22 @@ async fn process_openai_request(
                     temperature,
                     response_format,
                     tracer,
+                    &ctx,
                 )
                 .await
                 {
                     Ok(response) => Ok(response),
                     Err(e) => {
-                        span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-                        span.record_error(e.as_ref());
+                        ctx.span()
+                            .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                        ctx.span().record_error(e.as_ref());
                         Err(e)
                     }
                 }
             } else {
-                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-                span.record_error(e.as_ref());
+                ctx.span()
+                    .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                ctx.span().record_error(e.as_ref());
                 Err(e)
             }
         }
@@ -234,8 +246,10 @@ pub async fn try_extract_from_llm(
     fallback_content: Option<String>,
     llm_processing: LlmProcessing,
     tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let mut span = tracer.start_with_context("try_extract_from_llm", &Context::current());
+    let span = tracer.start_with_context("try_extract_from_llm", parent_context);
+    let ctx = parent_context.with_span(span);
 
     let llm_config = LlmConfig::from_env().unwrap();
     let model = llm_config.get_model(llm_processing.model_id)?;
@@ -250,17 +264,20 @@ pub async fn try_extract_from_llm(
         Some(llm_processing.temperature),
         None,
         tracer,
+        &ctx,
     )
     .await
     {
         Ok(response) => response,
         Err(e) => {
             if let Some(fallback_content) = fallback_content {
-                span.set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
                 return Ok(fallback_content);
             }
-            span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-            span.record_error(e.as_ref());
+            ctx.span()
+                .set_status(opentelemetry::trace::Status::error(e.to_string()));
+            ctx.span().record_error(e.as_ref());
             return Err(e);
         }
     };
@@ -281,6 +298,7 @@ pub async fn try_extract_from_llm(
             Some(llm_processing.temperature),
             None,
             tracer,
+            &ctx,
         )
         .await
         {
