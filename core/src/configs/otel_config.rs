@@ -138,10 +138,7 @@ impl Config {
 
             propagator.inject_context(&current_context, &mut carrier);
 
-            match serde_json::to_string(&carrier) {
-                Ok(serialized) => Some(serialized),
-                Err(_) => None,
-            }
+            serde_json::to_string(&carrier).ok()
         } else {
             None
         }
