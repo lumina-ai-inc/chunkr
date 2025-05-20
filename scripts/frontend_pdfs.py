@@ -145,7 +145,7 @@ def standalone_task_processor(
         category_lower = category_name.lower()
 
         # Global configurations
-        llm_pro_config = LlmProcessing(model_id="gpt-4.1", max_completion_tokens=4096)
+        llm_pro_config = LlmProcessing(model_id="gpt-4.5", max_completion_tokens=4096)
         global_ignore_headers_and_footers = False # "headers and footers on all" implies False unless overridden
 
         # Default generation configs
@@ -171,8 +171,9 @@ def standalone_task_processor(
             final_segmentation_strategy = SegmentationStrategy.PAGE
             # Uses default_segment_processing
 
-        elif category_lower == 'technical': # Separated for specific segment processing
-            final_high_resolution = False
+        elif category_lower == 'technical':
+            final_pipeline = Pipeline.AZURE
+            final_high_resolution = True
             final_segment_processing = SegmentProcessing(
                 Picture=gen_config_llm_extended,
                 Table=gen_config_llm_extended,

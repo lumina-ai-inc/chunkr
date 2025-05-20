@@ -63,6 +63,12 @@ type StatusCounts = {
 
 const calendarClassName = "bg-white text-gray-500 [&_.rdp-button:hover:not(.rdp-day_selected)]:bg-gray-200 [&_.rdp-day_selected]:bg-blue-600 [&_.rdp-day_selected]:hover:bg-blue-200 [&_.rdp-button]:hover:bg-gray-100 [&_.rdp-nav_button]:hover:bg-gray-100 [&_.rdp-head_cell]:font-medium [&_.rdp-day_today]:bg-gray-50 [&_.rdp-day_today]:font-normal [&_.rdp-button]:text-gray-600 [&_.rdp-day]:text-gray-600 [&_.rdp-day_selected]:text-white"
 
+function AppWrapper() {
+  return (
+    <App />
+  )
+}
+
 function App() {
   const [apiKey, setApiKey] = useState<string>('')
   const [isValidApiKey, setIsValidApiKey] = useState<boolean>(false)
@@ -70,6 +76,7 @@ function App() {
   const [statusData, setStatusData] = useState<StatusCounts[]>([])
   const [topUsers, setTopUsers] = useState<UserData[]>([])
   const [userEmail, setUserEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [startDate, setStartDate] = useState<Date>(() => {
     const date = new Date()
     date.setMonth(date.getMonth() - 1)
@@ -78,13 +85,26 @@ function App() {
   const [endDate, setEndDate] = useState<Date>(() => new Date())
   const [taskData, setTaskData] = useState<TaskData[]>([])
   const [lifetimePages, setLifetimePages] = useState<number>(0)
+  // Track the last fetch time
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
+  // Default wait time between fetches (2 minutes)
+  const FETCH_COOLDOWN = 120000
 
   const fetchData = useCallback(async () => {
-    if (!isValidApiKey || !startDate || !endDate || !apiKey) return
-    const start = startDate.toISOString()
-    const end = endDate.toISOString()
+    // Prevent fetching if already loading or if not enough time has passed
+    const now = Date.now()
+    if (!isValidApiKey || !startDate || !endDate || !apiKey || isLoading ||
+      (now - lastFetchTime < FETCH_COOLDOWN && lastFetchTime !== 0)) {
+      return
+    }
+
+    setIsLoading(true)
+    setLastFetchTime(now)
 
     try {
+      const start = startDate.toISOString()
+      const end = endDate.toISOString()
+
       const emailParam = userEmail ? `&email=${encodeURIComponent(userEmail)}` : ''
       const headers = { 'Authorization': `Bearer ${apiKey}` }
 
@@ -113,21 +133,36 @@ function App() {
         console.error("API Key validation failed or expired.")
         logout()
       }
+    } finally {
+      setIsLoading(false)
     }
-  }, [startDate, endDate, userEmail, apiKey, isValidApiKey])
+  }, [startDate, endDate, userEmail, apiKey, isValidApiKey, isLoading, lastFetchTime])
 
   useEffect(() => {
     if (startDate && endDate && isValidApiKey) {
+      // Immediately fetch on parameter changes
       fetchData()
-      const interval = setInterval(fetchData, 5000)
+
+      // Set up a polling interval (every 2 minutes)
+      const interval = setInterval(() => {
+        fetchData()
+      }, FETCH_COOLDOWN)
+
       return () => clearInterval(interval)
     }
   }, [startDate, endDate, userEmail, fetchData, isValidApiKey])
 
+  // Manual refresh button handler
+  const handleRefresh = () => {
+    // Force a refresh regardless of cooldown
+    setLastFetchTime(0)
+    fetchData()
+  }
+
   const validateApiKey = async () => {
     if (!apiKey) return
     try {
-      await apiCall<string[]>('/datasets', {
+      await apiCall<number>('/lifetime-pages', {
         headers: { 'Authorization': `Bearer ${apiKey}` }
       })
       localStorage.setItem('apiKey', apiKey)
@@ -162,9 +197,8 @@ function App() {
       sum + item.pages : sum
   }, 0)
 
-  const searchUser = async (email: string) => {
+  const searchUser = (email: string) => {
     setUserEmail(email)
-    if (!email || !startDate || !endDate) return
   }
 
   const clearSearch = () => {
@@ -233,22 +267,18 @@ function App() {
 
   const shiftStartDateLeft = async () => {
     setStartDate(prev => shiftDate(prev, -1))
-    await fetchData()
   }
 
   const shiftStartDateRight = async () => {
     setStartDate(prev => shiftDate(prev, 1))
-    await fetchData()
   }
 
   const shiftEndDateLeft = async () => {
     setEndDate(prev => shiftDate(prev, -1))
-    await fetchData()
   }
 
   const shiftEndDateRight = async () => {
     setEndDate(prev => shiftDate(prev, 1))
-    await fetchData()
   }
 
   const shiftDate = (date: Date, days: number) => {
@@ -281,11 +311,6 @@ function App() {
     localStorage.removeItem('apiKey')
     setIsValidApiKey(false)
     setApiKey('')
-    setPagesData([])
-    setStatusData([])
-    setTopUsers([])
-    setTaskData([])
-    setLifetimePages(0)
   }
 
   if (!isValidApiKey) {
@@ -316,7 +341,10 @@ function App() {
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <h1 className="text-3xl font-bold text-center">Analytics Dashboard</h1>
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between mb-4">
+        <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
+          {isLoading ? "Loading..." : "Refresh Data"}
+        </Button>
         <Button variant="outline" onClick={logout}>Log Out</Button>
       </div>
 
@@ -585,4 +613,4 @@ function App() {
   )
 }
 
-export default App
+export default AppWrapper

@@ -23,7 +23,7 @@ pub async fn main() -> std::io::Result<()> {
         .build()
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
             .wrap(Cors::permissive())
             .wrap(Logger::default())
@@ -34,7 +34,9 @@ pub async fn main() -> std::io::Result<()> {
                     .configure(crate::routes::routes::configure_routes)
             )
     })
-    .bind(("0.0.0.0", 8000))?
-    .run()
-    .await
+    .bind(("0.0.0.0", 8000))?;
+
+    println!("Analytics server started");
+    
+    server.run().await
 }
