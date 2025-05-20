@@ -1,4 +1,5 @@
 use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
+use crate::configs::otel_config;
 use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
@@ -113,6 +114,26 @@ async fn open_ai_call_handler(
         {
             Ok(response) => Ok(response),
             Err(e) => {
+                let error_str = e.to_string();
+                if error_str.contains("Error parsing JSON") && error_str.contains("Response:") {
+                    if let Some(response_start) = error_str.find("Response:") {
+                        let response_text = &error_str[response_start + 9..].trim();
+
+                        let response_text = if response_text.ends_with("\")") {
+                            &response_text[..response_text.len() - 2]
+                        } else if response_text.ends_with("\"") {
+                            &response_text[..response_text.len() - 1]
+                        } else {
+                            response_text
+                        };
+
+                        let attributes = otel_config::extract_llm_error_attributes(response_text);
+                        for attr in attributes {
+                            ctx.span().set_attribute(attr);
+                        }
+                    }
+                }
+
                 ctx.span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
                 ctx.span().record_error(e.as_ref());
