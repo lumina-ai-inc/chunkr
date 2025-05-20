@@ -120,9 +120,7 @@ impl Config {
     pub fn get_resource_attributes(&self, service: ServiceName) -> String {
         format!(
             "service.name={},service.namespace={},deployment.environment={}",
-            service,
-            self.service_namespace,
-            self.deployment_environment
+            service, self.service_namespace, self.deployment_environment
         )
     }
 
@@ -252,10 +250,7 @@ pub fn extract_llm_error_attributes(response_text: &str) -> Vec<opentelemetry::K
 
             if let Some(code) = error.get("code") {
                 if let Some(code_num) = code.as_i64() {
-                    attributes.push(opentelemetry::KeyValue::new(
-                        "error_code_top",
-                        code_num,
-                    ));
+                    attributes.push(opentelemetry::KeyValue::new("error_code_top", code_num));
                 }
             }
         }

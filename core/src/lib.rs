@@ -133,7 +133,8 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-        if let Err(e) = configs::otel_config::Config::from_env().map(|config| config.init_tracer(configs::otel_config::ServiceName::Server))
+        if let Err(e) = configs::otel_config::Config::from_env()
+            .map(|config| config.init_tracer(configs::otel_config::ServiceName::Server))
             .map_err(|e| e.to_string())
         {
             eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);
