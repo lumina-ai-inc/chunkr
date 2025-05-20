@@ -59,7 +59,7 @@ Cargo.lock
 *.tmp
 
 .lh
-
+.dev/otel-collector/otel-collector-config.yaml
 *secret.yaml
 
 # Local .terraform directories
@@ -81,7 +81,7 @@ crash.*.log
 *.tfvars.json
 
 # Ignore override files as they are usually used to override resources locally and so
-# are not checked in
+# are not checked in.dev/otel-collector/otel-collector-config.yaml
 override.tf
 override.tf.json
 *_override.tf
@@ -122,7 +122,17 @@ test.py
 ocr_log.csv
 ocr_aggregate_results.csv
 
-output.json
+output.json## Running otel collector
+
+```bash
+docker run -p 4317:4317 -p 4318:4318 \
+  -v $(pwd)/otel-collector-config.yaml:/etc/otel-collector-config.yaml \
+  -e SIGNOZ_ENDPOINT=ingest.us.signoz.cloud:443 \
+  -e SIGNOZ_INGESTION_KEY=your-key-here \
+  otel/opentelemetry-collector-contrib:latest \
+  --config=/etc/otel-collector-config.yaml
+```
+
 output.html
 
 *.dylib
@@ -172,3 +182,5 @@ models.yaml
 *.pdfs.zip.part.1
 *.pdfs.zip.part.2
 *.pdfs.zip.part.3
+
+otel-collector-config.yaml
