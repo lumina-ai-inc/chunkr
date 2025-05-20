@@ -259,7 +259,7 @@ pub async fn update_task_route(
             return Ok(HttpResponse::BadRequest().body(e));
         }
     };
-    let result = update_task(&previous_task, &configuration).await;
+    let result = update_task(&previous_task, &configuration, &user_info).await;
     match result {
         Ok(task_response) => {
             span.end();
@@ -500,7 +500,7 @@ pub async fn update_task_route_multipart(
         Err(_) => return Err(actix_web::error::ErrorNotFound("Task not found")),
     };
     let configuration = form.to_configuration(&previous_task.configuration);
-    let result = update_task(&previous_task, &configuration).await;
+    let result = update_task(&previous_task, &configuration, &user_info).await;
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {

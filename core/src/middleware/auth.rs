@@ -122,7 +122,7 @@ where
                 api_key_validator(authorization.unwrap_or_default()).await
             }?;
 
-            user_info.add_trace_attributes_to_current_ctx();
+            user_info.add_attributes_to_ctx();
             req.extensions_mut().insert(user_info);
             Ok(srv.call(req).await?)
         })

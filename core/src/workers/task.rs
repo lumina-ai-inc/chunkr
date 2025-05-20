@@ -58,11 +58,12 @@ pub async fn process(
                 .span()
                 .set_attribute(KeyValue::new(
                     "pages_count",
-                    pipeline.get_task()?.page_count.unwrap_or(0).to_string(),
+                    i64::from(pipeline.get_task()?.page_count.unwrap_or(0)),
                 ));
         }
         Err(e) => {
-            let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
+            let mut task =
+                Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
             if task.status == Status::Processing {
                 task.update(
                     Some(Status::Failed),
@@ -142,10 +143,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         );
                         let tracer =
                             global::tracer(otel_config::ServiceName::TaskWorker.to_string());
-                        let span = tracer.start_with_context(
+                        let mut span = tracer.start_with_context(
                             otel_config::SpanName::ProcessTask.to_string(),
                             &parent_context,
                         );
+                        span.set_attribute(KeyValue::new("task_id", payload.task_id.clone()));
+                        for attribute in payload.user_info.get_attributes() {
+                            span.set_attribute(attribute);
+                        }
                         let _guard = parent_context.with_span(span).attach();
                         match process(payload, config.max_retries, tracer).await {
                             Ok(_) => {
@@ -157,6 +162,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 let span = context.span();
                                 span.set_status(opentelemetry::trace::Status::error(e.to_string()));
                                 span.record_error(e.as_ref());
+                                span.set_attribute(KeyValue::new("error", e.to_string()));
                             }
                         }
                     }

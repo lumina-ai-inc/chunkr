@@ -23,6 +23,7 @@ pub async fn queue_task_payload(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::auth::UserInfo;
     use crate::utils::clients::initialize;
 
     #[tokio::test]
@@ -34,7 +35,13 @@ mod tests {
             previous_status: None,
             previous_version: None,
             task_id: "test_task_id".to_string(),
-            user_id: "test_user_id".to_string(),
+            user_info: UserInfo {
+                user_id: "test_user_id".to_string(),
+                email: None,
+                first_name: None,
+                last_name: None,
+                api_key: None,
+            },
             trace_context: None,
         };
         queue_task_payload(task_payload).await.unwrap();

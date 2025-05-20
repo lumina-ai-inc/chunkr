@@ -18,7 +18,7 @@ pub async fn create_task(
         file_name,
     )
     .await?;
-    let extraction_payload = task.to_task_payload(None, None, None, None);
+    let extraction_payload = task.to_task_payload(None, None, None, None, user_info);
     queue_task_payload(extraction_payload).await?;
     let task_response: TaskResponse = task.to_task_response(false, false).await?;
     Ok(task_response)

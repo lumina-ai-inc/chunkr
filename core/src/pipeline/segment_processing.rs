@@ -570,6 +570,8 @@ async fn generate_html(
                 ctx.span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
                 ctx.span().record_error(e.as_ref());
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
                 e
             })?,
     );
@@ -603,6 +605,8 @@ async fn generate_markdown(
                 ctx.span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
                 ctx.span().record_error(e.as_ref());
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
                 e
             })?,
     );
@@ -681,6 +685,8 @@ async fn generate_llm(
         ctx.span()
             .set_status(opentelemetry::trace::Status::error(e.to_string()));
         ctx.span().record_error(e.as_ref());
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
         e
     })?;
 

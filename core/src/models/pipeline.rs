@@ -97,7 +97,7 @@ impl Pipeline {
     }
 
     pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
-        let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
+        let mut task = Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
         task.update(
             Some(Status::Processing),
             Some("Task started".to_string()),
@@ -215,7 +215,7 @@ impl Pipeline {
         let start = std::time::Instant::now();
         let mut task = self.get_task()?;
         let mut retries = 0;
-
+        let mut last_error: Option<String> = None;
         while retries < max_retries {
             let mut span = tracer.start_with_context(step.to_string(), &Context::current());
             span.set_attribute(opentelemetry::KeyValue::new(
@@ -279,12 +279,16 @@ impl Pipeline {
                 }
                 Err(e) => {
                     println!("Error {} in step {}", e, step.to_string());
+                    last_error = Some(e.to_string());
                     retries += 1;
                     let context = Context::current();
                     context
                         .span()
                         .set_status(opentelemetry::trace::Status::error(e.to_string()));
                     context.span().record_error(e.as_ref());
+                    context
+                        .span()
+                        .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
                     context.span().end();
 
                     if retries < max_retries {
@@ -307,7 +311,9 @@ impl Pipeline {
         // If step failed after max_retries, complete task with failed status and error message
         self.complete(Status::Failed, Some(step.error_message()))
             .await?;
-        Err("Maximum retries exceeded".into())
+        Err(last_error
+            .unwrap_or("Maximum retries exceeded".into())
+            .into())
     }
 
     pub async fn complete(
