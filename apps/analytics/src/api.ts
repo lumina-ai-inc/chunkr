@@ -1,4 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { useQuery } from '@tanstack/react-query'
+
 type ApiOptions = {
   method?: string
   body?: object
@@ -32,7 +34,7 @@ export async function apiCall<T>(route: string, options: ApiOptions = {}): Promi
 
   if (timeout && !signal) {
     controller = new AbortController()
-    timeoutId = window.setTimeout(() => controller.abort(), timeout)
+    timeoutId = window.setTimeout(() => controller?.abort(), timeout)
   }
 
   try {
@@ -68,19 +70,78 @@ export async function apiCall<T>(route: string, options: ApiOptions = {}): Promi
   }
 }
 
-const validateApiKey = async () => {
-  if (!apiKey) return
-  try {
-    // Use an endpoint that actually exists
-    await apiCall<number>('/lifetime-pages', {
+// React Query hooks
+export const useLifetimePages = (apiKey: string, enabled = true) => {
+  return useQuery({
+    queryKey: ['lifetimePages'],
+    queryFn: () => apiCall<number>('/lifetime-pages', {
       headers: { 'Authorization': `Bearer ${apiKey}` }
-    })
-    localStorage.setItem('apiKey', apiKey)
-    setIsValidApiKey(true)
-  } catch (err) {
-    console.error('Invalid API Key:', err)
-    localStorage.removeItem('apiKey')
-    setIsValidApiKey(false)
-    alert("Invalid API Key provided.")
-  }
+    }),
+    enabled: !!apiKey && enabled
+  })
+}
+
+export const usePagesPerDay = (start: string, end: string, email: string | undefined, apiKey: string, enabled = true) => {
+  const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+  return useQuery({
+    queryKey: ['pagesPerDay', start, end, email],
+    queryFn: () => apiCall<any[]>(`/pages-per-day?start=${start}&end=${end}${emailParam}`, {
+      headers: { 'Authorization': `Bearer ${apiKey}` }
+    }),
+    enabled: !!apiKey && enabled
+  })
+}
+
+export const useStatusBreakdown = (start: string, end: string, email: string | undefined, apiKey: string, enabled = true) => {
+  const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+  return useQuery({
+    queryKey: ['statusBreakdown', start, end, email],
+    queryFn: () => apiCall<any[]>(`/status-breakdown?start=${start}&end=${end}${emailParam}`, {
+      headers: { 'Authorization': `Bearer ${apiKey}` }
+    }),
+    enabled: !!apiKey && enabled
+  })
+}
+
+export const useTopUsers = (start: string, end: string, apiKey: string, enabled = true) => {
+  return useQuery({
+    queryKey: ['topUsers', start, end],
+    queryFn: () => apiCall<any[]>('/top-users', {
+      method: 'POST',
+      body: { start, end, limit: 5 },
+      headers: { 'Authorization': `Bearer ${apiKey}` }
+    }),
+    enabled: !!apiKey && enabled
+  })
+}
+
+export const useTaskDetails = (start: string, end: string, email: string | undefined, apiKey: string, enabled = true) => {
+  const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+  return useQuery({
+    queryKey: ['taskDetails', start, end, email],
+    queryFn: () => apiCall<any[]>(`/task-details?start=${start}&end=${end}${emailParam}`, {
+      headers: { 'Authorization': `Bearer ${apiKey}` }
+    }),
+    enabled: !!apiKey && enabled
+  })
+}
+
+export const useValidateApiKey = (apiKey: string | null) => {
+  return useQuery({
+    queryKey: ['validateApiKey', apiKey],
+    queryFn: async () => {
+      if (!apiKey) throw new Error('No API key provided')
+      try {
+        await apiCall<number>('/lifetime-pages', {
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        })
+        return true
+      } catch (err) {
+        console.error('Invalid API Key:', err)
+        throw new Error('Invalid API Key')
+      }
+    },
+    enabled: !!apiKey,
+    retry: false
+  })
 }
