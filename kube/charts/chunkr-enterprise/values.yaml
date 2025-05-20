@@ -114,7 +114,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 1.19.0-enterprise
+      tag: 1.18.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
