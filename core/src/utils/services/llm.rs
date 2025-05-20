@@ -3,6 +3,8 @@ use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
+use opentelemetry::trace::{Span, Tracer};
+use opentelemetry::Context;
 use std::error::Error;
 use std::fmt;
 
@@ -69,18 +71,31 @@ async fn open_ai_call_handler(
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
+    tracer: &opentelemetry::global::BoxedTracer,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = get_llm_rate_limiter(&model.id)?;
+
     retry_with_backoff(|| async {
+        let mut span = tracer.start_with_context("open_ai_call", &Context::current());
+        span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "provider_url",
+            model.provider_url.clone(),
+        ));
+
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
+            span.set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
             rate_limiter
                 .acquire_token_with_timeout(std::time::Duration::from_secs(
                     *TOKEN_TIMEOUT.get().unwrap(),
                 ))
                 .await?;
+        } else {
+            span.set_attribute(opentelemetry::KeyValue::new("rate_limited", false));
         }
-        open_ai_call(
+
+        match open_ai_call(
             model.provider_url.clone(),
             model.api_key.clone(),
             model.model.clone(),
@@ -90,6 +105,14 @@ async fn open_ai_call_handler(
             response_format.clone(),
         )
         .await
+        {
+            Ok(response) => Ok(response),
+            Err(e) => {
+                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                span.record_error(e.as_ref());
+                Err(e)
+            }
+        }
     })
     .await
 }
@@ -103,29 +126,50 @@ async fn process_openai_request(
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
+    tracer: &opentelemetry::global::BoxedTracer,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
+    let mut span = tracer.start_with_context("process_openai_request", &Context::current());
+    span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+
     match open_ai_call_handler(
         model.clone(),
         messages.clone(),
         max_completion_tokens,
         temperature,
         response_format.clone(),
+        tracer,
     )
     .await
     {
         Ok(response) => Ok(response),
         Err(e) => {
             if let Some(fallback_model) = fallback_model {
-                Ok(open_ai_call_handler(
+                span.set_attribute(opentelemetry::KeyValue::new("using_fallback", true));
+                span.set_attribute(opentelemetry::KeyValue::new(
+                    "fallback_model",
+                    fallback_model.model.clone(),
+                ));
+
+                match open_ai_call_handler(
                     fallback_model.clone(),
                     messages,
                     max_completion_tokens,
                     temperature,
                     response_format,
+                    tracer,
                 )
-                .await?)
+                .await
+                {
+                    Ok(response) => Ok(response),
+                    Err(e) => {
+                        span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                        span.record_error(e.as_ref());
+                        Err(e)
+                    }
+                }
             } else {
-                println!("No fallback model provided");
+                span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+                span.record_error(e.as_ref());
                 Err(e)
             }
         }
@@ -189,7 +233,10 @@ pub async fn try_extract_from_llm(
     fence_type: Option<&str>,
     fallback_content: Option<String>,
     llm_processing: LlmProcessing,
+    tracer: &opentelemetry::global::BoxedTracer,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let mut span = tracer.start_with_context("try_extract_from_llm", &Context::current());
+
     let llm_config = LlmConfig::from_env().unwrap();
     let model = llm_config.get_model(llm_processing.model_id)?;
     let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
@@ -202,16 +249,18 @@ pub async fn try_extract_from_llm(
         llm_processing.max_completion_tokens,
         Some(llm_processing.temperature),
         None,
+        tracer,
     )
     .await
     {
         Ok(response) => response,
         Err(e) => {
-            // If both the primary and fallback models requests fail
             if let Some(fallback_content) = fallback_content {
-                println!("LLM API request(s) failed. Using fallback content");
+                span.set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
                 return Ok(fallback_content);
             }
+            span.set_status(opentelemetry::trace::Status::error(e.to_string()));
+            span.record_error(e.as_ref());
             return Err(e);
         }
     };
@@ -231,6 +280,7 @@ pub async fn try_extract_from_llm(
             llm_processing.max_completion_tokens,
             Some(llm_processing.temperature),
             None,
+            tracer,
         )
         .await
         {
