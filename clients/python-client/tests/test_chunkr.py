@@ -322,7 +322,8 @@ async def test_update_task_direct(client, sample_path):
         segmentation_strategy=SegmentationStrategy.PAGE,
     )
     task = await client.upload(sample_path, original_config)
-    task = await task.update(new_config)
+    task = await (await task.update(new_config))
+    assert isinstance(task, TaskResponse)
     assert task.status == "Succeeded"
     assert task.output is not None
     assert task.configuration.segmentation_strategy == SegmentationStrategy.PAGE

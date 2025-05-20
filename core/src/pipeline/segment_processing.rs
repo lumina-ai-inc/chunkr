@@ -9,6 +9,8 @@ use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
+use opentelemetry::Context;
 use regex::Regex;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -173,6 +175,8 @@ trait ContentGenerator {
     async fn process_llm(
         &self,
         params: &LlmGenerationParams<'_>,
+        tracer: &opentelemetry::global::BoxedTracer,
+        parent_context: &Context,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let mut values = HashMap::new();
 
@@ -215,6 +219,8 @@ trait ContentGenerator {
             fence_type,
             params.llm_fallback_content.clone(),
             params.configuration.llm_processing.clone(),
+            tracer,
+            parent_context,
         )
         .await
     }
@@ -222,6 +228,8 @@ trait ContentGenerator {
     async fn generate_llm(
         &self,
         params: &LlmGenerationParams<'_>,
+        tracer: &opentelemetry::global::BoxedTracer,
+        parent_context: &Context,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
 }
 
@@ -345,8 +353,10 @@ impl ContentGenerator for HtmlGenerator {
     async fn generate_llm(
         &self,
         params: &LlmGenerationParams<'_>,
+        tracer: &opentelemetry::global::BoxedTracer,
+        parent_context: &Context,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-        let content = self.process_llm(params).await?;
+        let content = self.process_llm(params, tracer, parent_context).await?;
 
         if self.segment_type() == SegmentType::Formula {
             Ok(format!("<span class=\"formula\">{}</span>", content))
@@ -478,8 +488,10 @@ impl ContentGenerator for MarkdownGenerator {
     async fn generate_llm(
         &self,
         params: &LlmGenerationParams<'_>,
+        tracer: &opentelemetry::global::BoxedTracer,
+        parent_context: &Context,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-        let content = self.process_llm(params).await?;
+        let content = self.process_llm(params, tracer, parent_context).await?;
 
         if self.segment_type() == SegmentType::Formula {
             Ok(format!("${content}$"))
@@ -509,6 +521,8 @@ fn convert_checkboxes_markdown(content: &str) -> String {
 
 async fn apply_generation_strategy<T: ContentGenerator>(
     params: &StrategyParams<'_, T>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if !params.override_auto.is_empty() && params.generation_strategy == &GenerationStrategy::Auto {
         return Ok(params.override_auto.clone());
@@ -523,7 +537,10 @@ async fn apply_generation_strategy<T: ContentGenerator>(
     match params.generation_strategy {
         GenerationStrategy::LLM => {
             let llm_params = LlmGenerationParams::from_strategy_params(params, segment_image);
-            Ok(params.generator.generate_llm(&llm_params).await?)
+            Ok(params
+                .generator
+                .generate_llm(&llm_params, tracer, parent_context)
+                .await?)
         }
         GenerationStrategy::Auto => Ok(params.generator.generate_auto(params.auto_content)),
     }
@@ -531,7 +548,16 @@ async fn apply_generation_strategy<T: ContentGenerator>(
 
 async fn generate_html(
     params: &ContentGenerationParams<'_>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let mut span = tracer.start_with_context("generate_html", parent_context);
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "error_handling",
+        params.configuration.error_handling.to_string(),
+    ));
+    let ctx = parent_context.with_span(span);
+
     let generator = HtmlGenerator {
         segment_type: params.segment.segment_type.clone(),
     };
@@ -539,14 +565,33 @@ async fn generate_html(
     let strategy_params =
         StrategyParams::from_content_params(params, &generator, params.segment.html.clone());
 
-    Ok(html::clean_img_tags(
-        &apply_generation_strategy(&strategy_params).await?,
-    ))
+    let result = html::clean_img_tags(
+        &apply_generation_strategy(&strategy_params, tracer, &ctx)
+            .await
+            .inspect_err(|e| {
+                ctx.span()
+                    .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                ctx.span().record_error(e.as_ref());
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+            })?,
+    );
+
+    Ok(result)
 }
 
 async fn generate_markdown(
     params: &ContentGenerationParams<'_>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let mut span = tracer.start_with_context("generate_markdown", parent_context);
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "error_handling",
+        params.configuration.error_handling.to_string(),
+    ));
+    let ctx = parent_context.with_span(span);
+
     let generator = MarkdownGenerator {
         segment_type: params.segment.segment_type.clone(),
     };
@@ -554,17 +599,37 @@ async fn generate_markdown(
     let strategy_params =
         StrategyParams::from_content_params(params, &generator, params.segment.markdown.clone());
 
-    Ok(markdown::clean_img_tags(
-        &apply_generation_strategy(&strategy_params).await?,
-    ))
+    let result = markdown::clean_img_tags(
+        &apply_generation_strategy(&strategy_params, tracer, &ctx)
+            .await
+            .inspect_err(|e| {
+                ctx.span()
+                    .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                ctx.span().record_error(e.as_ref());
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+            })?,
+    );
+
+    Ok(result)
 }
 
 async fn generate_llm(
     params: &StandaloneLlmParams<'_>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
     if params.llm_prompt.is_none() || params.segment_image.is_none() {
         return Ok(None);
     }
+
+    let mut span = tracer.start_with_context("generate_llm", parent_context);
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "error_handling",
+        params.configuration.error_handling.to_string(),
+    ));
+    let ctx = parent_context.with_span(span);
+
     let segment_image = params.segment_image.clone().unwrap(); // Safe unwrap
 
     let mut values = HashMap::new();
@@ -612,8 +677,17 @@ async fn generate_llm(
         None, // LLM field extraction doesn't assume a fence type by default
         params.llm_fallback_content.clone(),
         params.configuration.llm_processing.clone(),
+        tracer,
+        &ctx,
     )
-    .await?;
+    .await
+    .inspect_err(|e| {
+        ctx.span()
+            .set_status(opentelemetry::trace::Status::error(e.to_string()));
+        ctx.span().record_error(e.as_ref());
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+    })?;
 
     Ok(Some(result))
 }
@@ -624,6 +698,8 @@ async fn process_segment(
     segment_image: Option<Arc<NamedTempFile>>,
     page_image: Option<Arc<NamedTempFile>>,
     image_folder_location: &str,
+    tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (html_strategy, markdown_strategy, llm_prompt, extended_context) = match segment
         .segment_type
@@ -699,6 +775,17 @@ async fn process_segment(
         _ => (None, None, None),
     };
 
+    let mut span = tracer.start_with_context("process_segment", parent_context);
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "segment_id",
+        segment.segment_id.clone(),
+    ));
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "segment_type",
+        segment.segment_type.to_string(),
+    ));
+    let _guard = Context::current().with_span(span).attach();
+
     // Process HTML with error handling using new parameter struct
     let html_params = ContentGenerationParams::new(
         segment,
@@ -735,9 +822,10 @@ async fn process_segment(
         configuration,
     );
 
-    // Create futures for all three operations so they can run concurrently
+    let context = Context::current();
+
     let html_future = async {
-        match generate_html(&html_params).await {
+        match generate_html(&html_params, tracer, &context).await {
             Ok(content) => Ok(content),
             Err(e) => {
                 if configuration.error_handling == ErrorHandlingStrategy::Continue {
@@ -753,7 +841,7 @@ async fn process_segment(
     };
 
     let markdown_future = async {
-        match generate_markdown(&markdown_params).await {
+        match generate_markdown(&markdown_params, tracer, &context).await {
             Ok(content) => Ok(content),
             Err(e) => {
                 if configuration.error_handling == ErrorHandlingStrategy::Continue {
@@ -769,7 +857,7 @@ async fn process_segment(
     };
 
     let llm_future = async {
-        match generate_llm(&llm_params).await {
+        match generate_llm(&llm_params, tracer, &context).await {
             Ok(content) => Ok(content),
             Err(e) => {
                 if configuration.error_handling == ErrorHandlingStrategy::Continue {
@@ -794,7 +882,10 @@ async fn process_segment(
 ///
 /// This function will generate the html, llm and markdown fields for all the segments in parallel.
 /// Depending on the configuration, each segment will either be processed using heuristic or by a LLM.
-pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn process(
+    pipeline: &mut Pipeline,
+    tracer: &opentelemetry::global::BoxedTracer,
+) -> Result<(), Box<dyn std::error::Error>> {
     let task = pipeline.get_task()?;
     let configuration = task.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
@@ -805,6 +896,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     // Clone the chunks to avoid modifying originals until processing succeeds
     let mut cloned_chunks = pipeline.chunks.clone();
 
+    let parent_context = Context::current();
     let futures: Vec<_> = cloned_chunks
         .iter_mut()
         .flat_map(|chunk| {
@@ -817,13 +909,14 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
                 let segment_page_image = page_images.get(page_index).cloned();
                 let segment_image_ref = segment_images.get(&segment.segment_id);
                 let segment_image_cloned = segment_image_ref.map(|r| r.value().clone());
-
                 process_segment(
                     segment,
                     &configuration,
                     segment_image_cloned,
                     segment_page_image,
                     &task.image_folder_location,
+                    tracer,
+                    &parent_context,
                 )
             })
         })

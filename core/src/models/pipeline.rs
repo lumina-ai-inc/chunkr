@@ -1,11 +1,13 @@
 use crate::configs::worker_config;
 use crate::models::output::Chunk;
-use crate::models::task::{Status, Task, TaskPayload, TimeoutError};
+use crate::models::task::{Status, Task, TaskPayload};
 use crate::utils::services::file_operations::convert_to_pdf;
 use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
+use opentelemetry::Context;
 use std::error::Error;
 use std::sync::Arc;
 use strum_macros::{Display, EnumString};
@@ -95,8 +97,17 @@ impl Pipeline {
     }
 
     pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
-        println!("Initializing pipeline for task: {}", task_payload.task_id);
-        let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
+        let mut task = Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
+        task.update(
+            Some(Status::Processing),
+            Some("Task started".to_string()),
+            None,
+            None,
+            Some(Utc::now()),
+            None,
+            None,
+        )
+        .await?;
         if task.status == Status::Cancelled {
             println!("Task was cancelled, checking for previous configuration");
             if task_payload.previous_configuration.is_some() {
@@ -144,10 +155,10 @@ impl Pipeline {
         let page_count = count_pages(self.pdf_file.as_ref().unwrap())?;
         task.update(
             Some(Status::Processing),
-            Some("Task started".to_string()),
+            Some("Task initialized".to_string()),
             None,
             Some(page_count),
-            Some(Utc::now()),
+            None,
             None,
             None,
         )
@@ -202,13 +213,20 @@ impl Pipeline {
         &mut self,
         step: PipelineStep,
         max_retries: u32,
+        tracer: &opentelemetry::global::BoxedTracer,
     ) -> Result<(), Box<dyn Error>> {
         let start = std::time::Instant::now();
-
         let mut task = self.get_task()?;
-
         let mut retries = 0;
+        let mut last_error: Option<String> = None;
         while retries < max_retries {
+            let mut span = tracer.start_with_context(step.to_string(), &Context::current());
+            span.set_attribute(opentelemetry::KeyValue::new(
+                "retry_count",
+                retries.to_string(),
+            ));
+            let _guard = Context::current().with_span(span).attach();
+
             // Update task status to processing and message to step start message
             let message = match retries > 0 {
                 true => format!(
@@ -220,28 +238,16 @@ impl Pipeline {
                 false => step.start_message(),
             };
             println!("Executing step: {}", message);
-            match task
-                .update(
-                    Some(Status::Processing),
-                    Some(message),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                )
-                .await
-            {
-                Ok(_) => (),
-                Err(e) => {
-                    if e.is::<TimeoutError>() {
-                        println!("Task timed out");
-                    } else {
-                        println!("Error in updating task: {:?}", e);
-                    }
-                    return Err(e);
-                }
-            };
+            task.update(
+                Some(Status::Processing),
+                Some(message),
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+            .await?;
 
             // Execute step
             let result = match step {
@@ -256,7 +262,7 @@ impl Pipeline {
                     crate::pipeline::chunkr_analysis::process(self).await
                 }
                 PipelineStep::SegmentProcessing => {
-                    crate::pipeline::segment_processing::process(self).await
+                    crate::pipeline::segment_processing::process(self, tracer).await
                 }
             };
 
@@ -267,15 +273,27 @@ impl Pipeline {
                 Ok(_) => {
                     println!(
                         "Step {} took {:?} with page count {:?}",
-                        step.to_string(),
+                        step,
                         duration,
                         self.get_task()?.page_count.unwrap_or(0)
                     );
+                    Context::current().span().end();
                     return Ok(());
                 }
                 Err(e) => {
-                    println!("Error {} in step {}", e, step.to_string());
+                    println!("Error {} in step {}", e, step);
+                    last_error = Some(e.to_string());
                     retries += 1;
+                    let context = Context::current();
+                    context
+                        .span()
+                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                    context.span().record_error(e.as_ref());
+                    context
+                        .span()
+                        .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+                    context.span().end();
+
                     if retries < max_retries {
                         task.update(
                             Some(Status::Processing),
@@ -287,6 +305,7 @@ impl Pipeline {
                             None,
                         )
                         .await?;
+
                         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                     }
                 }
@@ -295,7 +314,9 @@ impl Pipeline {
         // If step failed after max_retries, complete task with failed status and error message
         self.complete(Status::Failed, Some(step.error_message()))
             .await?;
-        Err("Maximum retries exceeded".into())
+        Err(last_error
+            .unwrap_or("Maximum retries exceeded".into())
+            .into())
     }
 
     pub async fn complete(

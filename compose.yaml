@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:1.15.1
+    image: luminainc/server:1.17.0
     ports:
       - "8000:8000"
     depends_on:
@@ -16,7 +16,7 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task:1.15.1
+    image: luminainc/task:1.17.0
     depends_on:
       - postgres
       - redis
@@ -30,7 +30,7 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   web:
-    image: luminainc/web:1.15.1
+    image: luminainc/web:1.17.0
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -84,7 +84,7 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:1.15.1
+    image: luminainc/doctr:1.17.0
     expose:
       - "8000"
     deploy:

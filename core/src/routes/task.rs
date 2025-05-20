@@ -1,3 +1,4 @@
+use crate::configs::otel_config;
 use crate::models::auth::UserInfo;
 use crate::models::task::{Task, TaskQuery, TaskResponse};
 use crate::models::upload;
@@ -10,6 +11,10 @@ use crate::utils::routes::update_task::update_task;
 use crate::utils::services::file_operations::get_base64;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpResponse};
+use opentelemetry::{
+    trace::{Span, Tracer},
+    Context, KeyValue,
+};
 use tempfile;
 
 /// Get Task
@@ -49,13 +54,26 @@ pub async fn get_task_route(
     task_query: web::Query<TaskQuery>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
+    let otel_config = otel_config::Config::from_env().unwrap();
+    let tracer = otel_config.get_tracer(otel_config::ServiceName::Server);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::GetTask.to_string(),
+        &Context::current(),
+    );
+
     let task_id = task_id.into_inner();
     let user_id = user_info.user_id.clone();
 
+    span.set_attribute(KeyValue::new("task_id", task_id.clone()));
+
     match get_task(task_id, user_id, task_query.into_inner()).await {
-        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Ok(task_response) => {
+            span.end();
+            Ok(HttpResponse::Ok().json(task_response))
+        }
         Err(e) => {
             eprintln!("Error getting task: {:?}", e);
+            span.end();
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
             } else {
@@ -95,31 +113,53 @@ pub async fn create_task_route(
     payload: web::Json<upload::CreateForm>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
+    let otel_config = otel_config::Config::from_env().unwrap();
+    let tracer = otel_config.get_tracer(otel_config::ServiceName::Server);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::CreateTask.to_string(),
+        &Context::current(),
+    );
+
     let configuration = match payload.to_configuration() {
-        Ok(config) => config,
-        Err(e) => return Ok(HttpResponse::BadRequest().body(e)),
+        Ok(config) => {
+            span.set_attribute(KeyValue::new(
+                "configuration",
+                serde_json::to_string(&config).unwrap(),
+            ));
+            config
+        }
+        Err(e) => {
+            span.end();
+            return Ok(HttpResponse::BadRequest().body(e));
+        }
     };
 
     let (base64_data, filename) = match get_base64(payload.file.clone()).await {
         Ok(file) => file,
         Err(e) => match e.to_string().contains("Invalid base64 data") {
-            true => return Ok(HttpResponse::BadRequest().body("Invalid base64 data")),
-            false => return Ok(HttpResponse::InternalServerError().body("Failed to process file")),
+            true => {
+                span.end();
+                return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
+            }
+            false => {
+                span.end();
+                return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
+            }
         },
     };
 
     let mut temp_file = match tempfile::NamedTempFile::new() {
         Ok(file) => file,
-        Err(e) => {
-            eprintln!("Error creating temporary file: {:?}", e);
+        Err(_) => {
+            span.end();
             return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
         }
     };
 
-    if let Err(e) = std::io::Write::write_all(&mut temp_file, &base64_data) {
-        eprintln!("Error writing to temporary file: {:?}", e);
+    if std::io::Write::write_all(&mut temp_file, &base64_data).is_err() {
+        span.end();
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
-    }
+    };
 
     let result = create_task::create_task(
         &temp_file,
@@ -130,9 +170,15 @@ pub async fn create_task_route(
     .await;
 
     match result {
-        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Ok(task_response) => {
+            span.set_attribute(KeyValue::new("task_id", task_response.task_id.clone()));
+            span.end();
+            Ok(HttpResponse::Ok().json(task_response))
+        }
         Err(e) => {
             let error_message = e.to_string();
+            span.end();
+
             if error_message
                 .to_lowercase()
                 .contains("usage limit exceeded")
@@ -181,21 +227,47 @@ pub async fn update_task_route(
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
+    let otel_config = otel_config::Config::from_env().unwrap();
+    let tracer = otel_config.get_tracer(otel_config::ServiceName::Server);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::UpdateTask.to_string(),
+        &Context::current(),
+    );
+
     let task_id = task_id.into_inner();
     let user_id = user_info.user_id.clone();
+
+    span.set_attribute(KeyValue::new("task_id", task_id.clone()));
+
     let previous_task = match Task::get(&task_id, &user_id).await {
         Ok(task) => task,
-        Err(_) => return Err(actix_web::error::ErrorNotFound("Task not found")),
+        Err(_) => {
+            span.end();
+            return Err(actix_web::error::ErrorNotFound("Task not found"));
+        }
     };
     let configuration = match payload.to_configuration(&previous_task.configuration) {
-        Ok(config) => config,
-        Err(e) => return Ok(HttpResponse::BadRequest().body(e)),
+        Ok(config) => {
+            span.set_attribute(KeyValue::new(
+                "configuration",
+                serde_json::to_string(&config).unwrap(),
+            ));
+            config
+        }
+        Err(e) => {
+            span.end();
+            return Ok(HttpResponse::BadRequest().body(e));
+        }
     };
-    let result = update_task(&previous_task, &configuration).await;
+    let result = update_task(&previous_task, &configuration, &user_info).await;
     match result {
-        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Ok(task_response) => {
+            span.end();
+            Ok(HttpResponse::Ok().json(task_response))
+        }
         Err(e) => {
             let error_message = e.to_string();
+            span.end();
             if error_message.contains("Usage limit exceeded") {
                 Ok(HttpResponse::TooManyRequests().body("Usage limit exceeded"))
             } else if error_message.contains("Task cannot be updated") {
@@ -234,12 +306,26 @@ pub async fn delete_task_route(
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
+    let otel_config = otel_config::Config::from_env().unwrap();
+    let tracer = otel_config.get_tracer(otel_config::ServiceName::Server);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::DeleteTask.to_string(),
+        &Context::current(),
+    );
+
     let task_id = task_id.into_inner();
     let user_id = user_info.user_id.clone();
+
+    span.set_attribute(KeyValue::new("task_id", task_id.clone()));
+
     match delete_task(task_id, user_id).await {
-        Ok(_) => Ok(HttpResponse::Ok().body("Task deleted")),
+        Ok(_) => {
+            span.end();
+            Ok(HttpResponse::Ok().body("Task deleted"))
+        }
         Err(e) => {
             eprintln!("Error deleting task: {:?}", e);
+            span.end();
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
             } else {
@@ -277,12 +363,26 @@ pub async fn cancel_task_route(
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
+    let otel_config = otel_config::Config::from_env().unwrap();
+    let tracer = otel_config.get_tracer(otel_config::ServiceName::Server);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::CancelTask.to_string(),
+        &Context::current(),
+    );
+
     let task_id = task_id.into_inner();
     let user_id = user_info.user_id.clone();
+
+    span.set_attribute(KeyValue::new("task_id", task_id.clone()));
+
     match cancel_task(&task_id, &user_id).await {
-        Ok(_) => Ok(HttpResponse::Ok().body("Task cancelled")),
+        Ok(_) => {
+            span.end();
+            Ok(HttpResponse::Ok().body("Task cancelled"))
+        }
         Err(e) => {
             eprintln!("Error cancelling task: {:?}", e);
+            span.end();
             if e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
             } else if e.to_string().contains("cannot be cancelled") {
@@ -400,7 +500,7 @@ pub async fn update_task_route_multipart(
         Err(_) => return Err(actix_web::error::ErrorNotFound("Task not found")),
     };
     let configuration = form.to_configuration(&previous_task.configuration);
-    let result = update_task(&previous_task, &configuration).await;
+    let result = update_task(&previous_task, &configuration, &user_info).await;
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
