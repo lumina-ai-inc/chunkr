@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.16.0...v1.17.0) (2025-05-20)
+
+
+### Features
+
+* Added Open telemetry support for better analytics ([#504](https://github.com/lumina-ai-inc/chunkr/issues/504)) ([7baa3d4](https://github.com/lumina-ai-inc/chunkr/commit/7baa3d4a03b5bd15c70dd73b00146adf6dfe7ba6))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#507](https://github.com/lumina-ai-inc/chunkr/issues/507)) ([a8c2e70](https://github.com/lumina-ai-inc/chunkr/commit/a8c2e70fd5db6503fb38273b611fb7ea16c00422))
+
 ## [1.16.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.15.1...v1.16.0) (2025-05-17)
 
 
