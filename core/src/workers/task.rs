@@ -116,10 +116,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = WorkerConfig::from_env()?;
     PdfiumConfig::from_env()?.ensure_binary().await?;
     initialize().await;
-    if let Err(e) = core::configs::otel_config::Config::from_env()
-        .and_then(|config| {
-            Ok(config.init_tracer(core::configs::otel_config::ServiceName::TaskWorker))
-        })
+    if let Err(e) = core::configs::otel_config::Config::from_env().map(|config| config.init_tracer(core::configs::otel_config::ServiceName::TaskWorker))
         .map_err(|e| e.to_string())
     {
         eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);

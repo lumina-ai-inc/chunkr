@@ -270,7 +270,7 @@ impl Pipeline {
                 Ok(_) => {
                     println!(
                         "Step {} took {:?} with page count {:?}",
-                        step.to_string(),
+                        step,
                         duration,
                         self.get_task()?.page_count.unwrap_or(0)
                     );
@@ -278,7 +278,7 @@ impl Pipeline {
                     return Ok(());
                 }
                 Err(e) => {
-                    println!("Error {} in step {}", e, step.to_string());
+                    println!("Error {} in step {}", e, step);
                     last_error = Some(e.to_string());
                     retries += 1;
                     let context = Context::current();

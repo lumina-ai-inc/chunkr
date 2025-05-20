@@ -124,7 +124,7 @@ where
 
             user_info.add_attributes_to_ctx();
             req.extensions_mut().insert(user_info);
-            Ok(srv.call(req).await?)
+            srv.call(req).await
         })
     }
 }

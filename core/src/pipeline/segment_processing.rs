@@ -217,7 +217,7 @@ trait ContentGenerator {
             fence_type,
             params.llm_fallback_content.clone(),
             params.configuration.llm_processing.clone(),
-            &tracer,
+            tracer,
             parent_context,
         )
         .await
@@ -537,7 +537,7 @@ async fn apply_generation_strategy<T: ContentGenerator>(
             let llm_params = LlmGenerationParams::from_strategy_params(params, segment_image);
             Ok(params
                 .generator
-                .generate_llm(&llm_params, &tracer, parent_context)
+                .generate_llm(&llm_params, tracer, parent_context)
                 .await?)
         }
         GenerationStrategy::Auto => Ok(params.generator.generate_auto(params.auto_content)),
@@ -564,15 +564,14 @@ async fn generate_html(
         StrategyParams::from_content_params(params, &generator, params.segment.html.clone());
 
     let result = html::clean_img_tags(
-        &apply_generation_strategy(&strategy_params, &tracer, &ctx)
+        &apply_generation_strategy(&strategy_params, tracer, &ctx)
             .await
-            .map_err(|e| {
+            .inspect_err(|e| {
                 ctx.span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
                 ctx.span().record_error(e.as_ref());
                 ctx.span()
                     .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-                e
             })?,
     );
 
@@ -599,15 +598,14 @@ async fn generate_markdown(
         StrategyParams::from_content_params(params, &generator, params.segment.markdown.clone());
 
     let result = markdown::clean_img_tags(
-        &apply_generation_strategy(&strategy_params, &tracer, &ctx)
+        &apply_generation_strategy(&strategy_params, tracer, &ctx)
             .await
-            .map_err(|e| {
+            .inspect_err(|e| {
                 ctx.span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
                 ctx.span().record_error(e.as_ref());
                 ctx.span()
                     .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-                e
             })?,
     );
 
@@ -677,17 +675,16 @@ async fn generate_llm(
         None, // LLM field extraction doesn't assume a fence type by default
         params.llm_fallback_content.clone(),
         params.configuration.llm_processing.clone(),
-        &tracer,
+        tracer,
         &ctx,
     )
     .await
-    .map_err(|e| {
+    .inspect_err(|e| {
         ctx.span()
             .set_status(opentelemetry::trace::Status::error(e.to_string()));
         ctx.span().record_error(e.as_ref());
         ctx.span()
             .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-        e
     })?;
 
     Ok(Some(result))
