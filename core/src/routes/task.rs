@@ -156,7 +156,7 @@ pub async fn create_task_route(
         }
     };
 
-    if let Err(_) = std::io::Write::write_all(&mut temp_file, &base64_data) {
+    if std::io::Write::write_all(&mut temp_file, &base64_data).is_err() {
         span.end();
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
     };
