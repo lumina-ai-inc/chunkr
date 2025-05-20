@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.13.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.12.0...chunkr-core-v1.13.0) (2025-05-20)
+
+
+### Features
+
+* Added Open telemetry support for better analytics ([#504](https://github.com/lumina-ai-inc/chunkr/issues/504)) ([7baa3d4](https://github.com/lumina-ai-inc/chunkr/commit/7baa3d4a03b5bd15c70dd73b00146adf6dfe7ba6))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#507](https://github.com/lumina-ai-inc/chunkr/issues/507)) ([a8c2e70](https://github.com/lumina-ai-inc/chunkr/commit/a8c2e70fd5db6503fb38273b611fb7ea16c00422))
+
 ## [1.12.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.11.1...chunkr-core-v1.12.0) (2025-05-17)
 
 
