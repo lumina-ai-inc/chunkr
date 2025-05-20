@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.6-enterprise...chunkr-services-enterprise-v0.1.7-enterprise) (2025-05-20)
+
+
+### Bug Fixes
+
+* Repeated requests in analytics web  ([#90](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/90)) ([a4ccca8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a4ccca8c953b55466a02049b50a7ad0b0fa7fab3))
+
 ## [0.1.6-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.5-enterprise...chunkr-services-enterprise-v0.1.6-enterprise) (2025-04-29)
 
 

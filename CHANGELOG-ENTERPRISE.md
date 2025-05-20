@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.18.0-enterprise...v1.19.0-enterprise) (2025-05-20)
+
+
+### Features
+
+* Added Open telemetry support for better analytics ([#504](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/504)) ([7baa3d4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7baa3d4a03b5bd15c70dd73b00146adf6dfe7ba6))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#507](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/507)) ([a8c2e70](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a8c2e70fd5db6503fb38273b611fb7ea16c00422))
+* Repeated requests in analytics web  ([#90](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/90)) ([a4ccca8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a4ccca8c953b55466a02049b50a7ad0b0fa7fab3))
+
 ## [1.18.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.17.3-enterprise...v1.18.0-enterprise) (2025-05-17)
 
 

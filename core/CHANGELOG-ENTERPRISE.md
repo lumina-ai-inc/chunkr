@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.14.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.13.0-enterprise...chunkr-core-enterprise-v1.14.0-enterprise) (2025-05-20)
+
+
+### Features
+
+* Added Open telemetry support for better analytics ([#504](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/504)) ([7baa3d4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7baa3d4a03b5bd15c70dd73b00146adf6dfe7ba6))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#507](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/507)) ([a8c2e70](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a8c2e70fd5db6503fb38273b611fb7ea16c00422))
+
 ## [1.13.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.12.2-enterprise...chunkr-core-enterprise-v1.13.0-enterprise) (2025-05-17)
 
 
