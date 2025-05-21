@@ -88,8 +88,13 @@ async fn open_ai_call_handler(
 
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
+            let model = LlmConfig::from_env()?.get_model_by_id(&model.id)?;
             ctx.span()
                 .set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
+            if let Some(rate_limit) = model.rate_limit {
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("rate_limit", rate_limit));
+            }
             rate_limiter
                 .acquire_token_with_timeout(std::time::Duration::from_secs(
                     *TOKEN_TIMEOUT.get().unwrap(),
