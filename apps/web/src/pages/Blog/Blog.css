@@ -1,3 +1,29 @@
+.blog-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background-image: url("../../assets/blog/blog_cover.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.blog-image-container-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: linear-gradient(
+    to top,
+    #050609 5%,
+    rgba(2, 6, 9, 0.35) 35%
+  );
+  z-index: 1;
+}
+
 /* Blog Card Styling */
 .blog-card {
   background: rgba(0, 0, 0, 0.5); /* Match PricingCard background */
@@ -21,8 +47,6 @@
     0.08
   ); /* Keep border consistent on hover like PricingCard */
   transform: translateY(-8px); /* Match PricingCard hover transform */
-  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.3),
-    /* Match PricingCard hover shadow */ 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* Removed .blog-card:hover::before */
@@ -31,15 +55,16 @@
 
 /* Image Container */
 .blog-card-image-container {
-  width: 160px; /* Fixed width for the image */
-  height: 120px; /* Fixed height */
+  width: 100%; /* Fixed width for the image */
+  height: 240px; /* Fixed height */
   flex-shrink: 0; /* Prevent container from shrinking */
-  border-radius: 8px; /* Rounded corners for the image area */
   overflow: hidden; /* Clip the image */
   background-color: rgba(255, 255, 255, 0.05); /* Placeholder background */
   display: flex;
   align-items: center;
   justify-content: center;
+  border-top-left-radius: 8px; /* Match card's border radius */
+  border-top-right-radius: 8px; /* Match card's border radius */
 }
 
 .blog-card-image {
@@ -116,4 +141,76 @@
     height: 180px; /* Adjust height */
     margin-bottom: 16px; /* Add space below image */
   }
+}
+
+.blog-page-title {
+  width: 100%;
+  max-width: 848px;
+  letter-spacing: -0.01em !important;
+  font-size: 72px;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.blog-page-description {
+  padding: 8px 16px;
+  margin-bottom: 32px;
+  border-radius: 8px;
+  border: 1px solid #fff;
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-page-description::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: shimmer 8s infinite;
+  animation-delay: 4s;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  20%,
+  100% {
+    left: 200%;
+  }
+}
+
+/* Added header scroll styles */
+.blog-header-container {
+  /* Base styles - these might already be in your inline styles or other classes */
+  position: sticky !important; /* Ensure it sticks */
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    backdrop-filter 0.3s ease; /* Smooth transition */
+  /* Default non-scrolled state (transparent background) */
+  background-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.blog-header-container.scrolled {
+  background-color: rgba(5, 6, 9, 0.8); /* Match Blog.tsx inline style */
+  backdrop-filter: blur(8px); /* Match Blog.tsx inline style */
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05); /* Match Blog.tsx inline style */
 }

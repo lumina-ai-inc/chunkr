@@ -1,0 +1,71 @@
+/* apps/web/src/pages/BlogPostPage/BlogPostPage.css */
+
+.blog-post-title {
+  color: var(--gray-12);
+  /* Add other styles for your main blog post title if needed */
+}
+
+.blog-post-main-image-container img {
+  /* Styles for the main hero image of the blog post */
+  border: 1px solid var(--gray-a3);
+}
+
+.blog-post-image-container img {
+  /* Styles for images embedded within the rich text content */
+  border: 1px solid var(--gray-a3);
+}
+
+.text-link {
+  color: var(--cyan-9);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.text-link:hover {
+  color: var(--cyan-10);
+  text-decoration: underline;
+}
+
+.blog-post-sidebar {
+  /* Styles for the sticky sidebar */
+  transition: top 0.3s ease-in-out, position 0.3s ease-in-out;
+}
+
+.toc-link {
+  text-decoration: none;
+  display: block;
+  padding: 4px 0;
+  border-radius: var(--radius-2);
+  transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+}
+
+.toc-link:hover {
+  background-color: var(--cyan-a2);
+}
+.toc-link:hover .rt-Text {
+  color: var(--cyan-10) !important;
+}
+
+/* Ensure Radix scroll area thumb and corner are styled for dark mode if needed */
+.radix-scroll-area-thumb {
+  background-color: var(--gray-a7);
+}
+
+.radix-scroll-area-corner {
+  background-color: transparent;
+}
+
+/* Header scroll effect (if not already globally defined) */
+.blog-header-container.scrolled {
+  background-color: rgba(5, 6, 9, 0.8); /* semi-transparent dark */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--gray-a3);
+  transition: background-color 0.3s ease-in-out, border-bottom 0.3s ease-in-out;
+}
+
+/* Override for pre in badge to ensure text wrapping */
+.rt-Badge pre {
+  white-space: pre-wrap !important; /* Ensure code in badges wraps */
+  word-break: break-all; /* Break long words if necessary */
+}
