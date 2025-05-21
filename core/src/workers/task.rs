@@ -98,15 +98,21 @@ pub async fn process(
             return Ok(());
         }
     }
-    let end_time = std::time::Instant::now();
-    println!(
-        "Task took {:?} to complete with page count {:?}",
-        end_time.duration_since(start_time),
-        pipeline.get_task()?.page_count.unwrap_or(0)
-    );
     pipeline
         .complete(Status::Succeeded, Some("Task succeeded".to_string()))
         .await?;
+    let end_time = std::time::Instant::now();
+    let page_per_second = pipeline.get_task()?.page_count.unwrap_or(0) as f64
+        / end_time.duration_since(start_time).as_secs() as f64;
+    println!(
+        "Task took {:?} to complete with page count {:?} and page per second {:?}",
+        end_time.duration_since(start_time),
+        pipeline.get_task()?.page_count.unwrap_or(0),
+        page_per_second
+    );
+    opentelemetry::Context::current()
+        .span()
+        .set_attribute(KeyValue::new("page_per_second", page_per_second));
     Ok(())
 }
 

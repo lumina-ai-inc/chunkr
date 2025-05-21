@@ -59,7 +59,6 @@ pub async fn open_ai_call(
         Ok(parsed) => parsed,
         Err(e) => {
             let serialized_err = format!("Error parsing JSON: {:?}\nResponse: {}", e, text.trim());
-            println!("{}", serialized_err);
             return Err(Box::new(LLMError(serialized_err)));
         }
     };
@@ -139,6 +138,7 @@ async fn open_ai_call_handler(
                 ctx.span().record_error(e.as_ref());
                 ctx.span()
                     .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+                println!("Error: {}", e);
                 Err(e)
             }
         }
