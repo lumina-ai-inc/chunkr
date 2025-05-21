@@ -192,13 +192,12 @@ async fn process_openai_request(
                 )
                 .await
                 .and_then(|response| try_extract_from_response(&response, fence_type))
-                .map_err(|e| {
+                .inspect_err(|e| {
                     ctx.span()
                         .set_status(opentelemetry::trace::Status::error(e.to_string()));
                     ctx.span().record_error(e.as_ref());
                     ctx.span()
                         .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-                    e
                 })
             } else {
                 ctx.span()
@@ -312,7 +311,7 @@ pub async fn try_extract_from_llm(
             ctx.span().record_error(e.as_ref());
             ctx.span()
                 .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-            return Err(e);
+            Err(e)
         }
     }
 }
