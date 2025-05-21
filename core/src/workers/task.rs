@@ -1,6 +1,6 @@
-use core::configs::otel_config;
 use core::configs::pdfium_config::Config as PdfiumConfig;
 use core::configs::worker_config::Config as WorkerConfig;
+use core::configs::{job_config, otel_config};
 use core::models::pipeline::{Pipeline, PipelineStep};
 use core::models::task::TaskPayload;
 use core::models::task::{Status, Task};
@@ -46,61 +46,78 @@ pub async fn process(
     max_retries: u32,
     tracer: opentelemetry::global::BoxedTracer,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let start_time = std::time::Instant::now();
+    let timeout_duration =
+        std::time::Duration::from_secs(job_config::Config::from_env()?.task_timeout.into());
+    println!("Timeout duration: {:?}", timeout_duration);
     let mut pipeline = Pipeline::new();
 
-    let mut pipeline_init_span = tracer.start_with_context(
-        otel_config::SpanName::PipelineInit.to_string(),
-        &Context::current(),
-    );
-    match pipeline.init(task_payload.clone()).await {
-        Ok(_) => {
-            opentelemetry::Context::current()
-                .span()
-                .set_attribute(KeyValue::new(
-                    "pages_count",
-                    i64::from(pipeline.get_task()?.page_count.unwrap_or(0)),
-                ));
-        }
-        Err(e) => {
-            let mut task =
-                Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
-            if task.status == Status::Processing {
-                task.update(
-                    Some(Status::Failed),
-                    Some("Failed to initialize task".to_string()),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                )
-                .await?;
-            }
-            return Err(e);
-        }
-    }
-    pipeline_init_span.end();
-
-    let status = pipeline.get_task()?.status;
-    if status != Status::Processing {
-        println!("Skipping task as status is {:?}", status);
-        opentelemetry::Context::current().span().add_event(
-            "task_skipped",
-            vec![opentelemetry::KeyValue::new("status", status.to_string())],
+    let process_result = match tokio::time::timeout(timeout_duration, async {
+        let mut pipeline_init_span = tracer.start_with_context(
+            otel_config::SpanName::PipelineInit.to_string(),
+            &Context::current(),
         );
-        return Ok(());
-    }
-
-    let start_time = std::time::Instant::now();
-    for step in orchestrate_task(&mut pipeline)? {
-        pipeline.execute_step(step, max_retries, &tracer).await?;
-        if pipeline.get_task()?.status != Status::Processing {
+        match pipeline.init(task_payload.clone()).await {
+            Ok(_) => {
+                opentelemetry::Context::current()
+                    .span()
+                    .set_attribute(KeyValue::new(
+                        "pages_count",
+                        i64::from(pipeline.get_task()?.page_count.unwrap_or(0)),
+                    ));
+            }
+            Err(e) => {
+                let mut task =
+                    Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
+                if task.status == Status::Processing {
+                    task.update(
+                        Some(Status::Failed),
+                        Some("Failed to initialize task".to_string()),
+                        None,
+                        None,
+                        None,
+                        None,
+                        None,
+                    )
+                    .await?;
+                }
+                return Err(e);
+            }
+        }
+        pipeline_init_span.end();
+        let status = pipeline.get_task()?.status;
+        if status != Status::Processing {
+            println!("Skipping task as status is {:?}", status);
+            opentelemetry::Context::current().span().add_event(
+                "task_skipped",
+                vec![opentelemetry::KeyValue::new("status", status.to_string())],
+            );
             return Ok(());
         }
-    }
-    pipeline
-        .complete(Status::Succeeded, Some("Task succeeded".to_string()))
-        .await?;
+
+        for step in orchestrate_task(&mut pipeline)? {
+            pipeline.execute_step(step, max_retries, &tracer).await?;
+            if pipeline.get_task()?.status != Status::Processing {
+                return Ok::<(), Box<dyn std::error::Error>>(());
+            }
+        }
+        Ok(())
+    })
+    .await
+    {
+        Ok(result) => {
+            result?;
+            pipeline
+                .complete(Status::Succeeded, Some("Task succeeded".to_string()))
+                .await
+        }
+        Err(e) => {
+            // NOTE: The task times out via a CRON job to avoid ghosted tasks if the worker is down
+            println!("Task timed out after {:?}", timeout_duration);
+            Err(Box::new(e) as Box<dyn std::error::Error>)
+        }
+    };
+
     let end_time = std::time::Instant::now();
     let page_per_second = pipeline.get_task()?.page_count.unwrap_or(0) as f64
         / end_time.duration_since(start_time).as_secs() as f64;
@@ -113,6 +130,7 @@ pub async fn process(
     opentelemetry::Context::current()
         .span()
         .set_attribute(KeyValue::new("page_per_second", page_per_second));
+    process_result?;
     Ok(())
 }
 
