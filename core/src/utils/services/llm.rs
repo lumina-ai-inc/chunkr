@@ -7,18 +7,16 @@ use crate::utils::retry::retry_with_backoff;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use std::error::Error;
-use std::fmt;
+use thiserror::Error;
 
-#[derive(Debug)]
-struct LLMError(String);
+#[derive(Debug, Error)]
+enum LLMError {
+    #[error("Error parsing JSON: {error}")]
+    JsonParseError { error: String, response: String },
 
-impl fmt::Display for LLMError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
+    #[error("{0}")]
+    Generic(String),
 }
-
-impl std::error::Error for LLMError {}
 
 pub async fn open_ai_call(
     url: String,
@@ -58,9 +56,10 @@ pub async fn open_ai_call(
     let response: OpenAiResponse = match serde_json::from_str(&text) {
         Ok(parsed) => parsed,
         Err(e) => {
-            let serialized_err = format!("Error parsing JSON: {:?}\nResponse: {}", e, text.trim());
-            println!("{}", serialized_err);
-            return Err(Box::new(LLMError(serialized_err)));
+            return Err(Box::new(LLMError::JsonParseError {
+                error: e.to_string(),
+                response: text.trim().to_string(),
+            }));
         }
     };
     Ok(response)
@@ -89,8 +88,15 @@ async fn open_ai_call_handler(
 
         let rate_limiter = rate_limiter.clone();
         if let Some(rate_limiter) = rate_limiter {
+            let model = LlmConfig::from_env()?.get_model_by_id(&model.id)?;
             ctx.span()
                 .set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
+            if let Some(rate_limit) = model.rate_limit {
+                ctx.span().set_attribute(opentelemetry::KeyValue::new(
+                    "rate_limit",
+                    rate_limit as f64,
+                ));
+            }
             rate_limiter
                 .acquire_token_with_timeout(std::time::Duration::from_secs(
                     *TOKEN_TIMEOUT.get().unwrap(),
@@ -114,23 +120,12 @@ async fn open_ai_call_handler(
         {
             Ok(response) => Ok(response),
             Err(e) => {
-                let error_str = e.to_string();
-                if error_str.contains("Error parsing JSON") && error_str.contains("Response:") {
-                    if let Some(response_start) = error_str.find("Response:") {
-                        let response_text = &error_str[response_start + 9..].trim();
-
-                        let response_text = if response_text.ends_with("\")") {
-                            &response_text[..response_text.len() - 2]
-                        } else if response_text.ends_with("\"") {
-                            &response_text[..response_text.len() - 1]
-                        } else {
-                            response_text
-                        };
-
-                        let attributes = otel_config::extract_llm_error_attributes(response_text);
-                        for attr in attributes {
-                            ctx.span().set_attribute(attr);
-                        }
+                if let LLMError::JsonParseError { response, .. } =
+                    e.downcast_ref::<LLMError>().unwrap()
+                {
+                    let attributes = otel_config::extract_llm_error_attributes(response);
+                    for attr in attributes {
+                        ctx.span().set_attribute(attr);
                     }
                 }
 
@@ -139,6 +134,7 @@ async fn open_ai_call_handler(
                 ctx.span().record_error(e.as_ref());
                 ctx.span()
                     .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+                println!("Error: {}", e);
                 Err(e)
             }
         }
@@ -155,9 +151,10 @@ async fn process_openai_request(
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
+    fence_type: Option<&str>,
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
-) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
+) -> Result<String, Box<dyn Error + Send + Sync>> {
     let mut span = tracer.start_with_context("process_openai_request", parent_context);
     span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
     let ctx = parent_context.with_span(span);
@@ -172,6 +169,7 @@ async fn process_openai_request(
         &ctx,
     )
     .await
+    .and_then(|response| try_extract_from_response(&response, fence_type))
     {
         Ok(response) => Ok(response),
         Err(e) => {
@@ -183,7 +181,7 @@ async fn process_openai_request(
                     fallback_model.model.clone(),
                 ));
 
-                match open_ai_call_handler(
+                open_ai_call_handler(
                     fallback_model.clone(),
                     messages,
                     max_completion_tokens,
@@ -193,17 +191,14 @@ async fn process_openai_request(
                     &ctx,
                 )
                 .await
-                {
-                    Ok(response) => Ok(response),
-                    Err(e) => {
-                        ctx.span()
-                            .set_status(opentelemetry::trace::Status::error(e.to_string()));
-                        ctx.span().record_error(e.as_ref());
-                        ctx.span()
-                            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-                        Err(e)
-                    }
-                }
+                .and_then(|response| try_extract_from_response(&response, fence_type))
+                .inspect_err(|e| {
+                    ctx.span()
+                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
+                    ctx.span().record_error(e.as_ref());
+                    ctx.span()
+                        .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+                })
             } else {
                 ctx.span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
@@ -216,14 +211,19 @@ async fn process_openai_request(
     }
 }
 
+/// Get the content from an OpenAI response
 fn get_llm_content(response: &OpenAiResponse) -> Result<String, Box<dyn Error + Send + Sync>> {
     if let MessageContent::String { content } = &response.choices[0].message.content {
         Ok(content.clone())
     } else {
-        Err(Box::new(LLMError("Invalid content type".to_string())) as Box<dyn Error + Send + Sync>)
+        Err(
+            Box::new(LLMError::Generic("Invalid content type".to_string()))
+                as Box<dyn Error + Send + Sync>,
+        )
     }
 }
 
+/// Extract fenced content from a string
 fn extract_fenced_content(content: &str, fence_type: Option<&str>) -> Option<String> {
     let split_pattern = match fence_type {
         Some(ft) => format!("```{}", ft),
@@ -238,34 +238,37 @@ fn extract_fenced_content(content: &str, fence_type: Option<&str>) -> Option<Str
 }
 
 /// Try to extract fenced content from an OpenAI response
-/// Returns Some(content) if extraction succeeds, None otherwise
+/// Returns message content if extraction succeeds, error otherwise
 fn try_extract_from_response(
     response: &OpenAiResponse,
     fence_type: Option<&str>,
-) -> Option<String> {
+) -> Result<String, Box<dyn Error + Send + Sync>> {
     if response.choices.is_empty() {
         println!("Response contains no choices");
-        return None;
+        return Err(Box::new(LLMError::Generic(
+            "No choices found in response".to_string(),
+        )));
     }
 
     if response.choices[0].finish_reason == "length" {
         println!("Response was truncated (finish_reason: length)");
-        return None;
+        return Err(Box::new(LLMError::Generic(
+            "Response was truncated (finish_reason: length)".to_string(),
+        )));
     }
 
-    match get_llm_content(response) {
-        Ok(content) => {
-            let extracted = extract_fenced_content(&content, fence_type);
-            if extracted.is_none() {
-                println!("No content could be extracted from response content");
-            }
-            extracted
-        }
-        Err(e) => {
-            println!("Error getting content from response: {:?}", e);
-            None
-        }
+    let content = get_llm_content(response)?;
+    if content.trim().is_empty() {
+        println!("Content is empty");
+        return Err(Box::new(LLMError::Generic("Content is empty".to_string())));
     }
+    let extracted = extract_fenced_content(&content, fence_type).ok_or_else(|| {
+        println!("No content could be extracted from response content");
+        Box::new(LLMError::Generic(
+            "No content could be extracted from response content".to_string(),
+        ))
+    })?;
+    Ok(extracted)
 }
 
 pub async fn try_extract_from_llm(
@@ -283,20 +286,20 @@ pub async fn try_extract_from_llm(
     let model = llm_config.get_model(llm_processing.model_id)?;
     let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
 
-    // Try with primary model
-    let response = match process_openai_request(
+    match process_openai_request(
         model,
         fallback_model.clone(),
         messages.clone(),
         llm_processing.max_completion_tokens,
         Some(llm_processing.temperature),
         None,
+        fence_type,
         tracer,
         &ctx,
     )
     .await
     {
-        Ok(response) => response,
+        Ok(response) => Ok(response),
         Err(e) => {
             if let Some(fallback_content) = fallback_content {
                 ctx.span()
@@ -308,46 +311,7 @@ pub async fn try_extract_from_llm(
             ctx.span().record_error(e.as_ref());
             ctx.span()
                 .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-            return Err(e);
-        }
-    };
-
-    // Try to extract content from primary model response
-    if let Some(content) = try_extract_from_response(&response, fence_type) {
-        return Ok(content);
-    }
-
-    // Try with fallback model if content extraction failed
-    if let Some(fallback) = fallback_model {
-        println!("Trying fallback model after primary model failed to produce extractable content");
-        if let Ok(fallback_response) = process_openai_request(
-            fallback,
-            None,
-            messages.clone(),
-            llm_processing.max_completion_tokens,
-            Some(llm_processing.temperature),
-            None,
-            tracer,
-            &ctx,
-        )
-        .await
-        {
-            if let Some(content) = try_extract_from_response(&fallback_response, fence_type) {
-                return Ok(content);
-            }
-        } else {
-            println!("Fallback model request failed");
+            Err(e)
         }
     }
-
-    // Use fallback content as last resort
-    if let Some(fallback_content) = fallback_content {
-        println!("Using fallback content after all LLM extraction attempts failed");
-        return Ok(fallback_content);
-    }
-
-    Err(Box::new(LLMError(format!(
-        "No valid content found | fence_type: {}",
-        fence_type.unwrap_or("")
-    ))))
 }
