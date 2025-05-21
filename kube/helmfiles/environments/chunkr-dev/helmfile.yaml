@@ -58,12 +58,3 @@ releases:
         value: standard 
       - name: services.emails.enabled
         value: false
-
-  - name: argocd
-    namespace: argocd
-    chart: argo/argo-cd
-    version: 8.0.0
-    installed: true
-    createNamespace: true
-    values:
-      - ./argocd-app-values.yaml

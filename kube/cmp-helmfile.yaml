@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cmp-helmfile
+  namespace: argocd
+data:
+  plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: cmp-helmfile
+    spec:
+      version: v1.0
+      init:
+        command: [sh, -c, 'echo "Initializing..."']
+      generate:
+        command: [sh, -c]
+        args: ["helmfile template --quiet --namespace $ARGOCD_APP_NAMESPACE"]
+      discover:
+        fileName: "helmfile.yaml"

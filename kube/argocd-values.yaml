@@ -1,0 +1,49 @@
+configs:
+  cmp:
+    create: true
+    plugins:
+      helmfile:
+        allowConcurrency: true
+        discover:
+          fileName: helmfile.yaml
+        generate:
+          command:
+            - bash
+            - "-c"
+            - |
+              helmfile -n "$ARGOCD_APP_NAMESPACE" template --include-crds -q
+        lockRepo: false
+
+repoServer:
+  extraContainers:
+    - name: helmfile
+      image: ghcr.io/helmfile/helmfile:v0.157.0
+      command: ["/var/run/argocd/argocd-cmp-server"]
+      env:
+        - name: HELM_CACHE_HOME
+          value: /tmp/helm/cache
+        - name: HELM_CONFIG_HOME
+          value: /tmp/helm/config
+        - name: HELMFILE_CACHE_HOME
+          value: /tmp/helmfile/cache
+        - name: HELMFILE_TEMPDIR
+          value: /tmp/helmfile/tmp
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      volumeMounts:
+        - mountPath: /var/run/argocd
+          name: var-files
+        - mountPath: /home/argocd/cmp-server/plugins
+          name: plugins
+        - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+          subPath: helmfile.yaml
+          name: argocd-cmp-cm
+        - mountPath: /tmp
+          name: cmp-tmp
+  volumes:
+    - name: argocd-cmp-cm
+      configMap:
+        name: argocd-cmp-cm
+    - name: cmp-tmp
+      emptyDir: {}

@@ -17,7 +17,63 @@ applications:
     source:
       repoURL: https://github.com/lumina-ai-inc/chunkr-enterprise.git
       targetRevision: HEAD
-      path: kube/helmfiles/environments/chunkr-dev
+      path: kube/charts/chunkr-enterprise
+      helm:
+        releaseName: chunkr
+        valueFiles:
+        - values.yaml
+        - infrastructure.yaml
+        - embeddings.yaml
+        values: |
+          services:
+            embeddings:
+              ingress:
+                enabled: true
+                subdomain: dev-embed
+            reranker:
+              enabled: true
+              ingress:
+                enabled: true
+                subdomain: dev-rerank
+            sparse-doc-embeddings:
+              enabled: true
+              ingress:
+                enabled: true
+                subdomain: dev-sparse-doc
+            sparse-query-embeddings:
+              enabled: true
+              ingress:
+                enabled: true
+                subdomain: dev-sparse-query
+            web:
+              ingress:
+                subdomain: dev
+            server:
+              ingress:
+                subdomain: dev-api
+            keycloak:
+              ingress:
+                subdomain: dev-auth
+            analytics-web:
+              ingress:
+                subdomain: dev-analytics
+            analytics-server:
+              ingress:
+                subdomain: dev-analytics-api
+            minio:
+              enabled: false
+            emails:
+              enabled: false
+          ingress:
+            subdomains:
+              root: false
+            type: cloudflare
+          cloudflared:
+            enabled: true
+            config:
+              tunnelName: chunkr-gcp-dev
+          global:
+            storageClass: standard
     destination:
       server: https://kubernetes.default.svc
       namespace: chunkr
