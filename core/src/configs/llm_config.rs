@@ -183,7 +183,7 @@ impl Config {
         Ok(())
     }
 
-    fn get_model_by_id(&self, id: &str) -> Result<LlmModel, ConfigError> {
+    pub fn get_model_by_id(&self, id: &str) -> Result<LlmModel, ConfigError> {
         self.llm_models
             .as_ref()
             .ok_or_else(|| ConfigError::Message("No LLM models configured".to_string()))?

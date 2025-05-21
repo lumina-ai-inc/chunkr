@@ -182,7 +182,6 @@ pub fn extract_llm_error_attributes(response_text: &str) -> Vec<opentelemetry::K
             }
         }
 
-        // Check for Google AI Studio error format
         if let Some(error) = json_value.get("error") {
             attributes.push(opentelemetry::KeyValue::new("error_response", true));
 
@@ -255,7 +254,6 @@ pub fn extract_llm_error_attributes(response_text: &str) -> Vec<opentelemetry::K
             }
         }
 
-        // Check for direct error format in choices (as seen in Google Gemini responses)
         if let Some(choices) = json_value.get("choices") {
             if let Some(choice_array) = choices.as_array() {
                 if !choice_array.is_empty() {
@@ -289,7 +287,6 @@ pub fn extract_llm_error_attributes(response_text: &str) -> Vec<opentelemetry::K
                         }
                     }
 
-                    // Extract finish_reason which can indicate errors
                     if let Some(finish_reason) = choice_array[0].get("finish_reason") {
                         if let Some(reason_str) = finish_reason.as_str() {
                             attributes.push(opentelemetry::KeyValue::new(
@@ -299,7 +296,6 @@ pub fn extract_llm_error_attributes(response_text: &str) -> Vec<opentelemetry::K
                         }
                     }
 
-                    // Also check for native_finish_reason
                     if let Some(native_finish_reason) = choice_array[0].get("native_finish_reason")
                     {
                         if let Some(reason_str) = native_finish_reason.as_str() {
@@ -310,7 +306,6 @@ pub fn extract_llm_error_attributes(response_text: &str) -> Vec<opentelemetry::K
                         }
                     }
 
-                    // For Google Gemini models, check the message structure even if there's an error
                     if let Some(message) = choice_array[0].get("message") {
                         if let Some(message_obj) = message.as_object() {
                             attributes.push(opentelemetry::KeyValue::new("has_message", true));
