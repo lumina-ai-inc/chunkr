@@ -117,13 +117,10 @@ impl<'de> Deserialize<'de> for LlmProcessing {
 
         if helper.fallback_strategy == FallbackStrategy::Default {
             if let Ok(config) = Config::from_env() {
-                if let Ok(default_fallback_model) =
+                if let Ok(Some(default_fallback_model)) =
                     config.get_fallback_model(FallbackStrategy::Default)
                 {
-                    if let Some(default_fallback_model) = default_fallback_model {
-                        helper.fallback_strategy =
-                            FallbackStrategy::Model(default_fallback_model.id);
-                    }
+                    helper.fallback_strategy = FallbackStrategy::Model(default_fallback_model.id);
                 }
             }
         }
