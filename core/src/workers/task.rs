@@ -73,10 +73,14 @@ pub async fn process(
             Err(e) => {
                 let mut task =
                     Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
+                let message = match e.to_string().contains("LibreOffice") {
+                    true => "Failed to convert file to PDF".to_string(),
+                    false => "Failed to initialize task".to_string(),
+                };
                 if task.status == Status::Processing {
                     task.update(
                         Some(Status::Failed),
-                        Some("Failed to initialize task".to_string()),
+                        Some(message),
                         None,
                         None,
                         None,
