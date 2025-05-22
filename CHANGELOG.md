@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.17.0...v1.18.0) (2025-05-21)
+
+
+### Features
+
+* **core:** Improved telemetry and added timeout around task processing to deal with long running processes ([#511](https://github.com/lumina-ai-inc/chunkr/issues/511)) ([bbe5913](https://github.com/lumina-ai-inc/chunkr/commit/bbe59130afffedbf5e2e29267afb1f6300918f67))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#512](https://github.com/lumina-ai-inc/chunkr/issues/512)) ([d9ecf60](https://github.com/lumina-ai-inc/chunkr/commit/d9ecf60f308cfe4607673bec172f8fc04d673135))
+
 ## [1.17.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.16.0...v1.17.0) (2025-05-20)
 
 
