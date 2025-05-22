@@ -117,8 +117,8 @@ impl<'a> FromSql<'a> for TokenizerType {
                 .parse::<Tokenizer>()
                 .map_err(|e| Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))?;
             Ok(TokenizerType::Enum(tokenizer))
-        } else if s.starts_with("string:") {
-            Ok(TokenizerType::String(s[7..].to_string()))
+        } else if let Some(tokenizer_str) = s.strip_prefix("string:") {
+            Ok(TokenizerType::String(tokenizer_str.to_string()))
         } else {
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
