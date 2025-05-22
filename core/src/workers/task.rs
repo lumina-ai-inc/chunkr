@@ -59,20 +59,28 @@ pub async fn process(
         );
         match pipeline.init(task_payload.clone()).await {
             Ok(_) => {
-                opentelemetry::Context::current()
-                    .span()
-                    .set_attribute(KeyValue::new(
-                        "pages_count",
-                        i64::from(pipeline.get_task()?.page_count.unwrap_or(0)),
-                    ));
+                if let Some(page_count) = pipeline.get_task()?.page_count {
+                    opentelemetry::Context::current()
+                        .span()
+                        .set_attribute(KeyValue::new("page_count", i64::from(page_count)));
+                }
+                if let Some(mime_type) = pipeline.get_task()?.mime_type.clone() {
+                    opentelemetry::Context::current()
+                        .span()
+                        .set_attribute(KeyValue::new("mime_type", mime_type));
+                }
             }
             Err(e) => {
                 let mut task =
                     Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
+                let message = match e.to_string().contains("LibreOffice") {
+                    true => "Failed to convert file to PDF".to_string(),
+                    false => "Failed to initialize task".to_string(),
+                };
                 if task.status == Status::Processing {
                     task.update(
                         Some(Status::Failed),
-                        Some("Failed to initialize task".to_string()),
+                        Some(message),
                         None,
                         None,
                         None,
@@ -119,17 +127,17 @@ pub async fn process(
     };
 
     let end_time = std::time::Instant::now();
-    let page_per_second = pipeline.get_task()?.page_count.unwrap_or(0) as f64
+    let pages_per_second = pipeline.get_task()?.page_count.unwrap_or(0) as f64
         / end_time.duration_since(start_time).as_secs() as f64;
     println!(
         "Task took {:?} to complete with page count {:?} and page per second {:?}",
         end_time.duration_since(start_time),
         pipeline.get_task()?.page_count.unwrap_or(0),
-        page_per_second
+        pages_per_second
     );
     opentelemetry::Context::current()
         .span()
-        .set_attribute(KeyValue::new("page_per_second", page_per_second));
+        .set_attribute(KeyValue::new("pages_per_second", pages_per_second));
     process_result?;
     Ok(())
 }

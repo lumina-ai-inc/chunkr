@@ -79,7 +79,10 @@ async fn open_ai_call_handler(
     let rate_limiter = get_llm_rate_limiter(&model.id)?;
 
     retry_with_backoff(|| async {
-        let mut span = tracer.start_with_context("open_ai_call", parent_context);
+        let mut span = tracer.start_with_context(
+            otel_config::SpanName::OpenAiCall.to_string(),
+            parent_context,
+        );
         span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
         span.set_attribute(opentelemetry::KeyValue::new(
             "provider_url",
@@ -170,7 +173,10 @@ async fn process_openai_request(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let mut span = tracer.start_with_context("process_openai_request", parent_context);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::ProcessOpenAiRequest.to_string(),
+        parent_context,
+    );
     span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
 
     if let Some(segment_id) = parent_context.baggage().get("segment_id") {
@@ -304,7 +310,10 @@ pub async fn try_extract_from_llm(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let mut span = tracer.start_with_context("try_extract_from_llm", parent_context);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::TryExtractFromLlm.to_string(),
+        parent_context,
+    );
 
     if let Some(segment_id) = parent_context.baggage().get("segment_id") {
         span.set_attribute(opentelemetry::KeyValue::new(
