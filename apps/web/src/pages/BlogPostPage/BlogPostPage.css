@@ -1,18 +1,75 @@
-/* apps/web/src/pages/BlogPostPage/BlogPostPage.css */
+header h1 {
+  font-size: 36px !important;
+  line-height: 1.2 !important;
+  max-width: 768px;
+}
+
+article h2 {
+  font-size: 24px !important;
+  color: var(--gray-1) !important;
+}
+
+article h3 {
+  font-size: 18px !important;
+  color: var(--gray-1) !important;
+}
+
+article h4 {
+  font-size: 16px !important;
+  color: var(--gray-1) !important;
+}
+
+header span {
+  font-size: 14px !important;
+  color: var(--gray-3) !important;
+}
+
+/* article span {
+  font-size: 14px !important;
+} */
+
+/* Make main article text (paragraphs and lists) lighter for dark mode */
+article p,
+article li {
+  color: var(--gray-6);
+}
 
 .blog-post-title {
-  color: var(--gray-12);
+  color: var(--gray-1);
   /* Add other styles for your main blog post title if needed */
+}
+
+.blog-post-main-image-container {
+  position: relative;
+  display: block; /* Ensures the container behaves as a block */
+}
+
+.blog-post-main-image-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 6, 9, 0) 0%,
+    rgb(5, 6, 9) 100%
+  );
+  z-index: 1; /* Places the gradient on top of the image */
+  pointer-events: none; /* Allows mouse events to pass through to the image */
 }
 
 .blog-post-main-image-container img {
   /* Styles for the main hero image of the blog post */
-  border: 1px solid var(--gray-a3);
+  display: block; /* Ensures the image takes up the full width of its container */
+  width: 100%; /* Makes the image responsive within the container */
+  position: relative; /* Establishes a stacking context for the image */
 }
 
 .blog-post-image-container img {
   /* Styles for images embedded within the rich text content */
-  border: 1px solid var(--gray-a3);
+  border: 1px solid var(--gray-12);
 }
 
 .text-link {
@@ -28,10 +85,18 @@
 
 .blog-post-sidebar {
   /* Styles for the sticky sidebar */
-  transition: top 0.3s ease-in-out, position 0.3s ease-in-out;
+
+  margin-top: -18px;
 }
 
-.toc-link {
+.blog-post-sidebar .rt-Card {
+  background-color: var(
+    --gray-2
+  ); /* Use a solid dark gray from Radix theme for the card background */
+  border: 1px solid var(--gray-4); /* Add a subtle border to define the card edge slightly more */
+}
+
+/* .toc-link {
   text-decoration: none;
   display: block;
   padding: 4px 0;
@@ -41,18 +106,33 @@
 
 .toc-link:hover {
   background-color: var(--cyan-a2);
-}
+} */
 .toc-link:hover .rt-Text {
-  color: var(--cyan-10) !important;
+  color: #fff !important;
 }
 
-/* Ensure Radix scroll area thumb and corner are styled for dark mode if needed */
-.radix-scroll-area-thumb {
-  background-color: var(--gray-a7);
+pre[class*="language-"] {
+  background: #000000 !important;
+  padding: 10px !important;
+  border: 1px solid var(--gray-12) !important;
 }
 
-.radix-scroll-area-corner {
-  background-color: transparent;
+pre[class*="language-"]::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-track {
+  background: unset;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-thumb {
+  background: var(--gray-9);
+  border-radius: 4px;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-7);
 }
 
 /* Header scroll effect (if not already globally defined) */
@@ -60,12 +140,5 @@
   background-color: rgba(5, 6, 9, 0.8); /* semi-transparent dark */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--gray-a3);
   transition: background-color 0.3s ease-in-out, border-bottom 0.3s ease-in-out;
-}
-
-/* Override for pre in badge to ensure text wrapping */
-.rt-Badge pre {
-  white-space: pre-wrap !important; /* Ensure code in badges wraps */
-  word-break: break-all; /* Break long words if necessary */
 }
