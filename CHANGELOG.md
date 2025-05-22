@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.18.0...v1.18.1) (2025-05-22)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#516](https://github.com/lumina-ai-inc/chunkr/issues/516)) ([a938056](https://github.com/lumina-ai-inc/chunkr/commit/a938056779debec5357ad54b27bf5f0788382ba3))
+* Improved error handling and telemetry for segment processing ([#515](https://github.com/lumina-ai-inc/chunkr/issues/515)) ([2afc82e](https://github.com/lumina-ai-inc/chunkr/commit/2afc82e361387b51a5d5ab5f99cf74978917e9e1))
+
 ## [1.18.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.17.0...v1.18.0) (2025-05-21)
 
 
