@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.14.1...chunkr-core-v1.14.2) (2025-05-22)
+
+
+### Bug Fixes
+
+* Added file type attributes to span ([#520](https://github.com/lumina-ai-inc/chunkr/issues/520)) ([edd7d0d](https://github.com/lumina-ai-inc/chunkr/commit/edd7d0d140bd3482ce195e6f2243a9e67b4a5efa))
+* **core:** Auto-fix clippy warnings ([#518](https://github.com/lumina-ai-inc/chunkr/issues/518)) ([238f47f](https://github.com/lumina-ai-inc/chunkr/commit/238f47fdaf5d2e62d12448424d1018eb1803b8f8))
+
 ## [1.14.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.14.0...chunkr-core-v1.14.1) (2025-05-22)
 
 

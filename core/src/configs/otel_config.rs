@@ -45,6 +45,20 @@ pub enum SpanName {
     ProcessTask,
     #[strum(serialize = "pipeline_init")]
     PipelineInit,
+    #[strum(serialize = "generate_html")]
+    GenerateHtml,
+    #[strum(serialize = "generate_markdown")]
+    GenerateMarkdown,
+    #[strum(serialize = "generate_llm")]
+    GenerateLlm,
+    #[strum(serialize = "process_segment")]
+    ProcessSegment,
+    #[strum(serialize = "open_ai_call")]
+    OpenAiCall,
+    #[strum(serialize = "process_openai_request")]
+    ProcessOpenAiRequest,
+    #[strum(serialize = "try_extract_from_llm")]
+    TryExtractFromLlm,
 }
 
 #[derive(Debug, Clone, Copy, Display, EnumString)]

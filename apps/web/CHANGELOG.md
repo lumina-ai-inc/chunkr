@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.5.0...chunkr-web-v1.5.1) (2025-05-22)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#518](https://github.com/lumina-ai-inc/chunkr/issues/518)) ([238f47f](https://github.com/lumina-ai-inc/chunkr/commit/238f47fdaf5d2e62d12448424d1018eb1803b8f8))
+
 ## [1.5.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.4.0...chunkr-web-v1.5.0) (2025-05-17)
 
 

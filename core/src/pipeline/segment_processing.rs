@@ -1,4 +1,4 @@
-use crate::configs::llm_config::create_messages_from_template;
+use crate::configs::{llm_config::create_messages_from_template, otel_config};
 use crate::models::output::{Segment, SegmentType};
 use crate::models::pipeline::Pipeline;
 use crate::models::segment_processing::{
@@ -552,7 +552,10 @@ async fn generate_html(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let mut span = tracer.start_with_context("generate_html", parent_context);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::GenerateHtml.to_string(),
+        parent_context,
+    );
     span.set_attribute(opentelemetry::KeyValue::new(
         "error_handling",
         params.configuration.error_handling.to_string(),
@@ -600,7 +603,10 @@ async fn generate_markdown(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let mut span = tracer.start_with_context("generate_markdown", parent_context);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::GenerateMarkdown.to_string(),
+        parent_context,
+    );
     span.set_attribute(opentelemetry::KeyValue::new(
         "error_handling",
         params.configuration.error_handling.to_string(),
@@ -652,7 +658,10 @@ async fn generate_llm(
         return Ok(None);
     }
 
-    let mut span = tracer.start_with_context("generate_llm", parent_context);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::GenerateLlm.to_string(),
+        parent_context,
+    );
     span.set_attribute(opentelemetry::KeyValue::new(
         "error_handling",
         params.configuration.error_handling.to_string(),
@@ -818,7 +827,10 @@ async fn process_segment(
         _ => (None, None, None),
     };
 
-    let mut span = tracer.start_with_context("process_segment", parent_context);
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::ProcessSegment.to_string(),
+        parent_context,
+    );
     span.set_attribute(opentelemetry::KeyValue::new(
         "segment_id",
         segment.segment_id.clone(),
