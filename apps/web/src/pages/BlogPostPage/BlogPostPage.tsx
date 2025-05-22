@@ -8,7 +8,6 @@ import {
   Text,
   Avatar,
   Badge,
-  Card,
   ScrollArea,
 } from "@radix-ui/themes";
 import {
@@ -34,7 +33,9 @@ import {
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import { useAuth } from "react-oidc-context";
-import "./BlogPostPage.css"; // We'll create this for custom styles
+import "./BlogPostPage.css";
+import Prism from "prismjs";
+// import "prismjs/themes/prism-okaidia.css";
 
 interface HeadingNode {
   id: string;
@@ -101,37 +102,67 @@ export default function BlogPostPage() {
   const [tableOfContents, setTableOfContents] = useState<HeadingNode[]>([]);
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const mainContentRef = useRef<HTMLDivElement>(null);
-  const stickySidebarRef = useRef<HTMLDivElement>(null);
+  const mainContentRef = useRef<HTMLElement>(null);
+  const stickySidebarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScrollAndResize = () => {
       setIsScrolled(window.scrollY > 0);
       if (stickySidebarRef.current && mainContentRef.current) {
-        const headerElement = document.querySelector(
-          ".blog-header-container"
-        ) as HTMLElement;
-        const headerHeight = headerElement ? headerElement.offsetHeight : 80;
-        const mainContentTop =
-          mainContentRef.current.getBoundingClientRect().top + window.scrollY;
-        const scrollTop = window.scrollY;
+        const sidebarElement = stickySidebarRef.current;
+        const sidebarParent =
+          sidebarElement.parentElement as HTMLElement | null;
 
-        const sidebarDefaultTop = 32; // Corresponds to parent padding + desired gap
+        if (!sidebarParent) return;
 
-        if (scrollTop > mainContentTop - headerHeight - sidebarDefaultTop) {
-          stickySidebarRef.current.style.position = "fixed";
-          stickySidebarRef.current.style.top = `${headerHeight + 24}px`;
+        const definedSidebarWidth = 300; // Define consistent width
+        const sidebarInitialTopInParent = 32;
+        const stickyTopPosition = 124;
+
+        const sidebarRect = sidebarElement.getBoundingClientRect();
+        const parentRect = sidebarParent.getBoundingClientRect();
+
+        if (parentRect.top + sidebarInitialTopInParent > stickyTopPosition) {
+          // State A: Initial Absolute (top-aligned in parent) - Not scrolled enough
+          sidebarElement.style.position = "absolute";
+          sidebarElement.style.top = `${sidebarInitialTopInParent}px`;
+          sidebarElement.style.left = "auto";
+          sidebarElement.style.right = "0px";
+          sidebarElement.style.width = `${definedSidebarWidth}px`; // Use defined width
+          sidebarElement.style.bottom = "auto";
         } else {
-          stickySidebarRef.current.style.position = "absolute";
-          stickySidebarRef.current.style.top = `${sidebarDefaultTop}px`;
+          // State B or C: Scrolled enough to be either fixed or absolute-bottom.
+          // Check if fixing it would make it scroll past the bottom of its parent.
+          if (stickyTopPosition + sidebarRect.height < parentRect.bottom) {
+            // State B: Fixed to Viewport Top (enough space in parent)
+            sidebarElement.style.position = "fixed";
+            sidebarElement.style.top = `${stickyTopPosition}px`;
+            const fixedLeft = parentRect.right - definedSidebarWidth; // Use defined width for calculation
+            sidebarElement.style.left = `${fixedLeft}px`;
+            sidebarElement.style.width = `${definedSidebarWidth}px`; // Use defined width
+            sidebarElement.style.right = "auto";
+            sidebarElement.style.bottom = "auto";
+          } else {
+            // State C: Absolute, Stuck to Parent Bottom (not enough space if fixed)
+            sidebarElement.style.position = "absolute";
+            sidebarElement.style.top = "auto";
+            sidebarElement.style.bottom = "0px";
+            sidebarElement.style.left = "auto";
+            sidebarElement.style.right = "0px";
+            sidebarElement.style.width = `${definedSidebarWidth}px`; // Use defined width
+          }
         }
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [post]);
+    window.addEventListener("scroll", handleScrollAndResize);
+    window.addEventListener("resize", handleScrollAndResize); // Added resize listener
+    handleScrollAndResize(); // Initial call to set position correctly
+    return () => {
+      window.removeEventListener("scroll", handleScrollAndResize);
+      window.removeEventListener("resize", handleScrollAndResize); // Clean up resize listener
+    };
+  }, [post]); // Dependency array remains [post]
 
   useEffect(() => {
     if (!slug) {
@@ -162,25 +193,44 @@ export default function BlogPostPage() {
     loadPost();
   }, [slug]);
 
+  useEffect(() => {
+    if (post) {
+      Prism.highlightAll();
+    }
+  }, [post]);
+
   const renderOptions: Options = {
     renderMark: {
       [MARKS.BOLD]: (text: ReactNode) => <Text weight="bold">{text}</Text>,
       [MARKS.ITALIC]: (text: ReactNode) => (
         <em style={{ fontStyle: "italic" }}>{text}</em>
       ),
-      [MARKS.CODE]: (text: ReactNode) => (
-        <Badge color="gray" variant="soft" highContrast>
-          <pre
+      [MARKS.CODE]: (textNode: ReactNode) => {
+        // Directly treat all code as Python
+        const codeContent =
+          typeof textNode === "string" ? textNode : String(textNode);
+
+        return (
+          <Badge
             style={{
-              margin: 0,
-              whiteSpace: "pre-wrap",
-              fontFamily: "monospace",
+              backgroundColor: "unset",
+              border: "unset",
             }}
           >
-            {text}
-          </pre>
-        </Badge>
-      ),
+            <pre
+              style={{
+                margin: 0,
+                whiteSpace: "pre-wrap",
+                padding: "8px !important",
+                maxWidth: "628px",
+                borderRadius: "4px",
+              }}
+            >
+              <code className="language-python">{codeContent}</code>
+            </pre>
+          </Badge>
+        );
+      },
     },
     renderNode: {
       [BLOCKS.HEADING_1]: (node: Node, children: ReactNode) => {
@@ -421,136 +471,179 @@ export default function BlogPostPage() {
 
         <Flex
           key={slug}
+          direction="column"
           style={{
-            maxWidth: "1386px",
+            maxWidth: "1024px",
             width: "100%",
             margin: "0 auto",
             padding: "32px 24px",
-            gap: "48px",
             position: "relative",
           }}
-          align="start"
         >
-          <Box style={{ flex: "3", minWidth: 0 }} ref={mainContentRef}>
-            {" "}
-            {/* Equivalent to 66-75% */}
-            <article>
-              <Heading
-                as="h1"
-                size="9"
-                weight="bold"
-                mb="3"
-                className="blog-post-title"
-              >
-                {post.title}
-              </Heading>
-              {post.publishedDate && (
-                <Box mb="5">
-                  <Text size="2" color="gray">
-                    Published on{" "}
-                    {new Date(post.publishedDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </Box>
-              )}
+          <header style={{ marginBottom: "32px" }}>
+            <Heading
+              as="h1"
+              size="9"
+              weight="bold"
+              mb="3"
+              className="blog-post-title"
+            >
+              {post.title}
+            </Heading>
+            {post.publishedDate && (
+              <Box mb="5">
+                <Text size="2" color="gray">
+                  Published on{" "}
+                  {new Date(post.publishedDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
+              </Box>
+            )}
+            {post.image?.url && (
+              <Box mb="6" className="blog-post-main-image-container">
+                <img
+                  src={post.image.url}
+                  alt={getImageAltText(post.image)}
+                  style={{
+                    width: "100%",
+                    maxHeight: "500px",
+                    objectFit: "cover",
+                    borderRadius: "var(--radius-4)",
+                  }}
+                  width={post.image.width || undefined}
+                  height={post.image.height || undefined}
+                />
+              </Box>
+            )}
+          </header>
 
-              {post.image?.url && (
-                <Box mb="6" className="blog-post-main-image-container">
-                  <img
-                    src={post.image.url}
-                    alt={getImageAltText(post.image)}
-                    style={{
-                      width: "100%",
-                      maxHeight: "500px",
-                      objectFit: "cover",
-                      borderRadius: "var(--radius-4)",
-                    }}
-                    width={post.image.width || undefined}
-                    height={post.image.height || undefined}
-                  />
-                </Box>
-              )}
-
-              {post.body?.json &&
-                documentToReactComponents(post.body.json, renderOptions)}
-            </article>
-          </Box>
-
-          <aside
-            ref={stickySidebarRef as React.RefObject<HTMLElement>}
+          <Flex
+            align="start"
             style={{
-              flex: "1",
-              width: "300px",
-              maxWidth: "33%",
-              position: "absolute",
-              right: "24px",
-              top: "32px",
-              zIndex: 1000,
+              width: "100%",
+              position: "relative",
             }}
-            className="blog-post-sidebar"
           >
-            <Card variant="surface" style={{ padding: "24px" }}>
-              {post.authorInfo && (
-                <Box mb="5">
-                  <Heading as="h3" size="4" mb="3">
-                    Written by
-                  </Heading>
-                  <Flex gap="3" align="center">
-                    {post.authorInfo.picture?.url ? (
-                      <Avatar
-                        src={post.authorInfo.picture.url}
-                        fallback={post.authorInfo.name?.substring(0, 1) || "A"}
-                        alt={post.authorInfo.name || "Author"}
-                        size="3"
-                        radius="full"
-                      />
-                    ) : (
-                      <Avatar
-                        fallback={post.authorInfo.name?.substring(0, 1) || "A"}
-                        size="3"
-                        radius="full"
-                      />
-                    )}
-                    <Text weight="medium">{post.authorInfo.name}</Text>
-                  </Flex>
-                </Box>
-              )}
+            <section
+              ref={mainContentRef as React.RefObject<HTMLElement>}
+              style={{
+                flex: "1",
+                minWidth: 0,
+                marginRight: "calc(300px + 48px)",
+              }}
+            >
+              <article>
+                {post.body?.json &&
+                  documentToReactComponents(post.body.json, renderOptions)}
+              </article>
+            </section>
 
-              {tableOfContents.length > 0 && (
-                <Box>
-                  <Heading as="h3" size="4" mb="3">
-                    Content
-                  </Heading>
-                  <ScrollArea
-                    type="auto"
-                    scrollbars="vertical"
-                    style={{ maxHeight: "calc(100vh - 200px)" }}
-                  >
-                    <ul style={{ listStyle: "none", paddingLeft: "0" }}>
-                      {tableOfContents.map((heading) => (
-                        <li
-                          key={heading.id}
-                          style={{
-                            marginBottom: "8px",
-                            paddingLeft: heading.level === 3 ? "16px" : "0",
-                          }}
-                        >
-                          <a href={`#${heading.id}`} className="toc-link">
-                            <Text size="2" color="gray">
-                              {heading.text}
-                            </Text>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </Box>
-              )}
-            </Card>
-          </aside>
+            <section
+              ref={stickySidebarRef as React.RefObject<HTMLElement>}
+              style={{
+                width: "300px",
+                position: "absolute",
+                top: "32px",
+                right: "0px",
+                zIndex: 1000,
+              }}
+              className="blog-post-sidebar"
+            >
+              <Flex
+                direction="column"
+                style={{
+                  padding: "24px",
+                  paddingTop: "0px",
+                }}
+              >
+                {post.authorInfo && (
+                  <Box mb="5">
+                    <Heading
+                      as="h3"
+                      size="4"
+                      mb="3"
+                      style={{ color: "var(--gray-2)" }}
+                    >
+                      Written by
+                    </Heading>
+                    <Flex gap="3" align="center">
+                      {post.authorInfo.picture?.url ? (
+                        <Avatar
+                          src={post.authorInfo.picture.url}
+                          fallback={
+                            post.authorInfo.name?.substring(0, 1) || "A"
+                          }
+                          alt={post.authorInfo.name || "Author"}
+                          size="3"
+                          radius="full"
+                        />
+                      ) : (
+                        <Avatar
+                          fallback={
+                            post.authorInfo.name?.substring(0, 1) || "A"
+                          }
+                          size="3"
+                          radius="full"
+                        />
+                      )}
+                      <Text weight="medium" style={{ color: "var(--gray-2)" }}>
+                        {post.authorInfo.name}
+                      </Text>
+                    </Flex>
+                  </Box>
+                )}
+
+                {tableOfContents.length > 0 && (
+                  <Box>
+                    <Heading
+                      as="h3"
+                      size="4"
+                      mb="3"
+                      style={{ color: "var(--gray-2)" }}
+                    >
+                      Content
+                    </Heading>
+                    <ScrollArea
+                      type="auto"
+                      scrollbars="vertical"
+                      style={{ maxHeight: "calc(100vh - 200px)" }}
+                    >
+                      <ul style={{ listStyle: "none", paddingLeft: "0" }}>
+                        {tableOfContents.map((heading) => (
+                          <li
+                            key={heading.id}
+                            style={{
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <a href={`#${heading.id}`} className="toc-link">
+                              <Text
+                                size="2"
+                                color="gray"
+                                style={{
+                                  color:
+                                    heading.level === 3
+                                      ? "var(--gray-9)"
+                                      : "var(--gray-7)",
+                                  fontSize:
+                                    heading.level === 3 ? "14px" : "16px",
+                                }}
+                              >
+                                {heading.text}
+                              </Text>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </ScrollArea>
+                  </Box>
+                )}
+              </Flex>
+            </section>
+          </Flex>
         </Flex>
         <Footer />
       </Flex>
