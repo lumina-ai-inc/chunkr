@@ -272,7 +272,7 @@ services:
     imagePullSecrets:
       - name: regcred
     port: 8000
-    targetPort: 8000
+    targetPort: 8069
     ingress:
       enabled: true
       subdomain: analytics-api
