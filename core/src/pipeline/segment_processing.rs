@@ -9,6 +9,7 @@ use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
+use opentelemetry::baggage::BaggageExt;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use regex::Regex;
@@ -556,6 +557,20 @@ async fn generate_html(
         "error_handling",
         params.configuration.error_handling.to_string(),
     ));
+
+    if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.to_string(),
+        ));
+    }
+    if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_type",
+            segment_type.to_string(),
+        ));
+    }
+
     let ctx = parent_context.with_span(span);
 
     let generator = HtmlGenerator {
@@ -590,6 +605,20 @@ async fn generate_markdown(
         "error_handling",
         params.configuration.error_handling.to_string(),
     ));
+
+    if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.to_string(),
+        ));
+    }
+    if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_type",
+            segment_type.to_string(),
+        ));
+    }
+
     let ctx = parent_context.with_span(span);
 
     let generator = MarkdownGenerator {
@@ -628,6 +657,20 @@ async fn generate_llm(
         "error_handling",
         params.configuration.error_handling.to_string(),
     ));
+
+    if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.to_string(),
+        ));
+    }
+    if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_type",
+            segment_type.to_string(),
+        ));
+    }
+
     let ctx = parent_context.with_span(span);
 
     let segment_image = params.segment_image.clone().unwrap(); // Safe unwrap
@@ -784,7 +827,13 @@ async fn process_segment(
         "segment_type",
         segment.segment_type.to_string(),
     ));
-    let _guard = Context::current().with_span(span).attach();
+
+    let context = parent_context.with_baggage(vec![
+        opentelemetry::KeyValue::new("segment_type", segment.segment_type.to_string()),
+        opentelemetry::KeyValue::new("segment_id", segment.segment_id.clone()),
+    ]);
+
+    let _guard = context.with_span(span).attach();
 
     // Process HTML with error handling using new parameter struct
     let html_params = ContentGenerationParams::new(
@@ -869,7 +918,16 @@ async fn process_segment(
         }
     };
 
-    let (html, markdown, llm) = tokio::try_join!(html_future, markdown_future, llm_future)?;
+    let (html, markdown, llm) = tokio::try_join!(html_future, markdown_future, llm_future)
+        .inspect_err(|e| {
+            context
+                .span()
+                .set_status(opentelemetry::trace::Status::error(e.to_string()));
+            context.span().record_error(e.as_ref());
+            context
+                .span()
+                .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+        })?;
 
     segment.content = convert_checkboxes(&segment.content);
     segment.html = convert_checkboxes_html(&html);

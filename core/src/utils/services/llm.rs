@@ -4,6 +4,7 @@ use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
+use opentelemetry::baggage::BaggageExt;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use std::error::Error;
@@ -84,6 +85,20 @@ async fn open_ai_call_handler(
             "provider_url",
             model.provider_url.clone(),
         ));
+
+        if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+            span.set_attribute(opentelemetry::KeyValue::new(
+                "segment_id",
+                segment_id.to_string(),
+            ));
+        }
+        if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+            span.set_attribute(opentelemetry::KeyValue::new(
+                "segment_type",
+                segment_type.to_string(),
+            ));
+        }
+
         let ctx = parent_context.with_span(span);
 
         let rate_limiter = rate_limiter.clone();
@@ -157,6 +172,20 @@ async fn process_openai_request(
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let mut span = tracer.start_with_context("process_openai_request", parent_context);
     span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+
+    if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.to_string(),
+        ));
+    }
+    if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_type",
+            segment_type.to_string(),
+        ));
+    }
+
     let ctx = parent_context.with_span(span);
 
     match open_ai_call_handler(
@@ -181,7 +210,7 @@ async fn process_openai_request(
                     fallback_model.model.clone(),
                 ));
 
-                open_ai_call_handler(
+                let response = open_ai_call_handler(
                     fallback_model.clone(),
                     messages,
                     max_completion_tokens,
@@ -191,24 +220,20 @@ async fn process_openai_request(
                     &ctx,
                 )
                 .await
-                .and_then(|response| try_extract_from_response(&response, fence_type))
-                .inspect_err(|e| {
-                    ctx.span()
-                        .set_status(opentelemetry::trace::Status::error(e.to_string()));
-                    ctx.span().record_error(e.as_ref());
-                    ctx.span()
-                        .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-                })
+                .and_then(|response| try_extract_from_response(&response, fence_type))?;
+                Ok(response)
             } else {
-                ctx.span()
-                    .set_status(opentelemetry::trace::Status::error(e.to_string()));
-                ctx.span().record_error(e.as_ref());
-                ctx.span()
-                    .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
                 Err(e)
             }
         }
     }
+    .inspect_err(|e| {
+        ctx.span()
+            .set_status(opentelemetry::trace::Status::error(e.to_string()));
+        ctx.span().record_error(e.as_ref());
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+    })
 }
 
 /// Get the content from an OpenAI response
@@ -279,7 +304,21 @@ pub async fn try_extract_from_llm(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let span = tracer.start_with_context("try_extract_from_llm", parent_context);
+    let mut span = tracer.start_with_context("try_extract_from_llm", parent_context);
+
+    if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.to_string(),
+        ));
+    }
+    if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_type",
+            segment_type.to_string(),
+        ));
+    }
+
     let ctx = parent_context.with_span(span);
 
     let llm_config = LlmConfig::from_env().unwrap();

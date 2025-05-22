@@ -77,13 +77,13 @@ pub async fn doctr_ocr(
 //     use crate::configs::throttle_config::Config as ThrottleConfig;
 //     use std::path::Path;
 
-//     #[tokio::test]
-//     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
-//         let temp_file = NamedTempFile::new()?;
-//         std::fs::copy("input/test.jpg", temp_file.path())?;
-//         doctr_ocr(&vec![&temp_file]).await?;
-//         Ok(())
-//     }
+// #[tokio::test]
+// async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
+//     let temp_file = NamedTempFile::new()?;
+//     std::fs::copy("input/test.jpg", temp_file.path())?;
+//     doctr_ocr(&[&temp_file]).await?;
+//     Ok(())
+// }
 
 //     #[tokio::test]
 //     async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
