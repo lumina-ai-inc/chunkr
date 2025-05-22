@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.20.1-enterprise...v1.20.2-enterprise) (2025-05-22)
+
+
+### Bug Fixes
+
+* Added file type attributes to span ([#520](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/520)) ([edd7d0d](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/edd7d0d140bd3482ce195e6f2243a9e67b4a5efa))
+
 ## [1.20.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.20.0-enterprise...v1.20.1-enterprise) (2025-05-22)
 
 
