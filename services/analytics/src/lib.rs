@@ -34,7 +34,7 @@ pub async fn main() -> std::io::Result<()> {
                     .configure(crate::routes::routes::configure_routes)
             )
     })
-    .bind(("0.0.0.0", 8000))?;
+    .bind(("0.0.0.0", 8069))?;
 
     println!("Analytics server started");
     

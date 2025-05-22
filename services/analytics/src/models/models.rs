@@ -26,7 +26,7 @@ pub struct UserSummary {
     pub total_tasks: i32,
     pub email: String,
     pub name: String,
-} 
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskDetails {
@@ -38,4 +38,11 @@ pub struct TaskDetails {
     pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub status: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PaginatedTaskDetails {
+    pub tasks: Vec<TaskDetails>,
+    pub page: u32,
+    pub per_page: u32,
 }

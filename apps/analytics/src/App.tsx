@@ -61,6 +61,12 @@ type StatusCounts = {
   day: string;
 }
 
+type PaginatedTaskDetails = {
+  tasks: TaskData[]
+  page: number
+  per_page: number
+}
+
 const calendarClassName = "bg-white text-gray-500 [&_.rdp-button:hover:not(.rdp-day_selected)]:bg-gray-200 [&_.rdp-day_selected]:bg-blue-600 [&_.rdp-day_selected]:hover:bg-blue-200 [&_.rdp-button]:hover:bg-gray-100 [&_.rdp-nav_button]:hover:bg-gray-100 [&_.rdp-head_cell]:font-medium [&_.rdp-day_today]:bg-gray-50 [&_.rdp-day_today]:font-normal [&_.rdp-button]:text-gray-600 [&_.rdp-day]:text-gray-600 [&_.rdp-day_selected]:text-white"
 
 function AppWrapper() {
@@ -85,19 +91,49 @@ function App() {
   const [endDate, setEndDate] = useState<Date>(() => new Date())
   const [taskData, setTaskData] = useState<TaskData[]>([])
   const [lifetimePages, setLifetimePages] = useState<number>(0)
-  // Track the last fetch time
   const [lastFetchTime, setLastFetchTime] = useState<number>(0)
-  // Default wait time between fetches (2 minutes)
   const FETCH_COOLDOWN = 120000
+  const TASKS_PER_PAGE = 50
+  const [taskPage, setTaskPage] = useState<number>(1)
+
+  const handlePreviousPage = () => {
+    setLastFetchTime(0);
+    setTaskPage(p => Math.max(1, p - 1));
+  };
+
+  const handleNextPage = () => {
+    setLastFetchTime(0);
+    setTaskPage(p => p + 1);
+  };
+
+  const handleStartDateMonthChange = (month: Date) => {
+    const originalDay = startDate.getDate();
+    let newStartDate = new Date(month.getFullYear(), month.getMonth(), originalDay);
+
+    if (newStartDate.getMonth() !== month.getMonth()) {
+      newStartDate = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+    }
+    setStartDate(newStartDate);
+    setLastFetchTime(0);
+  };
+
+  const handleEndDateMonthChange = (month: Date) => {
+    const originalDay = endDate.getDate();
+    let newEndDate = new Date(month.getFullYear(), month.getMonth(), originalDay);
+
+    if (newEndDate.getMonth() !== month.getMonth()) {
+      newEndDate = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+    }
+    setEndDate(newEndDate);
+    setLastFetchTime(0);
+  };
 
   const fetchData = useCallback(async () => {
-    // Prevent fetching if already loading or if not enough time has passed
     const now = Date.now()
     if (!isValidApiKey || !startDate || !endDate || !apiKey || isLoading ||
       (now - lastFetchTime < FETCH_COOLDOWN && lastFetchTime !== 0)) {
       return
     }
-
     setIsLoading(true)
     setLastFetchTime(now)
 
@@ -105,18 +141,25 @@ function App() {
       const start = startDate.toISOString()
       const end = endDate.toISOString()
 
-      const emailParam = userEmail ? `&email=${encodeURIComponent(userEmail)}` : ''
+      const params = new URLSearchParams({
+        start,
+        end,
+        page: taskPage.toString(),
+        per_page: TASKS_PER_PAGE.toString(),
+      })
+      if (userEmail) params.append('email', userEmail)
+
       const headers = { 'Authorization': `Bearer ${apiKey}` }
 
-      const [pData, sData, tuData, tData, ltPages] = await Promise.all([
-        apiCall<PageData[]>(`/pages-per-day?start=${start}&end=${end}${emailParam}`, { headers }),
-        apiCall<StatusData[]>(`/status-breakdown?start=${start}&end=${end}${emailParam}`, { headers }),
+      const [pData, sData, tuData, tDataRes, ltPages] = await Promise.all([
+        apiCall<PageData[]>(`/pages-per-day?${params.toString()}`, { headers }),
+        apiCall<StatusData[]>(`/status-breakdown?${params.toString()}`, { headers }),
         apiCall<UserData[]>('/top-users', {
           method: 'POST',
           body: { start, end, limit: 5 },
           headers
         }),
-        apiCall<TaskData[]>(`/task-details?start=${start}&end=${end}${emailParam}`, { headers }),
+        apiCall<PaginatedTaskDetails>(`/task-details?${params.toString()}`, { headers }),
         apiCall<number>('/lifetime-pages', { headers })
       ])
 
@@ -125,7 +168,7 @@ function App() {
       setPagesData(filledPagesData)
       setStatusData(filledStatusData)
       setTopUsers(tuData)
-      setTaskData(tData)
+      setTaskData(tDataRes.tasks)
       setLifetimePages(ltPages)
     } catch (err: any) {
       console.error('Failed:', err)
@@ -136,14 +179,12 @@ function App() {
     } finally {
       setIsLoading(false)
     }
-  }, [startDate, endDate, userEmail, apiKey, isValidApiKey, isLoading, lastFetchTime])
+  }, [startDate, endDate, userEmail, apiKey, isValidApiKey, isLoading, lastFetchTime, taskPage, FETCH_COOLDOWN])
 
   useEffect(() => {
     if (startDate && endDate && isValidApiKey) {
-      // Immediately fetch on parameter changes
       fetchData()
 
-      // Set up a polling interval (every 2 minutes)
       const interval = setInterval(() => {
         fetchData()
       }, FETCH_COOLDOWN)
@@ -152,23 +193,20 @@ function App() {
     }
   }, [startDate, endDate, userEmail, fetchData, isValidApiKey])
 
-  // Manual refresh button handler
   const handleRefresh = () => {
-    // Force a refresh regardless of cooldown
     setLastFetchTime(0)
     fetchData()
   }
 
-  const validateApiKey = async () => {
-    if (!apiKey) return
+  const validateApiKey = async (key: string) => {
+    if (!key) return
     try {
       await apiCall<number>('/lifetime-pages', {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
+        headers: { Authorization: `Bearer ${key}` }
       })
-      localStorage.setItem('apiKey', apiKey)
+      localStorage.setItem('apiKey', key)
       setIsValidApiKey(true)
-    } catch (err) {
-      console.error('Invalid API Key:', err)
+    } catch {
       localStorage.removeItem('apiKey')
       setIsValidApiKey(false)
       alert("Invalid API Key provided.")
@@ -179,7 +217,7 @@ function App() {
     const savedApiKey = localStorage.getItem('apiKey')
     if (savedApiKey) {
       setApiKey(savedApiKey)
-      validateApiKey()
+      validateApiKey(savedApiKey)
     }
   }, [])
 
@@ -198,10 +236,12 @@ function App() {
   }, 0)
 
   const searchUser = (email: string) => {
+    setLastFetchTime(0);
     setUserEmail(email)
   }
 
   const clearSearch = () => {
+    setLastFetchTime(0);
     setUserEmail('')
   }
 
@@ -266,19 +306,23 @@ function App() {
   }
 
   const shiftStartDateLeft = async () => {
-    setStartDate(prev => shiftDate(prev, -1))
+    setLastFetchTime(0);
+    setStartDate(prev => shiftDate(prev, -1));
   }
 
   const shiftStartDateRight = async () => {
-    setStartDate(prev => shiftDate(prev, 1))
+    setLastFetchTime(0);
+    setStartDate(prev => shiftDate(prev, 1));
   }
 
   const shiftEndDateLeft = async () => {
-    setEndDate(prev => shiftDate(prev, -1))
+    setLastFetchTime(0);
+    setEndDate(prev => shiftDate(prev, -1));
   }
 
   const shiftEndDateRight = async () => {
-    setEndDate(prev => shiftDate(prev, 1))
+    setLastFetchTime(0);
+    setEndDate(prev => shiftDate(prev, 1));
   }
 
   const shiftDate = (date: Date, days: number) => {
@@ -328,7 +372,7 @@ function App() {
               onChange={(e) => setApiKey(e.target.value)}
               className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             />
-            <Button onClick={validateApiKey} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+            <Button onClick={() => validateApiKey(apiKey)} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
               Validate & Enter
             </Button>
           </CardContent>
@@ -338,7 +382,7 @@ function App() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold text-center">Analytics Dashboard</h1>
 
       <div className="flex justify-between mb-4">
@@ -368,7 +412,8 @@ function App() {
                 <Calendar
                   mode="single"
                   selected={startDate}
-                  onSelect={(date: Date | undefined) => date && setStartDate(date)}
+                  onSelect={(date) => { setStartDate(date || new Date()); setLastFetchTime(0); }}
+                  onMonthChange={handleStartDateMonthChange}
                   initialFocus
                   toDate={endDate}
                   className={calendarClassName}
@@ -411,7 +456,8 @@ function App() {
                 <Calendar
                   mode="single"
                   selected={endDate}
-                  onSelect={(date: Date | undefined) => date && setEndDate(date)}
+                  onSelect={(date) => { setEndDate(date || new Date()); setLastFetchTime(0); }}
+                  onMonthChange={handleEndDateMonthChange}
                   initialFocus
                   toDate={new Date()}
                   fromDate={startDate}
@@ -443,7 +489,10 @@ function App() {
             type="email"
             placeholder="Enter email"
             value={userEmail}
-            onChange={(e) => setUserEmail(e.target.value)}
+            onChange={(e) => {
+              setUserEmail(e.target.value);
+              setLastFetchTime(0);
+            }}
           />
           <Button onClick={() => searchUser(userEmail)}>Search</Button>
           {userEmail && (
@@ -605,6 +654,14 @@ function App() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+            <div className="ml-auto flex gap-2">
+              <Button variant="outline" disabled={taskPage === 1} onClick={handlePreviousPage}>
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" disabled={taskData.length < TASKS_PER_PAGE} onClick={handleNextPage}>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>

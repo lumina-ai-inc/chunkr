@@ -1,7 +1,11 @@
 use deadpool_postgres::Pool;
-use crate::models::models::{DayCount, DayStatusCount, LeaderboardEntry, UserSummary, TaskDetails};
+use crate::models::models::{DayCount, DayStatusCount, LeaderboardEntry, UserSummary, TaskDetails, PaginatedTaskDetails};
+use tokio_postgres::types::ToSql;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+// fuzzy helper
+fn like_pattern(s: &str) -> String { format!("%{}%", s) }
 
 pub async fn get_lifetime_pages(pool: &Pool) -> Result<i64> {
     let client = pool.get().await.map_err(|e| {
@@ -27,27 +31,32 @@ pub async fn get_pages_per_day(
     email: Option<&str>,
 ) -> Result<Vec<DayCount>> {
     let client = pool.get().await?;
-    let query = if let Some(_email) = email {
-        "SELECT date_trunc('day', t.created_at)::date AS day,
-                COALESCE(SUM(t.page_count),0) AS pages
-         FROM tasks t
-         JOIN users u ON t.user_id = u.user_id
-         WHERE t.created_at >= $1 AND t.created_at <= $2 AND u.email = $3
-         GROUP BY 1
-         ORDER BY 1;"
-    } else {
-        "SELECT date_trunc('day', created_at)::date AS day,
-                COALESCE(SUM(page_count),0) AS pages
-         FROM tasks
-         WHERE created_at >= $1 AND created_at <= $2
-         GROUP BY 1
-         ORDER BY 1;"
-    };
-    let rows = if let Some(_email) = email {
-        client.query(query, &[&start, &end, &_email]).await?
-    } else {
-        client.query(query, &[&start, &end]).await?
-    };
+    
+    let email_pattern_string: Option<String> = email.map(like_pattern);
+
+    let (query, params_values): (&str, Vec<&(dyn ToSql + Sync)>) =
+        if let Some(ref pattern) = email_pattern_string {
+            (
+                "SELECT date_trunc('day', t.created_at)::date AS day,
+                        COALESCE(SUM(t.page_count),0) AS pages
+                 FROM tasks t
+                 JOIN users u ON t.user_id = u.user_id
+                 WHERE t.created_at >= $1 AND t.created_at <= $2 AND u.email ILIKE $3
+                 GROUP BY 1 ORDER BY 1",
+                vec![&start, &end, pattern],
+            )
+        } else {
+            (
+                "SELECT date_trunc('day', created_at)::date AS day,
+                        COALESCE(SUM(page_count),0) AS pages
+                 FROM tasks
+                 WHERE created_at >= $1 AND created_at <= $2
+                 GROUP BY 1 ORDER BY 1",
+                vec![&start, &end],
+            )
+        };
+
+    let rows = client.query(query, &params_values).await?;
     Ok(rows.iter().map(|r| DayCount {
         day: r.get("day"),
         pages: r.get("pages"),
@@ -61,29 +70,34 @@ pub async fn get_status_breakdown(
     email: Option<&str>,
 ) -> Result<Vec<DayStatusCount>> {
     let client = pool.get().await?;
-    let query = if let Some(_email) = email {
-        "SELECT date_trunc('day', t.created_at)::date AS day,
-                COALESCE(t.status, 'unknown') AS status,
-                COUNT(*) AS tasks
-         FROM tasks t
-         JOIN users u ON t.user_id = u.user_id
-         WHERE t.created_at >= $1 AND t.created_at <= $2 AND u.email = $3
-         GROUP BY 1, t.status
-         ORDER BY 1;"
-    } else {
-        "SELECT date_trunc('day', created_at)::date AS day,
-                COALESCE(status, 'unknown') AS status,
-                COUNT(*) AS tasks
-         FROM tasks
-         WHERE created_at >= $1 AND created_at <= $2
-         GROUP BY 1, status
-         ORDER BY 1;"
-    };
-    let rows = if let Some(_email) = email {
-        client.query(query, &[&start, &end, &_email]).await?
-    } else {
-        client.query(query, &[&start, &end]).await?
-    };
+
+    let email_pattern_string: Option<String> = email.map(like_pattern);
+
+    let (query, params_values): (&str, Vec<&(dyn ToSql + Sync)>) = 
+        if let Some(ref pattern) = email_pattern_string {
+            (
+                "SELECT date_trunc('day', t.created_at)::date AS day,
+                        COALESCE(t.status,'unknown') AS status,
+                        COUNT(*) AS tasks
+                 FROM tasks t
+                 JOIN users u ON t.user_id = u.user_id
+                 WHERE t.created_at >= $1 AND t.created_at <= $2 AND u.email ILIKE $3
+                 GROUP BY 1, t.status ORDER BY 1",
+                vec![&start, &end, pattern],
+            )
+        } else {
+            (
+                "SELECT date_trunc('day', created_at)::date AS day,
+                        COALESCE(status,'unknown') AS status,
+                        COUNT(*) AS tasks
+                 FROM tasks
+                 WHERE created_at >= $1 AND created_at <= $2
+                 GROUP BY 1, status ORDER BY 1",
+                vec![&start, &end],
+            )
+        };
+    
+    let rows = client.query(query, &params_values).await?;
     Ok(rows.iter().map(|r| DayStatusCount {
         day: r.get("day"),
         status: r.get("status"),
@@ -148,42 +162,58 @@ pub async fn get_task_details(
     start: chrono::DateTime<chrono::Utc>,
     end: chrono::DateTime<chrono::Utc>,
     email: Option<&str>,
-) -> Result<Vec<TaskDetails>> {
+    page: u32,
+    per_page: u32,
+) -> Result<PaginatedTaskDetails> {
     let client = pool.get().await?;
-    let query = if let Some(_email) = email {
-        "SELECT t.task_id, t.user_id, u.email, 
-                CONCAT(u.first_name, ' ', u.last_name) as name,
-                t.page_count, t.started_at, t.finished_at as completed_at,
-                t.status
-         FROM tasks t
-         LEFT JOIN users u ON t.user_id = u.user_id
-         WHERE t.created_at >= $1 AND t.created_at <= $2 AND u.email = $3
-         ORDER BY t.created_at DESC
-         LIMIT 100;"
-    } else {
-        "SELECT t.task_id, t.user_id, u.email, 
-                CONCAT(u.first_name, ' ', u.last_name) as name,
-                t.page_count, t.started_at, t.finished_at as completed_at,
-                t.status
-         FROM tasks t
-         LEFT JOIN users u ON t.user_id = u.user_id
-         WHERE t.created_at >= $1 AND t.created_at <= $2
-         ORDER BY t.created_at DESC
-         LIMIT 100;"
-    };
-    let rows = if let Some(_email) = email {
-        client.query(query, &[&start, &end, &_email]).await?
-    } else {
-        client.query(query, &[&start, &end]).await?
-    };
-    Ok(rows.iter().map(|row| TaskDetails {
-        task_id: row.get("task_id"),
-        user_id: row.get("user_id"),
-        email: row.get::<_, Option<String>>("email"),
-        name: row.get("name"),
-        page_count: row.get("page_count"),
-        created_at: row.get::<_, Option<chrono::DateTime<chrono::Utc>>>("started_at"),
-        completed_at: row.get::<_, Option<chrono::DateTime<chrono::Utc>>>("completed_at"),
-        status: row.get("status"),
-    }).collect())
+    let limit  = per_page as i64;
+    let offset = ((page - 1) * per_page) as i64;
+
+    let email_pattern_string: Option<String> = email.map(like_pattern);
+
+    let (query, params_values): (&str, Vec<&(dyn ToSql + Sync)>) = 
+        if let Some(ref pattern) = email_pattern_string {
+            (
+                "SELECT t.task_id,t.user_id,u.email,
+                        CONCAT(u.first_name,' ',u.last_name) AS name,
+                        t.page_count,t.started_at,
+                        t.finished_at AS completed_at,t.status
+                 FROM tasks t
+                 LEFT JOIN users u ON t.user_id = u.user_id
+                 WHERE t.created_at >= $1 AND t.created_at <= $2
+                   AND u.email ILIKE $3
+                 ORDER BY t.created_at DESC
+                 LIMIT $4 OFFSET $5",
+                vec![&start, &end, pattern, &limit, &offset],
+            )
+        } else {
+            (
+                "SELECT t.task_id,t.user_id,u.email,
+                        CONCAT(u.first_name,' ',u.last_name) AS name,
+                        t.page_count,t.started_at,
+                        t.finished_at AS completed_at,t.status
+                 FROM tasks t
+                 LEFT JOIN users u ON t.user_id = u.user_id
+                 WHERE t.created_at >= $1 AND t.created_at <= $2
+                 ORDER BY t.created_at DESC
+                 LIMIT $3 OFFSET $4",
+                vec![&start, &end, &limit, &offset],
+            )
+        };
+
+    let rows = client.query(query, &params_values).await?;
+    Ok(PaginatedTaskDetails {
+        tasks: rows.iter().map(|row| TaskDetails {
+            task_id: row.get("task_id"),
+            user_id: row.get("user_id"),
+            email: row.get("email"),
+            name: row.get("name"),
+            page_count: row.get("page_count"),
+            created_at: row.get("started_at"),
+            completed_at: row.get("completed_at"),
+            status: row.get("status"),
+        }).collect(),
+        page,
+        per_page,
+    })
 }

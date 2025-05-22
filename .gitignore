@@ -211,3 +211,5 @@ scripts/frontend_pdfs
 *.dump
 
 otel-collector-config.yaml
+
+scripts/error-profiling/data/*

@@ -9,6 +9,8 @@ pub struct Payload {
     start: DateTime<Utc>,
     end: DateTime<Utc>,
     email: Option<String>,
+    page: Option<u32>,
+    per_page: Option<u32>,
 }
 
 pub async fn lifetime_pages(pool: web::Data<Pool>) -> HttpResponse {
@@ -69,9 +71,20 @@ pub async fn task_details(
     pool: web::Data<Pool>,
     params: web::Query<Payload>,
 ) -> HttpResponse {
-    match queries::queries::get_task_details(&pool, params.start, params.end, params.email.as_deref()).await {
+    let page     = params.page.unwrap_or(1);
+    let per_page = params.per_page.unwrap_or(100);
+    match queries::queries::get_task_details(
+        &pool,
+        params.start,
+        params.end,
+        params.email.as_deref(),
+        page,
+        per_page,
+    )
+    .await
+    {
         Ok(data) => HttpResponse::Ok().json(data),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Err(_)   => HttpResponse::InternalServerError().finish(),
     }
 }
 
