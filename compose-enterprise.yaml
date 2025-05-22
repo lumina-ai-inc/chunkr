@@ -1,15 +1,6 @@
 services:
   server:
-<<<<<<< HEAD
-<<<<<<< HEAD
     image: luminainc/server-azure:1.19.0-enterprise
-
-=======
-    image: luminainc/server-azure-exp:1.16.0-enterprise
->>>>>>> 6cf8b2c8 (new compose test ver)
-=======
-    image: luminainc/server-azure:1.19.0-enterprise
->>>>>>> 44da56b5 (new dockers - fixed vulnerability and security issues)
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -24,15 +15,7 @@ services:
     restart: always
 
   task:
-<<<<<<< HEAD
-<<<<<<< HEAD
     image: luminainc/task-azure:1.19.0-enterprise
-=======
-    image: luminainc/task-azure-exp:1.16.0-enterprise
->>>>>>> 6cf8b2c8 (new compose test ver)
-=======
-    image: luminainc/task-azure:1.19.0-enterprise
->>>>>>> 44da56b5 (new dockers - fixed vulnerability and security issues)
     platform: linux/amd64
     depends_on:
       - postgres
