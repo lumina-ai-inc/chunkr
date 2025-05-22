@@ -83,7 +83,7 @@ mod tests {
     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
         let temp_file = NamedTempFile::new()?;
         std::fs::copy("input/test.jpg", temp_file.path())?;
-        doctr_ocr(&vec![&temp_file]).await?;
+        doctr_ocr(&[&temp_file]).await?;
         Ok(())
     }
 
