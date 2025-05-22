@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.0...chunkr-chart-enterprise-v1.2.1) (2025-05-22)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#518](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/518)) ([238f47f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/238f47fdaf5d2e62d12448424d1018eb1803b8f8))
+
 ## [1.2.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.1.0...chunkr-chart-enterprise-v1.2.0) (2025-05-06)
 
 

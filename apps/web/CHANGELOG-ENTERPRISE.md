@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.1-enterprise...chunkr-web-enterprise-v1.6.2-enterprise) (2025-05-22)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#518](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/518)) ([238f47f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/238f47fdaf5d2e62d12448424d1018eb1803b8f8))
+
 ## [1.6.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.0-enterprise...chunkr-web-enterprise-v1.6.1-enterprise) (2025-05-22)
 
 
