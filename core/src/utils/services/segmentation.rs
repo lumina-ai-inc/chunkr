@@ -40,10 +40,8 @@ async fn vgt_segmentation_batch(
         .post(format!("{}/batch", worker_config.segmentation_url))
         .multipart(form);
 
-    if let Some(timeout) = SEGMENTATION_TIMEOUT.get() {
-        if let Some(timeout_value) = timeout {
-            request = request.timeout(std::time::Duration::from_secs(*timeout_value));
-        }
+    if let Some(Some(timeout_value)) = SEGMENTATION_TIMEOUT.get() {
+        request = request.timeout(std::time::Duration::from_secs(*timeout_value));
     }
 
     let response = request.send().await?.error_for_status()?;
