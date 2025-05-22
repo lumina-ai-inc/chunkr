@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.7-enterprise...chunkr-services-enterprise-v0.1.8-enterprise) (2025-05-22)
+
+
+### Bug Fixes
+
+* Cleaner refreshes, fuzzy search, and better API key storage ([#96](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/96)) ([121f63d](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/121f63d2d6c4f66cc4aaffdbd96e630efabb5cee))
+
 ## [0.1.7-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-services-enterprise-v0.1.6-enterprise...chunkr-services-enterprise-v0.1.7-enterprise) (2025-05-20)
 
 

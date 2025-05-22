@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.20.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.19.0-enterprise...v1.20.0-enterprise) (2025-05-22)
+
+
+### Features
+
+* **core:** Improved telemetry and added timeout around task processing to deal with long running processes ([#511](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/511)) ([bbe5913](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/bbe59130afffedbf5e2e29267afb1f6300918f67))
+
+
+### Bug Fixes
+
+* Cleaner refreshes, fuzzy search, and better API key storage ([#96](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/96)) ([121f63d](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/121f63d2d6c4f66cc4aaffdbd96e630efabb5cee))
+* Compile errors ([353e79f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/353e79f0b000fb37204a42ba6deedff949ee335d))
+* **core:** Auto-fix clippy warnings ([#512](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/512)) ([d9ecf60](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d9ecf60f308cfe4607673bec172f8fc04d673135))
+
 ## [1.19.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.18.0-enterprise...v1.19.0-enterprise) (2025-05-20)
 
 

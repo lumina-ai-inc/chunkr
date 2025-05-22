@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.0-enterprise...chunkr-web-enterprise-v1.6.1-enterprise) (2025-05-22)
+
+
+### Bug Fixes
+
+* Compile errors ([353e79f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/353e79f0b000fb37204a42ba6deedff949ee335d))
+
 ## [1.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.5.0-enterprise...chunkr-web-enterprise-v1.6.0-enterprise) (2025-05-17)
 
 

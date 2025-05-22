@@ -1,7 +1,7 @@
 {
   "name": "chunk-my-docs",
   "private": true,
-  "version": "1.6.0-enterprise",
+  "version": "1.6.1-enterprise",
   "type": "module",
   "scripts": {
     "dev": "vite",
