@@ -1,0 +1,39 @@
+services:
+  ocr:
+    enabled: true
+    image:
+      repository: doctr-small
+      tag: 1.10.0
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    useGPU: true
+    enableTopologySpreadConstraints: true
+    env:
+      - name: MAX_BATCH_SIZE
+        value: '25'
+    labels:
+      workload-type: chunkr-gpu
+  segmentation:
+    enabled: true
+    image:
+      repository: segmentation-yolo
+      tag: 1.15.0-enterprise
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    useGPU: true
+    enableTopologySpreadConstraints: true
+    labels:
+      workload-type: chunkr-gpu
+    env:
+      - name: MAX_BATCH_SIZE
+        value: '25'
+      - name: OVERLAP_THRESHOLD
+        value: '0.1'
+      - name: SCORE_THRESHOLD
+        value: '0.15'
+      - name: CONF_THRESHOLD
+        value: '0.1'
