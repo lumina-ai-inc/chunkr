@@ -232,9 +232,9 @@ fn default_picture_extended_context() -> bool {
 impl Default for PictureGenerationConfig {
     fn default() -> Self {
         Self {
-            html: GenerationStrategy::Auto,
+            html: GenerationStrategy::LLM,
             llm: None,
-            markdown: GenerationStrategy::Auto,
+            markdown: GenerationStrategy::LLM,
             crop_image: default_picture_cropping_strategy(),
             embed_sources: default_embed_sources(),
             extended_context: default_picture_extended_context(),
