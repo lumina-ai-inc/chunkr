@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.15.2-enterprise...chunkr-core-enterprise-v1.15.3-enterprise) (2025-05-23)
+
+
+### Bug Fixes
+
+* Picture default strategy to LLM as default in the generation strategy for html and markdown ([#524](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/524)) ([e44126c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e44126c0387fb176f9ac6b027e3d6d0231102591))
+
 ## [1.15.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.15.1-enterprise...chunkr-core-enterprise-v1.15.2-enterprise) (2025-05-22)
 
 

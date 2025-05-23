@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.2-enterprise...chunkr-web-enterprise-v1.6.3-enterprise) (2025-05-23)
+
+
+### Bug Fixes
+
+* Merge remnant ([ef2dbe5](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ef2dbe57182fcb85c75a30a021feb5393c17d7f2))
+
 ## [1.6.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.1-enterprise...chunkr-web-enterprise-v1.6.2-enterprise) (2025-05-22)
 
 
