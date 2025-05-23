@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.3](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.14.2...chunkr-core-v1.14.3) (2025-05-23)
+
+
+### Bug Fixes
+
+* Picture default strategy to LLM as default in the generation strategy for html and markdown ([#524](https://github.com/lumina-ai-inc/chunkr/issues/524)) ([e44126c](https://github.com/lumina-ai-inc/chunkr/commit/e44126c0387fb176f9ac6b027e3d6d0231102591))
+
 ## [1.14.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.14.1...chunkr-core-v1.14.2) (2025-05-22)
 
 
