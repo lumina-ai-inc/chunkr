@@ -138,12 +138,12 @@ async fn open_ai_call_handler(
         {
             Ok(response) => Ok(response),
             Err(e) => {
-                if let LLMError::JsonParseError { response, .. } =
-                    e.downcast_ref::<LLMError>().unwrap()
-                {
-                    let attributes = otel_config::extract_llm_error_attributes(response);
-                    for attr in attributes {
-                        ctx.span().set_attribute(attr);
+                if let Some(llm_error) = e.downcast_ref::<LLMError>() {
+                    if let LLMError::JsonParseError { response, .. } = llm_error {
+                        let attributes = otel_config::extract_llm_error_attributes(response);
+                        for attr in attributes {
+                            ctx.span().set_attribute(attr);
+                        }
                     }
                 }
 
@@ -328,6 +328,17 @@ pub async fn try_extract_from_llm(
         ));
     }
 
+    if fallback_content.is_some() {
+        println!(
+            "Fallback content exists for segment type: {:?}",
+            parent_context.baggage().get("segment_type")
+        );
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "fallback_content_exists",
+            fallback_content.is_some(),
+        ));
+    }
+
     let ctx = parent_context.with_span(span);
 
     let llm_config = LlmConfig::from_env().unwrap();
@@ -350,16 +361,22 @@ pub async fn try_extract_from_llm(
         Ok(response) => Ok(response),
         Err(e) => {
             if let Some(fallback_content) = fallback_content {
+                println!(
+                    "Using fallback content for segment type: {:?}",
+                    parent_context.baggage().get("segment_type")
+                );
                 ctx.span()
                     .set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
                 return Ok(fallback_content);
             }
-            ctx.span()
-                .set_status(opentelemetry::trace::Status::error(e.to_string()));
-            ctx.span().record_error(e.as_ref());
-            ctx.span()
-                .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
             Err(e)
         }
     }
+    .inspect_err(|e| {
+        ctx.span()
+            .set_status(opentelemetry::trace::Status::error(e.to_string()));
+        ctx.span().record_error(e.as_ref());
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+    })
 }
