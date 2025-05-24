@@ -302,6 +302,77 @@ fn try_extract_from_response(
     Ok(extracted)
 }
 
+pub async fn llm_handler(
+    llm_processing: LlmProcessing,
+    fallback_content: Option<String>,
+    messages: Vec<Message>,
+    fence_type: Option<&str>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    ctx: &Context,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let model_id = llm_processing.model_id.clone().ok_or_else(|| {
+        Box::new(LLMError::Generic("Model ID is required".to_string()))
+            as Box<dyn Error + Send + Sync>
+    })?;
+    let fallback_strategy = llm_processing.fallback_strategy;
+    let max_completion_tokens = llm_processing.max_completion_tokens;
+    let temperature = llm_processing.temperature;
+
+    retry_with_backoff(|| async {
+        let messages_clone = messages.clone();
+        let llm_config = LlmConfig::from_env().unwrap();
+        let model = llm_config.get_model(Some(model_id.clone()))?;
+        let fallback_model = llm_config.get_fallback_model(fallback_strategy.clone())?;
+        let ctx_clone = ctx.clone();
+
+        try_extract_from_open_ai_response(
+            model,
+            messages_clone.clone(),
+            max_completion_tokens,
+            Some(temperature),
+            None,
+            tracer,
+            ctx,
+            fence_type,
+        )
+        .or_else(|e| async move {
+            if let Some(fallback_model) = fallback_model {
+                try_extract_from_open_ai_response(
+                    fallback_model,
+                    messages_clone,
+                    max_completion_tokens,
+                    Some(temperature),
+                    None,
+                    tracer,
+                    &ctx_clone,
+                    fence_type,
+                )
+                .await
+            } else {
+                Err(e)
+            }
+        })
+        .await
+        .or_else(|e| {
+            if let Some(fallback_content) = fallback_content.clone() {
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
+                Ok(fallback_content)
+            } else {
+                Err(e)
+            }
+        })
+        .inspect_err(|e| {
+            ctx.span()
+                .set_status(opentelemetry::trace::Status::error(e.to_string()));
+            ctx.span().record_error(e.as_ref());
+            ctx.span()
+                .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+        })
+    })
+    .await
+}
+
 pub async fn try_extract_from_llm(
     messages: Vec<Message>,
     fence_type: Option<&str>,
