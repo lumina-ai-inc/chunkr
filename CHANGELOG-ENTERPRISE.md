@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.20.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.20.3-enterprise...v1.20.4-enterprise) (2025-05-24)
+
+
+### Bug Fixes
+
+* Rm extended context default and picture default ([3772841](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/37728415a99290f57bbc22d8f62bdf025b22adcb))
+* Rm extended context default and picture default ([8411eca](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/8411eca5dc9c66833cd431049ada51675d3ce81f))
+
 ## [1.20.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.20.2-enterprise...v1.20.3-enterprise) (2025-05-23)
 
 
