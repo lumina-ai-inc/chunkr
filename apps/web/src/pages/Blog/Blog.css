@@ -4,6 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  max-height: 1024px;
   z-index: 0;
   background-image: url("../../assets/blog/blog_cover.webp");
   background-size: cover;
@@ -16,10 +17,11 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  max-height: 1024px;
   background-image: linear-gradient(
     to top,
     #050609 5%,
-    rgba(2, 6, 9, 0.35) 35%
+    rgba(2, 6, 9, 0.35) 70%
   );
   z-index: 1;
 }
