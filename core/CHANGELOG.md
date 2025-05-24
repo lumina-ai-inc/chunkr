@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.4](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.14.3...chunkr-core-v1.14.4) (2025-05-24)
+
+
+### Bug Fixes
+
+* Rm extended context default and picture default ([8411eca](https://github.com/lumina-ai-inc/chunkr/commit/8411eca5dc9c66833cd431049ada51675d3ce81f))
+
 ## [1.14.3](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.14.2...chunkr-core-v1.14.3) (2025-05-23)
 
 
