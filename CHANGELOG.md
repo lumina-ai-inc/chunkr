@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.18.3...v1.19.0) (2025-05-25)
+
+
+### Features
+
+* Updated llm processing pipeline to be more robust ([#527](https://github.com/lumina-ai-inc/chunkr/issues/527)) ([1cfb9ca](https://github.com/lumina-ai-inc/chunkr/commit/1cfb9ca10801df57175e5ca148852a48cfea54ed))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#528](https://github.com/lumina-ai-inc/chunkr/issues/528)) ([7a972ed](https://github.com/lumina-ai-inc/chunkr/commit/7a972edddbecce0fcc10edc53669784f6755de89))
+* Rm extended context default and picture default ([8411eca](https://github.com/lumina-ai-inc/chunkr/commit/8411eca5dc9c66833cd431049ada51675d3ce81f))
+
 ## [1.18.3](https://github.com/lumina-ai-inc/chunkr/compare/v1.18.2...v1.18.3) (2025-05-23)
 
 
