@@ -4,6 +4,7 @@ use crate::models::llm::LlmProcessing;
 use crate::models::open_ai::{Message, MessageContent, OpenAiRequest, OpenAiResponse};
 use crate::utils::rate_limit::{get_llm_rate_limiter, LLM_TIMEOUT, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
+use futures::TryFutureExt;
 use opentelemetry::baggage::BaggageExt;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
@@ -77,107 +78,15 @@ async fn open_ai_call_handler(
     parent_context: &Context,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = get_llm_rate_limiter(&model.id)?;
-
-    retry_with_backoff(|| async {
-        let mut span = tracer.start_with_context(
-            otel_config::SpanName::OpenAiCall.to_string(),
-            parent_context,
-        );
-        span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
-        span.set_attribute(opentelemetry::KeyValue::new(
-            "provider_url",
-            model.provider_url.clone(),
-        ));
-
-        if let Some(segment_id) = parent_context.baggage().get("segment_id") {
-            span.set_attribute(opentelemetry::KeyValue::new(
-                "segment_id",
-                segment_id.to_string(),
-            ));
-        }
-        if let Some(segment_type) = parent_context.baggage().get("segment_type") {
-            span.set_attribute(opentelemetry::KeyValue::new(
-                "segment_type",
-                segment_type.to_string(),
-            ));
-        }
-
-        let ctx = parent_context.with_span(span);
-
-        let rate_limiter = rate_limiter.clone();
-        if let Some(rate_limiter) = rate_limiter {
-            let model = LlmConfig::from_env()?.get_model_by_id(&model.id)?;
-            ctx.span()
-                .set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
-            if let Some(rate_limit) = model.rate_limit {
-                ctx.span().set_attribute(opentelemetry::KeyValue::new(
-                    "rate_limit",
-                    rate_limit as f64,
-                ));
-            }
-            rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(
-                    *TOKEN_TIMEOUT.get().unwrap(),
-                ))
-                .await?;
-        } else {
-            ctx.span()
-                .set_attribute(opentelemetry::KeyValue::new("rate_limited", false));
-        }
-
-        match open_ai_call(
-            model.provider_url.clone(),
-            model.api_key.clone(),
-            model.model.clone(),
-            messages.clone(),
-            max_completion_tokens,
-            temperature,
-            response_format.clone(),
-        )
-        .await
-        {
-            Ok(response) => Ok(response),
-            Err(e) => {
-                if let Some(llm_error) = e.downcast_ref::<LLMError>() {
-                    if let LLMError::JsonParseError { response, .. } = llm_error {
-                        let attributes = otel_config::extract_llm_error_attributes(response);
-                        for attr in attributes {
-                            ctx.span().set_attribute(attr);
-                        }
-                    }
-                }
-
-                ctx.span()
-                    .set_status(opentelemetry::trace::Status::error(e.to_string()));
-                ctx.span().record_error(e.as_ref());
-                ctx.span()
-                    .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-                println!("Error: {}", e);
-                Err(e)
-            }
-        }
-    })
-    .await
-}
-
-/// Process an OpenAI request
-/// If the request fails, it will retry with the fallback model if provided.
-async fn process_openai_request(
-    model: LlmModel,
-    fallback_model: Option<LlmModel>,
-    messages: Vec<Message>,
-    max_completion_tokens: Option<u32>,
-    temperature: Option<f32>,
-    response_format: Option<serde_json::Value>,
-    fence_type: Option<&str>,
-    tracer: &opentelemetry::global::BoxedTracer,
-    parent_context: &Context,
-) -> Result<String, Box<dyn Error + Send + Sync>> {
     let mut span = tracer.start_with_context(
-        otel_config::SpanName::ProcessOpenAiRequest.to_string(),
+        otel_config::SpanName::OpenAiCall.to_string(),
         parent_context,
     );
     span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "provider_url",
+        model.provider_url.clone(),
+    ));
 
     if let Some(segment_id) = parent_context.baggage().get("segment_id") {
         span.set_attribute(opentelemetry::KeyValue::new(
@@ -194,52 +103,82 @@ async fn process_openai_request(
 
     let ctx = parent_context.with_span(span);
 
-    match open_ai_call_handler(
-        model.clone(),
+    let rate_limiter = rate_limiter.clone();
+    if let Some(rate_limiter) = rate_limiter {
+        let model = LlmConfig::from_env()?.get_model_by_id(&model.id)?;
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("rate_limited", true));
+        if let Some(rate_limit) = model.rate_limit {
+            ctx.span().set_attribute(opentelemetry::KeyValue::new(
+                "rate_limit",
+                rate_limit as f64,
+            ));
+        }
+        rate_limiter
+            .acquire_token_with_timeout(std::time::Duration::from_secs(
+                *TOKEN_TIMEOUT.get().unwrap(),
+            ))
+            .await?;
+    } else {
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("rate_limited", false));
+    }
+
+    match open_ai_call(
+        model.provider_url.clone(),
+        model.api_key.clone(),
+        model.model.clone(),
         messages.clone(),
         max_completion_tokens,
         temperature,
         response_format.clone(),
-        tracer,
-        &ctx,
     )
     .await
-    .and_then(|response| try_extract_from_response(&response, fence_type))
     {
         Ok(response) => Ok(response),
         Err(e) => {
-            if let Some(fallback_model) = fallback_model {
-                ctx.span()
-                    .set_attribute(opentelemetry::KeyValue::new("using_fallback", true));
-                ctx.span().set_attribute(opentelemetry::KeyValue::new(
-                    "fallback_model",
-                    fallback_model.model.clone(),
-                ));
-
-                let response = open_ai_call_handler(
-                    fallback_model.clone(),
-                    messages,
-                    max_completion_tokens,
-                    temperature,
-                    response_format,
-                    tracer,
-                    &ctx,
-                )
-                .await
-                .and_then(|response| try_extract_from_response(&response, fence_type))?;
-                Ok(response)
-            } else {
-                Err(e)
+            if let Some(llm_error) = e.downcast_ref::<LLMError>() {
+                if let LLMError::JsonParseError { response, .. } = llm_error {
+                    let attributes = otel_config::extract_llm_error_attributes(response);
+                    for attr in attributes {
+                        ctx.span().set_attribute(attr);
+                    }
+                }
             }
+            Err(e)
         }
     }
     .inspect_err(|e| {
+        println!("Error: {}", e);
         ctx.span()
             .set_status(opentelemetry::trace::Status::error(e.to_string()));
         ctx.span().record_error(e.as_ref());
         ctx.span()
             .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
     })
+}
+
+async fn try_extract_from_open_ai_response(
+    model: LlmModel,
+    messages: Vec<Message>,
+    max_completion_tokens: Option<u32>,
+    temperature: Option<f32>,
+    response_format: Option<serde_json::Value>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    parent_context: &Context,
+    fence_type: Option<&str>,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    open_ai_call_handler(
+        model,
+        messages,
+        max_completion_tokens,
+        temperature,
+        response_format,
+        tracer,
+        parent_context,
+    )
+    .await
+    .and_then(|response| try_extract_from_response(&response, fence_type))
 }
 
 /// Get the content from an OpenAI response
@@ -302,6 +241,77 @@ fn try_extract_from_response(
     Ok(extracted)
 }
 
+pub async fn llm_handler(
+    llm_processing: LlmProcessing,
+    fallback_content: Option<String>,
+    messages: Vec<Message>,
+    fence_type: Option<&str>,
+    tracer: &opentelemetry::global::BoxedTracer,
+    ctx: &Context,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let model_id = llm_processing.model_id.clone().ok_or_else(|| {
+        Box::new(LLMError::Generic("Model ID is required".to_string()))
+            as Box<dyn Error + Send + Sync>
+    })?;
+    let fallback_strategy = llm_processing.fallback_strategy;
+    let max_completion_tokens = llm_processing.max_completion_tokens;
+    let temperature = llm_processing.temperature;
+
+    retry_with_backoff(|| async {
+        let messages_clone = messages.clone();
+        let llm_config = LlmConfig::from_env().unwrap();
+        let model = llm_config.get_model(Some(model_id.clone()))?;
+        let fallback_model = llm_config.get_fallback_model(fallback_strategy.clone())?;
+        let ctx_clone = ctx.clone();
+
+        try_extract_from_open_ai_response(
+            model,
+            messages_clone.clone(),
+            max_completion_tokens,
+            Some(temperature),
+            None,
+            tracer,
+            &ctx,
+            fence_type,
+        )
+        .or_else(|e| async move {
+            if let Some(fallback_model) = fallback_model {
+                try_extract_from_open_ai_response(
+                    fallback_model,
+                    messages_clone,
+                    max_completion_tokens,
+                    Some(temperature),
+                    None,
+                    tracer,
+                    &ctx_clone,
+                    fence_type,
+                )
+                .await
+            } else {
+                Err(e)
+            }
+        })
+        .await
+        .or_else(|e| {
+            if let Some(fallback_content) = fallback_content.clone() {
+                ctx.span()
+                    .set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
+                Ok(fallback_content)
+            } else {
+                Err(e)
+            }
+        })
+        .inspect_err(|e| {
+            ctx.span()
+                .set_status(opentelemetry::trace::Status::error(e.to_string()));
+            ctx.span().record_error(e.as_ref());
+            ctx.span()
+                .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+        })
+    })
+    .await
+}
+
 pub async fn try_extract_from_llm(
     messages: Vec<Message>,
     fence_type: Option<&str>,
@@ -314,7 +324,6 @@ pub async fn try_extract_from_llm(
         otel_config::SpanName::TryExtractFromLlm.to_string(),
         parent_context,
     );
-
     if let Some(segment_id) = parent_context.baggage().get("segment_id") {
         span.set_attribute(opentelemetry::KeyValue::new(
             "segment_id",
@@ -328,55 +337,14 @@ pub async fn try_extract_from_llm(
         ));
     }
 
-    if fallback_content.is_some() {
-        println!(
-            "Fallback content exists for segment type: {:?}",
-            parent_context.baggage().get("segment_type")
-        );
-        span.set_attribute(opentelemetry::KeyValue::new(
-            "fallback_content_exists",
-            fallback_content.is_some(),
-        ));
-    }
-
     let ctx = parent_context.with_span(span);
-
-    let llm_config = LlmConfig::from_env().unwrap();
-    let model = llm_config.get_model(llm_processing.model_id)?;
-    let fallback_model = llm_config.get_fallback_model(llm_processing.fallback_strategy)?;
-
-    match process_openai_request(
-        model,
-        fallback_model.clone(),
-        messages.clone(),
-        llm_processing.max_completion_tokens,
-        Some(llm_processing.temperature),
-        None,
+    llm_handler(
+        llm_processing,
+        fallback_content,
+        messages,
         fence_type,
         tracer,
         &ctx,
     )
     .await
-    {
-        Ok(response) => Ok(response),
-        Err(e) => {
-            if let Some(fallback_content) = fallback_content {
-                println!(
-                    "Using fallback content for segment type: {:?}",
-                    parent_context.baggage().get("segment_type")
-                );
-                ctx.span()
-                    .set_attribute(opentelemetry::KeyValue::new("using_fallback_content", true));
-                return Ok(fallback_content);
-            }
-            Err(e)
-        }
-    }
-    .inspect_err(|e| {
-        ctx.span()
-            .set_status(opentelemetry::trace::Status::error(e.to_string()));
-        ctx.span().record_error(e.as_ref());
-        ctx.span()
-            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-    })
 }

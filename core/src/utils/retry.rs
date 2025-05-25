@@ -14,7 +14,7 @@ where
 {
     let worker_config = WorkerConfig::from_env().unwrap();
     let max_retries = worker_config.max_retries;
-    let mut retries = 0;
+    let mut retries = 1;
     loop {
         match f().await {
             Ok(result) => return Ok(result),
