@@ -101,7 +101,6 @@ pub struct AutoGenerationConfig {
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub html: GenerationStrategy,
-    /// Prompt for the LLM mode
     pub llm: Option<String>,
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
@@ -139,7 +138,7 @@ impl Default for AutoGenerationConfig {
             markdown: GenerationStrategy::Auto,
             crop_image: default_cropping_strategy(),
             embed_sources: default_embed_sources(),
-            extended_context: false,
+            extended_context: default_extended_context(),
         }
     }
 }
@@ -171,13 +170,9 @@ pub struct LlmGenerationConfig {
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
     /// Use the full page image as context for LLM generation
-    #[serde(default = "default_table_extended_context")]
-    #[schema(default = true)]
+    #[serde(default = "default_extended_context")]
+    #[schema(default = false)]
     pub extended_context: bool,
-}
-
-fn default_table_extended_context() -> bool {
-    true
 }
 
 impl Default for LlmGenerationConfig {
@@ -208,42 +203,38 @@ pub struct PictureGenerationConfig {
     #[serde(default = "default_picture_cropping_strategy")]
     #[schema(value_type = PictureCroppingStrategy, default = "All")]
     pub crop_image: PictureCroppingStrategy,
-    #[serde(default = "default_llm_generation_strategy")]
-    #[schema(default = "LLM")]
+    #[serde(default = "default_auto_generation_strategy")]
+    #[schema(default = "Auto")]
     pub html: GenerationStrategy,
     /// Prompt for the LLM model
     pub llm: Option<String>,
-    #[serde(default = "default_llm_generation_strategy")]
-    #[schema(default = "LLM")]
+    #[serde(default = "default_auto_generation_strategy")]
+    #[schema(default = "Auto")]
     pub markdown: GenerationStrategy,
     #[serde(default = "default_embed_sources")]
     #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
     pub embed_sources: Vec<EmbedSource>,
     /// Use the full page image as context for LLM generation
-    #[serde(default = "default_picture_extended_context")]
+    #[serde(default = "default_extended_context")]
     #[schema(default = false)]
     pub extended_context: bool,
-}
-
-fn default_picture_extended_context() -> bool {
-    true
 }
 
 impl Default for PictureGenerationConfig {
     fn default() -> Self {
         Self {
-            html: GenerationStrategy::LLM,
+            html: GenerationStrategy::Auto,
             llm: None,
-            markdown: GenerationStrategy::LLM,
+            markdown: GenerationStrategy::Auto,
             crop_image: default_picture_cropping_strategy(),
             embed_sources: default_embed_sources(),
-            extended_context: default_picture_extended_context(),
+            extended_context: default_extended_context(),
         }
     }
 }
 
 fn default_extended_context() -> bool {
-    true
+    false
 }
 
 #[derive(
