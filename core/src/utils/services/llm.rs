@@ -271,7 +271,7 @@ pub async fn llm_handler(
             Some(temperature),
             None,
             tracer,
-            &ctx,
+            ctx,
             fence_type,
         )
         .or_else(|e| async move {
