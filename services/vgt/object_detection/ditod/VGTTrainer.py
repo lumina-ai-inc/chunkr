@@ -552,7 +552,7 @@ class VGTTrainer(TrainerBase):
         except RuntimeError as exception:
             if "out of memory" in str(exception):
                 logger = logging.getLogger("detectron2")
-                logger.warn("Out of memory")
+                logger.warning("Out of memory")
                 # import ipdb;ipdb.set_trace()
                 if hasattr(torch.cuda, 'empty_cache'):
                     torch.cuda.empty_cache()
@@ -710,7 +710,7 @@ class VGTTrainer(TrainerBase):
                 try:
                     evaluator = cls.build_evaluator(cfg, dataset_name)
                 except NotImplementedError:
-                    logger.warn(
+                    logger.warning(
                         "No evaluator found. Use `MyTrainer.test(evaluators=)`, "
                         "or implement its `build_evaluator` method."
                     )
