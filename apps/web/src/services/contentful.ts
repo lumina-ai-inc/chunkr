@@ -24,10 +24,12 @@ export interface BlogPostEntry {
   image: ImageField | null;
   publishedDate: string | null;
   slug: string | null;
-  authorInfo?: {
-    name: string | null;
-    // Potentially add other author fields like bio, picture if needed for the blog post page
-    picture?: ImageField | null; // Example: if author has a profile picture
+  // Support multiple authors: list of authors with names and optional pictures
+  authorsCollection?: {
+    items: Array<{
+      name: string | null;
+      picture?: ImageField | null;
+    }>;
   } | null;
   body?: {
     json: import("@contentful/rich-text-types").Document; // Specific type for Rich Text JSON
@@ -94,12 +96,11 @@ export async function fetchBlogPosts(): Promise<BlogPostEntry[]> {
           }
           publishedDate
           slug
-          authorInfo { # This assumes 'authorInfo' is the field ID in Contentful for the author link
-                     # And the linked content type has a 'name' field.
-                     # If your author content type is named e.g., 'authorProfile', use:
-                     # ... on AuthorProfile { name }
-            ... on BlogPostAuthor { # Corrected based on the error message
-              name
+          authorsCollection {
+            items {
+              ... on BlogPostAuthor {
+                name
+              }
             }
           }
           # Add other fields like tags or readingTime if they exist in your Contentful model
@@ -187,20 +188,11 @@ export async function fetchBlogPostBySlug(
           }
           publishedDate
           slug
-          authorInfo {
-            ... on BlogPostAuthor {
-              name
-              # Add other author fields here, e.g.:
-              # bio {
-              #   json # if bio is rich text
-              # }
-              # picture {
-              #   url
-              #   title
-              #   description
-              #   width
-              #   height
-              # }
+          authorsCollection {
+            items {
+              ... on BlogPostAuthor {
+                name
+              }
             }
           }
           body {

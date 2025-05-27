@@ -69,6 +69,8 @@ export default function Blog() {
     const datePublished = post.publishedDate
       ? new Date(post.publishedDate)
       : new Date();
+    // Extract authors list for multi-author support
+    const authors = post.authorsCollection?.items ?? [];
     // const writer = post.authorInfo?.name || "Anonymous"; // Assuming authorInfo.name exists
     // const tags = post.tags || []; // Assuming tags come from Contentful
 
@@ -123,6 +125,15 @@ export default function Blog() {
                 wrap="wrap"
                 className="blog-card-metadata"
               >
+                {authors.length > 0 && (
+                  <Text size="1" weight="medium">
+                    By{" "}
+                    {authors
+                      .map((a) => a.name)
+                      .filter(Boolean)
+                      .join(", ")}
+                  </Text>
+                )}
                 <time
                   dateTime={datePublished.toISOString()}
                   style={{ display: "flex", alignItems: "center" }}

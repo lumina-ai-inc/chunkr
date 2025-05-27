@@ -91,7 +91,7 @@ const getRichTextHeadings = (
   };
 
   extractHeadings(richTextBodyJSON.content);
-  return headings.filter((h) => h.level >= 2 && h.level <= 3); // Only H2 and H3 for TOC
+  return headings.filter((h) => h.level == 2); // Only H1 and H2 for TOC
 };
 
 export default function BlogPostPage() {
@@ -105,6 +105,26 @@ export default function BlogPostPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
   const stickySidebarRef = useRef<HTMLElement>(null);
+
+  // Add scroll offset handler for TOC links
+  const handleTocClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    headingId: string
+  ) => {
+    e.preventDefault();
+    const targetElement = document.getElementById(headingId);
+    if (targetElement) {
+      const headerOffset = 102; // Same as stickyTopPosition
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   useEffect(() => {
     const handleScrollAndResize = () => {
@@ -283,44 +303,44 @@ export default function BlogPostPage() {
           </Heading>
         );
       },
-      [BLOCKS.HEADING_4]: (node: Node, children: ReactNode) => (
+      [BLOCKS.HEADING_4]: (_node: Node, children: ReactNode) => (
         <Heading as="h4" size="5" mt="4" mb="2">
           {children}
         </Heading>
       ),
-      [BLOCKS.HEADING_5]: (node: Node, children: ReactNode) => (
+      [BLOCKS.HEADING_5]: (_node: Node, children: ReactNode) => (
         <Heading as="h5" size="4" mt="4" mb="2">
           {children}
         </Heading>
       ),
-      [BLOCKS.HEADING_6]: (node: Node, children: ReactNode) => (
+      [BLOCKS.HEADING_6]: (_node: Node, children: ReactNode) => (
         <Heading as="h6" size="3" mt="4" mb="2">
           {children}
         </Heading>
       ),
-      [BLOCKS.PARAGRAPH]: (node: Node, children: ReactNode) => (
+      [BLOCKS.PARAGRAPH]: (_node: Node, children: ReactNode) => (
         <Text as="p" size="3" my="3" style={{ lineHeight: "1.7" }}>
           {children}
         </Text>
       ),
-      [BLOCKS.UL_LIST]: (node: Node, children: ReactNode) => (
+      [BLOCKS.UL_LIST]: (_node: Node, children: ReactNode) => (
         <ul style={{ marginLeft: "20px", listStyleType: "disc" }}>
           {children}
         </ul>
       ),
-      [BLOCKS.OL_LIST]: (node: Node, children: ReactNode) => (
+      [BLOCKS.OL_LIST]: (_node: Node, children: ReactNode) => (
         <ol style={{ marginLeft: "20px", listStyleType: "decimal" }}>
           {children}
         </ol>
       ),
-      [BLOCKS.LIST_ITEM]: (node: Node, children: ReactNode) => (
+      [BLOCKS.LIST_ITEM]: (_node: Node, children: ReactNode) => (
         <li style={{ margin: "8px 0" }}>
           <Text as="span" size="3">
             {children}
           </Text>
         </li>
       ),
-      [BLOCKS.QUOTE]: (node: Node, children: ReactNode) => (
+      [BLOCKS.QUOTE]: (_node: Node, children: ReactNode) => (
         <Box
           my="4"
           pl="4"
@@ -435,6 +455,9 @@ export default function BlogPostPage() {
     );
   }
 
+  // Extract authors list for multi-author support
+  const authors = post.authorsCollection?.items ?? [];
+
   return (
     <HelmetProvider>
       <Helmet>
@@ -450,8 +473,14 @@ export default function BlogPostPage() {
             content={new Date(post.publishedDate).toISOString()}
           />
         )}
-        {post.authorInfo?.name && (
-          <meta property="article:author" content={post.authorInfo.name} />
+        {authors.map((author) =>
+          author.name ? (
+            <meta
+              property="article:author"
+              content={author.name}
+              key={author.name}
+            />
+          ) : null
         )}
       </Helmet>
 
@@ -562,7 +591,7 @@ export default function BlogPostPage() {
                   paddingTop: "0px",
                 }}
               >
-                {post.authorInfo && (
+                {authors.length > 0 && (
                   <Box mb="5">
                     <Heading
                       as="h3"
@@ -572,29 +601,32 @@ export default function BlogPostPage() {
                     >
                       Written by
                     </Heading>
-                    <Flex gap="3" align="center">
-                      {post.authorInfo.picture?.url ? (
-                        <Avatar
-                          src={post.authorInfo.picture.url}
-                          fallback={
-                            post.authorInfo.name?.substring(0, 1) || "A"
-                          }
-                          alt={post.authorInfo.name || "Author"}
-                          size="3"
-                          radius="full"
-                        />
-                      ) : (
-                        <Avatar
-                          fallback={
-                            post.authorInfo.name?.substring(0, 1) || "A"
-                          }
-                          size="3"
-                          radius="full"
-                        />
-                      )}
-                      <Text weight="medium" style={{ color: "var(--gray-2)" }}>
-                        {post.authorInfo.name}
-                      </Text>
+                    <Flex direction="column" gap="3">
+                      {authors.map((author, idx) => (
+                        <Flex key={idx} gap="3" align="center">
+                          {author.picture?.url ? (
+                            <Avatar
+                              src={author.picture.url}
+                              fallback={author.name?.substring(0, 1) || "A"}
+                              alt={author.name || "Author"}
+                              size="3"
+                              radius="full"
+                            />
+                          ) : (
+                            <Avatar
+                              fallback={author.name?.substring(0, 1) || "A"}
+                              size="3"
+                              radius="full"
+                            />
+                          )}
+                          <Text
+                            weight="medium"
+                            style={{ color: "var(--gray-2)" }}
+                          >
+                            {author.name}
+                          </Text>
+                        </Flex>
+                      ))}
                     </Flex>
                   </Box>
                 )}
@@ -622,7 +654,11 @@ export default function BlogPostPage() {
                               marginBottom: "8px",
                             }}
                           >
-                            <a href={`#${heading.id}`} className="toc-link">
+                            <a
+                              href={`#${heading.id}`}
+                              className="toc-link"
+                              onClick={(e) => handleTocClick(e, heading.id)}
+                            >
                               <Text
                                 size="2"
                                 color="gray"

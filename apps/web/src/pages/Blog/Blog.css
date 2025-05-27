@@ -20,8 +20,8 @@
   max-height: 1024px;
   background-image: linear-gradient(
     to top,
-    #050609 5%,
-    rgba(2, 6, 9, 0.35) 70%
+    #050609 10%,
+    rgba(2, 6, 9, 0.15) 85%
   );
   z-index: 1;
 }

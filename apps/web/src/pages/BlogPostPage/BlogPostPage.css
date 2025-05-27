@@ -5,7 +5,16 @@ header h1 {
   color: #ffffff !important;
 }
 
+article h1 {
+  font-size: 32px !important;
+  line-height: 1.2 !important;
+  max-width: 768px;
+  color: #ffffff !important;
+  margin-top: 64px !important;
+}
+
 article h2 {
+  margin-top: 64px !important;
   font-size: 24px !important;
   color: var(--gray-1) !important;
 }
@@ -33,6 +42,11 @@ header span {
 article p,
 article li {
   color: var(--gray-6);
+}
+
+.rt-Box p {
+  color: var(--gray-8) !important;
+  font-style: italic;
 }
 
 .blog-post-title {
@@ -74,9 +88,9 @@ article li {
 }
 
 .text-link {
-  color: var(--cyan-9);
-  text-decoration: none;
-  font-weight: 500;
+  color: #fff;
+  text-decoration: underline;
+  font-weight: 600;
 }
 
 .text-link:hover {
