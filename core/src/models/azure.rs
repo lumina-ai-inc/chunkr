@@ -770,7 +770,7 @@ fn table_to_html(table: &Table) -> Result<String, Box<dyn Error>> {
 }
 
 fn table_to_markdown(table: &Table) -> Result<String, Box<dyn Error>> {
-    Ok(convert_html_to_markdown(table_to_html(table)?)?)
+    convert_html_to_markdown(table_to_html(table)?)
 }
 
 fn create_word_bbox(polygon: &[f64], unit: Option<&str>) -> Result<BoundingBox, Box<dyn Error>> {
