@@ -2,7 +2,12 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, AuthProviderProps } from "react-oidc-context";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  RouteObject,
+} from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "@radix-ui/themes/styles.css";
@@ -13,6 +18,9 @@ import AuthGuard from "./auth/AuthGuard.tsx";
 import store from "./store/store";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 import Checkout from "./pages/Checkout/Checkout";
+import Blog from "./pages/Blog/Blog.tsx";
+import BlogPostPage from "./pages/BlogPostPage/BlogPostPage";
+const isSelfHost = import.meta.env.VITE_IS_SELF_HOST === "true";
 
 const oidcConfig: AuthProviderProps = {
   authority:
@@ -38,27 +46,37 @@ const oidcConfig: AuthProviderProps = {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <AuthGuard>
-        <Dashboard />
-      </AuthGuard>
-    ),
-  },
-  {
-    path: "/checkout/return",
-    element: (
-      <AuthGuard>
-        <Checkout />
-      </AuthGuard>
-    ),
-  },
-  {
-    path: "*",
-    element: <Home />,
+    element: <Outlet />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      !isSelfHost && {
+        path: "blog",
+        element: <Blog />,
+      },
+      !isSelfHost && {
+        path: "blog/:slug",
+        element: <BlogPostPage />,
+      },
+      {
+        path: "dashboard",
+        element: (
+          <AuthGuard>
+            <Dashboard />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: "checkout/return",
+        element: (
+          <AuthGuard>
+            <Checkout />
+          </AuthGuard>
+        ),
+      },
+    ].filter(Boolean) as RouteObject[],
   },
 ]);
 

@@ -6,6 +6,7 @@ import Dashboard from "../../pages/Dashboard/Dashboard";
 import { getRepoStats } from "../../services/githubApi";
 import { AuthContextProps } from "react-oidc-context";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+const isSelfHost = import.meta.env.VITE_IS_SELF_HOST === "true";
 
 interface HeaderProps {
   auth?: AuthContextProps;
@@ -113,6 +114,20 @@ export default function Header({ auth }: HeaderProps) {
               </Text>
             </Flex>
           </a>
+
+          {!isSelfHost && (
+            <Flex direction="row" gap="2" py="12px" px="12px" align="center">
+              <Link
+                to="/blog"
+                style={{ textDecoration: "none" }}
+                className="nav-item"
+              >
+                <Text size="2" weight="medium" className="nav-item">
+                  Blog
+                </Text>
+              </Link>
+            </Flex>
+          )}
 
           <Flex direction="row" gap="2" py="12px" px="12px" align="center">
             <a
@@ -240,6 +255,14 @@ export default function Header({ auth }: HeaderProps) {
                   <Text size="2">Docs</Text>
                 </a>
               </DropdownMenu.Item>
+
+              {!isSelfHost && (
+                <DropdownMenu.Item className="dropdown-item">
+                  <Link to="/blog" className="dropdown-link">
+                    <Text size="2">Blog</Text>
+                  </Link>
+                </DropdownMenu.Item>
+              )}
 
               {isAuthenticated ? (
                 <DropdownMenu.Item className="dropdown-item">
