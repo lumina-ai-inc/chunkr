@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.3-enterprise...chunkr-web-enterprise-v1.7.0-enterprise) (2025-05-28)
+
+
+### Features
+
+* Added blog pages to frontend - hooked up to Contentful CMS + env toggle for Blog page ([#531](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/531)) ([90d6dd8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/90d6dd88aa5e6cd0bb0580185a6f4fbf3523e35d))
+
 ## [1.6.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.2-enterprise...chunkr-web-enterprise-v1.6.3-enterprise) (2025-05-23)
 
 

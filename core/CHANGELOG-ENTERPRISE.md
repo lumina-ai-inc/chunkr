@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.16.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.15.4-enterprise...chunkr-core-enterprise-v1.16.0-enterprise) (2025-05-28)
+
+
+### Features
+
+* Updated llm processing pipeline to be more robust ([#527](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/527)) ([1cfb9ca](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1cfb9ca10801df57175e5ca148852a48cfea54ed))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#528](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/528)) ([7a972ed](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7a972edddbecce0fcc10edc53669784f6755de89))
+
 ## [1.15.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.15.3-enterprise...chunkr-core-enterprise-v1.15.4-enterprise) (2025-05-24)
 
 
