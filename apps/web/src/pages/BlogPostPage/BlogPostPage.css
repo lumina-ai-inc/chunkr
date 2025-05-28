@@ -1,0 +1,163 @@
+header h1 {
+  font-size: 36px !important;
+  line-height: 1.2 !important;
+  max-width: 768px;
+  color: #ffffff !important;
+}
+
+article h1 {
+  font-size: 32px !important;
+  line-height: 1.2 !important;
+  max-width: 768px;
+  color: #ffffff !important;
+  margin-top: 64px !important;
+}
+
+article h2 {
+  margin-top: 64px !important;
+  font-size: 24px !important;
+  color: var(--gray-1) !important;
+}
+
+article h3 {
+  font-size: 18px !important;
+  color: var(--gray-1) !important;
+}
+
+article h4 {
+  font-size: 16px !important;
+  color: var(--gray-1) !important;
+}
+
+header span {
+  font-size: 14px !important;
+  color: var(--gray-3) !important;
+}
+
+/* article span {
+  font-size: 14px !important;
+} */
+
+/* Make main article text (paragraphs and lists) lighter for dark mode */
+article p,
+article li {
+  color: var(--gray-6);
+}
+
+.rt-Box p {
+  color: var(--gray-8) !important;
+  font-style: italic;
+}
+
+.blog-post-title {
+  color: var(--gray-1);
+  /* Add other styles for your main blog post title if needed */
+}
+
+.blog-post-main-image-container {
+  position: relative;
+  display: block; /* Ensures the container behaves as a block */
+}
+
+.blog-post-main-image-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 6, 9, 0) 50%,
+    rgb(5, 6, 9) 100%
+  );
+  z-index: 1; /* Places the gradient on top of the image */
+  pointer-events: none; /* Allows mouse events to pass through to the image */
+}
+
+.blog-post-main-image-container img {
+  /* Styles for the main hero image of the blog post */
+  display: block; /* Ensures the image takes up the full width of its container */
+  width: 100%; /* Makes the image responsive within the container */
+  position: relative; /* Establishes a stacking context for the image */
+}
+
+.blog-post-image-container img {
+  /* Styles for images embedded within the rich text content */
+  border: 1px solid var(--gray-12);
+}
+
+.text-link {
+  color: #fff;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.text-link:hover {
+  color: var(--cyan-10);
+  text-decoration: underline;
+}
+
+.blog-post-sidebar {
+  /* Styles for the sticky sidebar */
+
+  margin-top: -18px;
+}
+
+.blog-post-sidebar .rt-Card {
+  background-color: var(--gray-2);
+  border: 1px solid var(--gray-4);
+}
+
+.toc-link:hover .rt-Text {
+  color: #fff !important;
+}
+
+pre[class*="language-"] {
+  background: #000000 !important;
+  padding: 10px !important;
+  border: 1px solid var(--gray-12) !important;
+}
+
+pre[class*="language-"]::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-track {
+  background: unset;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-thumb {
+  background: var(--gray-9);
+  border-radius: 4px;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-7);
+}
+
+/* Header scroll effect (if not already globally defined) */
+.blog-header-container.scrolled {
+  background-color: rgba(5, 6, 9, 0.8); /* semi-transparent dark */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.3s ease-in-out, border-bottom 0.3s ease-in-out;
+}
+
+/* Styles for the main content area */
+.blog-post-main-content {
+  margin-right: calc(300px + 48px);
+  transition: margin-right 0.3s ease-in-out;
+}
+
+/* Media query for responsive adjustments */
+@media (max-width: 1023px) {
+  .blog-post-main-content {
+    margin-right: 0 !important;
+  }
+
+  .blog-post-sidebar {
+    display: none;
+  }
+}
