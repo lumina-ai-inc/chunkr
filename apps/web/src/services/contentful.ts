@@ -279,16 +279,14 @@ export const optimizeContentfulImage = (
 ): string => {
   if (!imageUrl) return "";
 
-  // Default options for high quality
   const {
     width,
     height,
-    quality = 85, // High quality default
-    format = "webp", // Modern format with good compression
+    quality = 85,
+    format = "webp",
     fit = "fill",
   } = options;
 
-  // Build query parameters
   const params = new URLSearchParams();
 
   if (width) params.append("w", width.toString());
@@ -297,7 +295,6 @@ export const optimizeContentfulImage = (
   if (format) params.append("f", format);
   if (fit && (width || height)) params.append("fit", fit);
 
-  // Add parameters to URL
   const separator = imageUrl.includes("?") ? "&" : "?";
   return `${imageUrl}${separator}${params.toString()}`;
 };

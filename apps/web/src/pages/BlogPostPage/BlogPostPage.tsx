@@ -37,15 +37,13 @@ import "./BlogPostPage.css";
 import Prism from "prismjs";
 import BetterButton from "../../components/BetterButton/BetterButton";
 import Loader from "../Loader/Loader";
-// import "prismjs/themes/prism-okaidia.css";
 
 interface HeadingNode {
   id: string;
   text: string;
-  level: number; // 1 for H1, 2 for H2, etc.
+  level: number;
 }
 
-// Helper to generate ID from text
 const generateIdFromText = (text: string): string => {
   return text
     .toLowerCase()
@@ -92,7 +90,7 @@ const getRichTextHeadings = (
   };
 
   extractHeadings(richTextBodyJSON.content);
-  return headings.filter((h) => h.level == 2); // Only H1 and H2 for TOC
+  return headings.filter((h) => h.level == 2);
 };
 
 export default function BlogPostPage() {
@@ -137,7 +135,7 @@ export default function BlogPostPage() {
 
         if (!sidebarParent) return;
 
-        const definedSidebarWidth = 300; // Define consistent width
+        const definedSidebarWidth = 300;
         const sidebarInitialTopInParent = 32;
         const stickyTopPosition = 124;
 
@@ -145,46 +143,41 @@ export default function BlogPostPage() {
         const parentRect = sidebarParent.getBoundingClientRect();
 
         if (parentRect.top + sidebarInitialTopInParent > stickyTopPosition) {
-          // State A: Initial Absolute (top-aligned in parent) - Not scrolled enough
           sidebarElement.style.position = "absolute";
           sidebarElement.style.top = `${sidebarInitialTopInParent}px`;
           sidebarElement.style.left = "auto";
           sidebarElement.style.right = "0px";
-          sidebarElement.style.width = `${definedSidebarWidth}px`; // Use defined width
+          sidebarElement.style.width = `${definedSidebarWidth}px`;
           sidebarElement.style.bottom = "auto";
         } else {
-          // State B or C: Scrolled enough to be either fixed or absolute-bottom.
-          // Check if fixing it would make it scroll past the bottom of its parent.
           if (stickyTopPosition + sidebarRect.height < parentRect.bottom) {
-            // State B: Fixed to Viewport Top (enough space in parent)
             sidebarElement.style.position = "fixed";
             sidebarElement.style.top = `${stickyTopPosition}px`;
-            const fixedLeft = parentRect.right - definedSidebarWidth; // Use defined width for calculation
+            const fixedLeft = parentRect.right - definedSidebarWidth;
             sidebarElement.style.left = `${fixedLeft}px`;
-            sidebarElement.style.width = `${definedSidebarWidth}px`; // Use defined width
+            sidebarElement.style.width = `${definedSidebarWidth}px`;
             sidebarElement.style.right = "auto";
             sidebarElement.style.bottom = "auto";
           } else {
-            // State C: Absolute, Stuck to Parent Bottom (not enough space if fixed)
             sidebarElement.style.position = "absolute";
             sidebarElement.style.top = "auto";
             sidebarElement.style.bottom = "0px";
             sidebarElement.style.left = "auto";
             sidebarElement.style.right = "0px";
-            sidebarElement.style.width = `${definedSidebarWidth}px`; // Use defined width
+            sidebarElement.style.width = `${definedSidebarWidth}px`;
           }
         }
       }
     };
 
     window.addEventListener("scroll", handleScrollAndResize);
-    window.addEventListener("resize", handleScrollAndResize); // Added resize listener
-    handleScrollAndResize(); // Initial call to set position correctly
+    window.addEventListener("resize", handleScrollAndResize);
+    handleScrollAndResize();
     return () => {
       window.removeEventListener("scroll", handleScrollAndResize);
-      window.removeEventListener("resize", handleScrollAndResize); // Clean up resize listener
+      window.removeEventListener("resize", handleScrollAndResize);
     };
-  }, [post]); // Dependency array remains [post]
+  }, [post]);
 
   useEffect(() => {
     if (!slug) {
@@ -228,7 +221,6 @@ export default function BlogPostPage() {
         <em style={{ fontStyle: "italic" }}>{text}</em>
       ),
       [MARKS.CODE]: (textNode: ReactNode) => {
-        // Directly treat all code as Python
         const codeContent =
           typeof textNode === "string" ? textNode : String(textNode);
 
