@@ -260,7 +260,8 @@ export async function fetchBlogPostBySlug(
     return null; // No post found for the slug
   } catch (error) {
     console.error(
-      `Error fetching blog post by slug ${slug} from Contentful:`,
+      "Error fetching blog post by slug %s from Contentful:",
+      slug,
       error
     );
     return null;
