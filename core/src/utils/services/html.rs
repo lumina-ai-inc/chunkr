@@ -84,9 +84,9 @@ pub fn validate_html(html: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn convert_table_to_markdown(html: String) -> String {
+pub fn convert_table_to_markdown(html: String) -> Result<String, Box<dyn std::error::Error>> {
     let mut markdown = String::new();
-    let result: Result<(), Box<dyn std::error::Error>> = (|| {
+    let result = (|| {
         let rows = TR_REGEX
             .captures_iter(&html)
             .filter(|m| m.get(1).is_some())
@@ -213,15 +213,9 @@ pub fn convert_table_to_markdown(html: String) -> String {
             });
             markdown.push('\n');
         });
-        Ok(())
+        Ok(markdown)
     })();
-
-    if result.is_err() {
-        println!("Error converting table to markdown: {:?}", result.err());
-        return String::new();
-    }
-
-    markdown
+    result
 }
 
 #[cfg(test)]

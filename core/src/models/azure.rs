@@ -3,6 +3,7 @@ use crate::utils::services::html::convert_table_to_markdown;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::error::Error;
+use thiserror::Error;
 
 use super::upload::SegmentationStrategy;
 
@@ -157,6 +158,16 @@ pub enum DocumentAnalysisFeature {
     StyleFont,
 }
 
+#[derive(Debug, Clone, Error)]
+pub enum AzureError {
+    #[error("No cells found in table")]
+    NoCellsFound,
+    #[error("No rows found in table")]
+    NoRowsFound,
+    #[error("No columns found in table")]
+    NoColumnsFound,
+}
+
 impl DocumentAnalysisFeature {
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -291,9 +302,9 @@ impl AzureAnalysisResponse {
                                         let segment = Segment {
                                             bbox,
                                             confidence: None,
-                                            content: table_to_text(table),
-                                            html: table_to_html(table),
-                                            markdown: table_to_markdown(table),
+                                            content: table_to_text(table)?,
+                                            html: table_to_html(table)?,
+                                            markdown: table_to_markdown(table)?,
                                             image: None,
                                             llm: None,
                                             ocr: None,
@@ -674,7 +685,7 @@ fn get_cell_content(cell: &Cell) -> String {
     cell.content.as_deref().unwrap_or("").to_string()
 }
 
-fn table_to_text(table: &Table) -> String {
+fn table_to_text(table: &Table) -> Result<String, Box<dyn Error>> {
     table
         .cells
         .as_ref()
@@ -692,21 +703,23 @@ fn table_to_text(table: &Table) -> String {
                 .collect::<Vec<String>>()
                 .join(" ")
         })
-        .unwrap_or_default()
+        .ok_or_else(|| Box::new(AzureError::NoCellsFound) as Box<dyn Error>)
 }
 
-fn table_to_html(table: &Table) -> String {
-    println!("Generating html for table");
+fn table_to_html(table: &Table) -> Result<String, Box<dyn Error>> {
     let cells = match &table.cells {
         Some(cells) => cells,
-        None => return String::new(),
+        None => return Err(Box::new(AzureError::NoCellsFound)),
     };
 
-    let row_count = table.row_count.unwrap_or(0) as usize;
-    let col_count = table.column_count.unwrap_or(0) as usize;
-    if row_count == 0 || col_count == 0 {
-        return String::new();
-    }
+    let row_count = table
+        .row_count
+        .filter(|&count| count > 0)
+        .ok_or(AzureError::NoRowsFound)? as usize;
+    let col_count = table
+        .column_count
+        .filter(|&count| count > 0)
+        .ok_or(AzureError::NoColumnsFound)? as usize;
 
     let mut html = String::from("<table>");
 
@@ -753,12 +766,11 @@ fn table_to_html(table: &Table) -> String {
     }
 
     html.push_str("</table>");
-    html
+    Ok(html)
 }
 
-fn table_to_markdown(table: &Table) -> String {
-    println!("Generating markdown for table");
-    convert_table_to_markdown(table_to_html(table))
+fn table_to_markdown(table: &Table) -> Result<String, Box<dyn Error>> {
+    Ok(convert_table_to_markdown(table_to_html(table)?)?)
 }
 
 fn create_word_bbox(polygon: &[f64], unit: Option<&str>) -> Result<BoundingBox, Box<dyn Error>> {
