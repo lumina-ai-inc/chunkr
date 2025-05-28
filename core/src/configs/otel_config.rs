@@ -59,6 +59,8 @@ pub enum SpanName {
     ProcessOpenAiRequest,
     #[strum(serialize = "try_extract_from_llm")]
     TryExtractFromLlm,
+    #[strum(serialize = "try_extract_from_openai_response")]
+    TryExtractFromOpenAiResponse,
 }
 
 #[derive(Debug, Clone, Copy, Display, EnumString)]

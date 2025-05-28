@@ -217,6 +217,7 @@ pub fn convert_table_to_markdown(html: String) -> String {
     })();
 
     if result.is_err() {
+        println!("Error converting table to markdown: {:?}", result.err());
         return String::new();
     }
 
