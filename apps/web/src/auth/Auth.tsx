@@ -1,5 +1,4 @@
-import { ReactNode, useEffect, useRef } from "react";
-import toast from "react-hot-toast";
+import { ReactNode, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import useUser from "../hooks/useUser";
 import axiosInstance from "../services/axios.config";
@@ -11,7 +10,6 @@ interface AuthProps {
 export default function Auth({ children }: AuthProps) {
   const auth = useAuth();
   const { error } = useUser();
-  const toastShown = useRef(false); // track if toast was already shown
 
   // Handle access token and axios setup
   useEffect(() => {
@@ -26,27 +24,20 @@ export default function Auth({ children }: AuthProps) {
 
   // Handle auth state and errors
   useEffect(() => {
-    if (auth.error && !auth.isAuthenticated && !toastShown.current) {
+    if (auth.error && !auth.isAuthenticated) {
       const ignoredErrors = ["login_required", "IFrame timed out"];
 
       if (!ignoredErrors.some((msg) => auth.error?.message?.includes(msg))) {
         console.log("Auth error:", auth.error);
-        toast.error("Unable to sign in. Please try again.");
-        toastShown.current = true; // prevent duplicate toasts
+        console.log("Unable to sign in. Please try again.");
       }
-    }
-    // Reset toast flag on successful login
-    if (auth.isAuthenticated) {
-      toastShown.current = false;
     }
   }, [auth.error, auth.isAuthenticated]);
 
   // Handle user fetch errors
   useEffect(() => {
-    if (error && !auth.isAuthenticated && !toastShown.current) {
+    if (error && !auth.isAuthenticated) {
       console.log("Error getting user information", error);
-      toast.error("Error getting user information");
-      toastShown.current = true;
     }
   }, [error, auth.isAuthenticated]);
 
