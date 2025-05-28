@@ -3,4 +3,10 @@ Allow: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 Allow: /$
 
 User-agent: *
-Disallow: /
+Disallow: /node_modules/
+Disallow: /src/
+
+# Allow all other content for general crawlers
+Allow: /
+
+Sitemap: https://www.chunkr.ai/sitemap.xml
