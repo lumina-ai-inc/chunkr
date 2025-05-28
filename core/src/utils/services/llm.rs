@@ -164,10 +164,53 @@ async fn try_extract_from_open_ai_response(
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
+    fence_type: Option<&str>,
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
-    fence_type: Option<&str>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let mut span = tracer.start_with_context(
+        otel_config::SpanName::TryExtractFromOpenAiResponse.to_string(),
+        parent_context,
+    );
+    span.set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+    span.set_attribute(opentelemetry::KeyValue::new(
+        "provider_url",
+        model.provider_url.clone(),
+    ));
+    if let Some(temperature) = temperature {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "temperature",
+            temperature as f64,
+        ));
+    }
+    if let Some(max_completion_tokens) = max_completion_tokens {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "max_completion_tokens",
+            max_completion_tokens as f64,
+        ));
+    }
+    if let Some(response_format) = response_format.clone() {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "response_format",
+            response_format.to_string(),
+        ));
+    }
+
+    if let Some(segment_id) = parent_context.baggage().get("segment_id") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.to_string(),
+        ));
+    }
+    if let Some(segment_type) = parent_context.baggage().get("segment_type") {
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_type",
+            segment_type.to_string(),
+        ));
+    }
+
+    let ctx = parent_context.with_span(span);
+
     open_ai_call_handler(
         model,
         messages,
@@ -179,6 +222,13 @@ async fn try_extract_from_open_ai_response(
     )
     .await
     .and_then(|response| try_extract_from_response(&response, fence_type))
+    .inspect_err(|e| {
+        ctx.span()
+            .set_status(opentelemetry::trace::Status::error(e.to_string()));
+        ctx.span().record_error(e.as_ref());
+        ctx.span()
+            .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
+    })
 }
 
 /// Get the content from an OpenAI response
@@ -263,6 +313,7 @@ pub async fn llm_handler(
         let model = llm_config.get_model(Some(model_id.clone()))?;
         let fallback_model = llm_config.get_fallback_model(fallback_strategy.clone())?;
         let ctx_clone = ctx.clone();
+        println!("Fallback content: {:?}", fallback_content);
 
         try_extract_from_open_ai_response(
             model,
@@ -270,9 +321,9 @@ pub async fn llm_handler(
             max_completion_tokens,
             Some(temperature),
             None,
+            fence_type,
             tracer,
             ctx,
-            fence_type,
         )
         .or_else(|e| async move {
             if let Some(fallback_model) = fallback_model {
@@ -282,9 +333,9 @@ pub async fn llm_handler(
                     max_completion_tokens,
                     Some(temperature),
                     None,
+                    fence_type,
                     tracer,
                     &ctx_clone,
-                    fence_type,
                 )
                 .await
             } else {

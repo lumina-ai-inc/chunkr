@@ -696,6 +696,7 @@ fn table_to_text(table: &Table) -> String {
 }
 
 fn table_to_html(table: &Table) -> String {
+    println!("Generating html for table");
     let cells = match &table.cells {
         Some(cells) => cells,
         None => return String::new(),
@@ -756,6 +757,7 @@ fn table_to_html(table: &Table) -> String {
 }
 
 fn table_to_markdown(table: &Table) -> String {
+    println!("Generating markdown for table");
     convert_table_to_markdown(table_to_html(table))
 }
 
