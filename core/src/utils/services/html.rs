@@ -1,12 +1,10 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
+use std::io::Write;
+use std::process::{Command, Stdio};
 
 static TABLE_CONTENT_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"(?is)<table[^>]*>(.*?)</table>").unwrap());
-static TR_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?is)<tr[^>]*>(.*?)<\/tr>").unwrap());
-static TD_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?is)<(?:td|th)\s*(?:colspan\s*=\s*['"]?(\d+)['"]?)?(?:\s*+rowspan\s*=\s*['"]?(\d+)['"]?)?[^>]*>(.*?)</(?:td|th)>"#).unwrap()
-});
 static IMG_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"<img(?:[^>]*?alt=["']([^"']*?)["'])?[^>]*>"#).unwrap());
 static TAG_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"</?([a-zA-Z][a-zA-Z0-9]*).*?>").unwrap());
@@ -84,144 +82,49 @@ pub fn validate_html(html: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn convert_table_to_markdown(html: String) -> String {
-    let mut markdown = String::new();
-    let result: Result<(), Box<dyn std::error::Error>> = (|| {
-        let rows = TR_REGEX
-            .captures_iter(&html)
-            .filter(|m| m.get(1).is_some())
-            .collect::<Vec<_>>();
+pub fn convert_html_to_markdown(html: String) -> Result<String, Box<dyn std::error::Error>> {
+    // Use pandoc to convert HTML to markdown
+    let mut child = Command::new("pandoc")
+        .arg("-f")
+        .arg("html")
+        .arg("-t")
+        .arg("markdown")
+        .arg("--wrap=none")
+        .arg("--to")
+        .arg("markdown_strict+pipe_tables")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| {
+            format!(
+                "Failed to start pandoc: {}. Make sure pandoc is installed.",
+                e
+            )
+        })?;
 
-        let mut header_count: usize = 0;
-
-        // Get header count to create table matrix
-        if let Some(first_row) = rows.first() {
-            if let Some(row) = first_row.get(1) {
-                for col_match in TD_REGEX.captures_iter(row.as_str()) {
-                    if col_match.get(3).is_some() {
-                        let colspan = col_match
-                            .get(1)
-                            .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-                        header_count += colspan as usize;
-                    }
-                }
-            }
-        }
-
-        let mut table: Vec<Vec<Option<String>>> = vec![vec![None; header_count]; rows.len() + 1];
-
-        for (row_count, row_match) in rows.iter().enumerate() {
-            let mut col_count = 0;
-            if let Some(row) = row_match.get(1) {
-                // Process row cells
-                for col_match in TD_REGEX.captures_iter(row.as_str()) {
-                    let mut row_index = if row_count == 0 {
-                        row_count
-                    } else {
-                        row_count + 1
-                    };
-
-                    if let Some(col) = col_match.get(3) {
-                        let rowspan = col_match
-                            .get(2)
-                            .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-                        let colspan = col_match
-                            .get(1)
-                            .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-
-                        // Find next available column
-                        while col_count < header_count {
-                            let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
-                            let cell =
-                                row.get_mut(col_count).ok_or("Column index out of bounds")?;
-
-                            match cell {
-                                Some(_) => col_count += 1,
-                                None => break,
-                            }
-                        }
-
-                        // Set main cell
-                        let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
-                        let cell = row.get_mut(col_count).ok_or("Column index out of bounds")?;
-                        *cell = Some(col.as_str().to_string());
-                        col_count += 1;
-
-                        // Handle colspan
-                        for _ in 0..(colspan - 1) {
-                            let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
-                            let cell =
-                                row.get_mut(col_count).ok_or("Column index out of bounds")?;
-                            *cell = Some("".to_string());
-                            col_count += 1;
-                        }
-
-                        // Adjust row_index for rowspan processing
-                        row_index += if row_count == 0 { 2 } else { 1 };
-
-                        // Handle rowspan
-                        for row_offset in 0..(rowspan - 1) {
-                            col_count = 0;
-                            row_index += row_offset as usize;
-                            // Find next available column
-                            while col_count < header_count {
-                                let row =
-                                    table.get_mut(row_index).ok_or("Row index out of bounds")?;
-                                let cell =
-                                    row.get_mut(col_count).ok_or("Column index out of bounds")?;
-
-                                match cell {
-                                    Some(_) => col_count += 1,
-                                    None => break,
-                                }
-                            }
-                            let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
-                            let cell =
-                                row.get_mut(col_count).ok_or("Column index out of bounds")?;
-                            *cell = Some("".to_string());
-                            col_count += 1;
-
-                            for _ in 0..(colspan - 1) {
-                                let row =
-                                    table.get_mut(row_index).ok_or("Row index out of bounds")?;
-                                let cell =
-                                    row.get_mut(col_count).ok_or("Column index out of bounds")?;
-                                *cell = Some("".to_string());
-                                col_count += 1;
-                            }
-                        }
-                    }
-                }
-
-                // Add separator row after header
-                if row_count == 0 {
-                    for i in 0..header_count {
-                        table[1][i] = Some("---".to_string());
-                    }
-                }
-            }
-        }
-        table.iter().for_each(|row| {
-            row.iter().enumerate().for_each(|(i, cell)| {
-                if let Some(cell) = cell {
-                    if i == 0 {
-                        markdown.push_str(format!("| {} |", cell).as_str());
-                    } else {
-                        markdown.push_str(format!(" {} |", cell).as_str());
-                    }
-                }
-            });
-            markdown.push('\n');
-        });
-        Ok(())
-    })();
-
-    if result.is_err() {
-        println!("Error converting table to markdown: {:?}", result.err());
-        return String::new();
+    // Write HTML to pandoc's stdin
+    if let Some(stdin) = child.stdin.take() {
+        let mut stdin = stdin;
+        stdin
+            .write_all(html.as_bytes())
+            .map_err(|e| format!("Failed to write to pandoc stdin: {}", e))?;
     }
 
-    markdown
+    // Wait for pandoc to finish and get output
+    let output = child
+        .wait_with_output()
+        .map_err(|e| format!("Failed to wait for pandoc: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Pandoc failed: {}", stderr).into());
+    }
+
+    let markdown = String::from_utf8(output.stdout)
+        .map_err(|e| format!("Failed to parse pandoc output as UTF-8: {}", e))?;
+
+    Ok(markdown.trim().to_string())
 }
 
 #[cfg(test)]
