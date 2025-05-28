@@ -1,7 +1,7 @@
 {
   "name": "chunk-my-docs",
   "private": true,
-  "version": "1.6.3-enterprise",
+  "version": "1.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,9 @@
     "preview:deploy": "pnpm run build:deploy && vite preview"
   },
   "dependencies": {
+    "-": "^0.0.1",
+    "@contentful/rich-text-react-renderer": "^16.0.1",
+    "@contentful/rich-text-types": "^17.0.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.3.0",
@@ -44,6 +47,7 @@
     "axios": "^1.7.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "contentful": "^11.5.23",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.15.0",
     "i": "^0.3.7",
@@ -63,6 +67,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.6",
+    "react-helmet-async": "^2.0.5",
     "react-hot-toast": "^2.4.1",
     "react-json-view": "^1.21.3",
     "react-markdown": "^9.0.1",

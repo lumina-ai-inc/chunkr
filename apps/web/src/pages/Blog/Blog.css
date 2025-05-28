@@ -1,0 +1,234 @@
+.blog-page-container {
+  flex: 1;
+  width: 100%;
+  padding: 64px 24px;
+  z-index: 1;
+}
+
+.blog-page-title {
+  line-height: normal;
+}
+
+.blog-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  max-height: 1024px;
+  z-index: 0;
+  background-image: url("../../assets/blog/blog_cover.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.blog-image-container-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  max-height: 1024px;
+  background-image: linear-gradient(
+    to top,
+    #050609 25%,
+    rgba(2, 6, 9, 0.15) 85%
+  );
+  z-index: 1;
+}
+
+/* Blog Card Styling */
+.blog-card {
+  background: rgba(0, 0, 0, 0.5); /* Match PricingCard background */
+  border-radius: 8px; /* Match PricingCard border-radius */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* Same initial border */
+  box-shadow: 0 4px 16px -6px rgba(0, 0, 0, 0.05),
+    /* Keep initial shadow subtle */ 0 8px 24px -12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Match PricingCard transition */
+  cursor: pointer;
+  /* Removed overflow: hidden and position: relative as shimmer is gone */
+}
+
+/* Removed .blog-card::before shimmer effect */
+
+.blog-card:hover {
+  border-color: rgba(
+    255,
+    255,
+    255,
+    0.08
+  ); /* Keep border consistent on hover like PricingCard */
+  transform: translateY(-8px); /* Match PricingCard hover transform */
+}
+
+/* Removed .blog-card:hover::before */
+
+/* Removed z-index rule for .blog-card > .rt-Flex */
+
+/* Image Container */
+.blog-card-image-container {
+  width: 100%; /* Fixed width for the image */
+  height: 240px; /* Fixed height */
+  flex-shrink: 0; /* Prevent container from shrinking */
+  overflow: hidden; /* Clip the image */
+  background-color: rgba(255, 255, 255, 0.05); /* Placeholder background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: 8px; /* Match card's border radius */
+  border-top-right-radius: 8px; /* Match card's border radius */
+}
+
+.blog-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the container */
+  transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-card-image {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Text Styling */
+.blog-card-title {
+  color: #fff; /* Match primary text color */
+  line-height: 1.3;
+}
+
+.blog-card-subtitle {
+  color: rgba(255, 255, 255, 0.8); /* Slightly dimmer for subtitle */
+  line-height: 1.5;
+  max-width: px;
+}
+
+.blog-card-metadata {
+  color: rgba(255, 255, 255, 0.7); /* Dimmer for metadata */
+}
+
+/* Tags Styling */
+.blog-card-tags {
+  margin-top: 8px;
+}
+
+.blog-card-tag {
+  padding: 4px 10px; /* Adjusted padding */
+  border-radius: 6px; /* Slightly rounded */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Match container border */
+  background: linear-gradient(
+    /* Subtle gradient like .tag-container */ 135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(4px); /* Subtle blur */
+  color: rgba(255, 255, 255, 0.85); /* Brighter tag text */
+  transition: all 0.2s ease;
+  cursor: default; /* Or pointer if tags are interactive */
+  white-space: nowrap;
+}
+
+.blog-card-tag:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .blog-page-container {
+    padding: 32px 16px;
+  }
+
+  .blog-card {
+    padding: 0; /* Let image be full-width, content below has its own padding */
+  }
+
+  .blog-card .rt-Flex {
+    /* Target the inner Flex of the Card */
+    flex-direction: column;
+    align-items: flex-start; /* Align items to start in column layout */
+  }
+
+  .blog-card-image-container {
+    width: 100%; /* Full width image on small screens */
+    height: 180px; /* Adjust height */
+    margin-bottom: 16px; /* Add space below image */
+  }
+}
+
+.blog-page-title {
+  width: 100%;
+  max-width: 848px;
+  letter-spacing: -0.01em !important;
+  font-size: 72px;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.blog-page-description {
+  padding: 8px 16px;
+  margin-bottom: 32px;
+  border-radius: 8px;
+  border: 1px solid #fff;
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-page-description::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: shimmer 8s infinite;
+  animation-delay: 4s;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  20%,
+  100% {
+    left: 200%;
+  }
+}
+
+/* Added header scroll styles */
+.blog-header-container {
+  /* Base styles - these might already be in your inline styles or other classes */
+  position: sticky !important; /* Ensure it sticks */
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    backdrop-filter 0.3s ease; /* Smooth transition */
+  /* Default non-scrolled state (transparent background) */
+  background-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.blog-header-container.scrolled {
+  background-color: rgba(5, 6, 9, 0.8); /* Match Blog.tsx inline style */
+  backdrop-filter: blur(8px); /* Match Blog.tsx inline style */
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05); /* Match Blog.tsx inline style */
+}

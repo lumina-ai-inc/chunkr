@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.5.1...chunkr-web-v1.6.0) (2025-05-28)
+
+
+### Features
+
+* Added blog pages to frontend - hooked up to Contentful CMS + env toggle for Blog page ([#531](https://github.com/lumina-ai-inc/chunkr/issues/531)) ([90d6dd8](https://github.com/lumina-ai-inc/chunkr/commit/90d6dd88aa5e6cd0bb0580185a6f4fbf3523e35d))
+
 ## [1.5.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.5.0...chunkr-web-v1.5.1) (2025-05-22)
 
 
