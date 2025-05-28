@@ -29,6 +29,7 @@ RUN apt-get update -y; \
     file \
     curl \
     imagemagick \
+    pandoc \
     ; \
     mkdir -p /app/tmp && \
     sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
