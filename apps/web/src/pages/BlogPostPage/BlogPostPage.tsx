@@ -36,6 +36,7 @@ import { useAuth } from "react-oidc-context";
 import "./BlogPostPage.css";
 import Prism from "prismjs";
 import BetterButton from "../../components/BetterButton/BetterButton";
+import Loader from "../Loader/Loader";
 // import "prismjs/themes/prism-okaidia.css";
 
 interface HeadingNode {
@@ -426,7 +427,7 @@ export default function BlogPostPage() {
         justify="center"
         style={{ minHeight: "100vh", color: "white" }}
       >
-        <Text>Loading post...</Text>
+        <Loader />
       </Flex>
     );
   }
@@ -636,7 +637,7 @@ export default function BlogPostPage() {
                     <Heading
                       as="h3"
                       size="4"
-                      mb="3"
+                      mb="16px"
                       style={{ color: "var(--gray-2)" }}
                     >
                       Content
@@ -651,7 +652,7 @@ export default function BlogPostPage() {
                           <li
                             key={heading.id}
                             style={{
-                              marginBottom: "8px",
+                              marginBottom: "12px",
                             }}
                           >
                             <a
@@ -663,12 +664,8 @@ export default function BlogPostPage() {
                                 size="2"
                                 color="gray"
                                 style={{
-                                  color:
-                                    heading.level === 3
-                                      ? "var(--gray-9)"
-                                      : "var(--gray-7)",
-                                  fontSize:
-                                    heading.level === 3 ? "14px" : "16px",
+                                  color: "var(--gray-9)",
+                                  fontSize: "16px",
                                 }}
                               >
                                 {heading.text}

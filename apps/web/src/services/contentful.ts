@@ -11,20 +11,15 @@ export interface ImageField {
   contentType?: string | null;
 }
 
-// interface AuthorField { // This interface is not strictly needed if authorInfo is directly typed in BlogPostEntry
-//   name: string | null;
-// }
-
 export interface BlogPostEntry {
   sys: {
     id: string;
   };
   title: string | null;
-  subheadings: string | null; // Used as subtitle
+  subheadings: string | null;
   image: ImageField | null;
   publishedDate: string | null;
   slug: string | null;
-  // Support multiple authors: list of authors with names and optional pictures
   authorsCollection?: {
     items: Array<{
       name: string | null;
@@ -35,18 +30,18 @@ export interface BlogPostEntry {
     json: import("@contentful/rich-text-types").Document; // Specific type for Rich Text JSON
     links?: {
       assets: {
-        block: (ImageField & { sys: { id: string }; contentType?: string })[]; // Typed linked assets
+        block: (ImageField & { sys: { id: string }; contentType?: string })[];
       };
       entries: {
         block: {
           sys: { id: string };
           __typename: string;
           [key: string]: unknown;
-        }[]; // Using unknown instead of any
+        }[];
       };
     };
   } | null;
-  // SEO fields if you add them in Contentful (e.g., metaDescription, metaTitle)
+
   seoTitle?: string | null;
   seoDescription?: string | null;
 }
@@ -61,10 +56,9 @@ interface FetchBlogPostsResponse {
     message: string;
     locations?: { line: number; column: number }[];
     path?: string[];
-  }[]; // Specific type for locations
+  }[];
 }
 
-// Helper function to construct image alt text prioritizing description, then title
 export const getImageAltText = (
   image: ImageField | null | undefined
 ): string => {
@@ -82,7 +76,7 @@ export async function fetchBlogPosts(): Promise<BlogPostEntry[]> {
 
   const query = `
     query {
-      blogPageCollection(order: publishedDate_DESC) { # Order by most recent
+      blogPageCollection(order: publishedDate_DESC, limit: 15) { # Conservative limit
         items {
           sys {
             id
@@ -96,16 +90,16 @@ export async function fetchBlogPosts(): Promise<BlogPostEntry[]> {
           }
           publishedDate
           slug
-          authorsCollection {
+          authorsCollection(limit: 2) { # Limit to 2 authors per post
             items {
               ... on BlogPostAuthor {
                 name
+                picture: avatar {
+                  url
+                }
               }
             }
           }
-          # Add other fields like tags or readingTime if they exist in your Contentful model
-          # tags
-          # readingTime
         }
       }
     }
@@ -137,9 +131,6 @@ export async function fetchBlogPosts(): Promise<BlogPostEntry[]> {
       return [];
     }
 
-    // Log the fetched items to inspect their structure, especially authorInfo
-    // console.log('Fetched items:', body.data.blogPageCollection.items);
-
     return body.data.blogPageCollection.items;
   } catch (error) {
     console.error("Error fetching blog posts from Contentful:", error);
@@ -150,7 +141,7 @@ export async function fetchBlogPosts(): Promise<BlogPostEntry[]> {
 interface FetchBlogPostBySlugResponse {
   data: {
     blogPageCollection: {
-      items: BlogPostEntry[]; // Expecting one item or empty array
+      items: BlogPostEntry[];
     };
   };
   errors?: {
@@ -183,8 +174,8 @@ export async function fetchBlogPostBySlug(
             title
             description
             url
-            width # SEO: good to have for images
-            height # SEO: good to have for images
+            width
+            height
           }
           publishedDate
           slug
@@ -192,6 +183,13 @@ export async function fetchBlogPostBySlug(
             items {
               ... on BlogPostAuthor {
                 name
+                picture: avatar {  
+                  url
+                  title
+                  description
+                  width
+                  height
+                }
               }
             }
           }
@@ -216,18 +214,10 @@ export async function fetchBlogPostBySlug(
                   sys {
                     id
                   }
-                  # Add fields for linked entries within rich text if you have any
-                  # For example, if you embed other content types:
-                  # ... on YourEmbeddedContentType {
-                  #   fieldName
-                  # }
                 }
               }
             }
           }
-          # SEO Fields (if you have them in your Contentful model)
-          # seoTitle
-          # seoDescription
         }
       }
     }
@@ -276,3 +266,38 @@ export async function fetchBlogPostBySlug(
     return null;
   }
 }
+
+export const optimizeContentfulImage = (
+  imageUrl: string | null | undefined,
+  options: {
+    width?: number;
+    height?: number;
+    quality?: number;
+    format?: "webp" | "jpg" | "png" | "avif";
+    fit?: "pad" | "fill" | "scale" | "crop" | "thumb";
+  } = {}
+): string => {
+  if (!imageUrl) return "";
+
+  // Default options for high quality
+  const {
+    width,
+    height,
+    quality = 85, // High quality default
+    format = "webp", // Modern format with good compression
+    fit = "fill",
+  } = options;
+
+  // Build query parameters
+  const params = new URLSearchParams();
+
+  if (width) params.append("w", width.toString());
+  if (height) params.append("h", height.toString());
+  if (quality) params.append("q", quality.toString());
+  if (format) params.append("f", format);
+  if (fit && (width || height)) params.append("fit", fit);
+
+  // Add parameters to URL
+  const separator = imageUrl.includes("?") ? "&" : "?";
+  return `${imageUrl}${separator}${params.toString()}`;
+};

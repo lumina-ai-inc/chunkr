@@ -2,17 +2,17 @@ import { Flex, Text, Heading, Box } from "@radix-ui/themes";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import { useAuth } from "react-oidc-context";
-import "./Blog.css"; // Import the CSS file
+import "./Blog.css";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRef, useEffect, useState } from "react";
-import type { CSSProperties } from "react"; // Added import for CSSProperties
 import blogIcon from "../../assets/animations/blog.json";
-import { Link } from "react-router-dom"; // Import Link
+import { Link } from "react-router-dom";
 import {
   fetchBlogPosts,
   BlogPostEntry,
   getImageAltText,
 } from "../../services/contentful";
+import Loader from "../Loader/Loader";
 
 export default function Blog() {
   const auth = useAuth();
@@ -33,7 +33,6 @@ export default function Blog() {
         setPosts(fetchedPosts);
       } catch (error) {
         console.error("Failed to fetch blog posts:", error);
-        // Optionally set an error state here to display to the user
       } finally {
         setIsLoading(false);
       }
@@ -57,35 +56,34 @@ export default function Blog() {
     }
   };
 
-  // Helper function to render a single blog post card
-  const renderBlogPostCard = (
-    post: BlogPostEntry, // Use BlogPostEntry type
-    styleProps: CSSProperties
-  ) => {
+  const renderBlogPostCard = (post: BlogPostEntry) => {
     const title = post.title || "Untitled Post";
     const subtitle = post.subheadings || "No subtitle available.";
-    const imageUrl = post.image?.url || "/placeholder-image.webp"; // Fallback image
+    const imageUrl = post.image?.url || "/placeholder-image.webp";
     const imageAlt = getImageAltText(post.image) || "Blog post image";
     const datePublished = post.publishedDate
       ? new Date(post.publishedDate)
       : new Date();
-    // Extract authors list for multi-author support
     const authors = post.authorsCollection?.items ?? [];
-    // const writer = post.authorInfo?.name || "Anonymous"; // Assuming authorInfo.name exists
-    // const tags = post.tags || []; // Assuming tags come from Contentful
 
     return (
       <Link
         to={`/blog/${post.slug}`}
         key={post.sys.id}
-        style={{ textDecoration: "none", color: "inherit" }}
+        style={{
+          textDecoration: "none",
+          color: "inherit",
+          flexGrow: 1,
+          flexBasis: "0%",
+          minWidth: 0,
+        }}
       >
         <Flex
           className="blog-card"
           direction="column"
-          style={{ ...styleProps, height: "100%" }}
+          style={{ height: "100%" }}
         >
-          <Flex align="stretch" direction="column" style={{ flex: 1 }}>
+          <Flex align="stretch" direction="column">
             <Box className="blog-card-image-container">
               <img
                 src={imageUrl}
@@ -120,7 +118,7 @@ export default function Blog() {
               </Flex>
 
               <Flex
-                align="center"
+                direction="column"
                 gap="8px"
                 wrap="wrap"
                 className="blog-card-metadata"
@@ -147,20 +145,6 @@ export default function Blog() {
                   </Text>
                 </time>
               </Flex>
-              {/* <Flex
-                gap="16px"
-                wrap="wrap"
-                className="blog-card-tags"
-                style={{ marginTop: "auto" }}
-              >
-                {tags.map((tag) => (
-                  <Flex key={tag} className="blog-card-tag">
-                    <Text size="1" weight="medium">
-                      {tag}
-                    </Text>
-                  </Flex>
-                ))}
-              </Flex> */}
             </Flex>
           </Flex>
         </Flex>
@@ -197,16 +181,7 @@ export default function Blog() {
       </Flex>
 
       {/* Main Content Area */}
-      <Flex
-        direction="column"
-        align="center"
-        style={{
-          flex: 1,
-          width: "100%",
-          padding: "64px 24px",
-          zIndex: 1,
-        }}
-      >
+      <Flex className="blog-page-container" direction="column" align="center">
         <Flex
           direction="column"
           style={{ maxWidth: "1386px", width: "100%", gap: "48px" }}
@@ -248,7 +223,6 @@ export default function Blog() {
               className="blog-page-title"
             >
               {" "}
-              {/* SEO: Main page title is H1 */}
               Chunkr Blog
             </Heading>
 
@@ -259,16 +233,16 @@ export default function Blog() {
               align="center"
               mt="40px"
             >
-              Explore the latest articles, tutorials, and news from our team
+              Explore the latest research, cookbooks, and updates from our team
             </Text>
           </Flex>
 
           {/* Blog Post List */}
           <Flex direction="column" gap="40px" style={{ width: "100%" }}>
             {isLoading ? (
-              <Text>Loading posts...</Text> // Display a loading message
+              <Loader />
             ) : posts.length === 0 ? (
-              <Text>No blog posts found.</Text> // Display if no posts are fetched
+              <Text>No blog posts found.</Text>
             ) : (
               Array.from({ length: Math.ceil(posts.length / 2) }).map(
                 (_, rowIndex) => {
@@ -278,42 +252,20 @@ export default function Blog() {
                   const post2Data =
                     posts.length > post2Index ? posts[post2Index] : null;
 
-                  // Determine pattern:
-                  // Row index 0 (1st row by user): left 2/3, right 1/3
-                  // Row index 1 (2nd row by user): left 1/3, right 2/3
-                  const isTwoThirdsLeftPattern = rowIndex % 2 === 0;
-
-                  const baseFlexGrowShrink = "0 0"; // flex-grow: 0, flex-shrink: 0
-                  const post1FlexBasis = isTwoThirdsLeftPattern
-                    ? "66.66%"
-                    : "33.33%";
-                  const post2FlexBasis = isTwoThirdsLeftPattern
-                    ? "33.33%"
-                    : "66.66%";
-
-                  const post1Style: CSSProperties = {
-                    flex: `${baseFlexGrowShrink} ${post1FlexBasis}`,
-                    maxWidth: post1FlexBasis,
-                  };
-                  const post2Style: CSSProperties = {
-                    flex: `${baseFlexGrowShrink} ${post2FlexBasis}`,
-                    maxWidth: post2FlexBasis,
-                  };
-
                   if (!post1Data) {
                     return null;
                   }
 
                   return (
                     <Flex
-                      key={`row-${rowIndex}`} // Ensure row has a unique key
-                      direction="row"
+                      key={`row-${rowIndex}`}
+                      direction={{ initial: "column", sm: "row" }}
                       gap="40px"
                       align="stretch"
                       style={{ width: "100%" }}
                     >
-                      {renderBlogPostCard(post1Data, post1Style)}
-                      {post2Data && renderBlogPostCard(post2Data, post2Style)}
+                      {renderBlogPostCard(post1Data)}
+                      {post2Data && renderBlogPostCard(post2Data)}
                     </Flex>
                   );
                 }

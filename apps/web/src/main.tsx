@@ -2,7 +2,12 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, AuthProviderProps } from "react-oidc-context";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  RouteObject,
+} from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "@radix-ui/themes/styles.css";
@@ -15,6 +20,7 @@ import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 import Checkout from "./pages/Checkout/Checkout";
 import Blog from "./pages/Blog/Blog.tsx";
 import BlogPostPage from "./pages/BlogPostPage/BlogPostPage";
+const isSelfHost = import.meta.env.VITE_IS_SELF_HOST === "true";
 
 const oidcConfig: AuthProviderProps = {
   authority:
@@ -46,11 +52,11 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />,
       },
-      {
+      !isSelfHost && {
         path: "blog",
         element: <Blog />,
       },
-      {
+      !isSelfHost && {
         path: "blog/:slug",
         element: <BlogPostPage />,
       },
@@ -70,7 +76,7 @@ const router = createBrowserRouter([
           </AuthGuard>
         ),
       },
-    ],
+    ].filter(Boolean) as RouteObject[],
   },
 ]);
 

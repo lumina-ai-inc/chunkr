@@ -1,3 +1,14 @@
+.blog-page-container {
+  flex: 1;
+  width: 100%;
+  padding: 64px 24px;
+  z-index: 1;
+}
+
+.blog-page-title {
+  line-height: normal;
+}
+
 .blog-image-container {
   position: absolute;
   top: 0;
@@ -20,7 +31,7 @@
   max-height: 1024px;
   background-image: linear-gradient(
     to top,
-    #050609 10%,
+    #050609 25%,
     rgba(2, 6, 9, 0.15) 85%
   );
   z-index: 1;
@@ -89,6 +100,7 @@
 .blog-card-subtitle {
   color: rgba(255, 255, 255, 0.8); /* Slightly dimmer for subtitle */
   line-height: 1.5;
+  max-width: px;
 }
 
 .blog-card-metadata {
@@ -128,8 +140,12 @@
 
 /* Responsive Adjustments */
 @media (max-width: 640px) {
+  .blog-page-container {
+    padding: 32px 16px;
+  }
+
   .blog-card {
-    padding: 24px; /* Adjust padding for smaller screens if needed */
+    padding: 0; /* Let image be full-width, content below has its own padding */
   }
 
   .blog-card .rt-Flex {
