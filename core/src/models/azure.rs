@@ -1,5 +1,5 @@
 use crate::models::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
-use crate::utils::services::html::convert_table_to_markdown;
+use crate::utils::services::html::convert_html_to_markdown;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::error::Error;
@@ -770,7 +770,7 @@ fn table_to_html(table: &Table) -> Result<String, Box<dyn Error>> {
 }
 
 fn table_to_markdown(table: &Table) -> Result<String, Box<dyn Error>> {
-    Ok(convert_table_to_markdown(table_to_html(table)?)?)
+    Ok(convert_html_to_markdown(table_to_html(table)?)?)
 }
 
 fn create_word_bbox(polygon: &[f64], unit: Option<&str>) -> Result<BoundingBox, Box<dyn Error>> {

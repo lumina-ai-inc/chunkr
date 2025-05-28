@@ -82,7 +82,7 @@ pub fn validate_html(html: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn convert_table_to_markdown(html: String) -> Result<String, Box<dyn std::error::Error>> {
+pub fn convert_html_to_markdown(html: String) -> Result<String, Box<dyn std::error::Error>> {
     // Use pandoc to convert HTML to markdown
     let mut child = Command::new("pandoc")
         .arg("-f")
