@@ -755,8 +755,8 @@ fn table_to_html(table: &Table) -> String {
     html
 }
 
-fn table_to_markdown(table: &Table) -> String {
-    convert_table_to_markdown(table_to_html(table))
+fn table_to_markdown(table: &Table) -> Result<String, Box<dyn Error>> {
+    convert_html_to_markdown(table_to_html(table)?)
 }
 
 fn create_word_bbox(polygon: &[f64], unit: Option<&str>) -> Result<BoundingBox, Box<dyn Error>> {
