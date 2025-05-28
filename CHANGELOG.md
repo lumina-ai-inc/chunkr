@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.19.0...v1.20.0) (2025-05-28)
+
+
+### Features
+
+* Added blog pages to frontend - hooked up to Contentful CMS + env toggle for Blog page ([#531](https://github.com/lumina-ai-inc/chunkr/issues/531)) ([90d6dd8](https://github.com/lumina-ai-inc/chunkr/commit/90d6dd88aa5e6cd0bb0580185a6f4fbf3523e35d))
+
 ## [1.19.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.18.3...v1.19.0) (2025-05-25)
 
 
