@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.20.0...v1.20.1) (2025-05-28)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#541](https://github.com/lumina-ai-inc/chunkr/issues/541)) ([00db663](https://github.com/lumina-ai-inc/chunkr/commit/00db66361022d5566f281badf327a73724da7922))
+* Update default for high resolution to true ([#536](https://github.com/lumina-ai-inc/chunkr/issues/536)) ([37cc757](https://github.com/lumina-ai-inc/chunkr/commit/37cc757ea41acce4a662a127bc141e77b56cda03))
+* Update robots.txt and blog post page, added sitemap, and removed toast from auth  ([#535](https://github.com/lumina-ai-inc/chunkr/issues/535)) ([3c8f827](https://github.com/lumina-ai-inc/chunkr/commit/3c8f82701d4ff40f932b24607da2dfd394f31e60))
+* Updated manual conversion from html to mkd to pandoc ([#539](https://github.com/lumina-ai-inc/chunkr/issues/539)) ([16cc847](https://github.com/lumina-ai-inc/chunkr/commit/16cc847f5728bd963bf8f367579721098190141c))
+
+
+### Performance Improvements
+
+* Improved llm analytics for extraction errors ([#538](https://github.com/lumina-ai-inc/chunkr/issues/538)) ([0302499](https://github.com/lumina-ai-inc/chunkr/commit/0302499f9942c3f2d0f3888ef419d7e2f6945394))
+
 ## [1.20.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.19.0...v1.20.0) (2025-05-28)
 
 
