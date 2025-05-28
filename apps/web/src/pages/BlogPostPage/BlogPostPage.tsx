@@ -405,12 +405,13 @@ export default function BlogPostPage() {
     },
   };
 
-  const pageTitle = post?.seoTitle || post?.title || "Blog Post";
+  const pageTitle = post?.title || post?.seoTitle || "Blog Post";
   const pageDescription =
-    post?.seoDescription ||
     post?.subheadings ||
+    post?.seoDescription ||
     "Read this interesting blog post.";
   const pageImage = post?.image?.url;
+  const pageUrl = window.location.href;
 
   if (isLoading) {
     return (
@@ -458,6 +459,7 @@ export default function BlogPostPage() {
         <meta name="description" content={pageDescription} />
         <meta property="og:title" content={`${pageTitle} - Chunkr Blog`} />
         <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={pageUrl} />
         {pageImage && <meta property="og:image" content={pageImage} />}
         <meta property="og:type" content="article" />
         {post.publishedDate && (

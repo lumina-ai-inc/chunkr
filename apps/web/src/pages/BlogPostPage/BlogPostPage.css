@@ -113,27 +113,27 @@ article li {
   color: #fff !important;
 }
 
-pre[class*="language-"] {
+span pre[class*="language-"] {
   background: #000000 !important;
   padding: 10px !important;
   border: 1px solid var(--gray-12) !important;
 }
 
-pre[class*="language-"]::-webkit-scrollbar {
+span pre[class*="language-"]::-webkit-scrollbar {
   width: 3px;
   height: 3px;
 }
 
-pre[class*="language-"]::-webkit-scrollbar-track {
+span pre[class*="language-"]::-webkit-scrollbar-track {
   background: unset;
 }
 
-pre[class*="language-"]::-webkit-scrollbar-thumb {
+span pre[class*="language-"]::-webkit-scrollbar-thumb {
   background: var(--gray-9);
   border-radius: 4px;
 }
 
-pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+span pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
   background: var(--gray-7);
 }
 
