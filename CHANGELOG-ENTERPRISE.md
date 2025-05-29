@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.21.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.21.0-enterprise...v1.21.1-enterprise) (2025-05-29)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([#541](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/541)) ([00db663](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/00db66361022d5566f281badf327a73724da7922))
+* Update default for high resolution to true ([#536](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/536)) ([37cc757](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/37cc757ea41acce4a662a127bc141e77b56cda03))
+* Update robots.txt and blog post page, added sitemap, and removed toast from auth  ([#535](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/535)) ([3c8f827](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/3c8f82701d4ff40f932b24607da2dfd394f31e60))
+* Updated manual conversion from html to mkd to pandoc ([#539](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/539)) ([16cc847](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/16cc847f5728bd963bf8f367579721098190141c))
+
+
+### Performance Improvements
+
+* Improved llm analytics for extraction errors ([#538](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/538)) ([0302499](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0302499f9942c3f2d0f3888ef419d7e2f6945394))
+
 ## [1.21.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.20.4-enterprise...v1.21.0-enterprise) (2025-05-28)
 
 

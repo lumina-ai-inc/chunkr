@@ -1,8 +1,8 @@
 {
-    "core": "1.16.0-enterprise",
+    "core": "1.16.1-enterprise",
     "services": "0.1.9-enterprise",
-    "apps/web": "1.7.0-enterprise",
+    "apps/web": "1.7.1-enterprise",
     "kube/charts/chunkr": "1.1.0-enterprise",
-    ".": "1.21.0-enterprise",
+    ".": "1.21.1-enterprise",
     "kube/charts/chunkr-enterprise": "1.2.1"
 }

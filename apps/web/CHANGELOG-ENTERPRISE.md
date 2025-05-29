@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.7.0-enterprise...chunkr-web-enterprise-v1.7.1-enterprise) (2025-05-29)
+
+
+### Bug Fixes
+
+* Update default for high resolution to true ([#536](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/536)) ([37cc757](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/37cc757ea41acce4a662a127bc141e77b56cda03))
+* Update robots.txt and blog post page, added sitemap, and removed toast from auth  ([#535](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/535)) ([3c8f827](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/3c8f82701d4ff40f932b24607da2dfd394f31e60))
+
 ## [1.7.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.6.3-enterprise...chunkr-web-enterprise-v1.7.0-enterprise) (2025-05-28)
 
 
