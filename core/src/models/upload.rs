@@ -90,7 +90,7 @@ pub struct CreateForm {
     /// The name of the file to be uploaded. If not set a name will be generated.
     pub file_name: Option<String>,
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
-    #[schema(default = false)]
+    #[schema(default = true)]
     pub high_resolution: Option<bool>,
     #[schema(default = "All")]
     pub ocr_strategy: Option<OcrStrategy>,
@@ -118,7 +118,7 @@ impl CreateForm {
     }
 
     fn get_high_resolution(&self) -> bool {
-        self.high_resolution.unwrap_or(false)
+        self.high_resolution.unwrap_or(true)
     }
 
     fn get_ocr_strategy(&self) -> OcrStrategy {

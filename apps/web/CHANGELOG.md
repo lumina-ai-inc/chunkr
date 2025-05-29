@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.6.0...chunkr-web-v1.6.1) (2025-05-28)
+
+
+### Bug Fixes
+
+* Update default for high resolution to true ([#536](https://github.com/lumina-ai-inc/chunkr/issues/536)) ([37cc757](https://github.com/lumina-ai-inc/chunkr/commit/37cc757ea41acce4a662a127bc141e77b56cda03))
+* Update robots.txt and blog post page, added sitemap, and removed toast from auth  ([#535](https://github.com/lumina-ai-inc/chunkr/issues/535)) ([3c8f827](https://github.com/lumina-ai-inc/chunkr/commit/3c8f82701d4ff40f932b24607da2dfd394f31e60))
+
 ## [1.6.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.5.1...chunkr-web-v1.6.0) (2025-05-28)
 
 

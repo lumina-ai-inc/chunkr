@@ -215,7 +215,7 @@ export const DEFAULT_CHUNK_PROCESSING: ChunkProcessing = {
 
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   chunk_processing: DEFAULT_CHUNK_PROCESSING,
-  high_resolution: false,
+  high_resolution: true,
   ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
