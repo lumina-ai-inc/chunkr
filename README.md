@@ -19,6 +19,8 @@
     <a href="#connect-with-us">Contact</a>
     ·
      <a href="https://discord.gg/XzKWFByKzW">Discord</a>
+    ·
+    [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lumina-ai-inc/chunkr)
   </p>
 </div>
 
