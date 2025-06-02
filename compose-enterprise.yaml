@@ -26,7 +26,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 30
+      replicas: 20
     restart: always
     volumes:
       - ./models.yaml:/app/models.yaml:ro
