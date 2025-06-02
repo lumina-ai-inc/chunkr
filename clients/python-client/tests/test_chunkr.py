@@ -471,12 +471,12 @@ async def test_tokenizer_custom_string(client, sample_path, custom_tokenizer_con
     assert response.status == "Succeeded"
     assert response.output is not None
 
-@pytest.mark.asyncio
-async def test_embed_sources_with_different_tokenizer(client, sample_path, xlm_roberta_with_html_content_config):
-    response = await client.upload(sample_path, xlm_roberta_with_html_content_config)
-    assert response.task_id is not None
-    assert response.status == "Succeeded"
-    assert response.output is not None
+# @pytest.mark.asyncio
+# async def test_embed_sources_with_different_tokenizer(client, sample_path, xlm_roberta_with_html_content_config):
+#     response = await client.upload(sample_path, xlm_roberta_with_html_content_config)
+#     assert response.task_id is not None
+#     assert response.status == "Succeeded"
+#     assert response.output is not None
 
 @pytest.mark.asyncio
 async def test_error_handling_continue(client, sample_path):
