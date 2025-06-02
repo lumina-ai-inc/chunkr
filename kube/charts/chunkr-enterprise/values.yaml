@@ -197,6 +197,14 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: VITE_STRIPE_API_KEY
+      - name: VITE_CONTENTFUL_SPACE_ID
+        value: grf9ilg5id1c
+      - name: VITE_CONTENTFUL_ACCESS_TOKEN
+        value: 5ch8Byc3qxjeD6e1j3rRnvm20zpBlpwSynSAQOMMus8
+      - name: VITE_CONTENTFUL_ENVIRONMENT
+        value: master
+      - name: VITE_IS_SELF_HOST
+        value: 'false'
   ocr:
     enabled: true
     image:
