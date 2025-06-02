@@ -313,7 +313,7 @@ pub async fn llm_handler(
         let model = llm_config.get_model(Some(model_id.clone()))?;
         let fallback_model = llm_config.get_fallback_model(fallback_strategy.clone())?;
         let ctx_clone = ctx.clone();
-        println!("Fallback content: {:?}", fallback_content);
+        println!("Fallback content exists: {:?}", fallback_content.is_some());
 
         try_extract_from_open_ai_response(
             model,
