@@ -29,8 +29,18 @@ RUN apt-get update -y && \
     libreoffice \
     file \
     curl \
-    imagemagick && \
+    imagemagick \
+    pandoc && \
     rm -rf /var/lib/apt/lists/*
+
+# Check if pandoc is installed and print version, else print error and exit
+RUN if command -v pandoc >/dev/null 2>&1; then \
+        echo "Pandoc version:"; \
+        pandoc --version; \
+    else \
+        echo "Pandoc is not installed!" >&2; \
+        exit 1; \
+    fi
 
 # Tweak ImageMagick policy
 RUN sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml

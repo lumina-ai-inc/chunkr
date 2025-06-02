@@ -13,6 +13,8 @@ services:
     deploy:
       replicas: 1
     restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
 
   task:
     image: luminainc/task-azure:1.21.1-enterprise
@@ -26,6 +28,8 @@ services:
     deploy:
       replicas: 30
     restart: always
+    volumes:
+      - ./models.yaml:/app/models.yaml:ro
 
   web:
     image: luminainc/web:1.21.1-enterprise
