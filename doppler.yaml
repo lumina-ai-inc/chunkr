@@ -1,0 +1,13 @@
+setup:
+  - project: chunkr-root
+    config: dev_personal
+    path: /
+  - project: chunkr-core
+    config: dev_personal
+    path: core/
+  - project: chunkr-web
+    config: dev_personal
+    path: apps/web/
+  - project: chunkr-clients
+    config: dev_personal
+    path: clients/python_client

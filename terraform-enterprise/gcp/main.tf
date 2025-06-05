@@ -259,10 +259,7 @@ resource "google_compute_router" "router" {
   name    = "${local.current_config.base_name}-router"
   region  = local.current_config.region
   network = google_compute_network.vpc_network.id
-}
-
-module "cloud-nat" {
-  source                             = "terraform-google-modules/cloud-nat/google"
+}--project chunkr-infra --config $DOPPLER_CONFIG 
   version                            = "~> 5.0"
   project_id                         = local.current_config.project
   region                             = local.current_config.region
