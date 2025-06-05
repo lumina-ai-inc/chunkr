@@ -213,3 +213,27 @@ scripts/frontend_pdfs
 otel-collector-config.yaml
 
 scripts/error-profiling/data/*
+
+# DR Test Results - contains sensitive infrastructure data
+terraform-enterprise/gcp/dr-test-results/
+**/dr-test-results/
+dr-test-*/
+**/dr-test-*/
+dr-test-*.log
+dr-detailed-*.log
+dr-test-report-*.md
+personnel-*.json
+*-destroy-*.json
+*-recreation-*.json
+destruction-time-*.txt
+recreation-time-*.txt
+
+# Backup Isolation Evidence
+backup-isolation-evidence/
+**/backup-isolation-evidence/
+backup-isolation-*.log
+backup-isolation-*.md
+backup-isolation-*.json
+backup-isolation-*.txt
+backup-isolation-*.csv
+backup-isolation-*.html

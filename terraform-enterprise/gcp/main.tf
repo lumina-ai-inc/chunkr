@@ -5,101 +5,152 @@ terraform {
       version = "5.30.0"
     }
   }
-  backend "s3" {}
+  backend "s3" {
+    bucket               = "tf-backend-chunkr"
+    key                  = "chunkr/gcp/terraform.tfstate" # Single state file, workspace-aware
+    region               = "us-west-1"
+    encrypt              = true
+    dynamodb_table       = "tf-backend-chunkr"
+    workspace_key_prefix = "workspaces" # This creates separate state files per workspace
+  }
 }
 
-variable "project" {
-  type        = string
-  description = "The GCP project ID"
-}
-
-variable "region" {
-  default = "us-central1"
-}
-
-variable "zone_suffix" {
-  type        = string
-  description = "The zone suffix to use within the region (e.g., 'a', 'b', 'c')"
-  default     = "b"
-}
-
-variable "base_name" {
-  type = string
-}
-
+# Variables for secrets (will be passed via doppler run)
 variable "postgres_username" {
   type        = string
-  description = "The username for the PostgreSQL database"
-  default     = "postgres"
+  description = "PostgreSQL username from Doppler"
+  sensitive   = true
 }
 
 variable "postgres_password" {
   type        = string
-  description = "The password for the PostgreSQL database"
+  description = "PostgreSQL password from Doppler"
   sensitive   = true
-  default     = "postgres"
 }
 
-variable "chunkr_db" {
-  default = "chunkr"
+# Optional location override variables for DR testing
+variable "override_region" {
+  type        = string
+  description = "Override the default region for DR testing"
+  default     = ""
 }
 
-variable "keycloak_db" {
-  default = "keycloak"
+variable "override_zone_suffix" {
+  type        = string
+  description = "Override the default zone suffix for DR testing"
+  default     = ""
 }
 
-variable "general_vm_count" {
-  default = 1
-}
+# Use locals to handle workspace-specific configurations
+locals {
+  workspace_configs = {
+    prod = {
+      project               = "lumina-prod-424120"
+      base_name             = "chunkr-prod"
+      region                = "us-west1"
+      zone_suffix           = "b"
+      chunkr_db             = "chunkr"
+      keycloak_db           = "keycloak"
+      gpu_vm_count          = 3
+      gpu_min_vm_count      = 3
+      gpu_max_vm_count      = 3
+      general_vm_count      = 1
+      general_min_vm_count  = 1
+      general_max_vm_count  = 1
+      general_machine_type  = "n2-highmem-16"
+      gpu_machine_type      = "a2-highgpu-1g"
+      gpu_accelerator_type  = "nvidia-tesla-a100"
+      gpu_accelerator_count = 1
+    }
+    dev = {
+      project               = "lumina-prod-424120"
+      base_name             = "chunkr-dev"
+      region                = "us-central1"
+      zone_suffix           = "b"
+      chunkr_db             = "chunkr"
+      keycloak_db           = "keycloak"
+      gpu_vm_count          = 1
+      gpu_min_vm_count      = 1
+      gpu_max_vm_count      = 1
+      general_vm_count      = 1
+      general_min_vm_count  = 1
+      general_max_vm_count  = 1
+      general_machine_type  = "n2-highmem-16"
+      gpu_machine_type      = "a2-highgpu-1g"
+      gpu_accelerator_type  = "nvidia-tesla-a100"
+      gpu_accelerator_count = 1
+    }
+    staging = {
+      project               = "lumina-prod-424120"
+      base_name             = "chunkr-staging"
+      region                = "us-east1"
+      zone_suffix           = "b"
+      chunkr_db             = "chunkr"
+      keycloak_db           = "keycloak"
+      gpu_vm_count          = 0
+      gpu_min_vm_count      = 0
+      gpu_max_vm_count      = 0
+      general_vm_count      = 0
+      general_min_vm_count  = 0
+      general_max_vm_count  = 0
+      general_machine_type  = "n2-highmem-8"
+      gpu_machine_type      = "a2-highgpu-1g"
+      gpu_accelerator_type  = "nvidia-tesla-a100"
+      gpu_accelerator_count = 1
+    }
+    turbolearn = {
+      project               = "turbolearn-ai"
+      base_name             = "turbolearn-chunkr"
+      region                = "us-west1"
+      zone_suffix           = "b"
+      chunkr_db             = "chunkr"
+      keycloak_db           = "keycloak"
+      gpu_vm_count          = 3
+      gpu_min_vm_count      = 3
+      gpu_max_vm_count      = 3
+      general_vm_count      = 1
+      general_min_vm_count  = 1
+      general_max_vm_count  = 1
+      general_machine_type  = "n2-highmem-32"
+      gpu_machine_type      = "a2-highgpu-1g"
+      gpu_accelerator_type  = "nvidia-tesla-a100"
+      gpu_accelerator_count = 1
+    }
+  }
 
-variable "general_min_vm_count" {
-  default = 1
-}
-
-variable "general_max_vm_count" {
-  default = 1
-}
-
-variable "general_machine_type" {
-  default = "n2-highmem-16"
-}
-
-variable "gpu_vm_count" {
-  default = 1
-}
-
-variable "gpu_min_vm_count" {
-  default = 1
-}
-
-variable "gpu_max_vm_count" {
-  default = 1
-}
-
-variable "gpu_machine_type" {
-  default = "a2-highgpu-1g"
-}
-
-variable "gpu_accelerator_type" {
-  default = "nvidia-tesla-a100"
-}
-
-variable "gpu_accelerator_count" {
-  default = 1
+  # Get current workspace config with optional overrides
+  base_config = local.workspace_configs[terraform.workspace]
+  current_config = {
+    project               = local.base_config.project
+    base_name             = local.base_config.base_name
+    region                = var.override_region != "" ? var.override_region : local.base_config.region
+    zone_suffix           = var.override_zone_suffix != "" ? var.override_zone_suffix : local.base_config.zone_suffix
+    chunkr_db             = local.base_config.chunkr_db
+    keycloak_db           = local.base_config.keycloak_db
+    gpu_vm_count          = local.base_config.gpu_vm_count
+    gpu_min_vm_count      = local.base_config.gpu_min_vm_count
+    gpu_max_vm_count      = local.base_config.gpu_max_vm_count
+    general_vm_count      = local.base_config.general_vm_count
+    general_min_vm_count  = local.base_config.general_min_vm_count
+    general_max_vm_count  = local.base_config.general_max_vm_count
+    general_machine_type  = local.base_config.general_machine_type
+    gpu_machine_type      = local.base_config.gpu_machine_type
+    gpu_accelerator_type  = local.base_config.gpu_accelerator_type
+    gpu_accelerator_count = local.base_config.gpu_accelerator_count
+  }
 }
 
 provider "google" {
-  region  = var.region
-  project = var.project
+  region  = local.current_config.region
+  project = local.current_config.project
 }
-
 
 ###############################################################
 # Google Cloud Storage
 ###############################################################
 resource "google_storage_bucket" "project_bucket" {
-  name          = "${var.base_name}-bucket"
-  location      = var.region
+  name          = "${local.current_config.base_name}-bucket"
+  location      = local.current_config.region
   force_destroy = true
   storage_class = "STANDARD"
 
@@ -114,10 +165,33 @@ resource "google_storage_bucket" "project_bucket" {
 }
 
 ###############################################################
+# Audit Logging (Compliance Requirement)
+###############################################################
+resource "google_storage_bucket" "audit_logs_bucket" {
+  name          = "${local.current_config.base_name}-audit-logs"
+  location      = local.current_config.region
+  force_destroy = true
+  storage_class = "STANDARD"
+}
+
+resource "google_logging_project_sink" "audit_sink" {
+  name        = "${local.current_config.base_name}-audit-sink"
+  destination = "storage.googleapis.com/${google_storage_bucket.audit_logs_bucket.name}"
+
+  unique_writer_identity = true
+}
+
+resource "google_storage_bucket_iam_member" "audit_sink_writer" {
+  bucket = google_storage_bucket.audit_logs_bucket.name
+  role   = "roles/storage.objectCreator"
+  member = google_logging_project_sink.audit_sink.writer_identity
+}
+
+###############################################################
 # GCS Interoperability (S3-compatible) Setup
 ###############################################################
 resource "google_service_account" "gcs_interop" {
-  account_id   = "${var.base_name}-gcs-interop"
+  account_id   = "${local.current_config.base_name}-gcs-interop"
   display_name = "GCS Interoperability Service Account"
 }
 
@@ -135,33 +209,28 @@ resource "google_storage_bucket_iam_member" "gcs_interop_object_admin" {
 ###############################################################
 # Set up the Networking Components
 ###############################################################
-
 resource "google_compute_network" "vpc_network" {
-  name                    = "${var.base_name}-vpc-network"
+  name                    = "${local.current_config.base_name}-vpc-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "vpc_subnet" {
-  name          = "${var.base_name}-vpc-subnet"
+  name          = "${local.current_config.base_name}-vpc-subnet"
   ip_cidr_range = "10.3.0.0/16"
-  region        = var.region
+  region        = local.current_config.region
   network       = google_compute_network.vpc_network.id
-}
 
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "${var.base_name}-allow-ssh"
-  network = google_compute_network.vpc_network.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+    metadata_fields      = []
+    filter_expr          = "true"
   }
-
-  source_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_firewall" "allow_port_8000" {
-  name    = "${var.base_name}-allow-port-8000"
+  name    = "${local.current_config.base_name}-allow-port-8000"
   network = google_compute_network.vpc_network.name
 
   allow {
@@ -174,7 +243,7 @@ resource "google_compute_firewall" "allow_port_8000" {
 }
 
 resource "google_compute_firewall" "allow_egress" {
-  name    = "${var.base_name}-allow-egress"
+  name    = "${local.current_config.base_name}-allow-egress"
   network = google_compute_network.vpc_network.name
 
   allow {
@@ -186,48 +255,68 @@ resource "google_compute_firewall" "allow_egress" {
 }
 
 resource "google_compute_router" "router" {
-  project = var.project
-  name    = "${var.base_name}-router"
-  region  = var.region
+  project = local.current_config.project
+  name    = "${local.current_config.base_name}-router"
+  region  = local.current_config.region
   network = google_compute_network.vpc_network.id
 }
 
 module "cloud-nat" {
   source                             = "terraform-google-modules/cloud-nat/google"
   version                            = "~> 5.0"
-  project_id                         = var.project
-  region                             = var.region
+  project_id                         = local.current_config.project
+  region                             = local.current_config.region
   router                             = google_compute_router.router.name
-  name                               = "${var.base_name}-nat"
+  name                               = "${local.current_config.base_name}-nat"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
 resource "google_compute_global_address" "private_ip_address" {
-  name          = "${var.base_name}-private-ip"
+  name          = "${local.current_config.base_name}-private-ip"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
   network       = google_compute_network.vpc_network.id
 }
 
+# Enable the Service Networking API
 resource "google_project_service" "servicenetworking" {
-  project            = var.project
+  project            = local.current_config.project
   service            = "servicenetworking.googleapis.com"
   disable_on_destroy = false
+}
+
+# Force creation of the service networking service account and grant permissions
+resource "google_project_iam_member" "servicenetworking_role" {
+  project    = local.current_config.project
+  role       = "roles/servicenetworking.serviceAgent"
+  member     = "serviceAccount:service-${data.google_project.current.number}@service-networking.iam.gserviceaccount.com"
+  depends_on = [google_project_service.servicenetworking]
+}
+
+# Get the current project data
+data "google_project" "current" {
+  project_id = local.current_config.project
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-  depends_on              = [google_project_service.servicenetworking]
+  depends_on = [
+    google_project_service.servicenetworking,
+    google_project_iam_member.servicenetworking_role,
+    google_compute_global_address.private_ip_address,
+    google_compute_network.vpc_network
+  ]
 }
+
 ###############################################################
 # K8s configuration
 ###############################################################
 resource "google_container_cluster" "cluster" {
-  name                      = "${var.base_name}-cluster"
-  location                  = "${var.region}-${var.zone_suffix}"
+  name                      = "${local.current_config.base_name}-cluster"
+  location                  = "${local.current_config.region}-${local.current_config.zone_suffix}"
   remove_default_node_pool  = true
   initial_node_count        = 1
   default_max_pods_per_node = 256
@@ -262,18 +351,18 @@ resource "google_container_cluster" "cluster" {
 
 resource "google_container_node_pool" "general_purpose_nodes" {
   name       = "general-compute"
-  location   = "${var.region}-${var.zone_suffix}"
+  location   = "${local.current_config.region}-${local.current_config.zone_suffix}"
   cluster    = google_container_cluster.cluster.name
-  node_count = var.general_vm_count
+  node_count = local.current_config.general_vm_count
 
   autoscaling {
-    min_node_count = var.general_min_vm_count
-    max_node_count = var.general_max_vm_count
+    min_node_count = local.current_config.general_min_vm_count
+    max_node_count = local.current_config.general_max_vm_count
   }
 
   node_config {
     preemptible  = false
-    machine_type = var.general_machine_type
+    machine_type = local.current_config.general_machine_type
 
     resource_labels = {
       "goog-gke-node-pool-provisioning-model" = "on-demand"
@@ -292,7 +381,7 @@ resource "google_container_node_pool" "general_purpose_nodes" {
     }
 
     labels = {
-      cluster_name = "${var.base_name}-cluster"
+      cluster_name = "${local.current_config.base_name}-cluster"
       purpose      = "general-compute"
       node_pool    = "general-compute"
     }
@@ -304,15 +393,15 @@ resource "google_container_node_pool" "general_purpose_nodes" {
       pod_pids_limit     = 4096
     }
 
-    tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-general-compute"]
+    tags = ["gke-${local.current_config.project}-${local.current_config.region}", "gke-${local.current_config.project}-${local.current_config.region}-general-compute"]
   }
 }
 
 resource "google_container_node_pool" "gpu_nodes" {
   name       = "gpu-compute"
-  location   = "${var.region}-${var.zone_suffix}"
+  location   = "${local.current_config.region}-${local.current_config.zone_suffix}"
   cluster    = google_container_cluster.cluster.name
-  node_count = var.gpu_vm_count
+  node_count = local.current_config.gpu_vm_count
 
   timeouts {
     create = "2h"
@@ -321,13 +410,13 @@ resource "google_container_node_pool" "gpu_nodes" {
   }
 
   autoscaling {
-    min_node_count = var.gpu_min_vm_count
-    max_node_count = var.gpu_max_vm_count
+    min_node_count = local.current_config.gpu_min_vm_count
+    max_node_count = local.current_config.gpu_max_vm_count
   }
 
   node_config {
     preemptible  = false
-    machine_type = var.gpu_machine_type
+    machine_type = local.current_config.gpu_machine_type
     disk_size_gb = 500
 
     resource_labels = {
@@ -344,8 +433,8 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     guest_accelerator {
-      type  = var.gpu_accelerator_type
-      count = var.gpu_accelerator_count
+      type  = local.current_config.gpu_accelerator_type
+      count = local.current_config.gpu_accelerator_count
       gpu_driver_installation_config {
         gpu_driver_version = "LATEST"
       }
@@ -360,7 +449,7 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     labels = {
-      cluster_name = "${var.base_name}-cluster"
+      cluster_name = "${local.current_config.base_name}-cluster"
       purpose      = "gpu-time-sharing"
       node_pool    = "gpu-time-sharing"
     }
@@ -377,7 +466,7 @@ resource "google_container_node_pool" "gpu_nodes" {
       pod_pids_limit     = 4096
     }
 
-    tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-time-sharing"]
+    tags = ["gke-${local.current_config.project}-${local.current_config.region}", "gke-${local.current_config.project}-${local.current_config.region}-gpu-time-sharing"]
   }
 }
 
@@ -386,9 +475,9 @@ resource "google_container_node_pool" "gpu_nodes" {
 # PostgreSQL (Cloud SQL)
 ###############################################################
 resource "google_sql_database_instance" "postgres" {
-  name             = "${var.base_name}-postgres"
+  name             = "${local.current_config.base_name}-postgres"
   database_version = "POSTGRES_14"
-  region           = var.region
+  region           = local.current_config.region
 
   depends_on = [google_service_networking_connection.private_service_connection]
 
@@ -415,6 +504,12 @@ resource "google_sql_database_instance" "postgres" {
   }
 
   deletion_protection = false
+
+  timeouts {
+    create = "20m"
+    update = "20m"
+    delete = "20m"
+  }
 }
 
 resource "time_sleep" "wait_30_seconds" {
@@ -423,14 +518,14 @@ resource "time_sleep" "wait_30_seconds" {
 }
 
 resource "google_sql_database" "chunkr-database" {
-  name     = var.chunkr_db
+  name     = local.current_config.chunkr_db
   instance = google_sql_database_instance.postgres.name
 
   depends_on = [google_sql_database_instance.postgres]
 }
 
 resource "google_sql_database" "keycloak-database" {
-  name     = var.keycloak_db
+  name     = local.current_config.keycloak_db
   instance = google_sql_database_instance.postgres.name
 
   depends_on = [google_sql_database_instance.postgres]
@@ -438,8 +533,8 @@ resource "google_sql_database" "keycloak-database" {
 
 resource "google_sql_user" "users" {
   name     = var.postgres_username
-  instance = google_sql_database_instance.postgres.name
   password = var.postgres_password
+  instance = google_sql_database_instance.postgres.name
 
   depends_on = [
     time_sleep.wait_30_seconds,
@@ -479,13 +574,13 @@ output "postgres_password" {
 }
 
 output "chunkr_postgresql_url" {
-  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${var.chunkr_db}"
+  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${local.current_config.chunkr_db}"
   description = "The connection URL for the PostgreSQL database"
   sensitive   = true
 }
 
 output "keycloak_postgresql_url" {
-  value       = "jdbc:postgresql://${google_sql_database_instance.postgres.private_ip_address}:5432/${var.keycloak_db}"
+  value       = "jdbc:postgresql://${google_sql_database_instance.postgres.private_ip_address}:5432/${local.current_config.keycloak_db}"
   description = "The connection URL for the Keycloak database"
 }
 
