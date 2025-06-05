@@ -259,7 +259,10 @@ resource "google_compute_router" "router" {
   name    = "${local.current_config.base_name}-router"
   region  = local.current_config.region
   network = google_compute_network.vpc_network.id
-}--project chunkr-infra --config $DOPPLER_CONFIG 
+}
+
+module "cloud-nat" {
+  source                             = "terraform-google-modules/cloud-nat/google"
   version                            = "~> 5.0"
   project_id                         = local.current_config.project
   region                             = local.current_config.region
@@ -365,6 +368,10 @@ resource "google_container_node_pool" "general_purpose_nodes" {
       "goog-gke-node-pool-provisioning-model" = "on-demand"
     }
 
+    metadata = {
+      "block-project-ssh-keys" = "TRUE"
+    }
+
     gcfs_config {
       enabled = true
     }
@@ -383,7 +390,6 @@ resource "google_container_node_pool" "general_purpose_nodes" {
       node_pool    = "general-compute"
     }
 
-
     kubelet_config {
       cpu_manager_policy = "static"
       cpu_cfs_quota      = true
@@ -391,6 +397,9 @@ resource "google_container_node_pool" "general_purpose_nodes" {
     }
 
     tags = ["gke-${local.current_config.project}-${local.current_config.region}", "gke-${local.current_config.project}-${local.current_config.region}-general-compute"]
+
+    disk_type    = "pd-ssd"
+    disk_size_gb = 100
   }
 }
 
@@ -419,6 +428,10 @@ resource "google_container_node_pool" "gpu_nodes" {
     resource_labels = {
       "goog-gke-accelerator-type"             = "nvidia-tesla-a100"
       "goog-gke-node-pool-provisioning-model" = "on-demand"
+    }
+
+    metadata = {
+      "block-project-ssh-keys" = "TRUE"
     }
 
     gcfs_config {
@@ -464,6 +477,8 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     tags = ["gke-${local.current_config.project}-${local.current_config.region}", "gke-${local.current_config.project}-${local.current_config.region}-gpu-time-sharing"]
+
+    disk_type = "pd-ssd"
   }
 }
 
