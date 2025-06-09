@@ -312,7 +312,7 @@ impl Task {
                 if segment.segment_type == SegmentType::Picture {
                     // Primary strategy is to use the format and strategy to generate the content
                     if picture_generation_config.strategy == GenerationStrategy::Auto {
-                        segment.content = match picture_generation_config.format {
+                        segment.text = match picture_generation_config.format {
                             SegmentFormat::Html => generate_html(&url.clone().unwrap_or_default()),
                             SegmentFormat::Markdown => {
                                 generate_markdown(&url.clone().unwrap_or_default())

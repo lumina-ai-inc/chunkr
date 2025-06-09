@@ -302,7 +302,7 @@ impl AzureAnalysisResponse {
                                         let segment = Segment {
                                             bbox,
                                             confidence: None,
-                                            content: table_to_text(table)?,
+                                            content: String::new(),
                                             html: table_to_html(table)?,
                                             markdown: table_to_markdown(table)?,
                                             image: None,
@@ -313,6 +313,7 @@ impl AzureAnalysisResponse {
                                             page_number,
                                             segment_id: uuid::Uuid::new_v4().to_string(),
                                             segment_type: SegmentType::Table,
+                                            text: table_to_text(table)?,
                                         };
 
                                         if min_paragraph_idx != usize::MAX {
@@ -371,6 +372,7 @@ impl AzureAnalysisResponse {
                                         page_number,
                                         segment_id: uuid::Uuid::new_v4().to_string(),
                                         segment_type: SegmentType::Picture,
+                                        text: String::new(),
                                     };
 
                                     if min_paragraph_idx != usize::MAX {
@@ -421,7 +423,7 @@ impl AzureAnalysisResponse {
                                     let segment = Segment {
                                         bbox,
                                         confidence: None,
-                                        content: paragraph.content.clone().unwrap_or_default(),
+                                        content: String::new(),
                                         html: String::new(),
                                         markdown: String::new(),
                                         image: None,
@@ -432,6 +434,7 @@ impl AzureAnalysisResponse {
                                         page_number,
                                         segment_id: uuid::Uuid::new_v4().to_string(),
                                         segment_type,
+                                        text: paragraph.content.clone().unwrap_or_default(),
                                     };
                                     all_segments.push(segment);
                                 }
@@ -497,7 +500,7 @@ impl AzureAnalysisResponse {
                         for segment in &mut all_segments {
                             if let Some(ocr_results) = &segment.ocr {
                                 if !ocr_results.is_empty() {
-                                    segment.content = ocr_results
+                                    segment.text = ocr_results
                                         .iter()
                                         .map(|ocr_result| ocr_result.text.clone())
                                         .collect::<Vec<String>>()
@@ -611,7 +614,7 @@ fn process_caption(
                     let segment = Segment {
                         bbox,
                         confidence: None,
-                        content: caption.content.clone().unwrap_or_default(),
+                        content: String::new(),
                         html: String::new(),
                         markdown: String::new(),
                         image: None,
@@ -622,6 +625,7 @@ fn process_caption(
                         page_number,
                         segment_id: uuid::Uuid::new_v4().to_string(),
                         segment_type: SegmentType::Caption,
+                        text: caption.content.clone().unwrap_or_default(),
                     };
                     replacements.entry(first_idx).or_default().push(segment);
                 }

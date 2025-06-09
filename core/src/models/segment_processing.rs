@@ -190,7 +190,8 @@ macro_rules! generation_config {
                 schema_default: $crop_schema_default:literal,
             },
             strategy: {
-                default_fn: $strategy_default:literal,
+                default_fn: $strategy_default:expr,
+                serde_default: $serde_default:literal,
                 schema_default: $strategy_schema_default:literal,
             },
             default_format_fn: $default_format_fn:expr,
@@ -218,7 +219,7 @@ macro_rules! generation_config {
             #[serde(default = "default_output_format")]
             #[schema(default = "Markdown")]
             pub format: SegmentFormat,
-            #[serde(default = $strategy_default)]
+            #[serde(default = $serde_default)]
             #[schema(default = $strategy_schema_default)]
             pub strategy: GenerationStrategy,
             /// Prompt for the LLM model
@@ -278,11 +279,7 @@ macro_rules! generation_config {
 
                 // Get the default format and strategy for this struct type
                 let default_format = $default_format_fn();
-                let default_strategy = match stringify!($strategy_default) {
-                    "default_auto_generation_strategy" => default_auto_generation_strategy(),
-                    "default_llm_generation_strategy" => default_llm_generation_strategy(),
-                    _ => unreachable!("Unknown strategy default function"),
-                };
+                let default_strategy = $strategy_default();
 
                 // Determine format and strategy from new or legacy fields
                 let (resolved_format, resolved_strategy) = match (helper.format, helper.strategy) {
@@ -324,7 +321,8 @@ generation_config! {
             schema_default: "Auto",
         },
         strategy: {
-            default_fn: "default_auto_generation_strategy",
+            default_fn: default_auto_generation_strategy,
+            serde_default: "default_auto_generation_strategy",
             schema_default: "Auto",
         },
         default_format_fn: default_output_format,
@@ -354,7 +352,8 @@ generation_config! {
             schema_default: "Auto",
         },
         strategy: {
-            default_fn: "default_llm_generation_strategy",
+            default_fn: default_llm_generation_strategy,
+            serde_default: "default_llm_generation_strategy",
             schema_default: "LLM",
         },
         default_format_fn: default_output_format,
@@ -384,7 +383,8 @@ generation_config! {
             schema_default: "All",
         },
         strategy: {
-            default_fn: "default_auto_generation_strategy",
+            default_fn: default_auto_generation_strategy,
+            serde_default: "default_auto_generation_strategy",
             schema_default: "Auto",
         },
         default_format_fn: default_output_format,
@@ -414,7 +414,8 @@ generation_config! {
             schema_default: "Auto",
         },
         strategy: {
-            default_fn: "default_llm_generation_strategy",
+            default_fn: default_llm_generation_strategy,
+            serde_default: "default_llm_generation_strategy",
             schema_default: "LLM",
         },
         default_format_fn: default_table_output_format,
