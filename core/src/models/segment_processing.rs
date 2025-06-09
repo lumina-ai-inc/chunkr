@@ -93,7 +93,7 @@ pub enum EmbedSource {
     PartialEq,
     Eq,
 )]
-pub enum OutputFormat {
+pub enum SegmentFormat {
     Html,
     Markdown,
 }
@@ -128,12 +128,12 @@ fn default_picture_cropping_strategy() -> PictureCroppingStrategy {
     PictureCroppingStrategy::All
 }
 
-fn default_output_format() -> OutputFormat {
-    OutputFormat::Markdown
+fn default_output_format() -> SegmentFormat {
+    SegmentFormat::Markdown
 }
 
-fn default_table_output_format() -> OutputFormat {
-    OutputFormat::Html
+fn default_table_output_format() -> SegmentFormat {
+    SegmentFormat::Html
 }
 
 fn default_auto_generation_strategy() -> GenerationStrategy {
@@ -152,9 +152,9 @@ fn default_extended_context() -> bool {
 fn resolve_format_and_strategy(
     html: Option<GenerationStrategy>,
     markdown: Option<GenerationStrategy>,
-    default_format: OutputFormat,
+    default_format: SegmentFormat,
     default_strategy: GenerationStrategy,
-) -> (OutputFormat, GenerationStrategy) {
+) -> (SegmentFormat, GenerationStrategy) {
     match (html, markdown) {
         // Both fields set with same strategy
         (Some(GenerationStrategy::LLM), Some(GenerationStrategy::LLM)) => {
@@ -167,15 +167,15 @@ fn resolve_format_and_strategy(
         }
         // One LLM, one Auto - use the LLM one, prefer HTML format for LLM
         (Some(GenerationStrategy::LLM), Some(GenerationStrategy::Auto)) => {
-            (OutputFormat::Html, GenerationStrategy::LLM)
+            (SegmentFormat::Html, GenerationStrategy::LLM)
         }
         (Some(GenerationStrategy::Auto), Some(GenerationStrategy::LLM)) => {
-            (OutputFormat::Markdown, GenerationStrategy::LLM)
+            (SegmentFormat::Markdown, GenerationStrategy::LLM)
         }
         // Only HTML set
-        (Some(html_strategy), None) => (OutputFormat::Html, html_strategy),
+        (Some(html_strategy), None) => (SegmentFormat::Html, html_strategy),
         // Only Markdown set
-        (None, Some(md_strategy)) => (OutputFormat::Markdown, md_strategy),
+        (None, Some(md_strategy)) => (SegmentFormat::Markdown, md_strategy),
         // Neither set - use defaults for this struct type
         (None, None) => (default_format, default_strategy),
     }
@@ -205,8 +205,8 @@ macro_rules! generation_config {
         /// - `strategy` determines how the content is generated: `Auto` (heuristics) or `LLM` (using Chunkr fine-tuned models)
         /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
         /// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
-        ///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
-        ///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
+        ///   The array's order determines the sequence in which content appears in the embed field (e.g., [Content, LLM] means content (markdown or html)
+        ///   is followed by LLM content).
         ///
         /// **Deprecated fields (for backwards compatibility):**
         /// - `html` - **DEPRECATED**: Use `format: Html` and `strategy` instead
@@ -217,7 +217,7 @@ macro_rules! generation_config {
             pub crop_image: $crop_type,
             #[serde(default = "default_output_format")]
             #[schema(default = "Markdown")]
-            pub format: OutputFormat,
+            pub format: SegmentFormat,
             #[serde(default = $strategy_default)]
             #[schema(default = $strategy_schema_default)]
             pub strategy: GenerationStrategy,
@@ -258,7 +258,7 @@ macro_rules! generation_config {
                     #[serde(default = $crop_default)]
                     crop_image: $crop_type,
                     #[serde(default)]
-                    format: Option<OutputFormat>,
+                    format: Option<SegmentFormat>,
                     #[serde(default)]
                     strategy: Option<GenerationStrategy>,
                     #[serde(default)]
