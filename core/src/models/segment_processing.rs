@@ -72,12 +72,12 @@ impl Default for SegmentProcessing {
     Eq,
 )]
 pub enum EmbedSource {
+    Content,
     #[deprecated(since = "1.16.0", note = "Use `Content` instead")]
     HTML,
     #[deprecated(since = "1.16.0", note = "Use `Content` instead")]
     Markdown,
     LLM,
-    Content,
 }
 
 #[derive(
