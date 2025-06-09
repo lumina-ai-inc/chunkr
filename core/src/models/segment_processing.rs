@@ -1,6 +1,6 @@
 use crate::models::cropping::{CroppingStrategy, PictureCroppingStrategy};
 use postgres_types::{FromSql, ToSql};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
@@ -22,7 +22,7 @@ pub struct SegmentProcessing {
     #[serde(rename = "ListItem", alias = "list_item")]
     pub list_item: Option<AutoGenerationConfig>,
     #[serde(rename = "Table", alias = "table")]
-    pub table: Option<LlmGenerationConfig>,
+    pub table: Option<TableGenerationConfig>,
     #[serde(rename = "Picture", alias = "picture")]
     pub picture: Option<PictureGenerationConfig>,
     #[serde(rename = "Caption", alias = "caption")]
@@ -46,7 +46,7 @@ impl Default for SegmentProcessing {
             section_header: Some(AutoGenerationConfig::default()),
             text: Some(AutoGenerationConfig::default()),
             list_item: Some(AutoGenerationConfig::default()),
-            table: Some(LlmGenerationConfig::default()),
+            table: Some(TableGenerationConfig::default()),
             picture: Some(PictureGenerationConfig::default()),
             caption: Some(AutoGenerationConfig::default()),
             formula: Some(LlmGenerationConfig::default()),
@@ -72,169 +72,30 @@ impl Default for SegmentProcessing {
     Eq,
 )]
 pub enum EmbedSource {
+    #[deprecated(since = "1.16.0", note = "Use `Content` instead")]
     HTML,
+    #[deprecated(since = "1.16.0", note = "Use `Content` instead")]
     Markdown,
     LLM,
     Content,
 }
 
-fn default_embed_sources() -> Vec<EmbedSource> {
-    vec![EmbedSource::Markdown]
-}
-
-// TODO: Change to macro
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
-/// Controls the processing and generation for the segment.
-/// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
-///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
-///   or `Auto` to only crop when needed for post-processing.
-/// - `html` is the HTML output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
-/// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
-/// - `markdown` is the Markdown output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
-/// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
-///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
-///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
-pub struct AutoGenerationConfig {
-    #[serde(default = "default_cropping_strategy")]
-    #[schema(value_type = CroppingStrategy, default = "Auto")]
-    pub crop_image: CroppingStrategy,
-    #[serde(default = "default_auto_generation_strategy")]
-    #[schema(default = "Auto")]
-    pub html: GenerationStrategy,
-    pub llm: Option<String>,
-    #[serde(default = "default_auto_generation_strategy")]
-    #[schema(default = "Auto")]
-    pub markdown: GenerationStrategy,
-    #[serde(default = "default_embed_sources")]
-    #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
-    pub embed_sources: Vec<EmbedSource>,
-    /// Use the full page image as context for LLM generation
-    #[serde(default)]
-    #[schema(default = false)]
-    pub extended_context: bool,
-}
-
-fn default_cropping_strategy() -> CroppingStrategy {
-    CroppingStrategy::Auto
-}
-
-fn default_picture_cropping_strategy() -> PictureCroppingStrategy {
-    PictureCroppingStrategy::All
-}
-
-fn default_auto_generation_strategy() -> GenerationStrategy {
-    GenerationStrategy::Auto
-}
-
-fn default_llm_generation_strategy() -> GenerationStrategy {
-    GenerationStrategy::LLM
-}
-
-impl Default for AutoGenerationConfig {
-    fn default() -> Self {
-        Self {
-            html: GenerationStrategy::Auto,
-            llm: None,
-            markdown: GenerationStrategy::Auto,
-            crop_image: default_cropping_strategy(),
-            embed_sources: default_embed_sources(),
-            extended_context: default_extended_context(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
-/// Controls the processing and generation for the segment.
-/// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
-///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
-///   or `Auto` to only crop when needed for post-processing.
-/// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
-/// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
-/// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
-/// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
-///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
-///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
-pub struct LlmGenerationConfig {
-    #[serde(default = "default_cropping_strategy")]
-    #[schema(value_type = CroppingStrategy, default = "Auto")]
-    pub crop_image: CroppingStrategy,
-    #[serde(default = "default_llm_generation_strategy")]
-    #[schema(default = "LLM")]
-    pub html: GenerationStrategy,
-    /// Prompt for the LLM model
-    pub llm: Option<String>,
-    #[serde(default = "default_llm_generation_strategy")]
-    #[schema(default = "LLM")]
-    pub markdown: GenerationStrategy,
-    #[serde(default = "default_embed_sources")]
-    #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
-    pub embed_sources: Vec<EmbedSource>,
-    /// Use the full page image as context for LLM generation
-    #[serde(default = "default_extended_context")]
-    #[schema(default = false)]
-    pub extended_context: bool,
-}
-
-impl Default for LlmGenerationConfig {
-    fn default() -> Self {
-        Self {
-            html: GenerationStrategy::LLM,
-            llm: None,
-            markdown: GenerationStrategy::LLM,
-            crop_image: default_cropping_strategy(),
-            embed_sources: default_embed_sources(),
-            extended_context: default_extended_context(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
-/// Controls the processing and generation for the segment.
-/// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
-///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
-///   or `Auto` to only crop when needed for post-processing.
-/// - `html` is the HTML output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
-/// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
-/// - `markdown` is the Markdown output for the segment, generated either through heuristic (`Auto`) or using Chunkr fine-tuned models (`LLM`)
-/// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
-///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
-///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
-pub struct PictureGenerationConfig {
-    #[serde(default = "default_picture_cropping_strategy")]
-    #[schema(value_type = PictureCroppingStrategy, default = "All")]
-    pub crop_image: PictureCroppingStrategy,
-    #[serde(default = "default_auto_generation_strategy")]
-    #[schema(default = "Auto")]
-    pub html: GenerationStrategy,
-    /// Prompt for the LLM model
-    pub llm: Option<String>,
-    #[serde(default = "default_auto_generation_strategy")]
-    #[schema(default = "Auto")]
-    pub markdown: GenerationStrategy,
-    #[serde(default = "default_embed_sources")]
-    #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
-    pub embed_sources: Vec<EmbedSource>,
-    /// Use the full page image as context for LLM generation
-    #[serde(default = "default_extended_context")]
-    #[schema(default = false)]
-    pub extended_context: bool,
-}
-
-impl Default for PictureGenerationConfig {
-    fn default() -> Self {
-        Self {
-            html: GenerationStrategy::Auto,
-            llm: None,
-            markdown: GenerationStrategy::Auto,
-            crop_image: default_picture_cropping_strategy(),
-            embed_sources: default_embed_sources(),
-            extended_context: default_extended_context(),
-        }
-    }
-}
-
-fn default_extended_context() -> bool {
-    false
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    ToSchema,
+    Display,
+    EnumString,
+    ToSql,
+    FromSql,
+    PartialEq,
+    Eq,
+)]
+pub enum OutputFormat {
+    Html,
+    Markdown,
 }
 
 #[derive(
@@ -253,4 +114,324 @@ fn default_extended_context() -> bool {
 pub enum GenerationStrategy {
     LLM,
     Auto,
+}
+
+fn default_embed_sources() -> Vec<EmbedSource> {
+    vec![EmbedSource::Markdown]
+}
+
+fn default_cropping_strategy() -> CroppingStrategy {
+    CroppingStrategy::Auto
+}
+
+fn default_picture_cropping_strategy() -> PictureCroppingStrategy {
+    PictureCroppingStrategy::All
+}
+
+fn default_output_format() -> OutputFormat {
+    OutputFormat::Markdown
+}
+
+fn default_table_output_format() -> OutputFormat {
+    OutputFormat::Html
+}
+
+fn default_auto_generation_strategy() -> GenerationStrategy {
+    GenerationStrategy::Auto
+}
+
+fn default_llm_generation_strategy() -> GenerationStrategy {
+    GenerationStrategy::LLM
+}
+
+fn default_extended_context() -> bool {
+    false
+}
+
+/// Helper function to determine format and strategy from legacy html/markdown fields
+fn resolve_format_and_strategy(
+    html: Option<GenerationStrategy>,
+    markdown: Option<GenerationStrategy>,
+    default_format: OutputFormat,
+    default_strategy: GenerationStrategy,
+) -> (OutputFormat, GenerationStrategy) {
+    match (html, markdown) {
+        // Both fields set with same strategy
+        (Some(GenerationStrategy::LLM), Some(GenerationStrategy::LLM)) => {
+            // If both are LLM, prefer the default format for this struct type
+            (default_format, GenerationStrategy::LLM)
+        }
+        (Some(GenerationStrategy::Auto), Some(GenerationStrategy::Auto)) => {
+            // If both are Auto, prefer the default format for this struct type
+            (default_format, GenerationStrategy::Auto)
+        }
+        // One LLM, one Auto - use the LLM one, prefer HTML format for LLM
+        (Some(GenerationStrategy::LLM), Some(GenerationStrategy::Auto)) => {
+            (OutputFormat::Html, GenerationStrategy::LLM)
+        }
+        (Some(GenerationStrategy::Auto), Some(GenerationStrategy::LLM)) => {
+            (OutputFormat::Markdown, GenerationStrategy::LLM)
+        }
+        // Only HTML set
+        (Some(html_strategy), None) => (OutputFormat::Html, html_strategy),
+        // Only Markdown set
+        (None, Some(md_strategy)) => (OutputFormat::Markdown, md_strategy),
+        // Neither set - use defaults for this struct type
+        (None, None) => (default_format, default_strategy),
+    }
+}
+
+macro_rules! generation_config {
+    (
+        $struct_name:ident {
+            crop_image: {
+                type: $crop_type:ty,
+                default_fn: $crop_default:literal,
+                schema_default: $crop_schema_default:literal,
+            },
+            strategy: {
+                default_fn: $strategy_default:literal,
+                schema_default: $strategy_schema_default:literal,
+            },
+            default_format_fn: $default_format_fn:expr,
+        }
+    ) => {
+        #[derive(Debug, Serialize, Clone, ToSchema, ToSql, FromSql)]
+        /// Controls the processing and generation for the segment.
+        /// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
+        ///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
+        ///   or `Auto` to only crop when needed for post-processing.
+        /// - `format` specifies the output format: `Html` or `Markdown`
+        /// - `strategy` determines how the content is generated: `Auto` (heuristics) or `LLM` (using Chunkr fine-tuned models)
+        /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
+        /// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
+        ///   The array's order determines the sequence in which content appears in the embed field (e.g., [Markdown, LLM] means Markdown content
+        ///   is followed by LLM content). This directly affects what content is available for embedding and retrieval.
+        ///
+        /// **Deprecated fields (for backwards compatibility):**
+        /// - `html` - **DEPRECATED**: Use `format: Html` and `strategy` instead
+        /// - `markdown` - **DEPRECATED**: Use `format: Markdown` and `strategy` instead
+        pub struct $struct_name {
+            #[serde(default = $crop_default)]
+            #[schema(value_type = $crop_type, default = $crop_schema_default)]
+            pub crop_image: $crop_type,
+            #[serde(default = "default_output_format")]
+            #[schema(default = "Markdown")]
+            pub format: OutputFormat,
+            #[serde(default = $strategy_default)]
+            #[schema(default = $strategy_schema_default)]
+            pub strategy: GenerationStrategy,
+            /// Prompt for the LLM model
+            pub llm: Option<String>,
+            #[serde(default = "default_embed_sources")]
+            #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
+            pub embed_sources: Vec<EmbedSource>,
+            /// Use the full page image as context for LLM generation
+            #[serde(default = "default_extended_context")]
+            #[schema(default = false)]
+            pub extended_context: bool,
+            /// **DEPRECATED**: Use `format: OutputFormat::Html` and `strategy` instead.
+            /// HTML generation strategy - will be serialized if not None for backwards compatibility.
+            #[deprecated(
+                since = "1.16.0",
+                note = "Use `format: OutputFormat::Html` and `strategy` instead"
+            )]
+            #[serde(skip_serializing_if = "Option::is_none")]
+            pub html: Option<GenerationStrategy>,
+            /// **DEPRECATED**: Use `format: OutputFormat::Markdown` and `strategy` instead.
+            /// Markdown generation strategy - will be serialized if not None for backwards compatibility.
+            #[deprecated(
+                since = "1.16.0",
+                note = "Use `format: OutputFormat::Markdown` and `strategy` instead"
+            )]
+            #[serde(skip_serializing_if = "Option::is_none")]
+            pub markdown: Option<GenerationStrategy>,
+        }
+
+        impl<'de> Deserialize<'de> for $struct_name {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: Deserializer<'de>,
+            {
+                #[derive(Deserialize)]
+                struct Helper {
+                    #[serde(default = $crop_default)]
+                    crop_image: $crop_type,
+                    #[serde(default)]
+                    format: Option<OutputFormat>,
+                    #[serde(default)]
+                    strategy: Option<GenerationStrategy>,
+                    #[serde(default)]
+                    llm: Option<String>,
+                    #[serde(default = "default_embed_sources")]
+                    embed_sources: Vec<EmbedSource>,
+                    #[serde(default = "default_extended_context")]
+                    extended_context: bool,
+                    // Legacy fields
+                    #[serde(default)]
+                    html: Option<GenerationStrategy>,
+                    #[serde(default)]
+                    markdown: Option<GenerationStrategy>,
+                }
+
+                let helper = Helper::deserialize(deserializer)?;
+
+                // Get the default format and strategy for this struct type
+                let default_format = $default_format_fn();
+                let default_strategy = match stringify!($strategy_default) {
+                    "default_auto_generation_strategy" => default_auto_generation_strategy(),
+                    "default_llm_generation_strategy" => default_llm_generation_strategy(),
+                    _ => unreachable!("Unknown strategy default function"),
+                };
+
+                // Determine format and strategy from new or legacy fields
+                let (resolved_format, resolved_strategy) = match (helper.format, helper.strategy) {
+                    // New format: both format and strategy are provided
+                    (Some(format), Some(strategy)) => (format, strategy),
+                    // Partial new format: only format provided, use default strategy
+                    (Some(format), None) => (format, default_strategy),
+                    // Partial new format: only strategy provided, use default format
+                    (None, Some(strategy)) => (default_format, strategy),
+                    // Legacy format: use html/markdown fields
+                    (None, None) => resolve_format_and_strategy(
+                        helper.html.clone(),
+                        helper.markdown.clone(),
+                        default_format,
+                        default_strategy,
+                    ),
+                };
+
+                Ok(Self {
+                    crop_image: helper.crop_image,
+                    format: resolved_format,
+                    strategy: resolved_strategy,
+                    llm: helper.llm,
+                    embed_sources: helper.embed_sources,
+                    extended_context: helper.extended_context,
+                    html: helper.html,
+                    markdown: helper.markdown,
+                })
+            }
+        }
+    };
+}
+
+generation_config! {
+    AutoGenerationConfig {
+        crop_image: {
+            type: CroppingStrategy,
+            default_fn: "default_cropping_strategy",
+            schema_default: "Auto",
+        },
+        strategy: {
+            default_fn: "default_auto_generation_strategy",
+            schema_default: "Auto",
+        },
+        default_format_fn: default_output_format,
+    }
+}
+
+impl Default for AutoGenerationConfig {
+    fn default() -> Self {
+        Self {
+            format: default_output_format(),
+            strategy: default_auto_generation_strategy(),
+            llm: None,
+            crop_image: default_cropping_strategy(),
+            embed_sources: default_embed_sources(),
+            extended_context: default_extended_context(),
+            html: None,
+            markdown: None,
+        }
+    }
+}
+
+generation_config! {
+    LlmGenerationConfig {
+        crop_image: {
+            type: CroppingStrategy,
+            default_fn: "default_cropping_strategy",
+            schema_default: "Auto",
+        },
+        strategy: {
+            default_fn: "default_llm_generation_strategy",
+            schema_default: "LLM",
+        },
+        default_format_fn: default_output_format,
+    }
+}
+
+impl Default for LlmGenerationConfig {
+    fn default() -> Self {
+        Self {
+            format: default_output_format(),
+            strategy: default_llm_generation_strategy(),
+            llm: None,
+            crop_image: default_cropping_strategy(),
+            embed_sources: default_embed_sources(),
+            extended_context: default_extended_context(),
+            html: None,
+            markdown: None,
+        }
+    }
+}
+
+generation_config! {
+    PictureGenerationConfig {
+        crop_image: {
+            type: PictureCroppingStrategy,
+            default_fn: "default_picture_cropping_strategy",
+            schema_default: "All",
+        },
+        strategy: {
+            default_fn: "default_auto_generation_strategy",
+            schema_default: "Auto",
+        },
+        default_format_fn: default_output_format,
+    }
+}
+
+impl Default for PictureGenerationConfig {
+    fn default() -> Self {
+        Self {
+            format: default_output_format(),
+            strategy: default_llm_generation_strategy(),
+            llm: None,
+            crop_image: default_picture_cropping_strategy(),
+            embed_sources: default_embed_sources(),
+            extended_context: default_extended_context(),
+            html: None,
+            markdown: None,
+        }
+    }
+}
+
+generation_config! {
+    TableGenerationConfig {
+        crop_image: {
+            type: CroppingStrategy,
+            default_fn: "default_cropping_strategy",
+            schema_default: "Auto",
+        },
+        strategy: {
+            default_fn: "default_llm_generation_strategy",
+            schema_default: "LLM",
+        },
+        default_format_fn: default_table_output_format,
+    }
+}
+
+impl Default for TableGenerationConfig {
+    fn default() -> Self {
+        Self {
+            format: default_table_output_format(),
+            strategy: default_llm_generation_strategy(),
+            llm: None,
+            crop_image: default_cropping_strategy(),
+            embed_sources: default_embed_sources(),
+            extended_context: default_extended_context(),
+            html: None,
+            markdown: None,
+        }
+    }
 }
