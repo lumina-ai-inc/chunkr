@@ -73,9 +73,9 @@ impl Default for SegmentProcessing {
 )]
 pub enum EmbedSource {
     Content,
-    #[deprecated(since = "1.16.0", note = "Use `Content` instead")]
+    #[deprecated]
     HTML,
-    #[deprecated(since = "1.16.0", note = "Use `Content` instead")]
+    #[deprecated]
     Markdown,
     LLM,
 }
@@ -225,26 +225,18 @@ macro_rules! generation_config {
             /// Prompt for the LLM model
             pub llm: Option<String>,
             #[serde(default = "default_embed_sources")]
-            #[schema(value_type = Vec<EmbedSource>, default = "[Markdown]")]
+            #[schema(value_type = Vec<EmbedSource>, default = "[Content]")]
             pub embed_sources: Vec<EmbedSource>,
             /// Use the full page image as context for LLM generation
             #[serde(default = "default_extended_context")]
             #[schema(default = false)]
             pub extended_context: bool,
             /// **DEPRECATED**: Use `format: OutputFormat::Html` and `strategy` instead.
-            /// HTML generation strategy - will be serialized if not None for backwards compatibility.
-            #[deprecated(
-                since = "1.16.0",
-                note = "Use `format: OutputFormat::Html` and `strategy` instead"
-            )]
+            #[deprecated]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub html: Option<GenerationStrategy>,
             /// **DEPRECATED**: Use `format: OutputFormat::Markdown` and `strategy` instead.
-            /// Markdown generation strategy - will be serialized if not None for backwards compatibility.
-            #[deprecated(
-                since = "1.16.0",
-                note = "Use `format: OutputFormat::Markdown` and `strategy` instead"
-            )]
+            #[deprecated]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub markdown: Option<GenerationStrategy>,
         }
