@@ -138,11 +138,11 @@ mod tests {
     use crate::models::segment_processing::{EmbedSource, SegmentProcessing};
     use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 
-    fn create_segment(content: &str, segment_type: SegmentType) -> Segment {
+    fn create_segment(text: &str, segment_type: SegmentType) -> Segment {
         Segment {
             bbox: BoundingBox::new(0.0, 0.0, 0.0, 0.0),
+            content: String::new(),
             confidence: None,
-            content: content.to_string(),
             html: String::new(),
             image: None,
             llm: None,
@@ -153,6 +153,7 @@ mod tests {
             page_number: 0,
             segment_id: "".to_string(),
             segment_type,
+            text: text.to_string(),
         }
     }
 
@@ -345,7 +346,7 @@ mod tests {
             for segment in &chunk.segments {
                 println!(
                     "  Type: {:?}, Content: \"{}\"",
-                    segment.segment_type, segment.content
+                    segment.segment_type, segment.text
                 );
             }
         }
@@ -580,7 +581,7 @@ mod tests {
         for (i, chunk) in chunks.iter().enumerate() {
             println!("\nChunk {}:", i);
             for segment in &chunk.segments {
-                println!("  {:?}: {}", segment.segment_type, segment.content);
+                println!("  {:?}: {}", segment.segment_type, segment.text);
             }
         }
 

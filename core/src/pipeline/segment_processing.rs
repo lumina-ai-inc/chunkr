@@ -3,6 +3,7 @@ use crate::models::output::{Segment, SegmentType};
 use crate::models::pipeline::Pipeline;
 use crate::models::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
+    SegmentFormat, TableGenerationConfig,
 };
 use crate::models::task::Configuration;
 use crate::models::upload::ErrorHandlingStrategy;
@@ -99,7 +100,7 @@ impl<'a, T: ContentGenerator> StrategyParams<'a, T> {
             segment_id: &params.segment.segment_id,
             image_folder_location: params.image_folder_location,
             generator,
-            auto_content: &params.segment.content,
+            auto_content: &params.segment.text,
             segment_image: params.segment_image.clone(),
             page_image: params.page_image.clone(),
             generation_strategy: params.generation_strategy,
@@ -751,20 +752,26 @@ async fn process_segment(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let (html_strategy, markdown_strategy, llm_prompt, extended_context) = match segment
-        .segment_type
-        .clone()
-    {
-        SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
+    let (format, strategy, llm_prompt, extended_context) = match segment.segment_type.clone() {
+        SegmentType::Formula | SegmentType::Page => {
             let config: &LlmGenerationConfig = match segment.segment_type {
-                SegmentType::Table => configuration.segment_processing.table.as_ref().unwrap(),
                 SegmentType::Formula => configuration.segment_processing.formula.as_ref().unwrap(),
                 SegmentType::Page => configuration.segment_processing.page.as_ref().unwrap(),
                 _ => unreachable!(),
             };
             (
-                &config.html,
-                &config.markdown,
+                &config.format,
+                &config.strategy,
+                &config.llm,
+                config.extended_context,
+            )
+        }
+        SegmentType::Table => {
+            let config: &TableGenerationConfig =
+                configuration.segment_processing.table.as_ref().unwrap();
+            (
+                &config.format,
+                &config.strategy,
                 &config.llm,
                 config.extended_context,
             )
@@ -773,8 +780,8 @@ async fn process_segment(
             let config: &PictureGenerationConfig =
                 configuration.segment_processing.picture.as_ref().unwrap();
             (
-                &config.html,
-                &config.markdown,
+                &config.format,
+                &config.strategy,
                 &config.llm,
                 config.extended_context,
             )
@@ -808,8 +815,8 @@ async fn process_segment(
                 _ => unreachable!(),
             };
             (
-                &config.html,
-                &config.markdown,
+                &config.format,
+                &config.strategy,
                 &config.llm,
                 config.extended_context,
             )
@@ -845,12 +852,30 @@ async fn process_segment(
 
     let _guard = context.with_span(span).attach();
 
+    // Get the strategy for the format that the user requested - if the format is the same as the
+    // format that the user requested, use the strategy that the user requested. Otherwise, use
+    // the auto strategy.
+    fn get_strategy(
+        format: &SegmentFormat,
+        user_format: &SegmentFormat,
+        strategy: &GenerationStrategy,
+    ) -> GenerationStrategy {
+        if format == user_format {
+            strategy.clone()
+        } else {
+            GenerationStrategy::Auto
+        }
+    }
+
+    let html_strategy = get_strategy(&SegmentFormat::Html, format, strategy);
+    let markdown_strategy = get_strategy(&SegmentFormat::Markdown, format, strategy);
+
     // Process HTML with error handling using new parameter struct
     let html_params = ContentGenerationParams::new(
         segment,
         segment_image.clone(),
         page_image.clone(),
-        html_strategy,
+        &html_strategy,
         extended_context,
         fallback_html,
         image_folder_location,
@@ -862,7 +887,7 @@ async fn process_segment(
         segment,
         segment_image.clone(),
         page_image.clone(),
-        markdown_strategy,
+        &markdown_strategy,
         extended_context,
         fallback_markdown,
         image_folder_location,
@@ -891,7 +916,7 @@ async fn process_segment(
                     let html_generator = HtmlGenerator {
                         segment_type: segment.segment_type.clone(),
                     };
-                    Ok(html_generator.generate_auto(&segment.content))
+                    Ok(html_generator.generate_auto(&segment.text))
                 } else {
                     Err(e)
                 }
@@ -907,7 +932,7 @@ async fn process_segment(
                     let markdown_generator = MarkdownGenerator {
                         segment_type: segment.segment_type.clone(),
                     };
-                    Ok(markdown_generator.generate_auto(&segment.content))
+                    Ok(markdown_generator.generate_auto(&segment.text))
                 } else {
                     Err(e)
                 }
@@ -939,10 +964,14 @@ async fn process_segment(
                 .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
         })?;
 
-    segment.content = convert_checkboxes(&segment.content);
+    segment.text = convert_checkboxes(&segment.text);
     segment.html = convert_checkboxes_html(&html);
     segment.markdown = convert_checkboxes_markdown(&markdown);
     segment.llm = llm;
+    segment.content = match format {
+        SegmentFormat::Html => segment.html.clone(),
+        SegmentFormat::Markdown => segment.markdown.clone(),
+    };
     Ok(())
 }
 

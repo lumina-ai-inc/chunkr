@@ -9,42 +9,73 @@ use std::error::Error;
 use std::sync::Arc;
 use tempfile::NamedTempFile;
 
+trait CroppingBehavior {
+    fn should_crop_all(&self) -> bool;
+    fn should_crop_auto(&self) -> bool;
+}
+
+impl CroppingBehavior for CroppingStrategy {
+    fn should_crop_all(&self) -> bool {
+        matches!(self, CroppingStrategy::All)
+    }
+
+    fn should_crop_auto(&self) -> bool {
+        matches!(self, CroppingStrategy::Auto)
+    }
+}
+
+impl CroppingBehavior for PictureCroppingStrategy {
+    fn should_crop_all(&self) -> bool {
+        matches!(self, PictureCroppingStrategy::All)
+    }
+
+    fn should_crop_auto(&self) -> bool {
+        matches!(self, PictureCroppingStrategy::Auto)
+    }
+}
+
+fn should_crop<T: CroppingBehavior>(
+    cropping_strategy: &T,
+    strategy: &GenerationStrategy,
+    llm: &Option<String>,
+) -> bool {
+    if cropping_strategy.should_crop_all() {
+        true
+    } else if cropping_strategy.should_crop_auto() {
+        *strategy == GenerationStrategy::LLM || llm.is_some()
+    } else {
+        false
+    }
+}
+
 async fn crop_segment(
     page_image: &NamedTempFile,
     configuration: &Configuration,
     segment: &Segment,
 ) -> Result<Option<NamedTempFile>, Box<dyn Error>> {
     let should_crop = match segment.segment_type {
-        SegmentType::Table | SegmentType::Formula | SegmentType::Page => {
+        SegmentType::Formula | SegmentType::Page => {
             let config = match segment.segment_type {
-                SegmentType::Table => &configuration.segment_processing.table,
                 SegmentType::Formula => &configuration.segment_processing.formula,
                 SegmentType::Page => &configuration.segment_processing.page,
                 _ => unreachable!(),
             };
             match config {
-                Some(config) => match config.crop_image {
-                    CroppingStrategy::All => true,
-                    CroppingStrategy::Auto => {
-                        config.html == GenerationStrategy::LLM
-                            || config.markdown == GenerationStrategy::LLM
-                            || config.llm.is_some()
-                    }
-                },
+                Some(config) => should_crop(&config.crop_image, &config.strategy, &config.llm),
+                None => false,
+            }
+        }
+        SegmentType::Table => {
+            let config = &configuration.segment_processing.table;
+            match config {
+                Some(config) => should_crop(&config.crop_image, &config.strategy, &config.llm),
                 None => false,
             }
         }
         SegmentType::Picture => {
             let config = &configuration.segment_processing.picture;
             match config {
-                Some(config) => match config.crop_image {
-                    PictureCroppingStrategy::All => true,
-                    PictureCroppingStrategy::Auto => {
-                        config.html == GenerationStrategy::LLM
-                            || config.markdown == GenerationStrategy::LLM
-                            || config.llm.is_some()
-                    }
-                },
+                Some(config) => should_crop(&config.crop_image, &config.strategy, &config.llm),
                 None => false,
             }
         }
@@ -61,14 +92,7 @@ async fn crop_segment(
                 _ => unreachable!(),
             };
             match config {
-                Some(config) => match config.crop_image {
-                    CroppingStrategy::All => true,
-                    CroppingStrategy::Auto => {
-                        config.html == GenerationStrategy::LLM
-                            || config.markdown == GenerationStrategy::LLM
-                            || config.llm.is_some()
-                    }
-                },
+                Some(config) => should_crop(&config.crop_image, &config.strategy, &config.llm),
                 None => false,
             }
         }
