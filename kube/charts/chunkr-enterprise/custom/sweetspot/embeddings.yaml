@@ -1,0 +1,88 @@
+
+services:
+  embeddings:
+    enabled: true
+    image:
+      repository: text-embeddings-inference
+      tag: 1.7
+      registry: ghcr.io/huggingface
+    ingress:
+      enabled: false
+      subdomain: embed
+    port: 8000
+    targetPort: 80
+    args:
+      - '--model-id'
+      - Qwen/Qwen3-Embedding-0.6B
+      - '--auto-truncate'
+      - '--payload-limit'
+      - '100000000'
+      - '--max-client-batch-size'
+      - '64'
+    useGPU: true
+    labels:
+      workload-type: chunkr-gpu
+  reranker:
+    enabled: false
+    image:
+      repository: text-embeddings-inference
+      tag: 1.5
+      registry: ghcr.io/huggingface
+    ingress:
+      enabled: false
+      subdomain: rerank
+    port: 8000
+    targetPort: 80
+    args:
+      - '--model-id'
+      - BAAI/bge-reranker-large
+      - '--auto-truncate'
+      - '--payload-limit'
+      - '100000000'
+      - '--max-client-batch-size'
+      - '64'
+    useGPU: true
+    labels:
+      workload-type: chunkr-gpu
+  sparse-doc-embeddings:
+    enabled: false
+    image:
+      repository: text-embeddings-inference
+      tag: 1.5
+      registry: ghcr.io/huggingface
+    ingress:
+      enabled: false
+      subdomain: sparse-doc
+    port: 8000
+    targetPort: 80
+    args:
+      - '--model-id'
+      - naver/efficient-splade-VI-BT-large-doc
+      - '--pooling'
+      - splade
+      - '--max-client-batch-size'
+      - '64'
+    useGPU: true
+    labels:
+      workload-type: chunkr-gpu.
+  sparse-query-embeddings:
+    enabled: false
+    image:
+      repository: text-embeddings-inference
+      tag: 1.5
+      registry: ghcr.io/huggingface
+    ingress:
+      enabled: false
+      subdomain: sparse-query
+    port: 8000
+    targetPort: 80
+    args:
+      - '--model-id'
+      - naver/efficient-splade-VI-BT-large-query
+      - '--pooling'
+      - splade
+      - '--max-client-batch-size'
+      - '64'
+    useGPU: true
+    labels:
+      workload-type: chunkr-gpu

@@ -2,11 +2,11 @@
 releases:
   - name: chunkr
     namespace: chunkr
-    chart: ../../../charts/chunkr
+    chart: ../../../charts/chunkr-enterprise
     values:
       - ../../../charts/chunkr-enterprise/values.yaml
       - ../../../charts/chunkr-enterprise/infrastructure.yaml
-      - ../../../charts/chunkr-enterprise/embeddings.yaml
+      - ../../../charts/chunkr-enterprise/custom/sweetspot/embeddings.yaml
     set:
       - name: ingress.subdomains.root
         value: false
