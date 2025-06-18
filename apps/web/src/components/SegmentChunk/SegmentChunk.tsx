@@ -20,11 +20,52 @@ import { Flex, Text } from "@radix-ui/themes";
 import toast from "react-hot-toast";
 import { useKatexRenderer } from "../../hooks/useKatexRenderer";
 import katex from "katex";
+import sanitizeHtml from "sanitize-html";
 
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
   const processedHtml = useMemo(() => {
-    let tempHtml = html;
+    const sanitized = sanitizeHtml(html, {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+        "img",
+        "span",
+        "sub",
+        "sup",
+        "br",
+        "p",
+        "div",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "table",
+        "thead",
+        "tbody",
+        "tr",
+        "th",
+        "td",
+        "ul",
+        "ol",
+        "li",
+        "b",
+        "i",
+        "u",
+        "strong",
+        "em",
+        "strike",
+      ]),
+      allowedAttributes: {
+        ...sanitizeHtml.defaults.allowedAttributes,
+        "*": ["style", "class"],
+        img: ["src", "alt"],
+        a: ["href", "target"],
+        span: ["class"],
+      },
+    });
+
+    let tempHtml = sanitized;
 
     // Process base64 images
     tempHtml = tempHtml.replace(
@@ -296,16 +337,22 @@ export const SegmentChunk = memo(
               <div
                 className="latex-content"
                 dangerouslySetInnerHTML={{
-                  __html: segment.llm
-                    .replace(/\n\n/g, "<br/><br/>")
-                    .replace(
-                      /([a-zA-Z])<sub>([^<]+)<\/sub>/g,
-                      "$1<sub>$2</sub>"
-                    )
-                    .replace(
-                      /([a-zA-Z])<sup>([^<]+)<\/sup>/g,
-                      "$1<sup>$2</sup>"
-                    ),
+                  __html: sanitizeHtml(
+                    segment.llm
+                      .replace(/\n\n/g, "<br/><br/>")
+                      .replace(
+                        /([a-zA-Z])<sub>([^<]+)<\/sub>/g,
+                        "$1<sub>$2</sub>"
+                      )
+                      .replace(
+                        /([a-zA-Z])<sup>([^<]+)<\/sup>/g,
+                        "$1<sup>$2</sup>"
+                      ),
+                    {
+                      allowedTags: ["br", "sub", "sup"],
+                      allowedAttributes: {},
+                    }
+                  ),
                 }}
               />
             );
