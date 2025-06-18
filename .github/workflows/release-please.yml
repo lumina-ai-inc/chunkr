@@ -6,7 +6,7 @@ on:
       - main
     paths-ignore:
       - 'compose.yaml'
-      - 'compose-cpu.yaml'
+      - 'compose.cpu.yaml'
   workflow_dispatch:
     inputs:
       tag:
@@ -146,8 +146,8 @@ jobs:
           VERSION=${{ steps.get_version.outputs.VERSION }}
           # Only update images that are part of the matrix (server, task, web, doctr, doctr-small)
           sed -i -E '/luminainc\/(server|task|web|doctr|doctr-small):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.yaml
-          sed -i -E '/luminainc\/(server|task|web|doctr|doctr-small):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose-cpu.yaml
-          
+          sed -i -E '/luminainc\/(server|task|web|doctr|doctr-small):/s/(image: luminainc\/[^:]+:)[^[:space:]]*/\1'$VERSION'/' compose.cpu.yaml
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
