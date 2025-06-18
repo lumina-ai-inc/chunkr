@@ -6,7 +6,7 @@ releases:
     values:
       - ../../../charts/chunkr-enterprise/values.yaml
       - ../../../charts/chunkr-enterprise/infrastructure.yaml
-      - ../../../charts/chunkr-enterprise/custom/sweetspot/embeddings.yaml
+      - ../../../charts/chunkr-enterprise/embeddings.yaml
     set:
       - name: ingress.subdomains.root
         value: false
