@@ -37,7 +37,7 @@
     "url": "https://github.com/lumina-ai-inc/chunkr/issues"
   },
   "dependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "dotenv": "^16.4.7",
     "form-data": "^4.0.1"
   },
