@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.2](https://github.com/lumina-ai-inc/chunkr/compare/v1.20.1...v1.20.2) (2025-06-20)
+
+
+### Bug Fixes
+
+* Reverted landing page hero image ([#548](https://github.com/lumina-ai-inc/chunkr/issues/548)) ([e798336](https://github.com/lumina-ai-inc/chunkr/commit/e7983361fdbb9243c055f2444cacb55aa6072a78))
+* Stored cross-site scripting in segmentchunk component ([#546](https://github.com/lumina-ai-inc/chunkr/issues/546)) ([49334b7](https://github.com/lumina-ai-inc/chunkr/commit/49334b788e742f7453c8987e856b57dcb56f0773))
+
 ## [1.20.1](https://github.com/lumina-ai-inc/chunkr/compare/v1.20.0...v1.20.1) (2025-05-28)
 
 
