@@ -7,7 +7,7 @@ COPY apps/web/ .
 
 # Install pnpm, turbo, and required type definitions
 RUN npm install -g pnpm turbo
-RUN pnpm install
+RUN rm -rf node_modules && pnpm install --frozen-lockfile
 
 # Build the project using Turbo
 RUN pnpm run build
