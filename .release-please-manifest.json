@@ -2,7 +2,7 @@
     "core": "1.15.1",
     "clients/python-client": "0.0.50",
     "services": "0.1.3",
-    "apps/web": "1.6.1",
+    "apps/web": "1.6.2",
     "kube/charts/chunkr": "1.3.2",
-    ".": "1.20.1"
+    ".": "1.20.2"
 }
