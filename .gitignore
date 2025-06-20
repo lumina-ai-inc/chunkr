@@ -207,6 +207,9 @@ keyvault.sh
 *.pdfs.zip.part.3
 *.db
 
+# Allow PDF files in compliance directory
+!compliance/*.pdf
+
 scripts/frontend_pdfs
 *.dump
 
