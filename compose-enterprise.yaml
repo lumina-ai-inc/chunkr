@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server-azure:1.21.1-enterprise
+    image: luminainc/server-azure:1.22.1-enterprise
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -17,7 +17,7 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task-azure:1.21.1-enterprise
+    image: luminainc/task-azure:1.22.1-enterprise
     platform: linux/amd64
     depends_on:
       - postgres
@@ -32,7 +32,7 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   web:
-    image: luminainc/web:1.21.1-enterprise
+    image: luminainc/web:1.22.1-enterprise
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -56,7 +56,7 @@ services:
     restart: always
 
   segmentation-backend:
-    image: luminainc/segmentation-yolo:1.21.1-enterprise
+    image: luminainc/segmentation-yolo:1.22.1-enterprise
     expose:
       - "8001"
     deploy:
@@ -88,7 +88,7 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:1.21.1-enterprise
+    image: luminainc/doctr:1.22.1-enterprise
     platform: linux/amd64
     expose:
       - "8000"
