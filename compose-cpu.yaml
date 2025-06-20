@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:1.20.0
+    image: luminainc/server:1.20.1
     ports:
       - "8000:8000"
     depends_on:
@@ -16,7 +16,7 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task:1.20.0
+    image: luminainc/task:1.20.1
     depends_on:
       - postgres
       - redis
@@ -24,13 +24,13 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 10
+      replicas: 6
     restart: always
     volumes:
       - ./models.yaml:/app/models.yaml:ro
 
   web:
-    image: luminainc/web:1.20.0
+    image: luminainc/web:1.20.1
     ports:
       - "5173:8000"
     env_file:
@@ -38,7 +38,7 @@ services:
     environment:
       - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   segmentation:
@@ -57,7 +57,7 @@ services:
     expose:
       - "8000"
     deploy:
-      replicas: 6
+      replicas: 3
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -82,11 +82,11 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr-small:1.20.0
+    image: luminainc/doctr-small:1.20.1
     expose:
       - "8000"
     deploy:
-      replicas: 3
+      replicas: 1
     volumes:
       - /dev/shm:/dev/shm
     restart: always

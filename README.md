@@ -12,13 +12,15 @@
     <b>Layout Analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b> | <b>VLM Processing controls</b>
     <br />
     <br />
-    <a href="https://www.chunkr.ai">Try it out!</a>
-    ·
-    <a href="https://github.com/lumina-ai-inc/chunkr/issues/new">Report Bug</a>
-    ·
-    <a href="#connect-with-us">Contact</a>
-    ·
-     <a href="https://discord.gg/XzKWFByKzW">Discord</a>
+    <a href="https://www.chunkr.ai"><img src="https://img.shields.io/badge/Try_it_out-chunkr.ai-blue?style=flat&logo=rocket&height=20" alt="Try it out" height="20"></a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/lumina-ai-inc/chunkr/issues/new"><img src="https://img.shields.io/badge/Report_Bug-GitHub_Issues-red?style=flat&logo=github&height=20" alt="Report Bug" height="20"></a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="#connect-with-us"><img src="https://img.shields.io/badge/Contact-Get_in_Touch-green?style=flat&logo=mail&height=20" alt="Contact" height="20"></a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="https://discord.gg/XzKWFByKzW"><img src="https://img.shields.io/badge/Discord-Join_Community-5865F2?style=flat&logo=discord&logoColor=white&height=20" alt="Discord" height="20"></a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="https://deepwiki.com/lumina-ai-inc/chunkr"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
   </p>
 </div>
 
