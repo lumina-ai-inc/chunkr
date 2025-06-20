@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.22.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.22.0-enterprise...v1.22.1-enterprise) (2025-06-20)
+
+
+### Bug Fixes
+
+* Updated rust version ([0c5abae](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0c5abae8eb3e32305e59c942ba0b7de307d700eb))
+* Updated rust version ([5fce4c4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5fce4c4496dc02954088373b415ba7722ff076be))
+
 ## [1.22.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.21.1-enterprise...v1.22.0-enterprise) (2025-06-20)
 
 
