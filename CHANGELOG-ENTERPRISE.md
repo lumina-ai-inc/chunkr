@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.22.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.21.1-enterprise...v1.22.0-enterprise) (2025-06-20)
+
+
+### Features
+
+* Terraform SOC2 complaince ([#114](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/114)) ([d07dc25](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d07dc25ca2ae1194e09974469bc08dbdbadb2461))
+
+
+### Bug Fixes
+
+* Added security headers for SOC2 ([ff342a9](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ff342a924321b02257a5ea94b46e4bea5b27c367))
+* Pandoc added to dockers and ./docker.sh files updated ([#111](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/111)) ([0ae9f96](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0ae9f96057fc4a6456f7481beca5a5936bfaa5f6))
+* Reverted landing page hero image ([#548](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/548)) ([e798336](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e7983361fdbb9243c055f2444cacb55aa6072a78))
+* Stored cross-site scripting in segmentchunk component ([#546](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/546)) ([49334b7](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/49334b788e742f7453c8987e856b57dcb56f0773))
+
 ## [1.21.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.21.0-enterprise...v1.21.1-enterprise) (2025-05-29)
 
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.7.1-enterprise...chunkr-web-enterprise-v1.7.2-enterprise) (2025-06-20)
+
+
+### Bug Fixes
+
+* Added security headers for SOC2 ([ff342a9](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ff342a924321b02257a5ea94b46e4bea5b27c367))
+* Reverted landing page hero image ([#548](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/548)) ([e798336](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e7983361fdbb9243c055f2444cacb55aa6072a78))
+* Stored cross-site scripting in segmentchunk component ([#546](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/546)) ([49334b7](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/49334b788e742f7453c8987e856b57dcb56f0773))
+
 ## [1.7.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.7.0-enterprise...chunkr-web-enterprise-v1.7.1-enterprise) (2025-05-29)
 
 
