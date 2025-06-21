@@ -262,8 +262,9 @@ resource "google_compute_router" "router" {
 }
 
 module "cloud-nat" {
-  source                             = "terraform-google-modules/cloud-nat/google"
-  version                            = "~> 5.0"
+  source  = "terraform-google-modules/cloud-nat/google"
+  version = "~> 5.0"
+
   project_id                         = local.current_config.project
   region                             = local.current_config.region
   router                             = google_compute_router.router.name
@@ -369,7 +370,8 @@ resource "google_container_node_pool" "general_purpose_nodes" {
     }
 
     metadata = {
-      "block-project-ssh-keys" = "TRUE"
+      "block-project-ssh-keys"   = "TRUE"
+      "disable-legacy-endpoints" = "true"
     }
 
     gcfs_config {
@@ -431,7 +433,8 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     metadata = {
-      "block-project-ssh-keys" = "TRUE"
+      "block-project-ssh-keys"   = "TRUE"
+      "disable-legacy-endpoints" = "true"
     }
 
     gcfs_config {
