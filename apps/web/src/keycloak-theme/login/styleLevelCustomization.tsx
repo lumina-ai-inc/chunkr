@@ -7,6 +7,7 @@
 
 import type { ReactNode } from "react";
 import type { ClassKey } from "@keycloakify/login-ui/useKcClsx";
+import ThemeProvider from "../../theme-provider";
 
 type Classes = { [key in ClassKey]?: string };
 
@@ -19,6 +20,7 @@ type StyleLevelCustomization = {
 
 export function useStyleLevelCustomization(): StyleLevelCustomization {
     return {
-        doUseDefaultCss: true
+        doUseDefaultCss: true,
+        Provider: ThemeProvider
     };
 }
