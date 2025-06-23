@@ -1,13 +1,13 @@
 # This file is managed by Keycloakify, do not edit it manually.
 
 # === Owned files start ===
+# login/styleLevelCustomization.tsx
 # === Owned files end =====
 
 # === @keycloakify/login-ui v250004.1.0 ===
 /login/i18n.ts
 /login/KcContext.ts
 /login/KcPage.tsx
-/login/styleLevelCustomization.tsx
 /login/components/LogoutOtherSessions.tsx
 /login/components/PasswordWrapper.tsx
 /login/mocks/getKcContextMock.ts
