@@ -4,13 +4,16 @@
   "version": "1.6.2",
   "type": "module",
   "scripts": {
+    "postinstall": "keycloakify sync-extensions",
     "dev": "vite",
     "copy-pdf-worker": "node copyPdfWorker.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "build:deploy": "pnpm exec env-cmd -f .env vite build",
-    "preview:deploy": "pnpm run build:deploy && vite preview"
+    "preview:deploy": "pnpm run build:deploy && vite preview",
+    "build-keycloak-theme": "npm run build && keycloakify build",
+    "dev-keycloak-theme": "VITE_KC_DEV=true npm run dev"
   },
   "dependencies": {
     "-": "^0.0.1",
@@ -87,7 +90,9 @@
     "sanitize-html": "^2.14.0",
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "@keycloakify/login-ui": "~250004.1.0",
+    "tsafe": "^1.8.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

@@ -23,6 +23,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.13.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@keycloakify/login-ui':
+        specifier: ~250004.1.0
+        version: 250004.1.0(tsafe@1.8.5)
       '@mui/icons-material':
         specifier: ^6.3.0
         version: 6.4.1(@mui/material@6.4.1(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
@@ -233,6 +236,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      tsafe:
+        specifier: ^1.8.5
+        version: 1.8.5
     devDependencies:
       '@eslint/js':
         specifier: ^9.9.0
@@ -725,6 +731,11 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@keycloakify/login-ui@250004.1.0':
+    resolution: {integrity: sha512-/BcIrfousFP/yQYQTlcHLH7+vp/8NSr8zR3htyoDtnkRlZEOg1H7FnDXPJeomAxB6HNDU1bwyCCCA3+Rcj8htA==}
+    peerDependencies:
+      tsafe: ^1.8.5
 
   '@mui/core-downloads-tracker@6.4.1':
     resolution: {integrity: sha512-SfDLWMV5b5oXgDf3NTa2hCTPC1d2defhDH2WgFKmAiejC4mSfXYbyi+AFCLzpizauXhgBm8OaZy9BHKnrSpahQ==}
@@ -4823,6 +4834,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@keycloakify/login-ui@250004.1.0(tsafe@1.8.5)':
+    dependencies:
+      tsafe: 1.8.5
 
   '@mui/core-downloads-tracker@6.4.1': {}
 
