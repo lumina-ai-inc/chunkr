@@ -2,6 +2,8 @@
 
 # === Owned files start ===
 # login/styleLevelCustomization.tsx
+# login/pages/login/Form.tsx
+# login/pages/login/Page.tsx
 # === Owned files end =====
 
 # === @keycloakify/login-ui v250004.1.0 ===
@@ -41,10 +43,8 @@
 /login/pages/idp-review-user-profile/Page.tsx
 /login/pages/info/index.ts
 /login/pages/info/Page.tsx
-/login/pages/login/Form.tsx
 /login/pages/login/index.ts
 /login/pages/login/Info.tsx
-/login/pages/login/Page.tsx
 /login/pages/login/SocialProviders.tsx
 /login/pages/login-config-totp/index.ts
 /login/pages/login-config-totp/Page.tsx
