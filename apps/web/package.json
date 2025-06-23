@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "build:deploy": "pnpm exec env-cmd -f .env vite build",
     "preview:deploy": "pnpm run build:deploy && vite preview",
-    "build-keycloak-theme": "npm run build && keycloakify build",
+    "build-keycloak-theme": "IS_KC_BUILD=true npm run build && keycloakify build",
     "dev-keycloak-theme": "VITE_KC_DEV=true npm run dev"
   },
   "dependencies": {
