@@ -51,7 +51,7 @@ export function Template(props: {
       </header>
       <div className="flex-1 flex items-center justify-center pt-10">
         <div className="text-white rounded-lg p-4 sm:p-6 md:p-8 lg:p-10 w-full max-w-sm sm:max-w-md md:max-w-lg transition-all duration-300 ease-in-out">        
-          <Header className="flex flex-row items-center justify-start gap-2 mb-6">
+          <Header className="flex flex-row items-center justify-between gap-2 mb-6">
             {kcContext.auth?.showUsername &&
             !kcContext.auth?.showResetCredentials ? (
               <div className="flex flex-col gap-3">
@@ -74,7 +74,7 @@ export function Template(props: {
 
             {displayRequiredFields && (
               <div className="flex flex-col mt-4">
-                <Text size="2" color="gray">
+                <Text size="2" className="text-gray-300">
                   <span className="text-red-500">*</span>{" "}
                   {msg("requiredFields")}
                 </Text>
@@ -88,13 +88,15 @@ export function Template(props: {
                 (kcContext.message.type !== "warning" ||
                   !kcContext.isAppInitiatedAction) && (
                   <div
-                    className={`border-l-4 pl-3 py-2 ${
-                      kcContext.message.type === "error"
-                        ? "border-red-500 text-red-600"
-                        : kcContext.message.type === "warning"
-                        ? "border-orange-500 text-orange-600"
-                        : "border-green-500 text-green-600"
-                    }`}
+                  className={`border-l-4 pl-3 py-2 rounded-md text-sm ${
+                    kcContext.message.type === "error"
+                      ? "border-red-500 text-red-600 bg-red-500/10"
+                      : kcContext.message.type === "warning"
+                      ? "border-orange-500 text-orange-600 bg-orange-500/10"
+                      : kcContext.message.type === "success"
+                      ? "border-green-500 text-green-600 bg-green-500/10"
+                      : "border-blue-500 text-blue-600 bg-blue-500/10"
+                  }`}
                   >
                     <Text
                       dangerouslySetInnerHTML={{
