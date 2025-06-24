@@ -2,7 +2,9 @@
 
 # === Owned files start ===
 # login/styleLevelCustomization.tsx
+# login/components/PasswordWrapper.tsx
 # login/pages/login/Form.tsx
+# login/pages/login/Info.tsx
 # login/pages/login/Page.tsx
 # === Owned files end =====
 
@@ -11,7 +13,6 @@
 /login/KcContext.ts
 /login/KcPage.tsx
 /login/components/LogoutOtherSessions.tsx
-/login/components/PasswordWrapper.tsx
 /login/mocks/getKcContextMock.ts
 /login/pages/PageIndex.tsx
 /login/components/Template/index.ts
@@ -44,7 +45,6 @@
 /login/pages/info/index.ts
 /login/pages/info/Page.tsx
 /login/pages/login/index.ts
-/login/pages/login/Info.tsx
 /login/pages/login/SocialProviders.tsx
 /login/pages/login-config-totp/index.ts
 /login/pages/login-config-totp/Page.tsx

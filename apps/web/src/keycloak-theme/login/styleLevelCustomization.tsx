@@ -31,7 +31,8 @@ export function useStyleLevelCustomization(): StyleLevelCustomization {
   }
 
   return {
-    doUseDefaultCss: true,
+    doUseDefaultCss: false,
+    Provider: Provider,
   };
 }
 

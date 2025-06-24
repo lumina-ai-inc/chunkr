@@ -32,7 +32,8 @@ export function Page() {
             socialProvidersNode={
                 kcContext.realm.password && kcContext.social !== undefined && <SocialProviders />
             }
-        >
+            
+        >   
             <Form />
         </Template>
     );
