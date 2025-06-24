@@ -3,27 +3,34 @@ from enum import Enum
 from typing import Any, List, Optional, Union
 from pydantic import field_validator, field_serializer
 
-class GenerationStrategy(str, Enum):
-    LLM = "LLM"
-    AUTO = "Auto"
-
 class CroppingStrategy(str, Enum):
     ALL = "All"
     AUTO = "Auto"
 
-class EmbedSource(str, Enum):
-    HTML = "HTML"
+class SegmentFormat(str, Enum):
+    HTML = "Html"
     MARKDOWN = "Markdown"
-    LLM = "LLM"
+
+class EmbedSource(str, Enum):
     CONTENT = "Content"
+    HTML = "HTML"  # Deprecated
+    MARKDOWN = "Markdown"  # Deprecated
+    LLM = "LLM"
+
+class GenerationStrategy(str, Enum):
+    LLM = "LLM"
+    AUTO = "Auto"
 
 class GenerationConfig(BaseModel):
-    html: Optional[GenerationStrategy] = None
+    format: Optional[SegmentFormat] = None
+    strategy: Optional[GenerationStrategy] = None
     llm: Optional[str] = None
-    markdown: Optional[GenerationStrategy] = None
     crop_image: Optional[CroppingStrategy] = None
-    embed_sources: Optional[List[EmbedSource]] = Field(default_factory=lambda: [EmbedSource.MARKDOWN])
+    embed_sources: Optional[List[EmbedSource]] = None
     extended_context: Optional[bool] = None
+    # Deprecated fields for backwards compatibility
+    html: Optional[GenerationStrategy] = None  # Deprecated: Use format=SegmentFormat.HTML and strategy instead
+    markdown: Optional[GenerationStrategy] = None  # Deprecated: Use format=SegmentFormat.MARKDOWN and strategy instead
 
 class SegmentProcessing(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=str.title)
@@ -246,7 +253,7 @@ class SegmentType(str, Enum):
 
 class Segment(BaseModel):
     bbox: BoundingBox
-    content: str
+    content: str = ""
     page_height: float
     llm: Optional[str] = None
     html: Optional[str] = None
@@ -258,6 +265,7 @@ class Segment(BaseModel):
     segment_id: str
     segment_type: SegmentType
     confidence: Optional[float]
+    text: str = ""
 
 class Chunk(BaseModel):
     chunk_id: str

@@ -23,7 +23,7 @@ fn generate_uuid() -> String {
     uuid::Uuid::new_v4().to_string()
 }
 
-fn generate_content() -> String {
+fn generate_string() -> String {
     String::new()
 }
 
@@ -106,17 +106,17 @@ pub struct Segment {
     pub bbox: BoundingBox,
     /// Confidence score of the layout analysis model
     pub confidence: Option<f32>,
-    #[serde(default = "generate_content")]
-    /// Text content of the segment. Calculated by the OCR results.
+    /// Content of the segment, will be either HTML or Markdown, depending on format chosen.
+    #[serde(default = "generate_string")]
     pub content: String,
-    #[serde(default = "generate_content")]
     /// HTML representation of the segment.
+    #[serde(default = "generate_string")]
     pub html: String,
     /// Presigned URL to the image of the segment.
     pub image: Option<String>,
     /// LLM representation of the segment.
     pub llm: Option<String>,
-    #[serde(default = "generate_content")]
+    #[serde(default = "generate_string")]
     /// Markdown representation of the segment.
     pub markdown: String,
     /// OCR results for the segment.
@@ -130,6 +130,9 @@ pub struct Segment {
     /// Unique identifier for the segment.
     pub segment_id: String,
     pub segment_type: SegmentType,
+    /// Text content of the segment. Calculated by the OCR results.
+    #[serde(default = "generate_string")]
+    pub text: String,
 }
 
 impl Segment {
@@ -143,7 +146,7 @@ impl Segment {
         segment_type: SegmentType,
     ) -> Self {
         let segment_id = generate_uuid();
-        let content = ocr_results
+        let text = ocr_results
             .iter()
             .map(|ocr_result| ocr_result.text.clone())
             .collect::<Vec<String>>()
@@ -151,7 +154,7 @@ impl Segment {
         Self {
             bbox,
             confidence,
-            content,
+            content: String::new(),
             llm: None,
             page_height,
             page_number,
@@ -162,6 +165,7 @@ impl Segment {
             image: None,
             html: String::new(),
             markdown: String::new(),
+            text,
         }
     }
 
@@ -287,8 +291,8 @@ impl Segment {
                     }
                 }
                 EmbedSource::Content => {
-                    if !self.content.is_empty() {
-                        embed_parts.push(self.content.clone());
+                    if !self.text.is_empty() {
+                        embed_parts.push(self.text.clone());
                     }
                 }
             }
@@ -488,6 +492,7 @@ mod tests {
             page_number: 1,
             segment_id: "test-id".to_string(),
             segment_type: SegmentType::Table,
+            text: "This is content text".to_string(),
         }
     }
 
