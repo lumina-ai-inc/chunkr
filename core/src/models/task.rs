@@ -3,7 +3,7 @@ use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::llm::LlmProcessing;
 use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
 use crate::models::segment_processing::{
-    GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
+    GenerationStrategy, PictureGenerationConfig, SegmentFormat, SegmentProcessing,
 };
 use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
@@ -304,13 +304,29 @@ impl Task {
                 )
                 .await
                 .ok();
+                fn generate_html(url: &str) -> String {
+                    format!("<img src=\"{}\" />", url)
+                }
+                fn generate_markdown(url: &str) -> String {
+                    format!("![Image]({})", url)
+                }
                 if segment.segment_type == SegmentType::Picture {
-                    if picture_generation_config.html == GenerationStrategy::Auto {
-                        segment.html =
-                            format!("<img src=\"{}\" />", url.clone().unwrap_or_default());
+                    // Primary strategy is to use the format and strategy to generate the content
+                    if picture_generation_config.strategy == GenerationStrategy::Auto {
+                        segment.text = match picture_generation_config.format {
+                            SegmentFormat::Html => generate_html(&url.clone().unwrap_or_default()),
+                            SegmentFormat::Markdown => {
+                                generate_markdown(&url.clone().unwrap_or_default())
+                            }
+                        };
                     }
-                    if picture_generation_config.markdown == GenerationStrategy::Auto {
-                        segment.markdown = format!("![Image]({})", url.clone().unwrap_or_default());
+
+                    // Deprecated fields for backwards compatibility
+                    if picture_generation_config.html == Some(GenerationStrategy::Auto) {
+                        segment.html = generate_html(&url.clone().unwrap_or_default());
+                    }
+                    if picture_generation_config.markdown == Some(GenerationStrategy::Auto) {
+                        segment.markdown = generate_markdown(&url.clone().unwrap_or_default());
                     }
                 }
                 segment.image = Some(url.clone().unwrap_or_default());

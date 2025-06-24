@@ -2,7 +2,6 @@ import pytest
 from pathlib import Path
 from PIL import Image
 import asyncio
-from typing import Awaitable
 
 from chunkr_ai import Chunkr
 from chunkr_ai.models import (
@@ -21,6 +20,7 @@ from chunkr_ai.models import (
     Status,
     TaskResponse,
     Tokenizer,
+    SegmentFormat,
 )
 
 @pytest.fixture
@@ -60,9 +60,9 @@ def markdown_embed_config():
     return Configuration(
         segment_processing=SegmentProcessing(
             Page=GenerationConfig(
-                html=GenerationStrategy.LLM,
-                markdown=GenerationStrategy.LLM,
-                embed_sources=[EmbedSource.MARKDOWN]
+                format=SegmentFormat.MARKDOWN,
+                strategy=GenerationStrategy.LLM,
+                embed_sources=[EmbedSource.CONTENT]
             )
         ),
     )
@@ -72,9 +72,9 @@ def html_embed_config():
     return Configuration(
         segment_processing=SegmentProcessing(
             Page=GenerationConfig(
-                html=GenerationStrategy.LLM,
-                markdown=GenerationStrategy.LLM,
-                embed_sources=[EmbedSource.HTML]
+                format=SegmentFormat.HTML,
+                strategy=GenerationStrategy.LLM,
+                embed_sources=[EmbedSource.HTML]  # Keep this for backwards compatibility testing
             )
         ),
     )
@@ -84,10 +84,10 @@ def multiple_embed_config():
     return Configuration(
         segment_processing=SegmentProcessing(
             Page=GenerationConfig(
-                html=GenerationStrategy.LLM,
-                markdown=GenerationStrategy.LLM,
+                format=SegmentFormat.MARKDOWN,
+                strategy=GenerationStrategy.LLM,
                 llm="Generate a summary of this content",
-                embed_sources=[EmbedSource.MARKDOWN, EmbedSource.LLM, EmbedSource.HTML]
+                embed_sources=[EmbedSource.CONTENT, EmbedSource.LLM, EmbedSource.HTML]
             )
         ),
     )
@@ -176,13 +176,15 @@ def model_fallback_config():
 def extended_context_config():
     return Configuration(
         segment_processing=SegmentProcessing(
-            picture=GenerationConfig(
+            Picture=GenerationConfig(
                 extended_context=True,
-                html=GenerationStrategy.LLM,
+                format=SegmentFormat.HTML,
+                strategy=GenerationStrategy.LLM,
             ),
-            table=GenerationConfig(
+            Table=GenerationConfig(
                 extended_context=True,
-                html=GenerationStrategy.LLM,
+                format=SegmentFormat.HTML,
+                strategy=GenerationStrategy.LLM,
             )
         ),
     )

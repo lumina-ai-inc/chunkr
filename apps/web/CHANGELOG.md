@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.6.2...chunkr-web-v2.0.0) (2025-06-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* consolidate HTML/markdown generation into single format choice
+
+### Features
+
+* Consolidate HTML/markdown generation into single format choice ([a974f3f](https://github.com/lumina-ai-inc/chunkr/commit/a974f3fbc2bd9158ca052c21a121b479e0eb7613))
+
 ## [1.6.2](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.6.1...chunkr-web-v1.6.2) (2025-06-20)
 
 
