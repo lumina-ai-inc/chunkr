@@ -346,6 +346,7 @@ impl Task {
         Ok(output_response)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn update(
         &mut self,
         status: Option<Status>,

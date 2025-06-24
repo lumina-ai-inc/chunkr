@@ -137,12 +137,10 @@ async fn open_ai_call_handler(
     {
         Ok(response) => Ok(response),
         Err(e) => {
-            if let Some(llm_error) = e.downcast_ref::<LLMError>() {
-                if let LLMError::JsonParseError { response, .. } = llm_error {
-                    let attributes = otel_config::extract_llm_error_attributes(response);
-                    for attr in attributes {
-                        ctx.span().set_attribute(attr);
-                    }
+            if let Some(LLMError::JsonParseError { response, .. }) = e.downcast_ref::<LLMError>() {
+                let attributes = otel_config::extract_llm_error_attributes(response);
+                for attr in attributes {
+                    ctx.span().set_attribute(attr);
                 }
             }
             Err(e)
@@ -158,6 +156,7 @@ async fn open_ai_call_handler(
     })
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn try_extract_from_open_ai_response(
     model: LlmModel,
     messages: Vec<Message>,
