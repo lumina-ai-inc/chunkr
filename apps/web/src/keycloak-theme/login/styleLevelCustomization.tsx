@@ -9,6 +9,7 @@ import { Suspense, lazy, type ReactNode } from "react";
 import type { ClassKey } from "@keycloakify/login-ui/useKcClsx";
 const ThemeProvider = lazy(() => import("../../theme-provider"));
 import "../../components/BetterButton/BetterButton.css";
+import "../../components/Header/Header.css";
 
 type Classes = { [key in ClassKey]?: string };
 
