@@ -239,6 +239,9 @@ importers:
       tsafe:
         specifier: ^1.8.5
         version: 1.8.5
+      useSetClassName:
+        specifier: link:@keycloakify/login-ui/tools/useSetClassName
+        version: link:@keycloakify/login-ui/tools/useSetClassName
     devDependencies:
       '@eslint/js':
         specifier: ^9.9.0

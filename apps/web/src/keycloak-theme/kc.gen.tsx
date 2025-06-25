@@ -55,5 +55,5 @@ export function KcPage(
     );
 }
 
-// NOTE: This is exported here only because in Webpack environnement it works differently
+// NOTE: This is exported here only because in Webpack environment it works differently
 export const BASE_URL = import.meta.env.BASE_URL

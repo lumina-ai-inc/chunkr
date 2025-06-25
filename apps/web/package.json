@@ -21,6 +21,7 @@
     "@contentful/rich-text-types": "^17.0.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@keycloakify/login-ui": "~250004.1.0",
     "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.1.5",
     "@mui/x-charts": "^7.14.0",
@@ -91,8 +92,8 @@
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "@keycloakify/login-ui": "~250004.1.0",
-    "tsafe": "^1.8.5"
+    "tsafe": "^1.8.5",
+    "useSetClassName": "link:@keycloakify/login-ui/tools/useSetClassName"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
