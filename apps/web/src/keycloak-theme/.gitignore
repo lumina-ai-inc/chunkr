@@ -3,6 +3,7 @@
 # === Owned files start ===
 # login/styleLevelCustomization.tsx
 # login/components/PasswordWrapper.tsx
+# login/components/Template/Template.tsx
 # login/components/UserProfileFormFields/FieldErrors.tsx
 # login/components/UserProfileFormFields/GroupLabel.tsx
 # login/components/UserProfileFormFields/InputFieldByType.tsx
@@ -29,7 +30,6 @@
 /login/mocks/getKcContextMock.ts
 /login/pages/PageIndex.tsx
 /login/components/Template/index.ts
-/login/components/Template/Template.tsx
 /login/components/Template/useInitializeTemplate.ts
 /login/components/UserProfileFormFields/AddRemoveButtonsMultiValuedAttribute.tsx
 /login/components/UserProfileFormFields/DO_MAKE_USER_CONFIRM_PASSWORD.ts

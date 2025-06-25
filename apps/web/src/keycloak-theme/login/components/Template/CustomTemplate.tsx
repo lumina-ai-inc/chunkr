@@ -1,6 +1,5 @@
 import { useEffect, type ReactNode } from "react";
 import { kcSanitize } from "@keycloakify/login-ui/kcSanitize";
-import { useSetClassName } from "@keycloakify/login-ui/tools/useSetClassName";
 import { useInitializeTemplate } from "./useInitializeTemplate";
 import { useI18n } from "../../i18n";
 import { useKcContext } from "../../KcContext";
@@ -27,7 +26,6 @@ export function Template(props: {
     socialProvidersNode = null,
     infoNode = null,
     documentTitle,
-    bodyClassName,
     children,
   } = props;
 
@@ -38,8 +36,6 @@ export function Template(props: {
     document.title =
       documentTitle ?? msgStr("loginTitle", kcContext.realm.displayName);
   }, [documentTitle, kcContext.realm.displayName, msgStr]);
-
-  useSetClassName({ qualifiedName: "body", className: bodyClassName });
 
   const { isReadyToRender } = useInitializeTemplate();
   if (!isReadyToRender) return null;
