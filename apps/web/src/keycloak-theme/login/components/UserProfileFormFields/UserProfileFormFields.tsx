@@ -57,7 +57,7 @@ export function UserProfileFormFields(props: UserProfileFormFieldsProps) {
 
     useEffect(() => {
         onIsFormSubmittableValueChange(isFormSubmittable);
-    }, [isFormSubmittable]);
+    }, [isFormSubmittable, onIsFormSubmittableValueChange]);
 
     const groupNameRef = { current: "" };
 

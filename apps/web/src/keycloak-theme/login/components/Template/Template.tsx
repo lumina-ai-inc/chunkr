@@ -33,7 +33,6 @@ export function Template(props: {
         socialProvidersNode = null,
         infoNode = null,
         documentTitle,
-        bodyClassName,
         children
     } = props;
 
@@ -45,7 +44,7 @@ export function Template(props: {
 
     useEffect(() => {
         document.title = documentTitle ?? msgStr("loginTitle", kcContext.realm.displayName);
-    }, []);
+    }, [documentTitle, kcContext.realm.displayName, msgStr]);
 
     const { isReadyToRender } = useInitializeTemplate();
 
