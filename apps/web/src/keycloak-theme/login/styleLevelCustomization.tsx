@@ -7,9 +7,8 @@
 
 import { Suspense, lazy, type ReactNode } from "react";
 import type { ClassKey } from "@keycloakify/login-ui/useKcClsx";
-import { useKcContext } from "./KcContext";
-
 const ThemeProvider = lazy(() => import("../../theme-provider"));
+import "../../components/BetterButton/BetterButton.css";
 
 type Classes = { [key in ClassKey]?: string };
 
@@ -21,15 +20,6 @@ type StyleLevelCustomization = {
 };
 
 export function useStyleLevelCustomization(): StyleLevelCustomization {
-  const { kcContext } = useKcContext();
-
-  if (kcContext.pageId === "login.ftl") {
-    return {
-      doUseDefaultCss: false,
-      Provider: Provider,
-    };
-  }
-
   return {
     doUseDefaultCss: false,
     Provider: Provider,

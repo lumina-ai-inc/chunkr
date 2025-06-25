@@ -76,7 +76,7 @@ export function Form() {
                         kcContext.recaptchaAction !== undefined ? (
                             <button
                                 className={clsx(
-                                    "w-full rounded-md font-medium g-recaptcha",
+                                    "!w-full rounded-md font-medium button-resting !h-10 g-recaptcha",
                                     isRegisterButtonDisabled
                                         ? "opacity-50 cursor-not-allowed"
                                         : ""
@@ -100,7 +100,7 @@ export function Form() {
                                     (kcContext.termsAcceptanceRequired && !areTermsAccepted) ||
                                     isRegisterButtonDisabled
                                 }
-                                className={`w-full rounded-md font-medium ${
+                                className={`!w-full rounded-md font-medium button-resting !h-10 ${
                                     (!isFormSubmittable ||
                                     (kcContext.termsAcceptanceRequired && !areTermsAccepted) ||
                                     isRegisterButtonDisabled)

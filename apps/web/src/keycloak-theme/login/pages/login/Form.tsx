@@ -154,7 +154,7 @@ export function Form() {
                 id="kc-login"
                 name="login"
                 disabled={isLoginButtonDisabled}
-                className={`w-full rounded-md font-medium ${
+                className={`!w-full rounded-md font-medium button-resting !h-10 ${
                   isLoginButtonDisabled
                     ? "opacity-50 cursor-not-allowed"
                     : ""

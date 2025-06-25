@@ -76,7 +76,7 @@ export function Form() {
 
                     <button
                         type="submit"
-                        className="w-full rounded-md font-medium"
+                        className="!w-full rounded-md font-medium button-resting !h-10"
                     >
                         {msgStr("doSubmit")}
                     </button>
