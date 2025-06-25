@@ -4,7 +4,7 @@ import { KcPage } from "./kc.gen";
 import { getKcContextMock } from "./login/mocks/getKcContextMock";
 
 const kcContext = getKcContextMock({
-    pageId: "login.ftl",
+    pageId: "register.ftl",
     overrides: {}
 });
 

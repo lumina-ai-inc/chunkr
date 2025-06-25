@@ -21,7 +21,7 @@ export function TextareaTag(props: InputFieldByTypeProps) {
         <textarea
             id={attribute.name}
             name={attribute.name}
-            className={`flex min-h-[80px] w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-100 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 resize-vertical ${
+            className={`flex min-h-[80px] w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 resize-vertical ${
                 hasError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
             }`}
             aria-invalid={hasError}

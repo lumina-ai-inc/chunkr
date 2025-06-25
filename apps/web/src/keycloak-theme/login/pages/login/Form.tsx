@@ -40,7 +40,7 @@ export function Form() {
             {!kcContext.usernameHidden && (
               <div className="space-y-2">
                 <label htmlFor="username" className="block">
-                  <Text as="span" size="2" weight="medium">
+                  <Text as="span" weight="medium" className="text-sm">
                     {!kcContext.realm.loginWithEmailAllowed
                       ? msg("username")
                       : !kcContext.realm.registrationEmailAsUsername
@@ -58,7 +58,7 @@ export function Form() {
                     autoFocus
                     autoComplete="off"
                     aria-invalid={showFieldError}
-                    className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-100 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
                       showFieldError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
                     }`}
                   />
@@ -79,7 +79,7 @@ export function Form() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="block">
-                  <Text as="span" size="2" weight="medium">
+                  <Text as="span" weight="medium" className="text-sm">
                     {msg("password")}
                   </Text>
                 </label>
@@ -88,7 +88,7 @@ export function Form() {
                     <a 
                       tabIndex={6} 
                       href={kcContext.url.loginResetCredentialsUrl}
-                      className="text-xs hover:underline transition-colors focus:outline-none focus:ring-0"
+                      className="hover:underline transition-colors focus:outline-none focus:ring-0"
                     >
                       {msg("doForgotPassword")}
                     </a>
@@ -104,7 +104,7 @@ export function Form() {
                     type="password"
                     autoComplete="current-password"
                     aria-invalid={showFieldError}
-                    className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-100 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
                       showFieldError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
                     }`}
                   />

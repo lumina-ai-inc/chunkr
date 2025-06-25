@@ -25,9 +25,7 @@ export function FieldErrors(props: {
 
     return (
         <Text 
-            size="1" 
-            color="red" 
-            className="text-red-600 text-sm block"
+            className="text-red-500 text-sm block"
             id={`input-error-${attribute.name}${fieldIndex === undefined ? "" : `-${fieldIndex}`}`}
             aria-live="polite"
         >

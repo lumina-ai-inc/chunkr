@@ -42,7 +42,7 @@ export function InputTag(props: InputFieldByTypeProps & { fieldIndex: number | u
 
                     return valueOrValues;
                 })()}
-                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-100 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
+                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
                     hasError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
                 }`}
                 aria-invalid={hasError}

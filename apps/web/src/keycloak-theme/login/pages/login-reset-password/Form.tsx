@@ -46,7 +46,7 @@ export function Form() {
                                 autoFocus
                                 defaultValue={kcContext.auth.attemptedUsername ?? ""}
                                 aria-invalid={showFieldError}
-                                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-100 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
                                     showFieldError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
                                 }`}
                             />
@@ -67,7 +67,7 @@ export function Form() {
                         <Text size="2" as="span">
                             <a 
                                 href={kcContext.url.loginUrl}
-                                className="text-xs hover:underline transition-colors focus:outline-none focus:ring-0"
+                                className="hover:underline transition-colors focus:outline-none focus:ring-0"
                             >
                                 {msg("backToLogin")}
                             </a>

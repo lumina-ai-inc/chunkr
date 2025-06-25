@@ -134,9 +134,7 @@ export function Template(props: {
 
               {displayInfo && (
                 <div className="mt-4">
-                  <Text size="2" color="gray">
                     {infoNode}
-                  </Text>
                 </div>
               )}
             </div>

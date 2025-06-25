@@ -64,7 +64,7 @@ export function Form() {
                             <Text size="2" as="span">
                                 <a 
                                     href={kcContext.url.loginUrl}
-                                    className="text-xs hover:underline transition-colors focus:outline-none focus:ring-0"
+                                    className="hover:underline transition-colors focus:outline-none focus:ring-0"
                                 >
                                     {msg("backToLogin")}
                                 </a>

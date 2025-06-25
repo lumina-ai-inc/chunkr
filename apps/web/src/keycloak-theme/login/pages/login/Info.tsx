@@ -20,7 +20,7 @@ export function Info() {
 
     return (
         <div className="text-center">
-            <Text as="span" size="2" className="text-gray-300">
+            <Text as="span" className="text-gray-300 text-sm">
                 {msg("noAccount")}{" "}
                 <a 
                     tabIndex={8} 
