@@ -348,6 +348,7 @@ impl Pipeline {
             Ok(())
         }
 
+        #[allow(clippy::too_many_arguments)]
         async fn update_success(
             task: &mut Task,
             status: Status,

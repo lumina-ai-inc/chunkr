@@ -38,7 +38,7 @@ services:
     environment:
       - VITE_FEATURE_FLAG_PIPELINE=true
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   segmentation:
