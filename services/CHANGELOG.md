@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-services-v0.1.3...chunkr-services-v0.1.4) (2025-06-28)
+
+
+### Bug Fixes
+
+* Resolve logger warnings ([#510](https://github.com/lumina-ai-inc/chunkr/issues/510)) ([8810d5e](https://github.com/lumina-ai-inc/chunkr/commit/8810d5ec1ce03c12daa1bee98afed3fb2386cf5a))
+
 ## [0.1.3](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-services-v0.1.2...chunkr-services-v0.1.3) (2025-05-22)
 
 
