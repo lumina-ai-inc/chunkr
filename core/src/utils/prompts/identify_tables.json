@@ -1,0 +1,17 @@
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Analyze the following table and identify distinct logical tables within it.\n\nTable HTML:\n{cleaned_html}\n\nFor each distinct table you identify, provide:\n1. table_range: The complete data range in Excel notation (e.g., \"A1:G5\") that includes all cells of the table\n2. header_range: The header/title range in Excel notation (e.g., \"A1:G1\") that contains the column headers\n\nMake sure to include all the cells that make up each table.\n\nReturn your response in the exact JSON format expected by the schema, with each table having both table_range and header_range fields.\n\nexample response:\n{{\"tables\": [\n        {{\n            \"table_range\": \"A1:G5\",\n            \"header_range\": \"A1:G1\",\n        }}\n    ]\n}}"
+  }
+]

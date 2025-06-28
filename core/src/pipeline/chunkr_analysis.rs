@@ -58,7 +58,7 @@ async fn ocr_pages_batch(
                         match ocr::perform_general_ocr(chunk_vec).await {
                             Ok(batch_results) => batch_results,
                             Err(e) => {
-                                println!("Error in OCR batch: {:?}, using fallbacks", e);
+                                println!("Error in OCR batch: {e:?}, using fallbacks");
                                 let mut fallback_results = Vec::with_capacity(chunk_size);
                                 for i in 0..chunk_size {
                                     let page_idx = start_idx + i;
@@ -125,10 +125,7 @@ async fn segmentation_pages_batch(
             .map(|(batch_idx, result)| match result {
                 Ok(segments) => Ok(segments),
                 Err(e) => {
-                    println!(
-                        "Error in layout analysis: {:?}, falling back to page segmentation",
-                        e
-                    );
+                    println!("Error in layout analysis: {e:?}, falling back to page segmentation");
                     let start_idx = batch_idx * batch_size;
                     let batch_pages = pages
                         .iter()
@@ -189,7 +186,7 @@ async fn process_ocr(
     let pdf_ocr_results = match pdf::extract_ocr_results(pdf_file, scaling_factor) {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
-            println!("Error getting pdf ocr results: {:?}", e);
+            println!("Error getting pdf ocr results: {e:?}");
             vec![vec![]; task.page_count.unwrap_or(0) as usize]
         }
     };
@@ -224,7 +221,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     let ocr_results = match process_ocr(&mut task, pdf_file, scaling_factor, &pages).await {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
-            println!("Error in OCR: {:?}", e);
+            println!("Error in OCR: {e:?}");
             return Err(e.to_string().into());
         }
     };
@@ -232,7 +229,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     let page_segments = match process_segmentation(&mut task, &pages, ocr_results).await {
         Ok(page_segments) => page_segments,
         Err(e) => {
-            println!("Error in segmentation and OCR: {:?}", e);
+            println!("Error in segmentation and OCR: {e:?}");
             return Err(e.to_string().into());
         }
     };

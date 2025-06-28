@@ -313,6 +313,14 @@ impl AzureAnalysisResponse {
                                             page_number,
                                             segment_id: uuid::Uuid::new_v4().to_string(),
                                             segment_type: SegmentType::Table,
+                                            segment_length: None,
+                                            ss_cells: None,
+                                            ss_header_bbox: None,
+                                            ss_header_ocr: None,
+                                            ss_header_text: None,
+                                            ss_header_range: None,
+                                            ss_range: None,
+                                            ss_sheet_name: None,
                                             text: table_to_text(table)?,
                                         };
 
@@ -372,6 +380,14 @@ impl AzureAnalysisResponse {
                                         page_number,
                                         segment_id: uuid::Uuid::new_v4().to_string(),
                                         segment_type: SegmentType::Picture,
+                                        segment_length: None,
+                                        ss_cells: None,
+                                        ss_header_bbox: None,
+                                        ss_header_ocr: None,
+                                        ss_header_text: None,
+                                        ss_header_range: None,
+                                        ss_range: None,
+                                        ss_sheet_name: None,
                                         text: String::new(),
                                     };
 
@@ -434,6 +450,14 @@ impl AzureAnalysisResponse {
                                         page_number,
                                         segment_id: uuid::Uuid::new_v4().to_string(),
                                         segment_type,
+                                        segment_length: None,
+                                        ss_cells: None,
+                                        ss_header_bbox: None,
+                                        ss_header_ocr: None,
+                                        ss_header_text: None,
+                                        ss_header_range: None,
+                                        ss_range: None,
+                                        ss_sheet_name: None,
                                         text: paragraph.content.clone().unwrap_or_default(),
                                     };
                                     all_segments.push(segment);
@@ -625,6 +649,14 @@ fn process_caption(
                         page_number,
                         segment_id: uuid::Uuid::new_v4().to_string(),
                         segment_type: SegmentType::Caption,
+                        segment_length: None,
+                        ss_cells: None,
+                        ss_header_bbox: None,
+                        ss_header_ocr: None,
+                        ss_header_text: None,
+                        ss_header_range: None,
+                        ss_range: None,
+                        ss_sheet_name: None,
                         text: caption.content.clone().unwrap_or_default(),
                     };
                     replacements.entry(first_idx).or_default().push(segment);
@@ -645,7 +677,7 @@ fn convert_unit_to_pixels(value: f64, unit: Option<&str>) -> f32 {
         _ => {
             // If unit is unknown, log it and default to treating as pixels
             if let Some(unit_str) = unit {
-                println!("Unknown unit: {}", unit_str);
+                println!("Unknown unit: {unit_str}");
             }
             value as f32
         }
@@ -753,10 +785,7 @@ fn table_to_html(table: &Table) -> Result<String, Box<dyn Error>> {
                 }
 
                 if rowspan > 1 || colspan > 1 {
-                    html.push_str(&format!(
-                        "<td rowspan=\"{}\" colspan=\"{}\">",
-                        rowspan, colspan
-                    ));
+                    html.push_str(&format!("<td rowspan=\"{rowspan}\" colspan=\"{colspan}\">"));
                 } else {
                     html.push_str("<td>");
                 }

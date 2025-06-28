@@ -8,7 +8,7 @@ class DocumentDomain(str, Enum):
     TAX = "tax" # e.g., Tax forms (W2, 1040, etc.), tax returns, official tax documents.
     SUPPLY_CHAIN = "supply_chain" # e.g., Bills of lading, packing slips, shipping manifests, inventory reports, logistics documents, POs, PODs etc.
     TECHNICAL = "technical" # e.g., Manuals, specifications, datasheets, engineering drawings, code documentation.
-    RESEARCH = "research" # e.g., Academic papers, scientific articles, conference proceedings, theses, study reports (excluding patents).
+    RESEARCH = "research" # e.g., Academic papers, scientific articles, conference proceedings, thesis, study reports (excluding patents).
     LEGAL = "legal" # e.g., Contracts, court filings, legal briefs, NDAs, terms of service, deeds, wills.
     GOVERNMENT = "government" # e.g., Official forms, regulations, public notices, legislative documents, census forms, government reports.
     PROCUREMENT = "procurement" # e.g., Requests for Proposal (RFP), Requests for Information (RFI), Requests for Quotation (RFQ), Bids, Proposals, Grant Solicitations, Statements of Work (SOW.

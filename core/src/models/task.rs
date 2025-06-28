@@ -8,7 +8,7 @@ use crate::models::segment_processing::{
 use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::email::EmailService;
-use crate::utils::services::file_operations::check_file_type;
+use crate::utils::services::file_operations::{check_file_type, check_is_spreadsheet};
 use crate::utils::storage::services::delete_folder;
 use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url, upload_to_s3};
 use chrono::{DateTime, Utc};
@@ -61,11 +61,15 @@ pub struct Task {
     pub finished_at: Option<DateTime<Utc>>,
     pub image_folder_location: String,
     pub input_location: String,
+    pub is_spreadsheet: bool,
     pub message: Option<String>,
     pub mime_type: Option<String>,
     pub output_location: String,
     pub page_count: Option<u32>,
+    pub pages_location: String,
     pub pdf_location: String,
+    pub segment_images_location: String,
+    pub segment_count: Option<u32>,
     pub status: Status,
     pub started_at: Option<DateTime<Utc>>,
     pub task_id: String,
@@ -89,17 +93,23 @@ impl Task {
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
         let (mime_type, extension) = check_file_type(file, original_extension)?;
+        let is_spreadsheet = check_is_spreadsheet(&mime_type);
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
-        let file_name: String =
-            file_name.unwrap_or(format!("{}.{}", task_id, extension).to_string());
+        let file_name: String = file_name.unwrap_or(format!("{task_id}.{extension}").to_string());
         let file_size = file.as_file().metadata()?.len();
         let status = Status::Starting;
         let base_url = worker_config.server_url;
-        let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
-        let (input_location, pdf_location, output_location, image_folder_location) =
-            Self::generate_s3_paths(user_id, &task_id, &file_name);
+        let task_url = format!("{base_url}/api/v1/task/{task_id}");
+        let (
+            input_location,
+            pdf_location,
+            output_location,
+            image_folder_location,
+            pages_location,
+            segment_images_location,
+        ) = Self::generate_s3_paths(user_id, &task_id, &file_name);
         let message = "Task queued".to_string();
         let created_at = Utc::now();
         let version = worker_config.version;
@@ -122,14 +132,17 @@ impl Task {
                     mime_type,
                     output_location,
                     page_count,
+                    pages_location,
                     pdf_location,
+                    segment_images_location,
+                    segment_count,
                     status,
                     task_id,
                     task_url,
                     user_id,
                     version
                 ) VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
                 ) ON CONFLICT (task_id) DO NOTHING",
                 &[
                     &api_key,
@@ -143,7 +156,10 @@ impl Task {
                     &mime_type,
                     &output_location,
                     &0_i32,
+                    &pages_location,
                     &pdf_location,
+                    &segment_images_location,
+                    &0_i32, // segment_count
                     &status.to_string(),
                     &task_id,
                     &task_url,
@@ -163,11 +179,15 @@ impl Task {
             finished_at: None,
             image_folder_location,
             input_location,
+            is_spreadsheet,
             message: Some(message),
             mime_type: Some(mime_type),
             output_location,
             page_count: Some(0),
+            pages_location,
             pdf_location,
+            segment_images_location,
+            segment_count: Some(0),
             status,
             started_at: None,
             task_id: task_id.clone(),
@@ -195,7 +215,10 @@ impl Task {
                     mime_type,
                     output_location,
                     page_count,
+                    pages_location,
                     pdf_location,
+                    segment_images_location,
+                    segment_count,
                     status,
                     started_at,
                     task_id,
@@ -210,22 +233,27 @@ impl Task {
             .await?;
 
         let file_name = row.get("file_name");
-        let (input_location, pdf_location, output_location, image_folder_location) =
-            Self::generate_s3_paths(user_id, task_id, file_name);
+        let (
+            input_location,
+            pdf_location,
+            output_location,
+            image_folder_location,
+            pages_location,
+            segment_images_location,
+        ) = Self::generate_s3_paths(user_id, task_id, file_name);
         let page_count: Option<i32> = row.get("page_count");
         let page_count = page_count.map(|count| count as u32);
         let config_str = row.get::<_, String>("configuration");
         let configuration = match serde_json::from_str(&config_str) {
             Ok(config) => config,
             Err(e) => {
-                println!(
-                    "Error deserializing configuration for task {}: {:?}",
-                    task_id, e
-                );
-                println!("Configuration string: {:?}", config_str);
-                return Err(format!("Error deserializing configuration: {:?}", e).into());
+                println!("Error deserializing configuration for task {task_id}: {e:?}");
+                println!("Configuration string: {config_str:?}");
+                return Err(format!("Error deserializing configuration: {e:?}").into());
             }
         };
+        let mime_type = row.get::<_, String>("mime_type");
+        let is_spreadsheet = check_is_spreadsheet(&mime_type);
         Ok(Self {
             api_key: row.get("api_key"),
             configuration,
@@ -240,15 +268,23 @@ impl Task {
             input_location: row
                 .get::<_, Option<String>>("input_location")
                 .unwrap_or(input_location),
+            is_spreadsheet,
             message: row.get("message"),
-            mime_type: row.get("mime_type"),
+            mime_type: Some(mime_type),
             output_location: row
                 .get::<_, Option<String>>("output_location")
                 .unwrap_or(output_location),
             page_count,
+            pages_location: row
+                .get::<_, Option<String>>("pages_location")
+                .unwrap_or(pages_location),
             pdf_location: row
                 .get::<_, Option<String>>("pdf_location")
                 .unwrap_or(pdf_location),
+            segment_images_location: row
+                .get::<_, Option<String>>("segment_images_location")
+                .unwrap_or(segment_images_location),
+            segment_count: row.get::<_, Option<i32>>("segment_count").map(|c| c as u32),
             status: Status::from_str(&row.get::<_, String>("status"))?,
             started_at: row.get("started_at"),
             task_id: row.get("task_id"),
@@ -279,8 +315,8 @@ impl Task {
             output_response = match serde_json::from_str(&json_content) {
                 Ok(output) => output,
                 Err(e) => {
-                    println!("Error deserializing output: {:?}", e);
-                    println!("JSON content: {:?}", json_content);
+                    println!("Error deserializing output: {e:?}");
+                    println!("JSON content: {json_content:?}");
                     OutputResponse::default()
                 }
             };
@@ -304,17 +340,25 @@ impl Task {
                 )
                 .await
                 .ok();
-                fn generate_html(url: &str) -> String {
-                    format!("<img src=\"{}\" />", url)
+                fn generate_html(url: &str, range: Option<String>) -> String {
+                    match range {
+                        Some(range) => {
+                            format!("<img data-cell-ref=\"{range}\" src=\"{url}\" />")
+                        }
+                        None => format!("<img src=\"{url}\" />"),
+                    }
                 }
                 fn generate_markdown(url: &str) -> String {
-                    format!("![Image]({})", url)
+                    format!("![Image]({url})")
                 }
                 if segment.segment_type == SegmentType::Picture {
                     // Primary strategy is to use the format and strategy to generate the content
                     if picture_generation_config.strategy == GenerationStrategy::Auto {
                         segment.text = match picture_generation_config.format {
-                            SegmentFormat::Html => generate_html(&url.clone().unwrap_or_default()),
+                            SegmentFormat::Html => generate_html(
+                                &url.clone().unwrap_or_default(),
+                                segment.ss_range.clone(),
+                            ),
                             SegmentFormat::Markdown => {
                                 generate_markdown(&url.clone().unwrap_or_default())
                             }
@@ -322,10 +366,17 @@ impl Task {
                     }
 
                     // Deprecated fields for backwards compatibility
-                    if picture_generation_config.html == Some(GenerationStrategy::Auto) {
-                        segment.html = generate_html(&url.clone().unwrap_or_default());
+                    if picture_generation_config.html == Some(GenerationStrategy::Auto)
+                        || picture_generation_config.format == SegmentFormat::Markdown
+                    {
+                        segment.html = generate_html(
+                            &url.clone().unwrap_or_default(),
+                            segment.ss_range.clone(),
+                        );
                     }
-                    if picture_generation_config.markdown == Some(GenerationStrategy::Auto) {
+                    if picture_generation_config.markdown == Some(GenerationStrategy::Auto)
+                        || picture_generation_config.format == SegmentFormat::Html
+                    {
                         segment.markdown = generate_markdown(&url.clone().unwrap_or_default());
                     }
                 }
@@ -340,6 +391,16 @@ impl Task {
                 .map(|segment| process(segment, &picture_generation_config, base64_urls));
 
             try_join_all(futures).await?;
+        }
+
+        if let Some(ref mut page_images) = output_response.page_images {
+            let page_futures = page_images.iter().map(|image| async move {
+                generate_presigned_url(image, true, None, base64_urls, "image/jpeg").await
+            });
+            let urls = try_join_all(page_futures).await?;
+            for (image, url) in page_images.iter_mut().zip(urls) {
+                *image = url;
+            }
         }
         output_response.pdf_url = Some(pdf_url.clone());
         output_response.page_count = self.page_count;
@@ -357,6 +418,7 @@ impl Task {
         started_at: Option<DateTime<Utc>>,
         finished_at: Option<DateTime<Utc>>,
         expires_at: Option<DateTime<Utc>>,
+        segment_count: Option<u32>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let client = get_pg_client().await?;
 
@@ -384,28 +446,28 @@ impl Task {
 
         let mut update_parts = vec![];
         if let Some(status) = status {
-            update_parts.push(format!("status = '{:?}'", status));
+            update_parts.push(format!("status = '{status:?}'"));
             self.status = status;
         }
         if let Some(msg) = message {
-            update_parts.push(format!("message = '{}'", msg));
+            update_parts.push(format!("message = '{msg}'"));
             self.message = Some(msg.to_string());
         }
         if let Some(dt) = started_at {
-            update_parts.push(format!("started_at = '{}'", dt));
+            update_parts.push(format!("started_at = '{dt}'"));
             self.started_at = Some(dt);
         }
         if let Some(dt) = finished_at {
-            update_parts.push(format!("finished_at = '{}'", dt));
+            update_parts.push(format!("finished_at = '{dt}'"));
             self.finished_at = Some(dt);
         }
         if let Some(dt) = expires_at {
-            update_parts.push(format!("expires_at = '{}'", dt));
+            update_parts.push(format!("expires_at = '{dt}'"));
             self.expires_at = Some(dt);
         }
 
         if let Some(page_count) = page_count {
-            update_parts.push(format!("page_count = {}", page_count));
+            update_parts.push(format!("page_count = {page_count}"));
             self.page_count = Some(page_count);
         }
 
@@ -415,6 +477,11 @@ impl Task {
                 serde_json::to_string(&configuration)?
             ));
             self.configuration = configuration;
+        }
+
+        if let Some(segment_count) = segment_count {
+            update_parts.push(format!("segment_count = {segment_count}"));
+            self.segment_count = Some(segment_count);
         }
 
         let query = format!(
@@ -427,7 +494,7 @@ impl Task {
         match client.execute(&query, &[]).await {
             Ok(_) => Ok(()),
             Err(e) => {
-                println!("Postgres error during task update: {}", e);
+                println!("Postgres error during task update: {e}");
                 if e.to_string().contains("usage limit exceeded") {
                     let user_details = client
                         .query_one(
@@ -445,8 +512,7 @@ impl Task {
                             );
                             if let Err(e) = email_service.send_free_pages_email(&name, &email).await
                             {
-                                println!("Failed to send free pages email: {}", e);
-                                log::error!("Failed to send free pages email: {}", e);
+                                println!("Failed to send free pages email: {e}");
                             }
                         }
                     } else {
@@ -456,6 +522,7 @@ impl Task {
                     Box::pin(self.update(
                         Some(Status::Failed),
                         Some("Page limit exceeded".to_string()),
+                        None,
                         None,
                         None,
                         None,
@@ -481,8 +548,7 @@ impl Task {
                             if let Err(e) =
                                 email_service.send_unpaid_invoice_email(&name, &email).await
                             {
-                                println!("Failed to send unpaid invoice email: {}", e);
-                                log::error!("Failed to send unpaid invoice email: {}", e);
+                                println!("Failed to send unpaid invoice email: {e}");
                             }
                         }
                     } else {
@@ -492,6 +558,7 @@ impl Task {
                     Box::pin(self.update(
                         Some(Status::Failed),
                         Some("Usage blocked due to unpaid invoice".to_string()),
+                        None,
                         None,
                         None,
                         None,
@@ -559,29 +626,50 @@ impl Task {
             None,
             Some(Utc::now()),
             None,
+            None,
         )
         .await?;
+
+        let pages_locations: Vec<String> = page_images
+            .iter()
+            .enumerate()
+            .map(|(idx, _page)| format!("{}/page_{}.jpg", self.pages_location, idx))
+            .collect();
+
+        let segments_to_upload: Vec<_> = segment_images
+            .iter()
+            .map(|entry| {
+                (
+                    format!("{}/{}.jpg", self.segment_images_location, entry.key()),
+                    entry.value().clone(),
+                )
+            })
+            .collect();
+
+        let mut upload_to_s3_futures: Vec<_> = pages_locations
+            .iter()
+            .enumerate()
+            .map(|(idx, s3_key)| upload_to_s3(s3_key, page_images[idx].path()))
+            .collect();
+
+        upload_to_s3_futures.extend(
+            segments_to_upload
+                .iter()
+                .map(|(s3_key, temp_file)| upload_to_s3(s3_key, temp_file.path())),
+        );
+
+        upload_to_s3_futures.push(upload_to_s3(&self.pdf_location, pdf_file.path()));
+        try_join_all(upload_to_s3_futures).await?;
+
         let mut output_response = OutputResponse {
             chunks,
             file_name: self.file_name.clone(),
             page_count: self.page_count,
             pdf_url: Some(self.pdf_location.clone()),
+            mime_type: self.mime_type.clone(),
+            page_images: Some(pages_locations.clone()),
             extracted_json: None,
         };
-        for (idx, page) in page_images.iter().enumerate() {
-            let s3_key = format!(
-                "{}/{}/page_{}.jpg",
-                self.image_folder_location, "pages", idx
-            );
-            upload_to_s3(&s3_key, page.path()).await?;
-        }
-
-        for pair in segment_images.iter() {
-            let segment_id = pair.key();
-            let temp_file = pair.value();
-            let s3_key = format!("{}/{}.jpg", self.image_folder_location, segment_id);
-            upload_to_s3(&s3_key, temp_file.path()).await?;
-        }
 
         output_response.chunks.iter_mut().for_each(|chunk| {
             chunk.segments.iter_mut().for_each(|segment| {
@@ -597,11 +685,22 @@ impl Task {
         let mut output_temp_file = NamedTempFile::new()?;
         output_temp_file.write_all(serde_json::to_string(&output_response)?.as_bytes())?;
         upload_to_s3(&self.output_location, output_temp_file.path()).await?;
-        upload_to_s3(&self.pdf_location, pdf_file.path()).await?;
 
         Ok(())
     }
 
+    /// Get artifacts from S3
+    ///
+    /// # Arguments
+    /// * `self` - The task.
+    ///
+    /// # Returns
+    /// A tuple containing the artifacts.
+    /// * `input_file` - The input file.
+    /// * `pdf_file` - The PDF file.
+    /// * `page_images` - The page images.
+    /// * `segment_images` - The segment images.
+    /// * `output` - The output.
     pub async fn get_artifacts(
         &self,
     ) -> Result<
@@ -628,11 +727,7 @@ impl Task {
             .ok_or("Page count is required but not found")?;
         let page_futures: Vec<_> = (0..page_count)
             .map(|idx| {
-                let s3_key = format!(
-                    "{}/{}/page_{}.jpg",
-                    self.image_folder_location, "pages", idx
-                );
-                let s3_key = s3_key.clone();
+                let s3_key = format!("{}/page_{}.jpg", self.pages_location, idx);
                 async move { download_to_tempfile(&s3_key, None, "image/jpeg").await }
             })
             .collect();
@@ -668,25 +763,43 @@ impl Task {
         Ok((input_file, pdf_file, page_images, segment_images, output))
     }
 
+    /// Generate S3 paths for the task.
+    ///
+    /// # Arguments
+    /// * `user_id` - The ID of the user.
+    /// * `task_id` - The ID of the task.
+    /// * `file_name` - The name of the file.
+    ///
+    /// # Returns
+    /// A tuple containing the S3 paths for the task.
+    /// * `input_location` - The S3 path for the input file.
+    /// * `pdf_location` - The S3 path for the PDF file.
+    /// * `output_location` - The S3 path for the output file.
+    /// * `image_folder_location` - The S3 path for the image folder.
+    /// * `pages_location` - The S3 path for the pages directory.
+    /// * `segment_images_location` - The S3 path for the segment images directory.
     fn generate_s3_paths(
         user_id: &str,
         task_id: &str,
         file_name: &str,
-    ) -> (String, String, String, String) {
+    ) -> (String, String, String, String, String, String) {
         let worker_config = worker_config::Config::from_env().unwrap();
         let bucket_name = worker_config.s3_bucket;
-        let base_path = format!("s3://{}/{}/{}", bucket_name, user_id, task_id);
+        let base_path = format!("s3://{bucket_name}/{user_id}/{task_id}");
         let path = Path::new(file_name);
         let file_stem = path
             .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("unknown");
+        let image_folder_location = format!("{base_path}/images");
 
         (
-            format!("{}/{}", base_path, file_name),      // input_location
-            format!("{}/{}.pdf", base_path, file_stem),  // pdf_location
-            format!("{}/{}.json", base_path, file_stem), // output_location
-            format!("{}/images", base_path),             // image_folder_location
+            format!("{base_path}/{file_name}"),      // input_location
+            format!("{base_path}/{file_stem}.pdf"),  // pdf_location
+            format!("{base_path}/{file_stem}.json"), // output_location
+            image_folder_location.clone(),           // image_folder_location
+            format!("{}/pages", image_folder_location.clone()), // pages_location directory
+            image_folder_location,                   // segment_images directory
         )
     }
 
@@ -744,6 +857,40 @@ impl Task {
             task_id: self.task_id.clone(),
             user_info: user_info.clone(),
             trace_context: otel_config::Config::extract_context_for_propagation(),
+        }
+    }
+
+    /// Creates a sample task with LLM processing configuration for testing purposes
+    pub fn create_sample_task(configuration: Configuration) -> Task {
+        let task_id = uuid::Uuid::new_v4().to_string();
+        let user_id = "sample_user_123".to_string();
+        let created_at = Utc::now();
+
+        Task {
+            api_key: Some("sample_api_key".to_string()),
+            configuration,
+            created_at,
+            expires_at: Some(created_at + chrono::Duration::seconds(3600)),
+            file_name: Some("sample_document.pdf".to_string()),
+            file_size: 1024000, // 1MB
+            finished_at: None,
+            image_folder_location: format!("s3://sample-bucket/{user_id}/images"),
+            input_location: format!("s3://sample-bucket/{user_id}/input.pdf"),
+            is_spreadsheet: false,
+            message: Some("Sample task created with LLM processing".to_string()),
+            mime_type: Some("application/pdf".to_string()),
+            output_location: format!("s3://sample-bucket/{user_id}/output.json"),
+            page_count: Some(10),
+            pages_location: format!("s3://sample-bucket/{user_id}/images/pages.jpg"),
+            segment_images_location: format!("s3://sample-bucket/{user_id}/images"),
+            segment_count: Some(0),
+            pdf_location: format!("s3://sample-bucket/{user_id}/processed.pdf"),
+            status: Status::Starting,
+            started_at: None,
+            task_id,
+            task_url: Some("https://api.example.com/task/sample".to_string()),
+            user_id,
+            version: Some("1.0.0".to_string()),
         }
     }
 }
@@ -811,7 +958,7 @@ pub enum PipelineType {
     Chunkr,
 }
 
-#[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
+#[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema, Default)]
 pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
     #[serde(alias = "expires_at")]

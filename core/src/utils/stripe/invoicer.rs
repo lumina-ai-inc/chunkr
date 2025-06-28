@@ -92,8 +92,7 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
 
     let finalize = reqwest_client
         .post(format!(
-            "https://api.stripe.com/v1/invoices/{}/finalize",
-            stripe_invoice_id
+            "https://api.stripe.com/v1/invoices/{stripe_invoice_id}/finalize"
         ))
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
         .send()

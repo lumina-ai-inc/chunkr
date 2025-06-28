@@ -1,6 +1,6 @@
 use crate::configs::{llm_config::create_messages_from_template, otel_config};
 use crate::models::output::{Segment, SegmentType};
-use crate::models::pipeline::Pipeline;
+use crate::models::pipeline::{Pipeline, Sheet};
 use crate::models::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
     SegmentFormat, TableGenerationConfig,
@@ -8,6 +8,7 @@ use crate::models::segment_processing::{
 use crate::models::task::Configuration;
 use crate::models::upload::ErrorHandlingStrategy;
 use crate::utils::services::file_operations::get_file_url;
+use crate::utils::services::html::convert_html_to_markdown;
 use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
 use opentelemetry::baggage::BaggageExt;
@@ -15,6 +16,7 @@ use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use regex::Regex;
 use std::collections::HashMap;
+use std::fs;
 use std::sync::Arc;
 use tempfile::NamedTempFile;
 
@@ -44,6 +46,8 @@ struct ContentGenerationParams<'a> {
     fallback_content: Option<String>,
     image_folder_location: &'a str,
     configuration: &'a Configuration,
+    is_spreadsheet: bool,
+    sheet: Option<&'a Sheet>,
 }
 
 /// Parameters for generation strategy application
@@ -124,6 +128,8 @@ impl<'a> ContentGenerationParams<'a> {
         fallback_content: Option<String>,
         image_folder_location: &'a str,
         configuration: &'a Configuration,
+        is_spreadsheet: bool,
+        sheet: Option<&'a Sheet>,
     ) -> Self {
         Self {
             segment,
@@ -134,6 +140,8 @@ impl<'a> ContentGenerationParams<'a> {
             fallback_content,
             image_folder_location,
             configuration,
+            is_spreadsheet,
+            sheet,
         }
     }
 }
@@ -221,6 +229,7 @@ trait ContentGenerator {
             fence_type,
             params.llm_fallback_content.clone(),
             params.configuration.llm_processing.clone(),
+            None,
             tracer,
             parent_context,
         )
@@ -242,26 +251,26 @@ struct HtmlGenerator {
 impl ContentGenerator for HtmlGenerator {
     fn generate_auto(&self, content: &str) -> String {
         match self.segment_type {
-            SegmentType::Caption => format!("<span class=\"caption\">{}</span>", content),
-            SegmentType::Footnote => format!("<span class=\"footnote\">{}</span>", content),
-            SegmentType::Formula => format!("<span class=\"formula\">{}</span>", content),
+            SegmentType::Caption => format!("<span class=\"caption\">{content}</span>"),
+            SegmentType::Footnote => format!("<span class=\"footnote\">{content}</span>"),
+            SegmentType::Formula => format!("<span class=\"formula\">{content}</span>"),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
                     let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
                     let item = captures.get(2).unwrap().as_str();
-                    format!("<ol start=\"{}\"><li>{}</li></ol>", start_number, item)
+                    format!("<ol start=\"{start_number}\"><li>{item}</li></ol>")
                 } else {
                     format!("<ul><li>{}</li></ul>", Self::clean_list_item(content))
                 }
             }
-            SegmentType::Page => format!("<div class=\"page\">{}</div>", content),
-            SegmentType::PageFooter => format!("<div class=\"page-footer\">{}</div>", content),
-            SegmentType::PageHeader => format!("<div class=\"page-header\">{}</div>", content),
-            SegmentType::Picture => format!("<img src='' alt='{}' />", content),
-            SegmentType::SectionHeader => format!("<h2>{}</h2>", content),
-            SegmentType::Table => format!("<table><tr><td>{}</td></tr></table>", content),
-            SegmentType::Text => format!("<p>{}</p>", content),
-            SegmentType::Title => format!("<h1>{}</h1>", content),
+            SegmentType::Page => format!("<div class=\"page\">{content}</div>"),
+            SegmentType::PageFooter => format!("<div class=\"page-footer\">{content}</div>"),
+            SegmentType::PageHeader => format!("<div class=\"page-header\">{content}</div>"),
+            SegmentType::Picture => format!("<img src='' alt='{content}' />"),
+            SegmentType::SectionHeader => format!("<h2>{content}</h2>"),
+            SegmentType::Table => format!("<table><tr><td>{content}</td></tr></table>"),
+            SegmentType::Text => format!("<p>{content}</p>"),
+            SegmentType::Title => format!("<h1>{content}</h1>"),
         }
     }
 
@@ -361,7 +370,7 @@ impl ContentGenerator for HtmlGenerator {
         let content = self.process_llm(params, tracer, parent_context).await?;
 
         if self.segment_type() == SegmentType::Formula {
-            Ok(format!("<span class=\"formula\">{}</span>", content))
+            Ok(format!("<span class=\"formula\">{content}</span>"))
         } else {
             Ok(content)
         }
@@ -375,9 +384,9 @@ struct MarkdownGenerator {
 impl ContentGenerator for MarkdownGenerator {
     fn generate_auto(&self, content: &str) -> String {
         match self.segment_type {
-            SegmentType::Caption => format!("_{}_", content),
-            SegmentType::Footnote => format!("[^{}]", content),
-            SegmentType::Formula => format!("${}$", content),
+            SegmentType::Caption => format!("_{content}_"),
+            SegmentType::Footnote => format!("[^{content}]"),
+            SegmentType::Formula => format!("${content}$"),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
                     format!(
@@ -391,11 +400,11 @@ impl ContentGenerator for MarkdownGenerator {
             }
             SegmentType::Page => content.to_string(),
             SegmentType::PageFooter | SegmentType::PageHeader => content.to_string(),
-            SegmentType::Picture => format!("![{}]()", content),
-            SegmentType::SectionHeader => format!("## {}", content),
-            SegmentType::Table => format!("| {} |", content),
+            SegmentType::Picture => format!("![{content}]()"),
+            SegmentType::SectionHeader => format!("## {content}"),
+            SegmentType::Table => format!("| {content} |"),
             SegmentType::Text => content.to_string(),
-            SegmentType::Title => format!("# {}", content),
+            SegmentType::Title => format!("# {content}"),
         }
     }
 
@@ -575,6 +584,18 @@ async fn generate_html(
         ));
     }
 
+    if params.is_spreadsheet && params.segment.segment_type == SegmentType::Table {
+        span.set_attribute(opentelemetry::KeyValue::new("is_spreadsheet", "true"));
+        let table_html = params
+            .sheet
+            .as_ref()
+            .ok_or("Sheet not found")?
+            .get_table_html_by_id(&params.segment.segment_id)
+            .ok_or("Table HTML not found")?;
+        let table_html_content = fs::read_to_string(table_html.path())?;
+        return Ok(table_html_content);
+    }
+
     let ctx = parent_context.with_span(span);
 
     let generator = HtmlGenerator {
@@ -624,6 +645,19 @@ async fn generate_markdown(
             "segment_type",
             segment_type.to_string(),
         ));
+    }
+
+    if params.is_spreadsheet && params.segment.segment_type == SegmentType::Table {
+        span.set_attribute(opentelemetry::KeyValue::new("is_spreadsheet", "true"));
+        let table_html = params
+            .sheet
+            .as_ref()
+            .ok_or("Sheet not found")?
+            .get_table_html_by_id(&params.segment.segment_id)
+            .ok_or("Table HTML not found")?;
+        let table_html_content = fs::read_to_string(table_html.path())?;
+        return convert_html_to_markdown(table_html_content)
+            .map_err(|e| -> Box<dyn std::error::Error + Send + Sync> { e.to_string().into() });
     }
 
     let ctx = parent_context.with_span(span);
@@ -727,9 +761,10 @@ async fn generate_llm(
     let messages = create_messages_from_template(template_key, &values)?;
     let result = llm::try_extract_from_llm(
         messages,
-        None, // LLM field extraction doesn't assume a fence type by default
+        Some(""),
         params.llm_fallback_content.clone(),
         params.configuration.llm_processing.clone(),
+        None,
         tracer,
         &ctx,
     )
@@ -745,12 +780,15 @@ async fn generate_llm(
     Ok(Some(result))
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
     segment_image: Option<Arc<NamedTempFile>>,
     page_image: Option<Arc<NamedTempFile>>,
     image_folder_location: &str,
+    is_spreadsheet: bool,
+    sheet: Option<&Sheet>,
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -882,6 +920,8 @@ async fn process_segment(
         fallback_html,
         image_folder_location,
         configuration,
+        is_spreadsheet,
+        sheet,
     );
 
     // Process Markdown with error handling using new parameter struct
@@ -894,6 +934,8 @@ async fn process_segment(
         fallback_markdown,
         image_folder_location,
         configuration,
+        is_spreadsheet,
+        sheet,
     );
 
     // Process LLM with error handling using new parameter struct
@@ -988,6 +1030,7 @@ pub async fn process(
     let task = pipeline.get_task()?;
     let configuration = task.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
+    let is_spreadsheet = task.is_spreadsheet;
 
     // Simply clone out the Option<Vec<…>> and default to an empty Vec if missing
     let page_images: Vec<_> = pipeline.page_images.clone().unwrap_or_default();
@@ -1008,12 +1051,15 @@ pub async fn process(
                 let segment_page_image = page_images.get(page_index).cloned();
                 let segment_image_ref = segment_images.get(&segment.segment_id);
                 let segment_image_cloned = segment_image_ref.map(|r| r.value().clone());
+                let sheet = pipeline.get_sheet_by_sheet_number(segment.page_number);
                 process_segment(
                     segment,
                     &configuration,
                     segment_image_cloned,
                     segment_page_image,
                     &task.image_folder_location,
+                    is_spreadsheet,
+                    sheet,
                     tracer,
                     &parent_context,
                 )
@@ -1029,7 +1075,7 @@ pub async fn process(
             Ok(())
         }
         Err(e) => {
-            eprintln!("Error processing segments: {:?}", e);
+            eprintln!("Error processing segments: {e:?}");
             Err(e.to_string().into())
         }
     }

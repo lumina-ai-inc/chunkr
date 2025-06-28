@@ -13,8 +13,9 @@ fn get_hierarchy_level(segment_type: &SegmentType) -> u32 {
 }
 
 pub fn hierarchical_chunking(
-    segments: Vec<Segment>,
+    mut segments: Vec<Segment>,
     configuration: &Configuration,
+    break_on_page_change: bool,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
     let mut current_segments: Vec<Segment> = Vec::new();
@@ -31,17 +32,29 @@ pub fn hierarchical_chunking(
 
     let mut prev_hierarchy_level = 1;
     let mut segment_paired = false;
+    let mut last_page_number = segments.first().ok_or("No segments provided")?.page_number;
 
     // Makes the chunking faster by calculating the word count in parallel
-    segments.par_iter().for_each(|segment| {
+    segments.par_iter_mut().for_each(|segment| {
         if let Err(e) = segment.count_embed_words(configuration) {
-            println!("Error: {}", e);
+            println!("Error: {e}");
         }
     });
 
+    let segment_lengths: Vec<_> = segments
+        .iter_mut()
+        .map(|s| s.get_segment_length(configuration).unwrap_or(0))
+        .collect();
+
     for (i, segment) in segments.iter().enumerate() {
-        let segment_word_count = segment.count_embed_words(configuration)?;
+        let segment_word_count = segment_lengths[i];
         let current_hierarchy_level = get_hierarchy_level(&segment.segment_type);
+
+        if break_on_page_change && segment.page_number != last_page_number {
+            finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+            current_word_count = 0;
+            last_page_number = segment.page_number;
+        }
 
         match segment.segment_type {
             SegmentType::Title | SegmentType::SectionHeader => {
@@ -70,8 +83,8 @@ pub fn hierarchical_chunking(
                     let next_is_caption = segments
                         .get(i + 1)
                         .is_some_and(|s| s.segment_type == SegmentType::Caption);
-                    let caption_word_count = if let Some(s) = segments.get(i + 1) {
-                        s.count_embed_words(configuration)?
+                    let caption_word_count = if segments.get(i + 1).is_some() {
+                        segment_lengths[i + 1]
                     } else {
                         0
                     };
@@ -91,8 +104,8 @@ pub fn hierarchical_chunking(
                         s.segment_type == SegmentType::Picture
                             || s.segment_type == SegmentType::Table
                     });
-                    let asset_word_count = if let Some(s) = segments.get(i + 1) {
-                        s.count_embed_words(configuration)?
+                    let asset_word_count = if segments.get(i + 1).is_some() {
+                        segment_lengths[i + 1]
                     } else {
                         0
                     };
@@ -153,6 +166,14 @@ mod tests {
             page_number: 0,
             segment_id: "".to_string(),
             segment_type,
+            ss_header_bbox: None,
+            ss_header_ocr: None,
+            ss_header_text: None,
+            ss_header_range: None,
+            ss_cells: None,
+            ss_range: None,
+            ss_sheet_name: None,
+            segment_length: None,
             text: text.to_string(),
         }
     }
@@ -199,7 +220,8 @@ mod tests {
             create_segment("Picture 2", SegmentType::Picture),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(100, true)).unwrap();
+        let chunks =
+            hierarchical_chunking(segments, &create_test_config(100, true), false).unwrap();
 
         // Verify that captions stay with their pictures
         assert_eq!(chunks[0].segments.len(), 4);
@@ -217,7 +239,8 @@ mod tests {
             create_segment("Picture 1", SegmentType::Picture),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(100, true)).unwrap();
+        let chunks =
+            hierarchical_chunking(segments, &create_test_config(100, true), false).unwrap();
 
         // Verify that caption pairs with picture, not table
         assert_eq!(chunks[0].segments.len(), 3);
@@ -234,7 +257,7 @@ mod tests {
             create_segment("Picture 1", SegmentType::Picture),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(15, true)).unwrap();
+        let chunks = hierarchical_chunking(segments, &create_test_config(15, true), false).unwrap();
 
         // Verify that caption-picture pair stays together in new chunk
         assert_eq!(chunks.len(), 2);
@@ -253,7 +276,8 @@ mod tests {
             create_segment("Some text", SegmentType::Text),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(100, true)).unwrap();
+        let chunks =
+            hierarchical_chunking(segments, &create_test_config(100, true), false).unwrap();
 
         // Verify correct pairing in complex sequence
         assert_eq!(chunks[0].segments.len(), 5);
@@ -272,7 +296,8 @@ mod tests {
             create_segment("Caption 1", SegmentType::Caption),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(100, true)).unwrap();
+        let chunks =
+            hierarchical_chunking(segments, &create_test_config(100, true), false).unwrap();
 
         // Verify unpaired elements are treated as regular segments
         assert_eq!(chunks[0].segments.len(), 3);
@@ -293,11 +318,12 @@ mod tests {
             create_segment("Section 3", SegmentType::SectionHeader),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(100, true)).unwrap();
+        let chunks =
+            hierarchical_chunking(segments, &create_test_config(100, true), false).unwrap();
 
         // Debug print
         for (i, chunk) in chunks.iter().enumerate() {
-            println!("Chunk {}:", i);
+            println!("Chunk {i}:");
             for segment in &chunk.segments {
                 println!("  {:?}", segment.segment_type);
             }
@@ -340,11 +366,11 @@ mod tests {
             create_segment("Some regular text after.", SegmentType::Text),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(10, true)).unwrap();
+        let chunks = hierarchical_chunking(segments, &create_test_config(10, true), false).unwrap();
 
         println!("\n=== Chunk Contents ===");
         for (i, chunk) in chunks.iter().enumerate() {
-            println!("\nChunk {}:", i);
+            println!("\nChunk {i}:");
             println!("{:?}", chunk.chunk_length);
             for segment in &chunk.segments {
                 println!(
@@ -364,7 +390,7 @@ mod tests {
             })
             .count();
 
-        println!("\nTotal chunks with captions: {}", caption_count);
+        println!("\nTotal chunks with captions: {caption_count}");
 
         assert_eq!(
             caption_count, 1,
@@ -420,7 +446,8 @@ mod tests {
         for (case_index, (segments, expected_pairs)) in test_cases.iter().enumerate() {
             println!("\nTesting case {}", case_index + 1);
             let chunks =
-                hierarchical_chunking(segments.clone(), &create_test_config(100, true)).unwrap();
+                hierarchical_chunking(segments.clone(), &create_test_config(100, true), false)
+                    .unwrap();
 
             // Verify pairs stay together in the same chunk
             for &(first, second) in expected_pairs {
@@ -450,7 +477,7 @@ mod tests {
             create_segment("More long text ".repeat(10).as_str(), SegmentType::Text),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(20, true)).unwrap();
+        let chunks = hierarchical_chunking(segments, &create_test_config(20, true), false).unwrap();
 
         // Verify that Picture + Caption stay together even when chunks split
         assert!(
@@ -518,7 +545,8 @@ mod tests {
 
         for (case_index, (segments, expected_chunk_count)) in test_cases.iter().enumerate() {
             let chunks =
-                hierarchical_chunking(segments.clone(), &create_test_config(1000, true)).unwrap();
+                hierarchical_chunking(segments.clone(), &create_test_config(1000, true), false)
+                    .unwrap();
             assert_eq!(
                 chunks.len(),
                 *expected_chunk_count,
@@ -541,7 +569,8 @@ mod tests {
             create_segment("Caption 2", SegmentType::Caption),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(1000, true)).unwrap();
+        let chunks =
+            hierarchical_chunking(segments, &create_test_config(1000, true), false).unwrap();
 
         // Verify that hierarchy changes create new chunks but pairs stay together
         assert!(chunks.len() > 1, "Should split on hierarchy changes");
@@ -578,11 +607,11 @@ mod tests {
             create_segment("Picture 2", SegmentType::Picture),
         ];
 
-        let chunks = hierarchical_chunking(segments, &create_test_config(30, true)).unwrap();
+        let chunks = hierarchical_chunking(segments, &create_test_config(30, true), false).unwrap();
 
         // Print chunk contents for debugging
         for (i, chunk) in chunks.iter().enumerate() {
-            println!("\nChunk {}:", i);
+            println!("\nChunk {i}:");
             for segment in &chunk.segments {
                 println!("  {:?}: {}", segment.segment_type, segment.text);
             }

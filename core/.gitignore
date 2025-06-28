@@ -43,3 +43,9 @@ pdfium-binaries
 .cargo
 
 azure-analysis-response.json
+
+# Ignore output directory
+output/
+
+# Ignore input directory
+input/

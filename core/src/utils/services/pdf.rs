@@ -118,3 +118,27 @@ fn build_word(chars: &[(char, PdfRect)], page_height: f32, scale: f32) -> OCRRes
         confidence: None,
     }
 }
+
+/// Combines multiple PDFs into a single PDF by appending all pages.
+/// Takes a list of PDF files as NamedTempFile and returns a new NamedTempFile
+/// containing the combined PDF.
+pub fn combine_pdfs(pdf_files: Vec<&NamedTempFile>) -> Result<NamedTempFile, Box<dyn Error>> {
+    let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
+
+    // Create a new blank document
+    let mut combined_document = pdfium.create_new_pdf()?;
+
+    // Append all pages from each PDF file
+    for pdf_file in pdf_files {
+        let source_document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
+        combined_document.pages_mut().append(&source_document)?;
+    }
+
+    // Create a temporary file for the output
+    let output_file = NamedTempFile::new()?;
+
+    // Save the combined document to the temporary file
+    combined_document.save_to_file(output_file.path())?;
+
+    Ok(output_file)
+}

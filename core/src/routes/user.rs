@@ -20,7 +20,7 @@ pub async fn get_or_create_user(user_info: web::ReqData<UserInfo>) -> Result<Htt
                     let email_service = EmailService::new(email_config);
 
                     if let Err(e) = email_service.send_welcome_email(&first_name, &email).await {
-                        log::error!("Failed to send welcome email: {}", e);
+                        log::error!("Failed to send welcome email: {e}");
                     }
                 }
 

@@ -28,6 +28,7 @@ pub async fn update_task(
             None,
             None,
             None,
+            None,
         )
         .await?;
 

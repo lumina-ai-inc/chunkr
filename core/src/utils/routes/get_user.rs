@@ -39,7 +39,7 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
     let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            format!("User with id {} not found", user_id),
+            format!("User with id {user_id} not found"),
         )
     })?;
 

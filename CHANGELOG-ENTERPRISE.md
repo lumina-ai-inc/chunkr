@@ -13,7 +13,7 @@
 
 ### Features
 
-* Terraform SOC2 complaince ([#114](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/114)) ([d07dc25](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d07dc25ca2ae1194e09974469bc08dbdbadb2461))
+* Terraform SOC2 compliance ([#114](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/114)) ([d07dc25](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d07dc25ca2ae1194e09974469bc08dbdbadb2461))
 
 
 ### Bug Fixes

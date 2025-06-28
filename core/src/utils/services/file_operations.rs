@@ -1,4 +1,5 @@
 use crate::configs::worker_config::{Config as WorkerConfig, FileUrlFormat};
+use crate::models::file_operations::{HtmlConversionResult, ImageConversionResult};
 use crate::utils::clients;
 use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
@@ -6,9 +7,15 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::error::Error;
 use std::io::Read;
 use std::process::Command;
-use tempfile::NamedTempFile;
+use std::sync::Arc;
+use tempfile::{Builder, NamedTempFile};
 use url;
 use urlencoding;
+
+pub fn check_is_spreadsheet(mime_type: &str) -> bool {
+    mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        || mime_type == "application/vnd.ms-excel"
+}
 
 pub fn check_file_type(
     file: &NamedTempFile,
@@ -29,14 +36,13 @@ pub fn check_file_type(
                     println!("Detected PDF file by extension");
                     match count_pages(file) {
                         Ok(pages) => {
-                            println!("Detected {} pages in PDF file", pages);
+                            println!("Detected {pages} pages in PDF file");
                             return Ok(("application/pdf".to_string(), "pdf".to_string()));
                         }
                         Err(e) => {
-                            println!("Error counting pages in PDF file: {}", e);
+                            println!("Error counting pages in PDF file: {e}");
                             return Err(Box::new(std::io::Error::other(format!(
-                                "Unsupported file type: {}",
-                                mime_type
+                                "Unsupported file type: {mime_type}"
                             ))));
                         }
                     }
@@ -44,8 +50,7 @@ pub fn check_file_type(
             }
 
             Err(Box::new(std::io::Error::other(format!(
-                "Unsupported file type: {}",
-                mime_type
+                "Unsupported file type: {mime_type}"
             ))))
         }
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
@@ -63,8 +68,7 @@ pub fn check_file_type(
         "image/jpeg" | "image/jpg" => Ok((mime_type, "jpg".to_string())),
         "image/png" => Ok((mime_type, "png".to_string())),
         _ => Err(Box::new(std::io::Error::other(format!(
-            "Unsupported file type: {}",
-            mime_type
+            "Unsupported file type: {mime_type}"
         )))),
     }
 }
@@ -97,8 +101,7 @@ pub fn convert_to_pdf(
 
         if !output.status.success() {
             return Err(Box::new(std::io::Error::other(format!(
-                "ImageMagick conversion failed: {:?}",
-                output
+                "ImageMagick conversion failed: {output:?}"
             ))));
         }
 
@@ -128,8 +131,7 @@ pub fn convert_to_pdf(
 
         if !output.status.success() {
             return Err(Box::new(std::io::Error::other(format!(
-                "LibreOffice conversion failed: {:?}",
-                output
+                "LibreOffice conversion failed: {output:?}"
             ))));
         }
 
@@ -228,7 +230,7 @@ pub async fn get_file_url(
             let mut file = temp_file.reopen()?;
             file.read_to_end(&mut buffer)?;
             let base64_data = STANDARD.encode(&buffer);
-            Ok(format!("data:{};base64,{}", mime_type, base64_data))
+            Ok(format!("data:{mime_type};base64,{base64_data}"))
         }
         FileUrlFormat::Url => {
             upload_to_s3(s3_location, temp_file.path())
@@ -241,5 +243,138 @@ pub async fn get_file_url(
 
             Ok(presigned_url)
         }
+    }
+}
+
+pub fn convert_to_html(input_file: &NamedTempFile) -> Result<HtmlConversionResult, Box<dyn Error>> {
+    let temp_dir = tempfile::tempdir()?;
+    let output_dir = temp_dir.path();
+
+    // Use LibreOffice for document conversion
+    let output = Command::new("libreoffice")
+        .args([
+            "--headless",
+            "--convert-to",
+            "html",
+            "--outdir",
+            output_dir.to_str().unwrap(),
+            input_file.path().to_str().unwrap(),
+        ])
+        .output()?;
+
+    if !output.status.success() {
+        return Err(Box::new(std::io::Error::other(format!(
+            "LibreOffice conversion failed: {output:?}"
+        ))));
+    }
+
+    let html_file = Builder::new().suffix(".html").tempfile()?;
+    let mut embedded_images: Vec<ImageConversionResult> = Vec::new();
+    let mut html_content = String::new();
+
+    for entry in output_dir.read_dir()? {
+        let entry = entry?;
+        if entry.path().is_file() {
+            match entry.path().extension().and_then(|ext| ext.to_str()) {
+                Some("html") => {
+                    html_content = std::fs::read_to_string(entry.path())?;
+                }
+                Some("png") => {
+                    let img_file = NamedTempFile::new()?;
+                    std::fs::copy(entry.path(), img_file.path())?;
+
+                    // Get the file name
+                    if let Some(file_name) = entry.path().file_name().and_then(|name| name.to_str())
+                    {
+                        embedded_images.push(ImageConversionResult::new(
+                            Arc::new(img_file),
+                            file_name.to_string(),
+                        ));
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    for image in embedded_images.iter_mut() {
+        let image_name = image.image_file.path().display().to_string();
+        html_content = html_content.replace(&image.html_reference, &image_name);
+        image.html_reference = image_name;
+    }
+
+    // Write the updated HTML content to the final file
+    std::fs::write(html_file.path(), html_content)?;
+
+    Ok(HtmlConversionResult::new(
+        Arc::new(html_file),
+        embedded_images,
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+
+    #[tokio::test]
+    async fn test_convert_to_html() {
+        // Create a test input file path - adjust this path as needed
+        let mut input_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        input_file_path.push("input/test.xlsx");
+
+        // Skip test if input file doesn't exist
+        if !input_file_path.exists() {
+            println!("Test file not found at {input_file_path:?}, skipping test");
+            return;
+        }
+
+        let input_file = NamedTempFile::new().unwrap();
+        fs::copy(input_file_path.clone(), input_file.path()).unwrap();
+
+        // Call convert_to_html
+        let result = convert_to_html(&input_file).unwrap();
+
+        // Save the output for inspection
+        let output_dir = PathBuf::from("output/file_operations/html_conversion");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        // Read the HTML content and process image references
+        let mut html_content = fs::read_to_string(result.html_file.path()).unwrap();
+
+        result
+            .embedded_images
+            .iter()
+            .enumerate()
+            .for_each(|(i, img)| {
+                let filename = format!("image_{}_{}.png", i, img.image_id);
+                fs::copy(img.image_file.path(), output_dir.join(&filename)).unwrap();
+                println!("Saved image: {} -> {}", img.html_reference, filename);
+                html_content = html_content.replace(&img.html_reference, &filename);
+                println!("Replaced image: {} -> {}", img.html_reference, filename);
+            });
+
+        // Save the updated HTML file with corrected image references
+        fs::write(output_dir.join("test_output.html"), html_content.clone()).unwrap();
+
+        println!("Conversion completed successfully!");
+        println!(
+            "HTML file saved to: {:?}",
+            output_dir.join("test_output.html")
+        );
+        println!("Images saved to: {output_dir:?}");
+        println!("Total embedded images: {}", result.embedded_images.len());
+
+        // Print image file sizes for quality assessment
+        result.embedded_images.iter().for_each(|img| {
+            if let Ok(metadata) = fs::metadata(img.image_file.path()) {
+                println!(
+                    "Image {} size: {} bytes",
+                    img.html_reference,
+                    metadata.len()
+                );
+            }
+        });
     }
 }

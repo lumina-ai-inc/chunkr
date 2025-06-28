@@ -61,6 +61,82 @@ pub enum SpanName {
     TryExtractFromLlm,
     #[strum(serialize = "try_extract_from_openai_response")]
     TryExtractFromOpenAiResponse,
+    #[strum(serialize = "llm_call_router")]
+    LlmCallRouter,
+    #[strum(serialize = "libreoffice_convert_to_html")]
+    LibreOfficeConvertToHtml,
+    #[strum(serialize = "extract_sheets_from_html")]
+    ExtractSheetsFromHtml,
+    #[strum(serialize = "get_sheet_infos")]
+    GetSheetInfos,
+    #[strum(serialize = "process_sheet")]
+    ProcessSheet,
+    #[strum(serialize = "get_html_table_bounds")]
+    GetHtmlTableBounds,
+    #[strum(serialize = "create_sheets")]
+    CreateSheets,
+    #[strum(serialize = "create_sheet")]
+    CreateSheet,
+    #[strum(serialize = "set_spreadsheet_assets")]
+    SetSpreadsheetAssets,
+    #[strum(serialize = "create_html_files")]
+    CreateHtmlFiles,
+    #[strum(serialize = "add_enhancements_to_html")]
+    AddEnhancementsToHtml,
+    #[strum(serialize = "add_cell_references_to_html")]
+    AddCellReferencesToHtml,
+    #[strum(serialize = "add_headers_to_html")]
+    AddHeadersToHtml,
+    #[strum(serialize = "filter_relevant_images")]
+    FilterRelevantImages,
+    #[strum(serialize = "set_relevant_images_range")]
+    SetRelevantImagesRange,
+    #[strum(serialize = "create_sheet_images")]
+    CreateSheetImages,
+    #[strum(serialize = "create_sheet_image_cell_references")]
+    CreateSheetImageCellReferences,
+    #[strum(serialize = "create_sheet_image_headers")]
+    CreateSheetImageHeaders,
+    #[strum(serialize = "convert_sheet_images_to_pdf")]
+    ConvertSheetImagesToPdf,
+    #[strum(serialize = "convert_image_to_pdf")]
+    ConvertImageToPdf,
+    #[strum(serialize = "combine_pdfs")]
+    CombinePdfs,
+    #[strum(serialize = "identify_tables")]
+    IdentifyTables,
+    #[strum(serialize = "identify_table_in_sheet")]
+    IdentifyTableInSheet,
+    #[strum(serialize = "set_tables_on_sheets")]
+    SetTablesOnSheets,
+    #[strum(serialize = "convert_sheet_to_chunks")]
+    ConvertSheetToChunks,
+    #[strum(serialize = "convert_tables_to_chunks")]
+    ConvertTablesToChunks,
+    #[strum(serialize = "convert_images_to_chunks")]
+    ConvertImagesToChunks,
+    #[strum(serialize = "convert_remaining_cells_to_chunks")]
+    ConvertRemainingCellsToChunks,
+    #[strum(serialize = "apply_reading_order")]
+    ApplyReadingOrder,
+    #[strum(serialize = "convert_sheets_to_chunks")]
+    ConvertSheetsToChunks,
+    #[strum(serialize = "create_segment_from_tables")]
+    CreateSegmentFromTables,
+    #[strum(serialize = "create_segment_from_images")]
+    CreateSegmentFromImages,
+    #[strum(serialize = "create_segment_from_remaining_cells")]
+    CreateSegmentFromRemainingCells,
+    #[strum(serialize = "extract_cells_from_ranges")]
+    ExtractCellsFromRanges,
+    #[strum(serialize = "cells_to_ocr_results")]
+    CellsToOcrResults,
+    #[strum(serialize = "calculate_bbox_from_ocr")]
+    CalculateBboxFromOcr,
+    #[strum(serialize = "make_ocr_relative")]
+    MakeOcrRelative,
+    #[strum(serialize = "find_image_element")]
+    FindImageElement,
 }
 
 #[derive(Debug, Clone, Copy, Display, EnumString)]

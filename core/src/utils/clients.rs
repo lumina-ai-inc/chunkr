@@ -29,7 +29,8 @@ pub async fn initialize() {
     PG_POOL.get_or_init(|| async { create_pool() }.now_or_never().unwrap());
     init_throttle();
     REDIS_POOL.get_or_init(create_redis_pool);
-    println!("Initialized clients and rate limiters");
+
+    println!("Initialized clients, rate limiters, and HTML renderer");
 }
 
 pub fn get_reqwest_client() -> &'static ReqwestClient {

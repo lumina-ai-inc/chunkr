@@ -2,22 +2,66 @@ use crate::models::{
     chunk_processing::TokenizerType, search::SimpleChunk, segment_processing::EmbedSource,
     task::Configuration,
 };
+use crate::utils::services::html::extract_cells_from_ranges;
+use crate::utils::services::renderer::Capture;
 use lru::LruCache;
 use once_cell::sync::Lazy;
+use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use postgres_types::{FromSql, ToSql};
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 use strum_macros::{Display, EnumString};
+use thiserror::Error as ThisError;
 use tiktoken_rs::cl100k_base;
 use tokenizers::tokenizer::Tokenizer;
 use utoipa::ToSchema;
+
+#[derive(Debug, Clone, ThisError)]
+pub enum SegmentCreationError {
+    #[error("No bounding box: {0}")]
+    NoBoundingBox(String),
+    #[error("No image found: {0}")]
+    NoImageFound(String),
+    #[error("Cell extraction failed: {0}")]
+    CellExtractionFailed(String),
+    #[error("Other error: {0}")]
+    Other(String),
+}
 
 static WORD_COUNT_CACHE: Lazy<Arc<Mutex<LruCache<String, u32>>>> = Lazy::new(|| {
     let cache_size = NonZeroUsize::new(10000).unwrap();
     Arc::new(Mutex::new(LruCache::new(cache_size)))
 });
+
+/// Extract the alt text from an img tag HTML string
+fn extract_alt_text_from_img(html: &str) -> Option<String> {
+    // Simple regex-like extraction of alt text from img tag
+    if let Some(alt_start) = html.find("alt=\"") {
+        let alt_content_start = alt_start + 5; // "alt=\"".len()
+        if let Some(alt_end) = html[alt_content_start..].find('"') {
+            let alt_text = &html[alt_content_start..alt_content_start + alt_end];
+            if !alt_text.is_empty() {
+                return Some(alt_text.to_string());
+            }
+        }
+    }
+
+    // Try with single quotes
+    if let Some(alt_start) = html.find("alt='") {
+        let alt_content_start = alt_start + 5; // "alt='".len()
+        if let Some(alt_end) = html[alt_content_start..].find('\'') {
+            let alt_text = &html[alt_content_start..alt_content_start + alt_end];
+            if !alt_text.is_empty() {
+                return Some(alt_text.to_string());
+            }
+        }
+    }
+
+    None
+}
 
 fn generate_uuid() -> String {
     uuid::Uuid::new_v4().to_string()
@@ -34,6 +78,10 @@ pub struct OutputResponse {
     pub chunks: Vec<Chunk>,
     /// The name of the file.
     pub file_name: Option<String>,
+    /// The MIME type of the file.
+    pub mime_type: Option<String>,
+    /// The presigned URL of the page/sheet images.
+    pub page_images: Option<Vec<String>>,
     /// The number of pages in the file.
     pub page_count: Option<u32>,
     /// The presigned URL of the PDF file.
@@ -82,7 +130,7 @@ impl Chunk {
         );
         self.chunk_length = self
             .segments
-            .iter()
+            .iter_mut()
             .map(|s| s.count_embed_words(configuration))
             .filter_map(Result::ok)
             .sum();
@@ -98,6 +146,42 @@ impl Chunk {
             id: self.chunk_id.clone(),
             content: self.embed.clone().unwrap_or_default().to_string(),
         })
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct Cell {
+    /// The cell ID.
+    pub cell_id: String,
+    /// Text content of the cell.
+    pub text: String,
+    /// Range of the cell.
+    pub range: String,
+    /// Formula of the cell.
+    pub formula: Option<String>,
+    /// The computed/evaluated value of the cell. This represents the actual result after evaluating any formulas,
+    /// as opposed to the raw text content. For cells with formulas, this is the calculated result;
+    /// for cells with static content, this is typically the same as the text field.
+    ///
+    /// Example: text might show "3.14" (formatted to 2 decimal places) while value could be "3.141592653589793" (full precision).
+    pub value: Option<String>,
+}
+
+impl Cell {
+    pub fn new(
+        text: String,
+        range: String,
+        formula: Option<String>,
+        value: Option<String>,
+    ) -> Self {
+        let cell_id = generate_uuid();
+        Self {
+            cell_id,
+            text,
+            range,
+            formula,
+            value,
+        }
     }
 }
 
@@ -121,15 +205,34 @@ pub struct Segment {
     pub markdown: String,
     /// OCR results for the segment.
     pub ocr: Option<Vec<OCRResult>>,
-    /// Height of the page containing the segment.
+    /// Height of the page/sheet containing the segment.
     pub page_height: f32,
-    /// Width of the page containing the segment.
+    /// Width of the page/sheet containing the segment.
     pub page_width: f32,
-    /// Page number of the segment.
+    /// Page number/Sheet number of the segment.
     pub page_number: u32,
     /// Unique identifier for the segment.
     pub segment_id: String,
     pub segment_type: SegmentType,
+    /// Length of the segment in tokens.
+    pub segment_length: Option<u32>,
+    /// Cells of the segment. Only used for Spreadsheets.
+    pub ss_cells: Option<Vec<Cell>>,
+    /// Bounding box of the header of the segment, if found. Only used for Spreadsheets.
+    pub ss_header_bbox: Option<BoundingBox>,
+    /// OCR results of the header of the segment, if found. Only used for Spreadsheets.
+    pub ss_header_ocr: Option<Vec<OCRResult>>,
+    /// Text content of the header of the segment, if found. Only used for Spreadsheets.
+    pub ss_header_text: Option<String>,
+    /// Header range of the segment, if found.
+    /// The header can have overlap with the `segment.range` if the table contains the header,
+    /// if the header is located in a different sheet, the header range will have no overlap with the `segment.range`.
+    /// Only used for Spreadsheets.
+    pub ss_header_range: Option<String>,
+    /// Range of the segment in Excel notation (e.g., A1:B5). Only used for Spreadsheets.
+    pub ss_range: Option<String>,
+    /// Name of the sheet containing the segment. Only used for Spreadsheets.
+    pub ss_sheet_name: Option<String>,
     /// Text content of the segment. Calculated by the OCR results.
     #[serde(default = "generate_string")]
     pub text: String,
@@ -161,12 +264,786 @@ impl Segment {
             page_width,
             segment_id,
             segment_type,
+            segment_length: None,
+            ss_cells: None,
+            ss_header_bbox: None,
+            ss_header_ocr: None,
+            ss_header_text: None,
+            ss_header_range: None,
+            ss_range: None,
+            ss_sheet_name: None,
             ocr: Some(ocr_results),
             image: None,
             html: String::new(),
             markdown: String::new(),
             text,
         }
+    }
+
+    // Helper method to convert cells to OCR results
+    fn cells_to_ocr_results(
+        cells: &[Cell],
+        capture: &Capture,
+    ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
+        cells
+            .par_iter()
+            .map(|cell| {
+                let cell_ref_attr = format!("data-cell-ref=\"{}\"", cell.range);
+                capture
+                    .elements
+                    .par_iter()
+                    .find(|element| {
+                        let has_cell_ref = element.html.contains(&cell_ref_attr);
+                        let is_table_cell =
+                            element.html.starts_with("<td") || element.html.starts_with("<th");
+                        has_cell_ref && is_table_cell
+                    })
+                    .map(|element| OCRResult {
+                        bbox: element.bbox.clone(),
+                        text: cell.text.clone(),
+                        confidence: Some(1.0),
+                    })
+                    .ok_or("No cell found".into())
+            })
+            .collect::<Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>>>()
+    }
+
+    // Helper method to calculate bounding box from OCR results
+    fn calculate_bbox_from_ocr(
+        ocr_results: &[OCRResult],
+    ) -> Result<BoundingBox, Box<dyn Error + Send + Sync>> {
+        if ocr_results.is_empty() {
+            return Err("OCR results are empty, can't calculate bbox".into());
+        }
+
+        let min_left = ocr_results
+            .iter()
+            .map(|ocr| ocr.bbox.left)
+            .fold(f32::INFINITY, f32::min);
+        let min_top = ocr_results
+            .iter()
+            .map(|ocr| ocr.bbox.top)
+            .fold(f32::INFINITY, f32::min);
+        let max_right = ocr_results
+            .iter()
+            .map(|ocr| ocr.bbox.left + ocr.bbox.width)
+            .fold(f32::NEG_INFINITY, f32::max);
+        let max_bottom = ocr_results
+            .iter()
+            .map(|ocr| ocr.bbox.top + ocr.bbox.height)
+            .fold(f32::NEG_INFINITY, f32::max);
+
+        Ok(BoundingBox::new(
+            min_left,
+            min_top,
+            max_right - min_left,
+            max_bottom - min_top,
+        ))
+    }
+
+    // Helper method to make OCR results relative to a bounding box
+    fn make_ocr_relative(
+        ocr_results: Vec<OCRResult>,
+        reference_bbox: &BoundingBox,
+    ) -> Vec<OCRResult> {
+        ocr_results
+            .into_iter()
+            .map(|mut ocr_result| {
+                ocr_result.bbox.left -= reference_bbox.left;
+                ocr_result.bbox.top -= reference_bbox.top;
+                ocr_result
+            })
+            .collect()
+    }
+
+    // Helper method to convert OCR results to text
+    fn ocr_results_to_text(ocr_results: &[OCRResult]) -> String {
+        ocr_results
+            .iter()
+            .map(|ocr_result| ocr_result.text.clone())
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_from_tables(
+        segment_id: String,
+        confidence: Option<f32>,
+        header_range: Option<String>,
+        page_height: f32,
+        page_width: f32,
+        page_number: u32,
+        range: Option<String>,
+        sheet_name: String,
+        sheet_html: String,
+        capture: Capture,
+        tracer: &opentelemetry::global::BoxedTracer,
+        context: &opentelemetry::Context,
+    ) -> Result<Self, SegmentCreationError> {
+        let mut span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CreateSegmentFromTables.to_string(),
+            context,
+        );
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.clone(),
+        ));
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "sheet_name",
+            sheet_name.clone(),
+        ));
+        if let Some(ref range) = range {
+            span.set_attribute(opentelemetry::KeyValue::new("table_range", range.clone()));
+        }
+        if let Some(ref header_range) = header_range {
+            span.set_attribute(opentelemetry::KeyValue::new(
+                "header_range",
+                header_range.clone(),
+            ));
+        }
+
+        let segment_context = context.with_span(span);
+        let header_cells = if let Some(ref header_range) = header_range {
+            let mut extract_span = tracer.start_with_context(
+                crate::configs::otel_config::SpanName::ExtractCellsFromRanges.to_string(),
+                &segment_context,
+            );
+            extract_span.set_attribute(opentelemetry::KeyValue::new("range_type", "header"));
+            extract_span.set_attribute(opentelemetry::KeyValue::new("range", header_range.clone()));
+
+            let result =
+                extract_cells_from_ranges(&sheet_html, None, Some(header_range)).map_err(|e| {
+                    let error =
+                        SegmentCreationError::CellExtractionFailed(format!("Header cells: {e}"));
+                    extract_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+                    extract_span
+                        .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                    segment_context
+                        .span()
+                        .set_status(opentelemetry::trace::Status::error(error.to_string()));
+                    segment_context
+                        .span()
+                        .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                    error
+                });
+
+            if let Ok(ref cells) = result {
+                extract_span.set_attribute(opentelemetry::KeyValue::new(
+                    "cells_extracted",
+                    cells.len() as i64,
+                ));
+            }
+            extract_span.end();
+            result?
+        } else {
+            Vec::new()
+        };
+
+        let table_cells = if let Some(ref table_range) = range {
+            let mut extract_span = tracer.start_with_context(
+                crate::configs::otel_config::SpanName::ExtractCellsFromRanges.to_string(),
+                &segment_context,
+            );
+            extract_span.set_attribute(opentelemetry::KeyValue::new("range_type", "table"));
+            extract_span.set_attribute(opentelemetry::KeyValue::new("range", table_range.clone()));
+
+            let result =
+                extract_cells_from_ranges(&sheet_html, Some(table_range), None).map_err(|e| {
+                    let error =
+                        SegmentCreationError::CellExtractionFailed(format!("Table cells: {e}"));
+                    extract_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+                    extract_span
+                        .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                    segment_context
+                        .span()
+                        .set_status(opentelemetry::trace::Status::error(error.to_string()));
+                    segment_context
+                        .span()
+                        .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                    error
+                });
+
+            if let Ok(ref cells) = result {
+                extract_span.set_attribute(opentelemetry::KeyValue::new(
+                    "cells_extracted",
+                    cells.len() as i64,
+                ));
+            }
+            extract_span.end();
+            result?
+        } else {
+            let error = SegmentCreationError::Other("No table range found".to_string());
+            segment_context
+                .span()
+                .set_status(opentelemetry::trace::Status::error(error.to_string()));
+            segment_context
+                .span()
+                .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            segment_context.span().end();
+            return Err(error);
+        };
+
+        // Combine all cells (header + non-overlapping table cells)
+        let mut all_cells = header_cells.clone();
+        all_cells.extend(table_cells.clone());
+
+        // Filter out cells that have duplicate ranges
+        let mut seen_ranges = std::collections::HashSet::new();
+        let filtered_cells: Vec<Cell> = all_cells
+            .into_iter()
+            .filter(|cell| seen_ranges.insert(cell.range.clone()))
+            .collect();
+
+        // Create OCR results from table and header cells
+        let mut ocr_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CellsToOcrResults.to_string(),
+            &segment_context,
+        );
+        ocr_span.set_attribute(opentelemetry::KeyValue::new("cells_type", "table"));
+        ocr_span.set_attribute(opentelemetry::KeyValue::new(
+            "cells_count",
+            table_cells.len() as i64,
+        ));
+
+        let ocr_results = Self::cells_to_ocr_results(&table_cells, &capture).map_err(|e| {
+            let error = SegmentCreationError::Other(format!("Table OCR conversion: {e}"));
+            ocr_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+            ocr_span.set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            segment_context
+                .span()
+                .set_status(opentelemetry::trace::Status::error(error.to_string()));
+            segment_context
+                .span()
+                .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            error
+        });
+
+        if let Ok(ref results) = ocr_results {
+            ocr_span.set_attribute(opentelemetry::KeyValue::new(
+                "ocr_results_count",
+                results.len() as i64,
+            ));
+        }
+        ocr_span.end();
+        let ocr_results = ocr_results?;
+        let header_ocr_results = if !header_cells.is_empty() {
+            let mut header_ocr_span = tracer.start_with_context(
+                crate::configs::otel_config::SpanName::CellsToOcrResults.to_string(),
+                &segment_context,
+            );
+            header_ocr_span.set_attribute(opentelemetry::KeyValue::new("cells_type", "header"));
+            header_ocr_span.set_attribute(opentelemetry::KeyValue::new(
+                "cells_count",
+                header_cells.len() as i64,
+            ));
+
+            let result = Self::cells_to_ocr_results(&header_cells, &capture).map_err(|e| {
+                let error = SegmentCreationError::Other(format!("Header OCR conversion: {e}"));
+                header_ocr_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+                header_ocr_span
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                segment_context
+                    .span()
+                    .set_status(opentelemetry::trace::Status::error(error.to_string()));
+                segment_context
+                    .span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                error
+            });
+
+            if let Ok(ref results) = result {
+                header_ocr_span.set_attribute(opentelemetry::KeyValue::new(
+                    "ocr_results_count",
+                    results.len() as i64,
+                ));
+            }
+            header_ocr_span.end();
+            Some(result?)
+        } else {
+            None
+        };
+
+        let mut bbox_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CalculateBboxFromOcr.to_string(),
+            &segment_context,
+        );
+        bbox_span.set_attribute(opentelemetry::KeyValue::new("bbox_type", "table"));
+        bbox_span.set_attribute(opentelemetry::KeyValue::new(
+            "ocr_results_count",
+            ocr_results.len() as i64,
+        ));
+
+        let bbox = Self::calculate_bbox_from_ocr(&ocr_results).map_err(|e| {
+            let error = SegmentCreationError::NoBoundingBox(format!(
+                "Table bbox calculation for range {}: {}",
+                range.as_deref().unwrap_or_default(),
+                e
+            ));
+            bbox_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            segment_context
+                .span()
+                .set_status(opentelemetry::trace::Status::error(error.to_string()));
+            segment_context
+                .span()
+                .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            error
+        });
+
+        if let Ok(ref bb) = bbox {
+            bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_left",
+                bb.left.to_string(),
+            ));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new("bbox_top", bb.top.to_string()));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_width",
+                bb.width.to_string(),
+            ));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_height",
+                bb.height.to_string(),
+            ));
+        }
+        bbox_span.end();
+        let bbox = bbox?;
+
+        let mut relative_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::MakeOcrRelative.to_string(),
+            &segment_context,
+        );
+        relative_span.set_attribute(opentelemetry::KeyValue::new("ocr_type", "table"));
+        relative_span.set_attribute(opentelemetry::KeyValue::new(
+            "ocr_results_count",
+            ocr_results.len() as i64,
+        ));
+        let relative_ocr_results = Self::make_ocr_relative(ocr_results, &bbox);
+        relative_span.end();
+
+        let text = Self::ocr_results_to_text(&relative_ocr_results);
+
+        let (header_bbox, relative_header_ocr, header_text) = if let Some(header_ocr) =
+            header_ocr_results
+        {
+            let mut header_bbox_span = tracer.start_with_context(
+                crate::configs::otel_config::SpanName::CalculateBboxFromOcr.to_string(),
+                &segment_context,
+            );
+            header_bbox_span.set_attribute(opentelemetry::KeyValue::new("bbox_type", "header"));
+            header_bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "ocr_results_count",
+                header_ocr.len() as i64,
+            ));
+
+            let header_bbox = Self::calculate_bbox_from_ocr(&header_ocr).map_err(|e| {
+                let error = SegmentCreationError::NoBoundingBox(format!(
+                    "Header bbox calculation for range {}: {}",
+                    header_range.as_deref().unwrap_or_default(),
+                    e
+                ));
+                header_bbox_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+                header_bbox_span
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                segment_context
+                    .span()
+                    .set_status(opentelemetry::trace::Status::error(error.to_string()));
+                segment_context
+                    .span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                error
+            });
+
+            if let Ok(ref hb) = header_bbox {
+                header_bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                    "bbox_left",
+                    hb.left.to_string(),
+                ));
+                header_bbox_span
+                    .set_attribute(opentelemetry::KeyValue::new("bbox_top", hb.top.to_string()));
+                header_bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                    "bbox_width",
+                    hb.width.to_string(),
+                ));
+                header_bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                    "bbox_height",
+                    hb.height.to_string(),
+                ));
+            }
+            header_bbox_span.end();
+            let header_bbox = header_bbox?;
+
+            let mut header_relative_span = tracer.start_with_context(
+                crate::configs::otel_config::SpanName::MakeOcrRelative.to_string(),
+                &segment_context,
+            );
+            header_relative_span.set_attribute(opentelemetry::KeyValue::new("ocr_type", "header"));
+            header_relative_span.set_attribute(opentelemetry::KeyValue::new(
+                "ocr_results_count",
+                header_ocr.len() as i64,
+            ));
+            let relative_header_ocr = Self::make_ocr_relative(header_ocr, &bbox);
+            header_relative_span.end();
+
+            let header_text = Self::ocr_results_to_text(&relative_header_ocr);
+            (
+                Some(header_bbox),
+                Some(relative_header_ocr),
+                Some(header_text),
+            )
+        } else {
+            (None, None, None)
+        };
+
+        segment_context
+            .span()
+            .set_attribute(opentelemetry::KeyValue::new(
+                "cells_count",
+                filtered_cells.len() as i64,
+            ));
+        segment_context.span().end();
+
+        Ok(Self {
+            bbox,
+            confidence,
+            content: String::new(),
+            llm: None,
+            page_height,
+            page_number,
+            page_width,
+            segment_id,
+            segment_type: SegmentType::Table,
+            segment_length: None,
+            ss_cells: Some(filtered_cells),
+            ss_header_range: header_range,
+            ss_header_bbox: header_bbox,
+            ss_header_ocr: relative_header_ocr,
+            ss_header_text: header_text,
+            ss_sheet_name: Some(sheet_name),
+            ss_range: range,
+            ocr: Some(relative_ocr_results),
+            image: None,
+            html: String::new(),
+            markdown: String::new(),
+            text,
+        })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_from_images(
+        segment_id: String,
+        confidence: Option<f32>,
+        page_height: f32,
+        page_width: f32,
+        page_number: u32,
+        range: String,
+        sheet_name: String,
+        sheet_html: String,
+        capture: Capture,
+        html_reference: String,
+        tracer: &opentelemetry::global::BoxedTracer,
+        context: &opentelemetry::Context,
+    ) -> Result<Self, SegmentCreationError> {
+        let mut span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CreateSegmentFromImages.to_string(),
+            context,
+        );
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.clone(),
+        ));
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "sheet_name",
+            sheet_name.clone(),
+        ));
+        span.set_attribute(opentelemetry::KeyValue::new("range", range.clone()));
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "html_reference",
+            html_reference.clone(),
+        ));
+
+        let segment_context = context.with_span(span);
+
+        let mut extract_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::ExtractCellsFromRanges.to_string(),
+            &segment_context,
+        );
+        extract_span.set_attribute(opentelemetry::KeyValue::new("range_type", "image"));
+        extract_span.set_attribute(opentelemetry::KeyValue::new("range", range.clone()));
+
+        let cells = {
+            let result = extract_cells_from_ranges(&sheet_html, Some(&range), None).map_err(|e| {
+                let error = SegmentCreationError::CellExtractionFailed(format!("Image cells: {e}"));
+                extract_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+                extract_span
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                segment_context
+                    .span()
+                    .set_status(opentelemetry::trace::Status::error(error.to_string()));
+                segment_context
+                    .span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                error
+            });
+
+            if let Ok(ref cells) = result {
+                extract_span.set_attribute(opentelemetry::KeyValue::new(
+                    "cells_extracted",
+                    cells.len() as i64,
+                ));
+            }
+            extract_span.end();
+            result?
+        };
+
+        // Find the img tag element in the capture using the html reference
+        let mut find_image_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::FindImageElement.to_string(),
+            &segment_context,
+        );
+        find_image_span.set_attribute(opentelemetry::KeyValue::new(
+            "html_reference",
+            html_reference.clone(),
+        ));
+        find_image_span.set_attribute(opentelemetry::KeyValue::new(
+            "elements_count",
+            capture.elements.len() as i64,
+        ));
+
+        let image_result = capture
+            .elements
+            .par_iter()
+            .find(|element| {
+                element.html.starts_with("<img") && element.html.contains(&html_reference)
+            })
+            .map(|element| {
+                (
+                    element.bbox.clone(),
+                    extract_alt_text_from_img(&element.html).unwrap_or_default(),
+                )
+            })
+            .ok_or_else(|| {
+                let error = SegmentCreationError::NoImageFound(format!(
+                    "No img tag found with reference: {html_reference}"
+                ));
+                find_image_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+                find_image_span
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                segment_context
+                    .span()
+                    .set_status(opentelemetry::trace::Status::error(error.to_string()));
+                segment_context
+                    .span()
+                    .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+                error
+            });
+
+        if let Ok((ref bb, ref alt)) = image_result {
+            find_image_span.set_attribute(opentelemetry::KeyValue::new("image_found", true));
+            find_image_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_left",
+                bb.left.to_string(),
+            ));
+            find_image_span
+                .set_attribute(opentelemetry::KeyValue::new("bbox_top", bb.top.to_string()));
+            find_image_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_width",
+                bb.width.to_string(),
+            ));
+            find_image_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_height",
+                bb.height.to_string(),
+            ));
+            find_image_span.set_attribute(opentelemetry::KeyValue::new(
+                "has_alt_text",
+                !alt.is_empty(),
+            ));
+        }
+        find_image_span.end();
+        let (bbox, alt_text) = image_result?;
+
+        segment_context
+            .span()
+            .set_attribute(opentelemetry::KeyValue::new(
+                "cells_count",
+                cells.len() as i64,
+            ));
+        segment_context.span().end();
+
+        Ok(Self {
+            bbox,
+            confidence,
+            content: String::new(),
+            ss_cells: Some(cells),
+            ss_header_range: None,
+            ss_header_text: None,
+            llm: None,
+            page_height,
+            page_number,
+            page_width,
+            segment_id,
+            segment_type: SegmentType::Picture,
+            segment_length: None,
+            ss_header_bbox: None,
+            ss_header_ocr: None,
+            ss_sheet_name: Some(sheet_name),
+            ss_range: Some(range),
+            ocr: None, // Images don't have OCR results
+            image: None,
+            html: String::new(),
+            markdown: String::new(),
+            text: alt_text,
+        })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_from_remaining_cells(
+        segment_id: String,
+        confidence: Option<f32>,
+        page_height: f32,
+        page_width: f32,
+        page_number: u32,
+        range: String,
+        sheet_name: String,
+        capture: Capture,
+        cells: Vec<Cell>,
+        tracer: &opentelemetry::global::BoxedTracer,
+        context: &opentelemetry::Context,
+    ) -> Result<Self, SegmentCreationError> {
+        let mut span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CreateSegmentFromRemainingCells.to_string(),
+            context,
+        );
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "segment_id",
+            segment_id.clone(),
+        ));
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "sheet_name",
+            sheet_name.clone(),
+        ));
+        span.set_attribute(opentelemetry::KeyValue::new("range", range.clone()));
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "cells_count",
+            cells.len() as i64,
+        ));
+
+        let segment_context = context.with_span(span);
+
+        let mut ocr_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CellsToOcrResults.to_string(),
+            &segment_context,
+        );
+        ocr_span.set_attribute(opentelemetry::KeyValue::new("cells_type", "remaining"));
+        ocr_span.set_attribute(opentelemetry::KeyValue::new(
+            "cells_count",
+            cells.len() as i64,
+        ));
+
+        let ocr_results = Self::cells_to_ocr_results(&cells, &capture).map_err(|e| {
+            let error = SegmentCreationError::Other(format!("Remaining cells OCR conversion: {e}"));
+            ocr_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+            ocr_span.set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            segment_context
+                .span()
+                .set_status(opentelemetry::trace::Status::error(error.to_string()));
+            segment_context
+                .span()
+                .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            error
+        });
+
+        if let Ok(ref results) = ocr_results {
+            ocr_span.set_attribute(opentelemetry::KeyValue::new(
+                "ocr_results_count",
+                results.len() as i64,
+            ));
+        }
+        ocr_span.end();
+        let ocr_results = ocr_results?;
+
+        let mut bbox_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::CalculateBboxFromOcr.to_string(),
+            &segment_context,
+        );
+        bbox_span.set_attribute(opentelemetry::KeyValue::new("bbox_type", "remaining_cells"));
+        bbox_span.set_attribute(opentelemetry::KeyValue::new(
+            "ocr_results_count",
+            ocr_results.len() as i64,
+        ));
+
+        let bbox = Self::calculate_bbox_from_ocr(&ocr_results.clone()).map_err(|e| {
+            let error = SegmentCreationError::NoBoundingBox(format!(
+                "Remaining cells bbox calculation: {e}"
+            ));
+            bbox_span.set_status(opentelemetry::trace::Status::error(error.to_string()));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            segment_context
+                .span()
+                .set_status(opentelemetry::trace::Status::error(error.to_string()));
+            segment_context
+                .span()
+                .set_attribute(opentelemetry::KeyValue::new("error", error.to_string()));
+            error
+        });
+
+        if let Ok(ref bb) = bbox {
+            bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_left",
+                bb.left.to_string(),
+            ));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new("bbox_top", bb.top.to_string()));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_width",
+                bb.width.to_string(),
+            ));
+            bbox_span.set_attribute(opentelemetry::KeyValue::new(
+                "bbox_height",
+                bb.height.to_string(),
+            ));
+        }
+        bbox_span.end();
+        let bbox = bbox?;
+
+        let mut relative_span = tracer.start_with_context(
+            crate::configs::otel_config::SpanName::MakeOcrRelative.to_string(),
+            &segment_context,
+        );
+        relative_span.set_attribute(opentelemetry::KeyValue::new("ocr_type", "remaining_cells"));
+        relative_span.set_attribute(opentelemetry::KeyValue::new(
+            "ocr_results_count",
+            ocr_results.len() as i64,
+        ));
+        let relative_ocr_results = Self::make_ocr_relative(ocr_results.clone(), &bbox);
+        relative_span.end();
+
+        let text = Self::ocr_results_to_text(&relative_ocr_results.clone());
+
+        segment_context.span().end();
+
+        Ok(Self {
+            bbox,
+            confidence,
+            content: String::new(),
+            ss_cells: Some(cells),
+            ss_header_range: None,
+            ss_header_text: None,
+            llm: None,
+            page_height,
+            page_number,
+            page_width,
+            segment_id,
+            segment_type: SegmentType::Text,
+            segment_length: None,
+            ss_header_bbox: None,
+            ss_header_ocr: None,
+            ss_sheet_name: Some(sheet_name),
+            ss_range: Some(range),
+            ocr: Some(relative_ocr_results),
+            image: None,
+            html: String::new(),
+            markdown: String::new(),
+            text,
+        })
     }
 
     pub fn scale(&mut self, scaling_factor: f32) {
@@ -315,7 +1192,7 @@ impl Segment {
     }
 
     pub fn count_embed_words(
-        &self,
+        &mut self,
         configuration: &Configuration,
     ) -> std::result::Result<u32, Box<dyn Error>> {
         let cache_key = format!(
@@ -358,12 +1235,24 @@ impl Segment {
         };
 
         if let Ok(count) = result {
+            self.segment_length = Some(count);
             if let Ok(mut cache) = WORD_COUNT_CACHE.lock() {
                 cache.put(cache_key, count);
             }
         }
 
         result
+    }
+
+    pub fn get_segment_length(
+        &mut self,
+        configuration: &Configuration,
+    ) -> std::result::Result<u32, Box<dyn Error>> {
+        if let Some(length) = self.segment_length {
+            Ok(length)
+        } else {
+            self.count_embed_words(configuration)
+        }
     }
 }
 
@@ -420,6 +1309,14 @@ impl BoundingBox {
         self.top *= scaling_factor;
         self.width *= scaling_factor;
         self.height *= scaling_factor;
+    }
+
+    /// Calculate the centroid (center point) of the bounding box
+    /// Returns (x, y) coordinates of the center
+    pub fn centroid(&self) -> (f32, f32) {
+        let center_x = self.left + (self.width / 2.0);
+        let center_y = self.top + (self.height / 2.0);
+        (center_x, center_y)
     }
 }
 
@@ -492,6 +1389,14 @@ mod tests {
             page_number: 1,
             segment_id: "test-id".to_string(),
             segment_type: SegmentType::Table,
+            segment_length: None,
+            ss_cells: None,
+            ss_header_range: None,
+            ss_header_text: None,
+            ss_header_bbox: None,
+            ss_header_ocr: None,
+            ss_range: None,
+            ss_sheet_name: None,
             text: "This is content text".to_string(),
         }
     }
@@ -536,19 +1441,19 @@ mod tests {
 
         // Test with all sources enabled
         let content = segment.get_embed_content(&config);
-        println!("Content: {}", content);
+        println!("Content: {content}");
         assert!(content.contains("This is HTML text"));
         assert!(content.contains("This is *Markdown* text"));
     }
 
     #[test]
     fn test_count_embed_words() {
-        let segment = create_test_segment();
+        let mut segment = create_test_segment();
         let config = create_test_config();
 
         // When using the Word tokenizer, we should get the word count
         let word_count = segment.count_embed_words(&config).unwrap();
-        println!("Word count: {}", word_count);
+        println!("Word count: {word_count}");
         // The exact count will depend on the whitespace tokenizer, but it should be reasonable
         // Expected to be the sum of words from content, HTML, markdown, and LLM
         assert!(word_count > 0);
@@ -556,7 +1461,7 @@ mod tests {
 
     #[test]
     fn test_count_embed_words_with_many_tokenizers() {
-        let segment = create_test_segment();
+        let mut segment = create_test_segment();
         let mut config = create_test_config();
         let identifiers = vec![
             TokenizerType::Enum(Tokenizer::Word),
@@ -570,7 +1475,7 @@ mod tests {
         for identifier in identifiers {
             config.chunk_processing.tokenizer = identifier.clone();
             let word_count = segment.count_embed_words(&config).unwrap();
-            println!("Word count for {:?}: {}", identifier, word_count);
+            println!("Word count for {identifier:?}: {word_count}");
             // The exact count will depend on the whitespace tokenizer, but it should be reasonable
             // Expected to be the sum of words from content, HTML, markdown, and LLM
             assert!(word_count > 0);

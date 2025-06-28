@@ -31,12 +31,12 @@ pub struct SubscriptionRequest {
 
 pub async fn create_setup_intent(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
+        eprintln!("Error connecting to database: {e:?}");
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
 
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Error loading Stripe configuration: {:?}", e);
+        eprintln!("Error loading Stripe configuration: {e:?}");
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
     // Check if customer_id exists for the user
@@ -47,7 +47,7 @@ pub async fn create_setup_intent(user_info: web::ReqData<UserInfo>) -> Result<Ht
         )
         .await
         .map_err(|e| {
-            eprintln!("Database error: {:?}", e);
+            eprintln!("Database error: {e:?}");
             actix_web::error::ErrorInternalServerError("Database error")
         })?;
 
@@ -66,7 +66,7 @@ pub async fn create_setup_intent(user_info: web::ReqData<UserInfo>) -> Result<Ht
                 .as_ref()
                 .ok_or_else(|| actix_web::error::ErrorBadRequest("User email is required"))?;
             let new_customer_id = create_stripe_customer(email).await.map_err(|e| {
-                eprintln!("Error creating Stripe customer: {:?}", e);
+                eprintln!("Error creating Stripe customer: {e:?}");
                 actix_web::error::ErrorInternalServerError("Error creating Stripe customer")
             })?;
 
@@ -78,7 +78,7 @@ pub async fn create_setup_intent(user_info: web::ReqData<UserInfo>) -> Result<Ht
                 )
                 .await
                 .map_err(|e| {
-                    eprintln!("Error updating user with customer_id: {:?}", e);
+                    eprintln!("Error updating user with customer_id: {e:?}");
                     actix_web::error::ErrorInternalServerError("Database error")
                 })?;
 
@@ -90,7 +90,7 @@ pub async fn create_setup_intent(user_info: web::ReqData<UserInfo>) -> Result<Ht
     let setup_intent = create_stripe_setup_intent(&customer_id, &stripe_config)
         .await
         .map_err(|e| {
-            eprintln!("Error creating Stripe setup intent: {:?}", e);
+            eprintln!("Error creating Stripe setup intent: {e:?}");
             actix_web::error::ErrorInternalServerError("Error creating Stripe setup intent")
         })?;
 
@@ -106,11 +106,11 @@ pub async fn create_stripe_session(
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Error loading Stripe configuration: {:?}", e);
+        eprintln!("Error loading Stripe configuration: {e:?}");
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
+        eprintln!("Error connecting to database: {e:?}");
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
     // Check if customer_id exists for the user
@@ -121,7 +121,7 @@ pub async fn create_stripe_session(
         )
         .await
         .map_err(|e| {
-            eprintln!("Database error: {:?}", e);
+            eprintln!("Database error: {e:?}");
             actix_web::error::ErrorInternalServerError("Database error")
         })?;
 
@@ -139,7 +139,7 @@ pub async fn create_stripe_session(
                 .as_ref()
                 .ok_or_else(|| actix_web::error::ErrorBadRequest("User email is required"))?;
             let new_customer_id = create_stripe_customer(email).await.map_err(|e| {
-                eprintln!("Error creating Stripe customer: {:?}", e);
+                eprintln!("Error creating Stripe customer: {e:?}");
                 actix_web::error::ErrorInternalServerError("Error creating Stripe customer")
             })?;
 
@@ -151,7 +151,7 @@ pub async fn create_stripe_session(
                 )
                 .await
                 .map_err(|e| {
-                    eprintln!("Error updating user with customer_id: {:?}", e);
+                    eprintln!("Error updating user with customer_id: {e:?}");
                     actix_web::error::ErrorInternalServerError("Database error")
                 })?;
 
@@ -161,7 +161,7 @@ pub async fn create_stripe_session(
     let session = create_customer_session(&customer_id, &stripe_config)
         .await
         .map_err(|e| {
-            eprintln!("Error creating Stripe session: {:?}", e);
+            eprintln!("Error creating Stripe session: {e:?}");
             actix_web::error::ErrorInternalServerError("Error creating Stripe session")
         })?;
 
@@ -170,7 +170,7 @@ pub async fn create_stripe_session(
 
 pub async fn get_checkout_session(session_id: web::Path<String>) -> Result<HttpResponse, Error> {
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Error loading Stripe configuration: {:?}", e);
+        eprintln!("Error loading Stripe configuration: {e:?}");
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
     let line_items = get_stripe_checkout_session(&session_id.into_inner(), &stripe_config).await?;
@@ -179,7 +179,7 @@ pub async fn get_checkout_session(session_id: web::Path<String>) -> Result<HttpR
 
 pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<HttpResponse, Error> {
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Error loading Stripe configuration: {:?}", e);
+        eprintln!("Error loading Stripe configuration: {e:?}");
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
 
@@ -199,7 +199,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid webhook signature"))?;
 
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("DB connect error: {:?}", e);
+        eprintln!("DB connect error: {e:?}");
         actix_web::error::ErrorInternalServerError("DB error")
     })?;
 
@@ -259,7 +259,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         .await;
 
                     if let Err(e) = res_one {
-                        eprintln!("Error syncing subscriptions/users: {:?}", e);
+                        eprintln!("Error syncing subscriptions/users: {e:?}");
                     }
 
                     let res_two = client
@@ -296,14 +296,14 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         .await;
 
                     if let Err(e) = res_two {
-                        eprintln!("Error syncing monthly_usage: {:?}", e);
+                        eprintln!("Error syncing monthly_usage: {e:?}");
                     }
 
                     // Set default payment method for invoices
                     if let Err(e) =
                         set_default_payment_method_for_customer(&sub.customer, &stripe_config).await
                     {
-                        eprintln!("Error setting default payment method: {:?}", e);
+                        eprintln!("Error setting default payment method: {e:?}");
                     }
                 }
             }
@@ -313,7 +313,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
             if let stripe::EventObject::Subscription(sub) = event.data.object {
                 info!("Got subscription object with customer: {:?}", sub.customer);
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
-                info!("Found user_id: {:?}", user_id_opt);
+                info!("Found user_id: {user_id_opt:?}");
 
                 if let Some(user_id) = user_id_opt {
                     if let Some(item) = sub.items.data.first() {
@@ -325,7 +325,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 x if x == stripe_config.growth_price_id => "Growth",
                                 _ => "Free",
                             };
-                            info!("Determined new tier: {}", new_tier);
+                            info!("Determined new tier: {new_tier}");
 
                             let current_usage_row = client
                                 .query_one(
@@ -337,7 +337,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                     &[&user_id],
                                 )
                                 .await;
-                            info!("Current usage query result: {:?}", current_usage_row);
+                            info!("Current usage query result: {current_usage_row:?}");
 
                             if let Ok(row) = current_usage_row {
                                 let current_tier: String = row.get("tier");
@@ -383,7 +383,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                     .await;
 
                                 if let Err(e) = res_one {
-                                    eprintln!("Error syncing subscriptions/users: {:?}", e);
+                                    eprintln!("Error syncing subscriptions/users: {e:?}");
                                 }
 
                                 if is_tier_upgrade(&current_tier, new_tier) {
@@ -401,7 +401,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                         if let Err(e) =
                                             send_upgrade_email(&name, &email, new_tier).await
                                         {
-                                            eprintln!("Failed to send upgrade email: {:?}", e);
+                                            eprintln!("Failed to send upgrade email: {e:?}");
                                         }
                                     }
                                 }
@@ -453,7 +453,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                     .await;
 
                                 if let Err(e) = res_two {
-                                    eprintln!("Error creating new monthly_usage: {:?}", e);
+                                    eprintln!("Error creating new monthly_usage: {e:?}");
                                 }
 
                                 let ongoing_invoices = client
@@ -473,8 +473,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                                 create_and_send_invoice(&invoice_id).await
                                             {
                                                 eprintln!(
-                                                    "Error charging ongoing invoice {}: {:?}",
-                                                    invoice_id, e
+                                                    "Error charging ongoing invoice {invoice_id}: {e:?}"
                                                 );
                                             }
                                         }
@@ -488,7 +487,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 )
                                 .await
                                 {
-                                    eprintln!("Error setting default payment method: {:?}", e);
+                                    eprintln!("Error setting default payment method: {e:?}");
                                 }
                             }
                         }
@@ -524,7 +523,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         .await;
 
                     if let Err(e) = res_one {
-                        eprintln!("Error updating subscription: {:?}", e);
+                        eprintln!("Error updating subscription: {e:?}");
                     }
 
                     let res_two = client
@@ -538,7 +537,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         .await;
 
                     if let Err(e) = res_two {
-                        eprintln!("Error updating user: {:?}", e);
+                        eprintln!("Error updating user: {e:?}");
                     }
 
                     let res_three = client
@@ -554,7 +553,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         .await;
 
                     if let Err(e) = res_three {
-                        eprintln!("Error updating monthly usage: {:?}", e);
+                        eprintln!("Error updating monthly usage: {e:?}");
                     }
                 }
             }
@@ -664,12 +663,12 @@ pub async fn create_checkout_session(
     form: web::Json<SubscriptionRequest>,
 ) -> Result<HttpResponse, Error> {
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
+        eprintln!("Error connecting to database: {e:?}");
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
 
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Error loading Stripe configuration: {:?}", e);
+        eprintln!("Error loading Stripe configuration: {e:?}");
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
 
@@ -681,7 +680,7 @@ pub async fn create_checkout_session(
         )
         .await
         .map_err(|e| {
-            eprintln!("Database error: {:?}", e);
+            eprintln!("Database error: {e:?}");
             actix_web::error::ErrorInternalServerError("Database error")
         })?;
 
@@ -700,7 +699,7 @@ pub async fn create_checkout_session(
                 .as_ref()
                 .ok_or_else(|| actix_web::error::ErrorBadRequest("User email is required"))?;
             let new_customer_id = create_stripe_customer(email).await.map_err(|e| {
-                eprintln!("Error creating Stripe customer: {:?}", e);
+                eprintln!("Error creating Stripe customer: {e:?}");
                 actix_web::error::ErrorInternalServerError("Error creating Stripe customer")
             })?;
 
@@ -712,7 +711,7 @@ pub async fn create_checkout_session(
                 )
                 .await
                 .map_err(|e| {
-                    eprintln!("Error updating user with customer_id: {:?}", e);
+                    eprintln!("Error updating user with customer_id: {e:?}");
                     actix_web::error::ErrorInternalServerError("Database error")
                 })?;
 
@@ -723,7 +722,7 @@ pub async fn create_checkout_session(
     let session = create_stripe_checkout_session(&customer_id, &form.tier, &stripe_config)
         .await
         .map_err(|e| {
-            eprintln!("Error creating checkout session: {:?}", e);
+            eprintln!("Error creating checkout session: {e:?}");
             actix_web::error::ErrorInternalServerError("Error creating checkout session")
         })?;
 
@@ -756,12 +755,12 @@ pub async fn get_billing_portal_session(
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
+        eprintln!("Error connecting to database: {e:?}");
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
 
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Error loading Stripe configuration: {:?}", e);
+        eprintln!("Error loading Stripe configuration: {e:?}");
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
 
@@ -775,7 +774,7 @@ pub async fn get_billing_portal_session(
         )
         .await
         .map_err(|e| {
-            eprintln!("Error querying database: {:?}", e);
+            eprintln!("Error querying database: {e:?}");
             actix_web::error::ErrorInternalServerError("Database error")
         })?;
 

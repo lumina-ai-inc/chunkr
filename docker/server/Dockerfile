@@ -31,7 +31,12 @@ RUN apt-get update -y; \
     curl \
     ; \
     mkdir -p /app/tmp && \
-    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="width" value="32KP"\/>/<policy domain="resource" name="width" value="100KP"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="height" value="32KP"\/>/<policy domain="resource" name="height" value="100KP"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="area" value="256MP"\/>/<policy domain="resource" name="area" value="1GP"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="memory" value="1024MiB"\/>/<policy domain="resource" name="memory" value="8GiB"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="disk" value="2GiB"\/>/<policy domain="resource" name="disk" value="20GiB"\/>/' /etc/ImageMagick-6/policy.xml
 
 # Download and extract PDFium binary
 RUN mkdir -p /app/pdfium-binaries && \

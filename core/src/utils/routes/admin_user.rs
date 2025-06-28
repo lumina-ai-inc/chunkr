@@ -16,7 +16,7 @@ pub async fn get_or_create_admin_user() -> Result<User, Box<dyn std::error::Erro
         Err(e) => {
             if e.to_string().contains("not found") {
                 let user = create_user(user_info).await?;
-                println!("Admin user created: {:#?}", user);
+                println!("Admin user created: {user:#?}");
                 println!("IMPORTANT: The admin user details will only be displayed once upon creation. Please save the API key securely as it won't be shown again.");
                 return Ok(user);
             } else {

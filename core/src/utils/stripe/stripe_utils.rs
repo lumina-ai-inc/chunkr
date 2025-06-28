@@ -32,7 +32,7 @@ pub async fn update_invoice_status(
     status: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
+        eprintln!("Error connecting to database: {e:?}");
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
     let _ = client
@@ -83,7 +83,7 @@ pub async fn create_stripe_setup_intent(
 
     if !stripe_response.status().is_success() {
         let error_message = match stripe_response.text().await {
-            Ok(text) => format!("Failed to create Stripe SetupIntent: {}", text),
+            Ok(text) => format!("Failed to create Stripe SetupIntent: {text}"),
             Err(_) => "Failed to create Stripe SetupIntent".to_string(),
         };
         return Err(Box::new(std::io::Error::other(error_message)));
@@ -149,8 +149,7 @@ pub async fn create_customer_session(
     if !stripe_response.status().is_success() {
         let error_message = stripe_response.text().await?;
         return Err(Box::new(std::io::Error::other(format!(
-            "Failed to create Stripe Customer Session: {}",
-            error_message
+            "Failed to create Stripe Customer Session: {error_message}"
         ))));
     }
 
@@ -197,7 +196,7 @@ pub async fn create_stripe_checkout_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to create checkout session: {}", err_body).into());
+        return Err(format!("Failed to create checkout session: {err_body}").into());
     }
 
     let checkout_session: serde_json::Value = stripe_response.json().await?;
@@ -210,7 +209,7 @@ pub async fn get_stripe_checkout_session(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-    let url = format!("https://api.stripe.com/v1/checkout/sessions/{}", session_id);
+    let url = format!("https://api.stripe.com/v1/checkout/sessions/{session_id}");
     let auth = format!("Bearer {}", stripe_config.api_key);
     let stripe_response = client
         .get(&url)
@@ -220,7 +219,7 @@ pub async fn get_stripe_checkout_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to get checkout session line items: {}", err_body).into());
+        return Err(format!("Failed to get checkout session line items: {err_body}").into());
     }
 
     let line_items: serde_json::Value = stripe_response.json().await?;
@@ -314,10 +313,7 @@ pub async fn create_stripe_billing_portal_session(
         // ("configuration", &config_id),
     ];
 
-    info!(
-        "Creating billing portal session for customer {}",
-        customer_id
-    );
+    info!("Creating billing portal session for customer {customer_id}");
     let stripe_response = client
         .post("https://api.stripe.com/v1/billing_portal/sessions")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
@@ -327,8 +323,8 @@ pub async fn create_stripe_billing_portal_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        info!("Failed to create billing portal session: {}", err_body);
-        return Err(format!("Failed to create billing portal session: {}", err_body).into());
+        info!("Failed to create billing portal session: {err_body}");
+        return Err(format!("Failed to create billing portal session: {err_body}").into());
     }
 
     let portal_session: serde_json::Value = stripe_response.json().await?;
@@ -346,10 +342,7 @@ pub async fn update_subscription_billing_cycle(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-    let url = format!(
-        "https://api.stripe.com/v1/subscriptions/{}",
-        subscription_id
-    );
+    let url = format!("https://api.stripe.com/v1/subscriptions/{subscription_id}");
 
     let form_data = vec![("billing_cycle_anchor", "now")];
 
@@ -362,7 +355,7 @@ pub async fn update_subscription_billing_cycle(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to update subscription: {}", err_body).into());
+        return Err(format!("Failed to update subscription: {err_body}").into());
     }
 
     let updated_subscription: serde_json::Value = stripe_response.json().await?;
@@ -377,10 +370,7 @@ pub async fn set_customer_default_payment_method(
     let client = ReqwestClient::new();
 
     // Step 1: List customer's payment methods
-    let url = format!(
-        "https://api.stripe.com/v1/customers/{}/payment_methods",
-        customer_id
-    );
+    let url = format!("https://api.stripe.com/v1/customers/{customer_id}/payment_methods");
 
     let response = client
         .get(&url)
@@ -396,7 +386,7 @@ pub async fn set_customer_default_payment_method(
         if let Some(payment_method) = data.first() {
             if let Some(payment_method_id) = payment_method.get("id").and_then(|id| id.as_str()) {
                 // Step 2: Update customer to set default payment method
-                let update_url = format!("https://api.stripe.com/v1/customers/{}", customer_id);
+                let update_url = format!("https://api.stripe.com/v1/customers/{customer_id}");
 
                 let params = [(
                     "invoice_settings[default_payment_method]",

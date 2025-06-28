@@ -183,7 +183,7 @@ def generate_llm_prompt() -> str:
 *   `{DocumentDomain.TAX.value}`: e.g., Tax forms (W2, 1040, etc.), tax returns, official tax documents.
 *   `{DocumentDomain.SUPPLY_CHAIN.value}`: e.g., Bills of lading, packing slips, shipping manifests, inventory reports, logistics documents, POs, PODs etc.
 *   `{DocumentDomain.TECHNICAL.value}`: e.g., Manuals, specifications, datasheets, engineering drawings, code documentation.
-*   `{DocumentDomain.RESEARCH.value}`: e.g., Academic papers, scientific articles, conference proceedings, theses, study reports (excluding patents).
+*   `{DocumentDomain.RESEARCH.value}`: e.g., Academic papers, scientific articles, conference proceedings, thesis, study reports (excluding patents).
 *   `{DocumentDomain.LEGAL.value}`: e.g., Contracts, court filings, legal briefs, NDAs, terms of service, deeds, wills.
 *   `{DocumentDomain.GOVERNMENT.value}`: e.g., Official forms, regulations, public notices, legislative documents, census forms, government reports.
 *   `{DocumentDomain.PROCUREMENT.value}`: e.g., Requests for Proposal (RFP), Requests for Information (RFI), Requests for Quotation (RFQ), Bids, Proposals, Grant Solicitations, Statements of Work (SOW).
