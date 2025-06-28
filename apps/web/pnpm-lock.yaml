@@ -23,6 +23,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.13.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@keycloakify/login-ui':
+        specifier: ~250004.1.0
+        version: 250004.1.0(tsafe@1.8.5)
       '@mui/icons-material':
         specifier: ^6.3.0
         version: 6.4.1(@mui/material@6.4.1(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
@@ -131,6 +134,9 @@ importers:
       keycloak-js:
         specifier: ^25.0.4
         version: 25.0.6
+      keycloakify:
+        specifier: ^11.8.49
+        version: 11.8.49
       lenis:
         specifier: ^1.1.20
         version: 1.1.20(react@18.3.1)
@@ -145,7 +151,7 @@ importers:
         version: 0.474.0(react@18.3.1)
       material-react-table:
         specifier: ^3.1.0
-        version: 3.1.0(rvyvvablkfpsgrz763btc6phhi)
+        version: 3.1.0(b45fac99906d79e25d2522f290aec696)
       npm:
         specifier: ^10.8.2
         version: 10.9.2
@@ -230,6 +236,12 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      tsafe:
+        specifier: ^1.8.5
+        version: 1.8.5
+      useSetClassName:
+        specifier: link:@keycloakify/login-ui/tools/useSetClassName
+        version: link:@keycloakify/login-ui/tools/useSetClassName
     devDependencies:
       '@eslint/js':
         specifier: ^9.9.0
@@ -722,6 +734,11 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@keycloakify/login-ui@250004.1.0':
+    resolution: {integrity: sha512-/BcIrfousFP/yQYQTlcHLH7+vp/8NSr8zR3htyoDtnkRlZEOg1H7FnDXPJeomAxB6HNDU1bwyCCCA3+Rcj8htA==}
+    peerDependencies:
+      tsafe: ^1.8.5
 
   '@mui/core-downloads-tracker@6.4.1':
     resolution: {integrity: sha512-SfDLWMV5b5oXgDf3NTa2hCTPC1d2defhDH2WgFKmAiejC4mSfXYbyi+AFCLzpizauXhgBm8OaZy9BHKnrSpahQ==}
@@ -3017,6 +3034,10 @@ packages:
   keycloak-js@25.0.6:
     resolution: {integrity: sha512-Km+dc+XfNvY6a4az5jcxTK0zPk52ns9mAxLrHj7lF3V+riVYvQujfHmhayltJDjEpSOJ4C8a57LFNNKnNnRP2g==}
 
+  keycloakify@11.8.49:
+    resolution: {integrity: sha512-Lrt6BeYLtXXp82kDIw1LD/5bWyrEaDgAe6AOduScmeGUeoTCFBaNB/1FwR8JStYpXkfeWD643IlQYZ8KShN/PA==}
+    hasBin: true
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -4140,6 +4161,9 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
+  tsafe@1.8.5:
+    resolution: {integrity: sha512-LFWTWQrW6rwSY+IBNFl2ridGfUzVsPwrZ26T4KUJww/py8rzaQ/SY+MIz6YROozpUCaRcuISqagmlwub9YT9kw==}
+
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
@@ -4813,6 +4837,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@keycloakify/login-ui@250004.1.0(tsafe@1.8.5)':
+    dependencies:
+      tsafe: 1.8.5
 
   '@mui/core-downloads-tracker@6.4.1': {}
 
@@ -7320,6 +7348,10 @@ snapshots:
       js-sha256: 0.11.0
       jwt-decode: 4.0.0
 
+  keycloakify@11.8.49:
+    dependencies:
+      tsafe: 1.8.5
+
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -7388,7 +7420,7 @@ snapshots:
       '@babel/runtime': 7.26.7
       remove-accents: 0.5.0
 
-  material-react-table@3.1.0(rvyvvablkfpsgrz763btc6phhi):
+  material-react-table@3.1.0(b45fac99906d79e25d2522f290aec696):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.18)(react@18.3.1)
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
@@ -8718,6 +8750,8 @@ snapshots:
       typescript: 5.7.3
 
   ts-interface-checker@0.1.13: {}
+
+  tsafe@1.8.5: {}
 
   tslib@2.6.2: {}
 

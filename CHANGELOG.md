@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0](https://github.com/lumina-ai-inc/chunkr/compare/v2.0.0...v2.1.0) (2025-06-28)
+
+
+### Features
+
+* Redesign keycloak auth pages ([adaf74b](https://github.com/lumina-ai-inc/chunkr/commit/adaf74b2c57b37779794e9e3c736905b02bccff3))
+
+
+### Bug Fixes
+
+* Resolve logger warnings ([#510](https://github.com/lumina-ai-inc/chunkr/issues/510)) ([8810d5e](https://github.com/lumina-ai-inc/chunkr/commit/8810d5ec1ce03c12daa1bee98afed3fb2386cf5a))
+
 ## [2.0.0](https://github.com/lumina-ai-inc/chunkr/compare/v1.20.3...v2.0.0) (2025-06-24)
 
 

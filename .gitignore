@@ -21,6 +21,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
 .env
 .cache
 server/dist
