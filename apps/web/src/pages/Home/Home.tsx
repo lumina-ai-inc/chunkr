@@ -13,13 +13,7 @@ import "./Home.css";
 
 // Component Imports
 import PricingCard from "../../components/PricingCard/PricingCard";
-import CodeBlock from "../../components/CodeBlock/CodeBlock";
 import BetterButton from "../../components/BetterButton/BetterButton";
-import {
-  curlExample,
-  // nodeExample,
-  pythonExample,
-} from "../../components/CodeBlock/exampleScripts";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 
@@ -35,7 +29,6 @@ import chunkingAnimation from "../../assets/animations/chunking.json";
 import vlmAnimation from "../../assets/animations/vlm.json";
 import layoutAnimation from "../../assets/animations/layout.json";
 import rustAnimation from "../../assets/animations/rust.json";
-import devXAnimation from "../../assets/animations/devX.json";
 import checklistAnimation from "../../assets/animations/checklist.json";
 import apiPriceAnimation from "../../assets/animations/apiPrice.json";
 import onPremAnimation from "../../assets/animations/onPrem.json";
@@ -78,8 +71,6 @@ const Home = () => {
   const isAuthenticated = auth.isAuthenticated;
   const navigate = useNavigate();
 
-  const terminalRef = useRef<HTMLDivElement>(null);
-
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const timerLottieRef = useRef<LottieRefCurrentProps>(null);
   const fileuploadLottieRef = useRef<LottieRefCurrentProps>(null);
@@ -103,7 +94,6 @@ const Home = () => {
   const apiPriceLottieRef = useRef<LottieRefCurrentProps>(null);
   const onPremLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [selectedScript, setSelectedScript] = useState("python");
 
   const [checkoutClientSecret, setCheckoutClientSecret] = useState<
     string | null
@@ -305,22 +295,6 @@ const Home = () => {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  const handleScriptSwitch = (script: string) => {
-    setSelectedScript(script);
-  };
-
-  const scripts = {
-    curl: curlExample,
-    // node: nodeExample,
-    python: pythonExample,
-  };
-
-  const languageMap = {
-    python: "python",
-    curl: "bash",
-    // node: "javascript",
-  };
-
   // Create a unified auth redirect handler
   const handleAuthRedirect = (returnPath?: string) => {
     const currentPath = window.location.pathname + window.location.hash;
@@ -494,8 +468,9 @@ const Home = () => {
               <Flex
                 align="center"
                 gap="6px"
-                className={`hero-content-switch ${selectedFormat === "HTML" ? "active" : ""
-                  }`}
+                className={`hero-content-switch ${
+                  selectedFormat === "HTML" ? "active" : ""
+                }`}
                 onClick={() => handleFormatSwitch("HTML")}
               >
                 <svg
@@ -527,8 +502,9 @@ const Home = () => {
               <Flex
                 align="center"
                 gap="6px"
-                className={`hero-content-switch ${selectedFormat === "Markdown" ? "active" : ""
-                  }`}
+                className={`hero-content-switch ${
+                  selectedFormat === "Markdown" ? "active" : ""
+                }`}
                 onClick={() => handleFormatSwitch("Markdown")}
               >
                 <svg
@@ -549,224 +525,6 @@ const Home = () => {
               </Flex>
             </Flex>
           </Flex>
-
-          <div className="features-container">
-            <div className="features-gradient-background" />
-            <Flex
-              direction="column"
-              align="center"
-              justify="between"
-              style={{
-                maxWidth: "1386px",
-                height: "100%",
-                margin: "0 auto",
-                padding: "256px 24px 124px 24px",
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              <Flex className="feature-left-box">
-                <Flex
-                  direction="column"
-                  gap="16px"
-                  onMouseEnter={() => handleLottieHover(devXLottieRef)}
-                >
-                  <Flex className="yc-tag" gap="12px">
-                    <Lottie
-                      lottieRef={devXLottieRef}
-                      animationData={devXAnimation}
-                      style={{ width: "16px", height: "16px" }}
-                      loop={false}
-                      autoplay={false}
-                    />
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{
-                        color: "#ffffff",
-                        textShadow: "0 0 10px rgba(255, 255, 255, 0.45)",
-                        letterSpacing: "0.02em",
-                      }}
-                    >
-                      Simple DevX
-                    </Text>
-                  </Flex>
-                  <Text className="feature-left-box-title">
-                    Lightning fast integration
-                  </Text>
-                  <Text
-                    size="5"
-                    weight="medium"
-                    className="feature-left-box-subtitle"
-                  >
-                    Build stand out experiences with top-tier document parsing.
-                    <br></br>
-                    <span
-                      style={{
-                        color: "#ffffffbc",
-                        maxWidth: "460px",
-                        display: "inline-block",
-                      }}
-                    >
-                      Configure your pipeline with simple controls to setup the
-                      optimal balance of speed, quality, and features.
-                    </span>{" "}
-                  </Text>
-                </Flex>
-                <Flex
-                  direction="row"
-                  gap="96px"
-                  justify="between"
-                  className="feature-left-box-controls"
-                  style={{ display: "none" }}
-                ></Flex>
-              </Flex>
-
-              <Flex direction="column" gap="32px" className="feature-right-box">
-                <div className="feature-right-box-image" ref={terminalRef}>
-                  <Flex
-                    className="terminal-header"
-                    align="center"
-                    justify="center"
-                  >
-                    <Flex
-                      className="terminal-title"
-                      align="center"
-                      justify="center"
-                    >
-                      <Flex gap="16px">
-                        <BetterButton
-                          onClick={() => handleScriptSwitch("python")}
-                          active={selectedScript === "python"}
-                        >
-                          <svg
-                            width="20px"
-                            height="20px"
-                            viewBox="0 0 15 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6 2.5H7M4.5 4V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H9.5C10.0523 0.5 10.5 0.947715 10.5 1.5V6.5C10.5 7.05228 10.0523 7.5 9.5 7.5H5.5C4.94772 7.5 4.5 7.94772 4.5 8.5V13.5C4.5 14.0523 4.94772 14.5 5.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V11M8 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H4.5M7 10.5H13.5C14.0523 10.5 14.5 10.0523 14.5 9.5V4.5C14.5 3.94772 14.0523 3.5 13.5 3.5H10.5M8 12.5H9"
-                              stroke="#4B8BBE"
-                            />
-                          </svg>
-                          <Text size="1" weight="bold" className="default-font">
-                            Python
-                          </Text>
-                        </BetterButton>
-                        <BetterButton
-                          onClick={() => handleScriptSwitch("curl")}
-                          active={selectedScript === "curl"}
-                        >
-                          <svg
-                            width="20px"
-                            height="20px"
-                            viewBox="0 0 16 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            stroke="#ffffff"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1"
-                          >
-                            <rect
-                              height="10.5"
-                              width="12.5"
-                              y="2.75"
-                              x="1.75"
-                            />
-                            <path d="m8.75 10.25h2.5m-6.5-4.5 2.5 2.25-2.5 2.25" />
-                          </svg>
-                          <Text size="1" weight="bold" className="default-font">
-                            curl
-                          </Text>
-                        </BetterButton>
-                        {/* <BetterButton
-                            onClick={() => handleScriptSwitch("node")}
-                            active={selectedScript === "node"}
-                          >
-                            <svg
-                              fill="#F7DF1E"
-                              version="1.1"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20px"
-                              height="20px"
-                              viewBox="0 0 512 512"
-                            >
-                              <path
-                                display="inline"
-                                d="M482.585,147.869v216.113c0,14.025-7.546,27.084-19.672,34.143L275.665,506.241
-		c-5.989,3.474-12.782,5.259-19.719,5.259c-6.838,0-13.649-1.785-19.639-5.259l-62.521-36.99c-9.326-5.207-4.775-7.059-1.692-8.128
-		c12.454-4.322,14.973-5.318,28.268-12.863c1.387-0.793,3.216-0.483,4.647,0.343l48.031,28.519c1.741,0.981,4.2,0.981,5.801,0
-		l187.263-108.086c1.744-0.996,2.862-2.983,2.862-5.053V147.869c0-2.117-1.118-4.094-2.906-5.163L258.874,34.716
-		c-1.726-1.01-4.03-1.01-5.768,0L65.962,142.736c-1.818,1.04-2.965,3.079-2.965,5.133v216.113c0,2.069,1.146,4.009,2.954,4.99
-		l51.299,29.654c27.829,13.903,44.875-2.485,44.875-18.956V166.309c0-3.017,2.423-5.396,5.439-5.396h23.747
-		c2.969,0,5.429,2.378,5.429,5.396v213.362c0,37.146-20.236,58.454-55.452,58.454c-10.816,0-19.347,0-43.138-11.713l-49.098-28.287
-		c-12.133-6.995-19.638-20.117-19.638-34.143V147.869c0-14.043,7.505-27.15,19.638-34.135L236.308,5.526
-		c11.85-6.701,27.608-6.701,39.357,0l187.248,108.208C475.039,120.748,482.585,133.826,482.585,147.869z M321.171,343.367
-		c-55.88,0-68.175-14.048-72.294-41.836c-0.477-2.966-3.018-5.175-6.063-5.175h-27.306c-3.382,0-6.096,2.703-6.096,6.104
-		c0,35.56,19.354,77.971,111.759,77.971c66.906,0,105.269-26.339,105.269-72.343c0-45.623-30.827-57.76-95.709-66.35
-		c-65.579-8.678-72.243-13.147-72.243-28.508c0-12.661,5.643-29.581,54.216-29.581c43.374,0,59.365,9.349,65.94,38.576
-		c0.579,2.755,3.083,4.765,5.923,4.765h27.409c1.7,0,3.315-0.73,4.47-1.943c1.158-1.28,1.773-2.947,1.611-4.695
-		c-4.241-50.377-37.713-73.844-105.354-73.844c-60.209,0-96.118,25.414-96.118,68.002c0,46.217,35.729,59,93.5,64.702
-		c69.138,6.782,74.504,16.883,74.504,30.488C384.589,333.299,365.655,343.367,321.171,343.367z"
-                              ></path>
-                            </svg>
-                            <Text
-                              size="1"
-                              weight="bold"
-                              className="default-font"
-                            >
-                              Node
-                            </Text>
-                          </BetterButton> */}
-                        {/* <BetterButton
-                            onClick={() => handleScriptSwitch("rust")}
-                            active={selectedScript === "rust"}
-                          >
-                            <svg
-                              width="20px"
-                              height="20px"
-                              viewBox="0 0 15 15"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M1.99997 10.5H6.99997M2.49997 4.5H8.99997C9.8284 4.5 10.5 5.17157 10.5 6C10.5 6.82843 9.8284 7.5 8.99997 7.5H4.49997M4.49997 4.5V10.5M7.49997 7.5H8.49997C9.60454 7.5 10.5 8.39543 10.5 9.5C10.5 10.0523 10.9477 10.5 11.5 10.5H13M7.49997 0.5L8.84422 1.61046L10.5372 1.19322L11.2665 2.77696L12.9728 3.13557L12.9427 4.87891L14.3245 5.94235L13.541 7.5L14.3245 9.05765L12.9427 10.1211L12.9728 11.8644L11.2665 12.223L10.5372 13.8068L8.84422 13.3895L7.49997 14.5L6.15572 13.3895L4.46279 13.8068L3.73347 12.223L2.02715 11.8644L2.05722 10.1211L0.675476 9.05765L1.45897 7.5L0.675476 5.94235L2.05722 4.87891L2.02715 3.13557L3.73347 2.77696L4.46279 1.19322L6.15572 1.61046L7.49997 0.5Z"
-                                stroke="#CE422B"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                            <Text
-                              size="1"
-                              weight="bold"
-                              className="default-font"
-                            >
-                              Rust
-                            </Text>
-                          </BetterButton> */}
-                      </Flex>
-                    </Flex>
-                    <Flex className="terminal-button-row">
-                      <div className="terminal-button minimize"></div>
-                      <div className="terminal-button maximize"></div>
-                      <div className="terminal-button close"></div>
-                    </Flex>
-                  </Flex>
-                  <div className="curl-command">
-                    <CodeBlock
-                      code={scripts[selectedScript as keyof typeof scripts]}
-                      language={
-                        languageMap[selectedScript as keyof typeof languageMap]
-                      }
-                      showLineNumbers={false}
-                    />
-                  </div>
-                </div>
-              </Flex>
-            </Flex>
-          </div>
           <div className="features-container">
             <Flex
               direction="column"
@@ -813,7 +571,7 @@ const Home = () => {
                     align="center"
                     className="feature-bottom-box-title"
                   >
-                    Your RAG app's <br></br> Secret Weapon
+                    LLM-ready inputs <br></br>for top tier products
                   </Text>
                   <Text
                     size="5"
@@ -823,12 +581,8 @@ const Home = () => {
                     mt="16px"
                     style={{ maxWidth: "504px" }}
                   >
-                    Production-ready vision infrastructure for every use case.{" "}
-                    <br></br>
-                    <span style={{ color: "#ffffffbc" }}>
-                      From word level bounding boxes to segment level custom VLM
-                      processing - we've got you covered.
-                    </span>
+                    From word level bounding boxes to<br></br>custom VLM prompts
+                    - we've got you covered.
                   </Text>
                 </Flex>
                 <Flex
@@ -925,7 +679,7 @@ const Home = () => {
                           data-feature="chunking"
                         />
                       }
-                      title="Semantic Chunking"
+                      title="Intelligent Chunking"
                       description="Set your own chunk size, and let us handle the logic to maintain semantic integrity"
                       onMouseEnter={() => handleLottieHover(chunkingLottieRef)}
                       data-feature="chunking"
@@ -1113,24 +867,24 @@ const Home = () => {
                 {(!auth.isAuthenticated ||
                   currentTier === "Free" ||
                   isUsageDataLoading) && (
-                    <PricingCard
-                      title="Free"
-                      price="Free"
-                      period="month"
-                      features={[
-                        "200 pages included",
-                        "No payment info required",
-                        "Discord community support",
-                      ]}
-                      buttonText="Get Started"
-                      tier="Free"
-                      onCheckout={handleCheckout}
-                      stripePromise={stripePromise}
-                      clientSecret={checkoutClientSecret || undefined}
-                      currentTier={currentTier}
-                      isAuthenticated={auth.isAuthenticated}
-                    />
-                  )}
+                  <PricingCard
+                    title="Free"
+                    price="Free"
+                    period="month"
+                    features={[
+                      "200 pages included",
+                      "No payment info required",
+                      "Discord community support",
+                    ]}
+                    buttonText="Get Started"
+                    tier="Free"
+                    onCheckout={handleCheckout}
+                    stripePromise={stripePromise}
+                    clientSecret={checkoutClientSecret || undefined}
+                    currentTier={currentTier}
+                    isAuthenticated={auth.isAuthenticated}
+                  />
+                )}
 
                 <PricingCard
                   title="Starter"

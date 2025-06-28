@@ -35,6 +35,11 @@ import Footer from "../../components/Footer/Footer";
 import { useAuth } from "react-oidc-context";
 import "./BlogPostPage.css";
 import Prism from "prismjs";
+import "prismjs/themes/prism-tomorrow.css";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-rust";
 import BetterButton from "../../components/BetterButton/BetterButton";
 import Loader from "../Loader/Loader";
 
@@ -100,6 +105,7 @@ export default function BlogPostPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tableOfContents, setTableOfContents] = useState<HeadingNode[]>([]);
+  const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
 
   const [isScrolled, setIsScrolled] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
@@ -221,8 +227,16 @@ export default function BlogPostPage() {
         <em style={{ fontStyle: "italic" }}>{text}</em>
       ),
       [MARKS.CODE]: (textNode: ReactNode) => {
-        const codeContent =
-          typeof textNode === "string" ? textNode : String(textNode);
+        const text = typeof textNode === "string" ? textNode : String(textNode);
+
+        let language = "python"; // default
+        let codeContent = text;
+
+        const langMatch = text.match(/^\[(.*?)\]\s*\n/);
+        if (langMatch) {
+          language = langMatch[1];
+          codeContent = text.substring(langMatch[0].length);
+        }
 
         return (
           <Badge
@@ -241,7 +255,7 @@ export default function BlogPostPage() {
                 borderRadius: "4px",
               }}
             >
-              <code className="language-python">{codeContent}</code>
+              <code className={`language-${language}`}>{codeContent}</code>
             </pre>
           </Badge>
         );
@@ -366,18 +380,58 @@ export default function BlogPostPage() {
         if (asset && asset.url && asset.contentType?.startsWith("image/")) {
           return (
             <Box my="6" className="blog-post-image-container">
-              <img
-                src={asset.url}
-                alt={getImageAltText(asset) || "Embedded blog image"}
+              <Box
+                onClick={() => setExpandedImageUrl(asset.url)}
                 style={{
+                  cursor: "pointer",
+                  position: "relative",
+                  display: "inline-block",
                   maxWidth: "100%",
-                  height: "auto",
-                  borderRadius: "var(--radius-3)",
                 }}
-                width={asset.width || undefined}
-                height={asset.height || undefined}
-                loading="lazy"
-              />
+              >
+                <img
+                  src={asset.url}
+                  alt={getImageAltText(asset) || "Embedded blog image"}
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    borderRadius: "var(--radius-3)",
+                    display: "block",
+                  }}
+                  width={asset.width || undefined}
+                  height={asset.height || undefined}
+                  loading="lazy"
+                />
+                <Flex
+                  align="center"
+                  justify="center"
+                  style={{
+                    position: "absolute",
+                    bottom: "12px",
+                    right: "12px",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
+                    borderRadius: "50%",
+                    padding: "8px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Flex>
+              </Box>
               {asset.description && (
                 <Text as="p" size="2" color="gray" mt="2" align="center">
                   {asset.description}
@@ -529,7 +583,14 @@ export default function BlogPostPage() {
               </Box>
             )}
             {post.image?.url && (
-              <Box mb="6" className="blog-post-main-image-container">
+              <Box
+                mb="6"
+                className="blog-post-main-image-container"
+                onClick={() =>
+                  post.image && setExpandedImageUrl(post.image.url)
+                }
+                style={{ cursor: "pointer", position: "relative" }}
+              >
                 <img
                   src={post.image.url}
                   alt={getImageAltText(post.image)}
@@ -542,6 +603,35 @@ export default function BlogPostPage() {
                   width={post.image.width || undefined}
                   height={post.image.height || undefined}
                 />
+                <Flex
+                  align="center"
+                  justify="center"
+                  style={{
+                    position: "absolute",
+                    bottom: "16px",
+                    right: "16px",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
+                    borderRadius: "50%",
+                    padding: "8px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Flex>
               </Box>
             )}
           </header>
@@ -757,6 +847,38 @@ export default function BlogPostPage() {
         </Flex>
         <Footer />
       </Flex>
+      {expandedImageUrl && (
+        <Flex
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(5px)",
+            zIndex: 2000,
+            padding: "32px",
+            cursor: "pointer",
+          }}
+          align="center"
+          justify="center"
+          onClick={() => setExpandedImageUrl(null)}
+        >
+          <img
+            src={expandedImageUrl}
+            alt="Expanded blog post image"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              borderRadius: "var(--radius-3)",
+              cursor: "default",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </Flex>
+      )}
     </HelmetProvider>
   );
 }

@@ -161,7 +161,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 1.22.1-enterprise-v4
+      tag: 1.22.1-enterprise-v5
     port: 8000
     targetPort: 8000
     ingress:

@@ -73,9 +73,8 @@ export default function Blog() {
         style={{
           textDecoration: "none",
           color: "inherit",
-          flexGrow: 1,
-          flexBasis: "0%",
-          minWidth: 0,
+          display: "block",
+          height: "100%",
         }}
       >
         <Flex
@@ -238,38 +237,28 @@ export default function Blog() {
           </Flex>
 
           {/* Blog Post List */}
-          <Flex direction="column" gap="40px" style={{ width: "100%" }}>
+          <Flex
+            direction="row"
+            gap="40px"
+            style={{ width: "100%" }}
+            wrap="wrap"
+          >
             {isLoading ? (
               <Loader />
             ) : posts.length === 0 ? (
               <Text>No blog posts found.</Text>
             ) : (
-              Array.from({ length: Math.ceil(posts.length / 2) }).map(
-                (_, rowIndex) => {
-                  const post1Index = rowIndex * 2;
-                  const post2Index = rowIndex * 2 + 1;
-                  const post1Data = posts[post1Index];
-                  const post2Data =
-                    posts.length > post2Index ? posts[post2Index] : null;
-
-                  if (!post1Data) {
-                    return null;
-                  }
-
-                  return (
-                    <Flex
-                      key={`row-${rowIndex}`}
-                      direction={{ initial: "column", sm: "row" }}
-                      gap="40px"
-                      align="stretch"
-                      style={{ width: "100%" }}
-                    >
-                      {renderBlogPostCard(post1Data)}
-                      {post2Data && renderBlogPostCard(post2Data)}
-                    </Flex>
-                  );
-                }
-              )
+              posts.map((post) => (
+                <Box
+                  key={post.sys.id}
+                  style={{
+                    flex: "0 1 calc(50% - 20px)",
+                    minWidth: "300px",
+                  }}
+                >
+                  {renderBlogPostCard(post)}
+                </Box>
+              ))
             )}
           </Flex>
         </Flex>
