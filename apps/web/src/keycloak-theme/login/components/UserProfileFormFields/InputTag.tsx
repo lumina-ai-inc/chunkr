@@ -42,8 +42,10 @@ export function InputTag(props: InputFieldByTypeProps & { fieldIndex: number | u
 
                     return valueOrValues;
                 })()}
-                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
-                    hasError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
+                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm border transition-all duration-200 box-border disabled:cursor-not-allowed disabled:opacity-50 ${
+                    hasError 
+                        ? "border-red-500 bg-red-50 text-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)] hover:border-red-600" 
+                        : "border-white/20 bg-white/5 text-white placeholder:text-white/50 focus:border-gray-400 focus:bg-white/8 focus:shadow-[0_0_0_3px_rgba(139,139,139,0.1)] hover:border-white/30 hover:bg-white/7"
                 }`}
                 aria-invalid={hasError}
                 disabled={attribute.readOnly}

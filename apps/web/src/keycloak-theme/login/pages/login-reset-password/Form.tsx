@@ -46,8 +46,8 @@ export function Form() {
                                 autoFocus
                                 defaultValue={kcContext.auth.attemptedUsername ?? ""}
                                 aria-invalid={showFieldError}
-                                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm ring-offset-background focus-visible:ring-1 focus-visible:ring-gray-300 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 ${
-                                    showFieldError ? "bg-red-50 focus-visible:ring-red-500 text-red-500" : ""
+                                className={`flex h-10 w-full px-2 py-3 outline-none rounded-md text-sm text-white bg-white/5 border border-white/20 transition-all duration-200 box-border placeholder:text-white/50 focus:border-gray-400 focus:bg-white/8 focus:shadow-[0_0_0_3px_rgba(139,139,139,0.1)] hover:border-white/30 hover:bg-white/7 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                    showFieldError ? "border-red-500 bg-red-50 text-red-500" : ""
                                 }`}
                             />
                         </div>

@@ -42,10 +42,9 @@ export function Template(props: {
 
   return (
     <div className="flex flex-col min-h-screen w-full">
-      <Flex direction="row" justify="center" className="header-container">
-        <div className="header">
-          <header className="w-full h-fit z-1 px-5 py-3 flex items-center">
-            <div className="header-logo-container">
+        <header className="h-fit z-1 py-5 px-8">
+          <Flex align="center">
+            <Flex align="center" className="header-logo-container">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="30"
@@ -54,7 +53,7 @@ export function Template(props: {
                 fill="none"
               >
                 <path
-                  d="M7.35 12.225C8.03148 12.4978 8.77803 12.5646 9.4971 12.4171C10.2162 12.2695 10.8761 11.9142 11.3952 11.3952C11.9142 10.8761 12.2695 10.2162 12.4171 9.4971C12.5646 8.77803 12.4978 8.03148 12.225 7.35C13.0179 7.13652 13.7188 6.6687 14.2201 6.01836C14.7214 5.36802 14.9954 4.57111 15 3.75C17.225 3.75 19.4001 4.4098 21.2502 5.64597C23.1002 6.88213 24.5422 8.63914 25.3936 10.6948C26.2451 12.7505 26.4679 15.0125 26.0338 17.1948C25.5998 19.3771 24.5283 21.3816 22.955 22.955C21.3816 24.5283 19.3771 25.5998 17.1948 26.0338C15.0125 26.4679 12.7505 26.2451 10.6948 25.3936C8.63914 24.5422 6.88213 23.1002 5.64597 21.2502C4.4098 19.4001 3.75 17.225 3.75 15C4.57111 14.9954 5.36802 14.7214 6.01836 14.2201C6.6687 13.7188 7.13652 13.0179 7.35 12.225Z"
+                  d="M7.35 12.225C8.03148 12.4978 8.77803 12.5646 9.4971 12.4171C10.2162 12.2695 10.8761 11.9142 11.3952 11.3952C11.9142 10.8761 12.2695 10.2162 12.4171 9.4971C12.5646 8.77803 12.4978 8.03148 12.225 7.35C13.0179 7.13652 13.7188 6.6687 14.2201 6.01836C14.7214 5.36802 14.9954 4.57111 15 3.75C17.225 3.75 19.4001 4.4098 21.2502 5.64597C23.1002 6.88213 24.5422 8.63914 25.3936 10.6948C26.2451 12.7505 26.2679 15.0125 26.0338 17.1948C25.5998 19.3771 24.5283 21.3816 22.955 22.955C21.3816 24.5283 19.3771 25.5998 17.1948 26.0338C15.0125 26.4679 12.7505 26.2451 10.6948 25.3936C8.63914 24.5422 6.88213 23.1002 5.64597 21.2502C4.4098 19.4001 3.75 17.225 3.75 15C4.57111 14.9954 5.36802 14.7214 6.01836 14.2201C6.6687 13.7188 7.13652 13.0179 7.35 12.225Z"
                   stroke="url(#paint0_linear_236_740)"
                   strokeWidth="3"
                   strokeLinecap="round"
@@ -74,10 +73,19 @@ export function Template(props: {
                   </linearGradient>
                 </defs>
               </svg>
-            </div>
-          </header>
-        </div>
-      </Flex>
+              <Text
+                size="6"
+                weight="bold"
+                className="!text-2xl text-white"
+                trim="start"
+                mt="1px"
+              >
+                chunkr
+              </Text>
+            </Flex>
+          </Flex>
+        </header>
+
       <div className="flex-1 flex items-center justify-center pt-10">
         <div className="text-white rounded-lg p-4 sm:p-6 md:p-8 lg:p-10 w-full max-w-sm sm:max-w-md md:max-w-lg transition-all duration-300 ease-in-out">        
           <Header className="flex flex-row items-center justify-between gap-2 mb-6">
@@ -103,7 +111,7 @@ export function Template(props: {
 
             {displayRequiredFields && (
               <div className="flex flex-col mt-4">
-                <Text size="2" className="text-gray-300">
+                <Text size="2" weight="medium" className="text-white">
                   <span className="text-red-500">*</span>{" "}
                   {msg("requiredFields")}
                 </Text>

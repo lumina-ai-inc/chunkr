@@ -67,7 +67,7 @@ export function InputTagSelects(props: InputFieldByTypeProps) {
                         id={`${attribute.name}-${option}`}
                         name={attribute.name}
                         value={option}
-                        className={`rounded-sm focus:ring-0 focus:outline-none ${
+                        className={`border border-white/20 rounded-lg bg-white/5 text-white transition-all duration-200 outline-none box-border focus:border-gray-400 focus:bg-white/8 focus:shadow-[0_0_0_3px_rgba(139,139,139,0.1)] hover:border-white/30 hover:bg-white/7 ${
                             hasError ? "border-red-500" : ""
                         } ${attribute.readOnly ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                         aria-invalid={hasError}

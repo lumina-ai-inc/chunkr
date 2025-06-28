@@ -24,7 +24,7 @@ export function PasswordWrapper(props: { passwordInputId: string; children: JSX.
             {children}
             <button
                 type="button"
-                className="h-10 w-10 p-1 flex items-center justify-center rounded-md focus:outline-none focus:ring-0"
+                className="h-10 w-10 p-1 flex items-center justify-center bg-white/5 rounded-md focus:outline-none focus:ring-0"
                 aria-label={msgStr(isPasswordRevealed ? "hidePassword" : "showPassword")}
                 aria-controls={passwordInputId}
                 onClick={toggleIsPasswordRevealed}
