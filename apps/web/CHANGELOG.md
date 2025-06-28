@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v2.0.0...chunkr-web-v2.1.0) (2025-06-28)
+
+
+### Features
+
+* Redesign keycloak auth pages ([adaf74b](https://github.com/lumina-ai-inc/chunkr/commit/adaf74b2c57b37779794e9e3c736905b02bccff3))
+
 ## [2.0.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v1.6.2...chunkr-web-v2.0.0) (2025-06-24)
 
 
