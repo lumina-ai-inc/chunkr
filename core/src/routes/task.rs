@@ -72,7 +72,7 @@ pub async fn get_task_route(
             Ok(HttpResponse::Ok().json(task_response))
         }
         Err(e) => {
-            eprintln!("Error getting task: {:?}", e);
+            eprintln!("Error getting task: {e:?}");
             span.end();
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
@@ -190,7 +190,7 @@ pub async fn create_task_route(
             {
                 Ok(HttpResponse::BadRequest().body("Unsupported file type"))
             } else {
-                eprintln!("Error creating task: {:?}", e);
+                eprintln!("Error creating task: {e:?}");
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
             }
         }
@@ -273,7 +273,7 @@ pub async fn update_task_route(
             } else if error_message.contains("Task cannot be updated") {
                 Ok(HttpResponse::BadRequest().body(error_message))
             } else {
-                eprintln!("Error creating task: {:?}", e);
+                eprintln!("Error creating task: {e:?}");
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
             }
         }
@@ -324,7 +324,7 @@ pub async fn delete_task_route(
             Ok(HttpResponse::Ok().body("Task deleted"))
         }
         Err(e) => {
-            eprintln!("Error deleting task: {:?}", e);
+            eprintln!("Error deleting task: {e:?}");
             span.end();
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
@@ -381,7 +381,7 @@ pub async fn cancel_task_route(
             Ok(HttpResponse::Ok().body("Task cancelled"))
         }
         Err(e) => {
-            eprintln!("Error cancelling task: {:?}", e);
+            eprintln!("Error cancelling task: {e:?}");
             span.end();
             if e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
@@ -453,7 +453,7 @@ pub async fn create_task_route_multipart(
             } else if error_message.contains("must have a filename") {
                 Ok(HttpResponse::BadRequest().body("File must have a filename"))
             } else {
-                eprintln!("Error creating task: {:?}", e);
+                eprintln!("Error creating task: {e:?}");
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
             }
         }
@@ -510,7 +510,7 @@ pub async fn update_task_route_multipart(
             } else if error_message.contains("Task cannot be updated") {
                 Ok(HttpResponse::BadRequest().body(error_message))
             } else {
-                eprintln!("Error creating task: {:?}", e);
+                eprintln!("Error creating task: {e:?}");
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
             }
         }

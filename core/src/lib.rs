@@ -137,7 +137,7 @@ pub fn main() -> std::io::Result<()> {
             .map(|config| config.init_tracer(configs::otel_config::ServiceName::Server))
             .map_err(|e| e.to_string())
         {
-            eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);
+            eprintln!("Failed to initialize OpenTelemetry tracer: {e}");
         }
 
         env_logger::init_from_env(Env::default().default_filter_or("info"));
@@ -149,7 +149,7 @@ pub fn main() -> std::io::Result<()> {
         init_jobs();
 
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
-            println!("Multipart error: {}", err);
+            println!("Multipart error: {err}");
             Error::from(err)
         }
 
