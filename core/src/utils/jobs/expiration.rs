@@ -22,10 +22,10 @@ pub async fn expire() -> Result<(), Box<dyn std::error::Error>> {
     let deletion_futures = expired_tasks.iter().map(|row| {
         let user_id: &str = row.get("user_id");
         let task_id: &str = row.get("task_id");
-        let folder_location = format!("s3://{}/{}/{}", bucket_name, user_id, task_id);
+        let folder_location = format!("s3://{bucket_name}/{user_id}/{task_id}");
         async move {
             if let Err(e) = delete_folder(&folder_location).await {
-                println!("Error deleting S3 folder {}: {:?}", folder_location, e);
+                println!("Error deleting S3 folder {folder_location}: {e:?}");
             }
             Ok::<_, Box<dyn std::error::Error>>(())
         }
@@ -43,6 +43,6 @@ pub async fn expire() -> Result<(), Box<dyn std::error::Error>> {
         )
         .await?;
 
-    println!("Deleted {} expired tasks", rows_affected);
+    println!("Deleted {rows_affected} expired tasks");
     Ok(())
 }

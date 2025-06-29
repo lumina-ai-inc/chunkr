@@ -29,14 +29,13 @@ pub fn check_file_type(
                     println!("Detected PDF file by extension");
                     match count_pages(file) {
                         Ok(pages) => {
-                            println!("Detected {} pages in PDF file", pages);
+                            println!("Detected {pages} pages in PDF file");
                             return Ok(("application/pdf".to_string(), "pdf".to_string()));
                         }
                         Err(e) => {
-                            println!("Error counting pages in PDF file: {}", e);
+                            println!("Error counting pages in PDF file: {e}");
                             return Err(Box::new(std::io::Error::other(format!(
-                                "Unsupported file type: {}",
-                                mime_type
+                                "Unsupported file type: {mime_type}"
                             ))));
                         }
                     }
@@ -44,8 +43,7 @@ pub fn check_file_type(
             }
 
             Err(Box::new(std::io::Error::other(format!(
-                "Unsupported file type: {}",
-                mime_type
+                "Unsupported file type: {mime_type}"
             ))))
         }
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
@@ -63,8 +61,7 @@ pub fn check_file_type(
         "image/jpeg" | "image/jpg" => Ok((mime_type, "jpg".to_string())),
         "image/png" => Ok((mime_type, "png".to_string())),
         _ => Err(Box::new(std::io::Error::other(format!(
-            "Unsupported file type: {}",
-            mime_type
+            "Unsupported file type: {mime_type}"
         )))),
     }
 }
@@ -97,8 +94,7 @@ pub fn convert_to_pdf(
 
         if !output.status.success() {
             return Err(Box::new(std::io::Error::other(format!(
-                "ImageMagick conversion failed: {:?}",
-                output
+                "ImageMagick conversion failed: {output:?}"
             ))));
         }
 
@@ -128,8 +124,7 @@ pub fn convert_to_pdf(
 
         if !output.status.success() {
             return Err(Box::new(std::io::Error::other(format!(
-                "LibreOffice conversion failed: {:?}",
-                output
+                "LibreOffice conversion failed: {output:?}"
             ))));
         }
 
@@ -228,7 +223,7 @@ pub async fn get_file_url(
             let mut file = temp_file.reopen()?;
             file.read_to_end(&mut buffer)?;
             let base64_data = STANDARD.encode(&buffer);
-            Ok(format!("data:{};base64,{}", mime_type, base64_data))
+            Ok(format!("data:{mime_type};base64,{base64_data}"))
         }
         FileUrlFormat::Url => {
             upload_to_s3(s3_location, temp_file.path())

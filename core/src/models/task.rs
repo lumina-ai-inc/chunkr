@@ -92,11 +92,11 @@ impl Task {
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
         let file_name: String =
-            file_name.unwrap_or(format!("{}.{}", task_id, extension).to_string());
+            file_name.unwrap_or(format!("{task_id}.{extension}").to_string());
         let file_size = file.as_file().metadata()?.len();
         let status = Status::Starting;
         let base_url = worker_config.server_url;
-        let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
+        let task_url = format!("{base_url}/api/v1/task/{task_id}");
         let (input_location, pdf_location, output_location, image_folder_location) =
             Self::generate_s3_paths(user_id, &task_id, &file_name);
         let message = "Task queued".to_string();
@@ -218,11 +218,10 @@ impl Task {
             Ok(config) => config,
             Err(e) => {
                 println!(
-                    "Error deserializing configuration for task {}: {:?}",
-                    task_id, e
+                    "Error deserializing configuration for task {task_id}: {e:?}"
                 );
-                println!("Configuration string: {:?}", config_str);
-                return Err(format!("Error deserializing configuration: {:?}", e).into());
+                println!("Configuration string: {config_str:?}");
+                return Err(format!("Error deserializing configuration: {e:?}").into());
             }
         };
         Ok(Self {
@@ -278,8 +277,8 @@ impl Task {
             output_response = match serde_json::from_str(&json_content) {
                 Ok(output) => output,
                 Err(e) => {
-                    println!("Error deserializing output: {:?}", e);
-                    println!("JSON content: {:?}", json_content);
+                    println!("Error deserializing output: {e:?}");
+                    println!("JSON content: {json_content:?}");
                     OutputResponse::default()
                 }
             };
@@ -304,10 +303,10 @@ impl Task {
                 .await
                 .ok();
                 fn generate_html(url: &str) -> String {
-                    format!("<img src=\"{}\" />", url)
+                    format!("<img src=\"{url}\" />")
                 }
                 fn generate_markdown(url: &str) -> String {
-                    format!("![Image]({})", url)
+                    format!("![Image]({url})")
                 }
                 if segment.segment_type == SegmentType::Picture {
                     // Primary strategy is to use the format and strategy to generate the content
@@ -383,28 +382,28 @@ impl Task {
 
         let mut update_parts = vec![];
         if let Some(status) = status {
-            update_parts.push(format!("status = '{:?}'", status));
+            update_parts.push(format!("status = '{status:?}'"));
             self.status = status;
         }
         if let Some(msg) = message {
-            update_parts.push(format!("message = '{}'", msg));
+            update_parts.push(format!("message = '{msg}'"));
             self.message = Some(msg.to_string());
         }
         if let Some(dt) = started_at {
-            update_parts.push(format!("started_at = '{}'", dt));
+            update_parts.push(format!("started_at = '{dt}'"));
             self.started_at = Some(dt);
         }
         if let Some(dt) = finished_at {
-            update_parts.push(format!("finished_at = '{}'", dt));
+            update_parts.push(format!("finished_at = '{dt}'"));
             self.finished_at = Some(dt);
         }
         if let Some(dt) = expires_at {
-            update_parts.push(format!("expires_at = '{}'", dt));
+            update_parts.push(format!("expires_at = '{dt}'"));
             self.expires_at = Some(dt);
         }
 
         if let Some(page_count) = page_count {
-            update_parts.push(format!("page_count = {}", page_count));
+            update_parts.push(format!("page_count = {page_count}"));
             self.page_count = Some(page_count);
         }
 
@@ -613,7 +612,7 @@ impl Task {
     ) -> (String, String, String, String) {
         let worker_config = worker_config::Config::from_env().unwrap();
         let bucket_name = worker_config.s3_bucket;
-        let base_path = format!("s3://{}/{}/{}", bucket_name, user_id, task_id);
+        let base_path = format!("s3://{bucket_name}/{user_id}/{task_id}");
         let path = Path::new(file_name);
         let file_stem = path
             .file_stem()
@@ -621,10 +620,10 @@ impl Task {
             .unwrap_or("unknown");
 
         (
-            format!("{}/{}", base_path, file_name),      // input_location
-            format!("{}/{}.pdf", base_path, file_stem),  // pdf_location
-            format!("{}/{}.json", base_path, file_stem), // output_location
-            format!("{}/images", base_path),             // image_folder_location
+            format!("{base_path}/{file_name}"),      // input_location
+            format!("{base_path}/{file_stem}.pdf"),  // pdf_location
+            format!("{base_path}/{file_stem}.json"), // output_location
+            format!("{base_path}/images"),             // image_folder_location
         )
     }
 

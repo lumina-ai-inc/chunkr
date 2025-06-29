@@ -147,7 +147,7 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
             Ok(user_info)
         }
         Err(err) => {
-            eprintln!("Token validation error: {:?}", err);
+            eprintln!("Token validation error: {err:?}");
             Err(actix_web::error::ErrorUnauthorized("Invalid token payload"))
         }
     }
@@ -161,7 +161,7 @@ async fn api_key_validator(api_key: &str) -> Result<UserInfo, Error> {
     let client = match get_pg_client().await {
         Ok(client) => client,
         Err(e) => {
-            eprintln!("Error getting Postgres client from pool: {:?}", e);
+            eprintln!("Error getting Postgres client from pool: {e:?}");
             return Err(actix_web::error::ErrorInternalServerError(
                 "Failed to get client",
             ));
@@ -177,7 +177,7 @@ async fn api_key_validator(api_key: &str) -> Result<UserInfo, Error> {
     {
         Ok(row) => row,
         Err(e) => {
-            eprintln!("Failed to find API key: {:?}", e);
+            eprintln!("Failed to find API key: {e:?}");
             return Err(actix_web::error::ErrorInternalServerError("Failed to find API key"));
         }
     };

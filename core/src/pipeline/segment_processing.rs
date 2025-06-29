@@ -242,26 +242,26 @@ struct HtmlGenerator {
 impl ContentGenerator for HtmlGenerator {
     fn generate_auto(&self, content: &str) -> String {
         match self.segment_type {
-            SegmentType::Caption => format!("<span class=\"caption\">{}</span>", content),
-            SegmentType::Footnote => format!("<span class=\"footnote\">{}</span>", content),
-            SegmentType::Formula => format!("<span class=\"formula\">{}</span>", content),
+            SegmentType::Caption => format!("<span class=\"caption\">{content}</span>"),
+            SegmentType::Footnote => format!("<span class=\"footnote\">{content}</span>"),
+            SegmentType::Formula => format!("<span class=\"formula\">{content}</span>"),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
                     let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
                     let item = captures.get(2).unwrap().as_str();
-                    format!("<ol start=\"{}\"><li>{}</li></ol>", start_number, item)
+                    format!("<ol start=\"{start_number}\"><li>{item}</li></ol>")
                 } else {
                     format!("<ul><li>{}</li></ul>", Self::clean_list_item(content))
                 }
             }
-            SegmentType::Page => format!("<div class=\"page\">{}</div>", content),
-            SegmentType::PageFooter => format!("<div class=\"page-footer\">{}</div>", content),
-            SegmentType::PageHeader => format!("<div class=\"page-header\">{}</div>", content),
-            SegmentType::Picture => format!("<img src='' alt='{}' />", content),
-            SegmentType::SectionHeader => format!("<h2>{}</h2>", content),
-            SegmentType::Table => format!("<table><tr><td>{}</td></tr></table>", content),
-            SegmentType::Text => format!("<p>{}</p>", content),
-            SegmentType::Title => format!("<h1>{}</h1>", content),
+            SegmentType::Page => format!("<div class=\"page\">{content}</div>"),
+            SegmentType::PageFooter => format!("<div class=\"page-footer\">{content}</div>"),
+            SegmentType::PageHeader => format!("<div class=\"page-header\">{content}</div>"),
+            SegmentType::Picture => format!("<img src='' alt='{content}' />"),
+            SegmentType::SectionHeader => format!("<h2>{content}</h2>"),
+            SegmentType::Table => format!("<table><tr><td>{content}</td></tr></table>"),
+            SegmentType::Text => format!("<p>{content}</p>"),
+            SegmentType::Title => format!("<h1>{content}</h1>"),
         }
     }
 
@@ -361,7 +361,7 @@ impl ContentGenerator for HtmlGenerator {
         let content = self.process_llm(params, tracer, parent_context).await?;
 
         if self.segment_type() == SegmentType::Formula {
-            Ok(format!("<span class=\"formula\">{}</span>", content))
+            Ok(format!("<span class=\"formula\">{content}</span>"))
         } else {
             Ok(content)
         }
@@ -375,9 +375,9 @@ struct MarkdownGenerator {
 impl ContentGenerator for MarkdownGenerator {
     fn generate_auto(&self, content: &str) -> String {
         match self.segment_type {
-            SegmentType::Caption => format!("_{}_", content),
-            SegmentType::Footnote => format!("[^{}]", content),
-            SegmentType::Formula => format!("${}$", content),
+            SegmentType::Caption => format!("_{content}_"),
+            SegmentType::Footnote => format!("[^{content}]"),
+            SegmentType::Formula => format!("${content}$"),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
                     format!(
@@ -391,11 +391,11 @@ impl ContentGenerator for MarkdownGenerator {
             }
             SegmentType::Page => content.to_string(),
             SegmentType::PageFooter | SegmentType::PageHeader => content.to_string(),
-            SegmentType::Picture => format!("![{}]()", content),
-            SegmentType::SectionHeader => format!("## {}", content),
-            SegmentType::Table => format!("| {} |", content),
+            SegmentType::Picture => format!("![{content}]()"),
+            SegmentType::SectionHeader => format!("## {content}"),
+            SegmentType::Table => format!("| {content} |"),
             SegmentType::Text => content.to_string(),
-            SegmentType::Title => format!("# {}", content),
+            SegmentType::Title => format!("# {content}"),
         }
     }
 
@@ -1029,7 +1029,7 @@ pub async fn process(
             Ok(())
         }
         Err(e) => {
-            eprintln!("Error processing segments: {:?}", e);
+            eprintln!("Error processing segments: {e:?}");
             Err(e.to_string().into())
         }
     }

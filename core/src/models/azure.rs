@@ -645,7 +645,7 @@ fn convert_unit_to_pixels(value: f64, unit: Option<&str>) -> f32 {
         _ => {
             // If unit is unknown, log it and default to treating as pixels
             if let Some(unit_str) = unit {
-                println!("Unknown unit: {}", unit_str);
+                println!("Unknown unit: {unit_str}");
             }
             value as f32
         }
@@ -754,8 +754,7 @@ fn table_to_html(table: &Table) -> Result<String, Box<dyn Error>> {
 
                 if rowspan > 1 || colspan > 1 {
                     html.push_str(&format!(
-                        "<td rowspan=\"{}\" colspan=\"{}\">",
-                        rowspan, colspan
+                        "<td rowspan=\"{rowspan}\" colspan=\"{colspan}\">"
                     ));
                 } else {
                     html.push_str("<td>");
