@@ -148,7 +148,7 @@ mod tests {
         let search = Search::new(chunks).await?;
 
         let results = search.search("citrus fruits").await?;
-        println!("Results: {:?}", results);
+        println!("Results: {results:?}");
         assert!(!results.is_empty(), "Should return at least one result");
         assert!(
             results[0].chunk.content.contains("citrus"),
