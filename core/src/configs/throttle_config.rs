@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(default = "default_azure_timeout")]
+    pub azure_timeout: u64,
     #[serde(default = "default_general_ocr_batch_size")]
     pub general_ocr_batch_size: usize,
     #[serde(default = "default_general_ocr_rate_limit")]
@@ -20,6 +22,10 @@ pub struct Config {
     pub segmentation_rate_limit: f32,
     #[serde(default = "default_segmentation_timeout")]
     pub segmentation_timeout: Option<u64>,
+}
+
+fn default_azure_timeout() -> u64 {
+    120
 }
 
 fn default_general_ocr_batch_size() -> usize {

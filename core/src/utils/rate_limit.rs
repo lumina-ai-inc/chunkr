@@ -21,6 +21,7 @@ pub static LLM_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static SEGMENTATION_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
+pub static AZURE_TIMEOUT: OnceCell<u64> = OnceCell::new();
 
 #[derive(Clone)]
 pub struct RateLimiter {
@@ -216,13 +217,18 @@ fn create_segmentation_timeout() -> Option<u64> {
     throttle_config.segmentation_timeout
 }
 
+fn create_azure_timeout() -> u64 {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    throttle_config.azure_timeout
+}
+
 pub fn init_throttle() {
     TOKEN_TIMEOUT.get_or_init(|| 10000);
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| create_general_ocr_rate_limiter("general_ocr"));
     GENERAL_OCR_TIMEOUT.get_or_init(create_general_ocr_timeout);
     SEGMENTATION_RATE_LIMITER.get_or_init(|| create_segmentation_rate_limiter("segmentation"));
     SEGMENTATION_TIMEOUT.get_or_init(create_segmentation_timeout);
-
+    AZURE_TIMEOUT.get_or_init(create_azure_timeout);
     LLM_RATE_LIMITERS.get_or_init(|| {
         let mut llm_rate_limiters = HashMap::new();
         let llm_config = LlmConfig::from_env().unwrap();

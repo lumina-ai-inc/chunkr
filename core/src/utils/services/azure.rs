@@ -3,6 +3,7 @@ use crate::models::azure::{AzureAnalysisResponse, DocumentAnalysisFeature};
 use crate::models::output::Chunk;
 use crate::models::upload::SegmentationStrategy;
 use crate::utils::clients;
+use crate::utils::rate_limit::AZURE_TIMEOUT;
 use crate::utils::retry::retry_with_backoff;
 use base64::{engine::general_purpose, Engine as _};
 use serde_json;
@@ -41,12 +42,15 @@ async fn azure_analysis(
         "base64Source": base64_content
     });
 
-    let response = client
+    let mut azure_request = client
         .post(&url)
-        .header("Ocp-Apim-Subscription-Key", key.clone())
-        .json(&request_body)
-        .send()
-        .await?;
+        .header("Ocp-Apim-Subscription-Key", key.clone());
+
+    if let Some(timeout_value) = AZURE_TIMEOUT.get() {
+        azure_request = azure_request.timeout(std::time::Duration::from_secs(*timeout_value));
+    }
+
+    let response = azure_request.json(&request_body).send().await?;
 
     if response.status() == 202 {
         let operation_location = response
@@ -55,15 +59,30 @@ async fn azure_analysis(
             .ok_or("No operation-location header found")?
             .to_str()?;
 
+        let start_time = std::time::Instant::now();
+        let polling_timeout = std::time::Duration::from_secs(
+            *AZURE_TIMEOUT
+                .get()
+                .ok_or_else(|| "Azure timeout not set".to_string())?,
+        );
+
         loop {
             tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
-            let status_response = client
+            if start_time.elapsed() > polling_timeout {
+                return Err("Azure analysis polling timeout exceeded".into());
+            }
+
+            let mut azure_status_request = client
                 .get(operation_location)
-                .header("Ocp-Apim-Subscription-Key", key.clone())
-                .send()
-                .await?
-                .error_for_status()?;
+                .header("Ocp-Apim-Subscription-Key", key.clone());
+
+            if let Some(timeout_value) = AZURE_TIMEOUT.get() {
+                azure_status_request =
+                    azure_status_request.timeout(std::time::Duration::from_secs(*timeout_value));
+            }
+
+            let status_response = azure_status_request.send().await?.error_for_status()?;
 
             let azure_response: AzureAnalysisResponse = status_response.json().await?;
 
@@ -77,12 +96,17 @@ async fn azure_analysis(
                     tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
                     continue;
                 }
-                _ => return Err("Unknown status".into()),
+                status => return Err(format!("Unknown status: {status}").into()),
             }
         }
     }
 
-    Err("Unknown status".into())
+    Err(format!(
+        "Unknown status from Azure: {} | {}",
+        response.status(),
+        response.text().await?
+    )
+    .into())
 }
 
 pub async fn perform_azure_analysis(
