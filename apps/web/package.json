@@ -13,7 +13,6 @@
     "preview:deploy": "pnpm run build:deploy && vite preview"
   },
   "dependencies": {
-    "-": "^0.0.1",
     "@contentful/rich-text-react-renderer": "^16.0.1",
     "@contentful/rich-text-types": "^17.0.0",
     "@emotion/react": "^11.13.3",
@@ -51,8 +50,6 @@
     "contentful": "^11.5.23",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.15.0",
-    "i": "^0.3.7",
-    "install": "^0.13.0",
     "katex": "^0.16.19",
     "keycloak-js": "^25.0.4",
     "lenis": "^1.1.20",
@@ -60,7 +57,6 @@
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.474.0",
     "material-react-table": "^3.1.0",
-    "npm": "^10.8.2",
     "oidc-client-ts": "^3.0.1",
     "pdfjs-dist": "^2.6.347",
     "prism-react-renderer": "^2.4.1",
@@ -74,7 +70,6 @@
     "react-markdown": "^9.0.1",
     "react-oidc-context": "^3.1.0",
     "react-pdf": "^9.1.0",
-    "react-query": "^3.39.3",
     "react-redux": "^9.1.2",
     "react-resizable-panels": "^2.1.7",
     "react-router": "^6.26.1",
