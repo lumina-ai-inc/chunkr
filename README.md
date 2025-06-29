@@ -101,6 +101,9 @@ cp .env.example .env
 # Configure your llm models
 cp models.example.yaml models.yaml
 ```
+
+**Note on Python Dependencies**: For Python services, `pyproject.toml` is the single source of truth for dependencies. `requirements.txt` is not used.
+
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
 4. Start the services:
