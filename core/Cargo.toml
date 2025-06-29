@@ -88,11 +88,6 @@ opentelemetry-semantic-conventions = { version = "0.29.0" }
 opentelemetry-proto = { version = "0.29.0"}
 tonic = { version = "0.13.1", features = ["tls-webpki-roots"] }
 
-[dev-dependencies]
-rand = "0.9.0"
-imageproc = "0.25.0"
-limit-lens = "0.6.1"
-
 [build-dependencies]
 pkg-config = "0.3.19"
 
