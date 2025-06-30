@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v2.1.0...chunkr-web-v2.1.1) (2025-06-30)
+
+
+### Bug Fixes
+
+* Remove keycloakify theme ([ea46cbe](https://github.com/lumina-ai-inc/chunkr/commit/ea46cbea3e6d6abca04f2c79f8c5bd75d496ac7b))
+
 ## [2.1.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v2.0.0...chunkr-web-v2.1.0) (2025-06-28)
 
 
