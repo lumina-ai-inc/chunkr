@@ -123,6 +123,7 @@ impl HTMLToImageRenderer {
         let browser = Browser::new(
             LaunchOptions::default_builder()
                 .headless(config.headless)
+                .sandbox(config.sandbox) // Disable sandbox when running as root (common in Docker)
                 .build()
                 .map_err(|e| RendererError::Chrome(format!("Launch options error: {e}")))?,
         )

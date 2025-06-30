@@ -6,9 +6,15 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     #[serde(default = "default_headless")]
     pub headless: bool,
+    #[serde(default = "default_sandbox")]
+    pub sandbox: bool,
 }
 
 fn default_headless() -> bool {
+    true
+}
+
+fn default_sandbox() -> bool {
     true
 }
 

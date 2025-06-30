@@ -23,6 +23,8 @@ services:
       - postgres
       - redis
       - minio
+    environment:
+      - RENDERER__SANDBOX=false
     env_file:
       - .env
     deploy:

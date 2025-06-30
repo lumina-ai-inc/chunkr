@@ -148,6 +148,8 @@ services:
     env:
       - name: PG__POOL__MAX_SIZE
         value: '3'
+      - name: RENDERER__SANDBOX
+        value: 'false'
     volumes:
       - name: llm-models-config
         configMap:
