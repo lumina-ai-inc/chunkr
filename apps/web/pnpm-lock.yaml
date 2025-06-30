@@ -134,9 +134,6 @@ importers:
       keycloak-js:
         specifier: ^25.0.4
         version: 25.0.6
-      keycloakify:
-        specifier: ^11.8.49
-        version: 11.8.49
       lenis:
         specifier: ^1.1.20
         version: 1.1.20(react@18.3.1)
@@ -3033,10 +3030,6 @@ packages:
 
   keycloak-js@25.0.6:
     resolution: {integrity: sha512-Km+dc+XfNvY6a4az5jcxTK0zPk52ns9mAxLrHj7lF3V+riVYvQujfHmhayltJDjEpSOJ4C8a57LFNNKnNnRP2g==}
-
-  keycloakify@11.8.49:
-    resolution: {integrity: sha512-Lrt6BeYLtXXp82kDIw1LD/5bWyrEaDgAe6AOduScmeGUeoTCFBaNB/1FwR8JStYpXkfeWD643IlQYZ8KShN/PA==}
-    hasBin: true
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -7347,10 +7340,6 @@ snapshots:
     dependencies:
       js-sha256: 0.11.0
       jwt-decode: 4.0.0
-
-  keycloakify@11.8.49:
-    dependencies:
-      tsafe: 1.8.5
 
   keyv@4.5.4:
     dependencies:

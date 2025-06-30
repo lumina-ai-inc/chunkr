@@ -4,16 +4,13 @@
   "version": "2.1.0",
   "type": "module",
   "scripts": {
-    "postinstall": "keycloakify sync-extensions",
     "dev": "vite",
     "copy-pdf-worker": "node copyPdfWorker.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "build:deploy": "pnpm exec env-cmd -f .env vite build",
-    "preview:deploy": "pnpm run build:deploy && vite preview",
-    "build-keycloak-theme": "IS_KC_BUILD=true npm run build && keycloakify build",
-    "dev-keycloak-theme": "VITE_KC_DEV=true npm run dev"
+    "preview:deploy": "pnpm run build:deploy && vite preview"
   },
   "dependencies": {
     "-": "^0.0.1",
@@ -58,7 +55,6 @@
     "install": "^0.13.0",
     "katex": "^0.16.19",
     "keycloak-js": "^25.0.4",
-    "keycloakify": "^11.8.49",
     "lenis": "^1.1.20",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",

@@ -190,7 +190,6 @@ services:
       - KC_TRANSACTION_XA_ENABLED=false
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-      - ./apps/web/dist_keycloak/keycloak-theme-for-kc-22-to-25.jar:/opt/keycloak/providers/keycloak-theme-for-kc-22-to-25.jar
     command: [ "start-dev", "--import-realm" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
