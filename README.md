@@ -192,7 +192,7 @@ For production environments, we provide a Helm chart and detailed deployment ins
 1. See our detailed guide at [`kube/README.md`](kube/README.md)
 2. Includes configurations for high availability and scaling
 
-For enterprise support and deployment assistance, [contact us](mailto:mehul@chunkr.ai).
+For enterprise support and deployment assistance, [contact us].
 
 ## LLM Configuration
 
@@ -259,6 +259,6 @@ The core of this project is dual-licensed:
 To use Chunkr without complying with the AGPL-3.0 license terms you can [contact us](mailto:mehul@chunkr.ai) or visit our [website](https://chunkr.ai).
 
 ## Connect With Us
-- 📧 Email: [mehul@chunkr.ai](mailto:mehul@chunkr.ai)
+- 📧 Email: mehul@chunkr.ai
 - 📅 Schedule a call: [Book a 30-minute meeting](https://cal.com/mehulc/30min)
 - 🌐 Visit our website: [chunkr.ai](https://chunkr.ai)
