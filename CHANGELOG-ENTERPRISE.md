@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.0.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.22.1-enterprise...v2.0.0-enterprise) (2025-06-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* consolidate HTML/markdown generation into single format choice
+
+### Features
+
+* Add advanced Excel parser with automatic table identification, LibreOffice-based HTML conversion, headless Chrome rendering, and specialized spreadsheet chunking pipeline ([5616c21](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5616c2107f35bdcbd6b6933c878043dc53665611))
+* Consolidate HTML/markdown generation into single format choice ([a974f3f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a974f3fbc2bd9158ca052c21a121b479e0eb7613))
+* Redesign keycloak auth pages ([adaf74b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/adaf74b2c57b37779794e9e3c736905b02bccff3))
+
+
+### Bug Fixes
+
+* Added timeouts to azure and improved error messages ([#119](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/119)) ([f8bb3f1](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f8bb3f1ae31fd668a34177900a07bd0b8dd09241))
+* Changes to landing page cover image and removed code example on landing ([#121](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/121)) ([5bb4a98](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5bb4a98d2bf53b635dbfe8033c20efa6bfad2653))
+* Resolve logger warnings ([#510](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/510)) ([8810d5e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/8810d5ec1ce03c12daa1bee98afed3fb2386cf5a))
+
 ## [1.22.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.22.0-enterprise...v1.22.1-enterprise) (2025-06-20)
 
 

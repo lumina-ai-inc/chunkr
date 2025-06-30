@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.16.1-enterprise...chunkr-core-enterprise-v2.0.0-enterprise) (2025-06-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* consolidate HTML/markdown generation into single format choice
+
+### Features
+
+* Add advanced Excel parser with automatic table identification, LibreOffice-based HTML conversion, headless Chrome rendering, and specialized spreadsheet chunking pipeline ([5616c21](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5616c2107f35bdcbd6b6933c878043dc53665611))
+* Consolidate HTML/markdown generation into single format choice ([a974f3f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a974f3fbc2bd9158ca052c21a121b479e0eb7613))
+
+
+### Bug Fixes
+
+* Added timeouts to azure and improved error messages ([#119](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/119)) ([f8bb3f1](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f8bb3f1ae31fd668a34177900a07bd0b8dd09241))
+
 ## [1.16.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v1.16.0-enterprise...chunkr-core-enterprise-v1.16.1-enterprise) (2025-05-29)
 
 

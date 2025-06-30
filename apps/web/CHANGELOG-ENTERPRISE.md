@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.7.2-enterprise...chunkr-web-enterprise-v1.8.0-enterprise) (2025-06-29)
+
+
+### Features
+
+* Redesign keycloak auth pages ([adaf74b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/adaf74b2c57b37779794e9e3c736905b02bccff3))
+
+
+### Bug Fixes
+
+* Changes to landing page cover image and removed code example on landing ([#121](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/121)) ([5bb4a98](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5bb4a98d2bf53b635dbfe8033c20efa6bfad2653))
+
 ## [1.7.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.7.1-enterprise...chunkr-web-enterprise-v1.7.2-enterprise) (2025-06-20)
 
 

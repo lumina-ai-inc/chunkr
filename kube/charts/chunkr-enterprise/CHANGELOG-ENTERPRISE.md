@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.1...chunkr-chart-enterprise-v1.2.2) (2025-06-29)
+
+
+### Bug Fixes
+
+* Changes to landing page cover image and removed code example on landing ([#121](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/121)) ([5bb4a98](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5bb4a98d2bf53b635dbfe8033c20efa6bfad2653))
+
 ## [1.2.1](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.0...chunkr-chart-enterprise-v1.2.1) (2025-05-22)
 
 
