@@ -60,14 +60,13 @@ pub fn validate_html(html: &str) -> Result<(), Box<dyn std::error::Error>> {
             if let Some(last_tag) = tag_stack.pop() {
                 if last_tag != tag {
                     return Err(format!(
-                        "Mismatched HTML tags: expected </{}>, found </{}>",
-                        last_tag, tag
+                        "Mismatched HTML tags: expected </{last_tag}>, found </{tag}>"
                     )
                     .into());
                 }
             } else {
                 return Err(
-                    format!("Found closing tag </{}> without matching opening tag", tag).into(),
+                    format!("Found closing tag </{tag}> without matching opening tag").into(),
                 );
             }
         } else if !full_match.ends_with("/>") && !VOID_ELEMENTS.contains(&tag.as_str()) {
@@ -98,8 +97,7 @@ pub fn convert_html_to_markdown(html: String) -> Result<String, Box<dyn std::err
         .spawn()
         .map_err(|e| {
             format!(
-                "Failed to start pandoc: {}. Make sure pandoc is installed.",
-                e
+                "Failed to start pandoc: {e}. Make sure pandoc is installed."
             )
         })?;
 
@@ -108,21 +106,21 @@ pub fn convert_html_to_markdown(html: String) -> Result<String, Box<dyn std::err
         let mut stdin = stdin;
         stdin
             .write_all(html.as_bytes())
-            .map_err(|e| format!("Failed to write to pandoc stdin: {}", e))?;
+            .map_err(|e| format!("Failed to write to pandoc stdin: {e}"))?;
     }
 
     // Wait for pandoc to finish and get output
     let output = child
         .wait_with_output()
-        .map_err(|e| format!("Failed to wait for pandoc: {}", e))?;
+        .map_err(|e| format!("Failed to wait for pandoc: {e}"))?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("Pandoc failed: {}", stderr).into());
+        return Err(format!("Pandoc failed: {stderr}").into());
     }
 
     let markdown = String::from_utf8(output.stdout)
-        .map_err(|e| format!("Failed to parse pandoc output as UTF-8: {}", e))?;
+        .map_err(|e| format!("Failed to parse pandoc output as UTF-8: {e}"))?;
 
     Ok(markdown.trim().to_string())
 }
@@ -204,6 +202,6 @@ mod tests {
 </body>
 </html>"#;
         let table_html = extract_table_html(html.to_string());
-        println!("table_html: {}", table_html);
+        println!("table_html: {table_html}");
     }
 }

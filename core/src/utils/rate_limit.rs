@@ -97,7 +97,7 @@ impl RateLimiter {
         let mut conn = match get_redis_pool().get().await {
             Ok(conn) => conn,
             Err(e) => {
-                println!("Error getting connection: {:?}", e);
+                println!("Error getting connection: {e:?}");
                 return Ok(false);
             }
         };
@@ -257,7 +257,7 @@ pub fn get_llm_rate_limiter(model_id: &str) -> Result<Option<RateLimiter>, Strin
             if limiters_guard.contains_key(model_id) {
                 Ok(limiters_guard.get(model_id).cloned().flatten())
             } else {
-                Err(format!("Model ID '{}' not found", model_id))
+                Err(format!("Model ID '{model_id}' not found"))
             }
         })
 }
@@ -312,7 +312,7 @@ pub fn print_rate_limits() {
                         println!("    Rate Monitoring Session: {}", session_id);
                     }
                 } else {
-                    println!("  {}: no rate limit", model_id);
+                    println!("  {model_id}: no rate limit");
                 }
             }
         }
@@ -346,7 +346,7 @@ mod tests {
         initialize().await;
         let rate_limiter = create_llm_rate_limiter("test_bucket", Some(100.0));
         let result = rate_limiter.unwrap().acquire_token().await;
-        println!("result: {:?}", result);
+        println!("result: {result:?}");
     }
 
     #[tokio::test]
@@ -357,7 +357,7 @@ mod tests {
             .unwrap()
             .acquire_token_with_timeout(Duration::from_secs(1))
             .await;
-        println!("result: {:?}", result);
+        println!("result: {result:?}");
     }
 
     #[tokio::test]
@@ -367,7 +367,7 @@ mod tests {
 
         let unwrapped_limiter = rate_limiter.unwrap().clone();
         let result = unwrapped_limiter.acquire_token().await.unwrap();
-        println!("result: {:?}", result);
+        println!("result: {result:?}");
         assert!(!result, "Token request should fail after exhausting limit");
     }
 
@@ -390,7 +390,7 @@ mod tests {
             .await
             .unwrap();
 
-        println!("result: {:?}", result);
+        println!("result: {result:?}");
         assert!(
             result,
             "Token request should acquire token after exhausting limit"
@@ -407,7 +407,7 @@ mod tests {
             content: MessageContent::Array {
                 content: vec![ContentPart {
                     content_type: "text".to_string(),
-                    text: Some(format!("HI {}", random_number)),
+                    text: Some(format!("HI {random_number}")),
                     image_url: None,
                 }],
             },
@@ -447,7 +447,7 @@ mod tests {
             content: MessageContent::Array {
                 content: vec![ContentPart {
                     content_type: "text".to_string(),
-                    text: Some(format!("HI {}", random_number)),
+                    text: Some(format!("HI {random_number}")),
                     image_url: None,
                 }],
             },
@@ -496,7 +496,7 @@ mod tests {
         match send_request().await {
             Ok(_) => Ok(()),
             Err(e) => {
-                println!("error: {:?}", e);
+                println!("error: {e:?}");
                 Err(e)
             }
         }
@@ -507,7 +507,7 @@ mod tests {
         match send_request_with_retry().await {
             Ok(_) => Ok(()),
             Err(e) => {
-                println!("error: {:?}", e);
+                println!("error: {e:?}");
                 Err(e)
             }
         }
@@ -602,11 +602,11 @@ mod tests {
         let test_duration_secs = 30;
 
         for rate_limit in scenarios {
-            println!("Testing rate limit: {} requests per second", rate_limit);
+            println!("Testing rate limit: {rate_limit} requests per second");
 
             // Create a new session for this rate limit test using the limit-lens crate
             let session_request = CreateSessionRequest {
-                name: Some(format!("Rate Limiter Test - {} RPS", rate_limit).into()),
+                name: Some(format!("Rate Limiter Test - {rate_limit} RPS").into()),
             };
 
             let session = rate_test_api::create_test_session(&config, session_request).await?;
@@ -615,7 +615,7 @@ mod tests {
             // Create rate limiter with the current test scenario rate
             let rate_limiter = RateLimiter::new(
                 rate_limit as f32,
-                &format!("limit_lens_test_{}", rate_limit),
+                &format!("limit_lens_test_{rate_limit}"),
             );
 
             // Calculate expected total requests
@@ -645,7 +645,7 @@ mod tests {
                         }
                     } else {
                         // Log token acquisition failures
-                        println!("Failed to acquire token for request {}", i);
+                        println!("Failed to acquire token for request {i}");
                         Ok(())
                     }
                 });
@@ -673,9 +673,9 @@ mod tests {
             let requests_per_second = &metrics.requests_per_second;
             let distribution = &metrics.request_distribution;
 
-            println!("total_requests: {:?}", total_requests);
-            println!("requests_per_second: {:?}", requests_per_second);
-            println!("distribution: {:?}", distribution);
+            println!("total_requests: {total_requests:?}");
+            println!("requests_per_second: {requests_per_second:?}");
+            println!("distribution: {distribution:?}");
 
             // Validate metrics
 
@@ -685,22 +685,16 @@ mod tests {
                 ((total_requests - expected_requests_f64).abs() / expected_requests_f64) * 100.0;
             assert!(
                 total_requests_diff_pct <= 10.0,
-                "Total requests {} differs from expected {} by more than 10% ({}%)",
-                total_requests,
-                expected_requests_f64,
-                total_requests_diff_pct
+                "Total requests {total_requests} differs from expected {expected_requests_f64} by more than 10% ({total_requests_diff_pct}%)"
             );
 
             // 2. Check rate - should be within 30% of target rate
             let rate_diff_pct =
                 ((requests_per_second - rate_limit as f64).abs() / rate_limit as f64) * 100.0;
-            println!("rate_diff_pct: {:?}", rate_diff_pct);
+            println!("rate_diff_pct: {rate_diff_pct:?}");
             assert!(
                 rate_diff_pct <= 30.0,
-                "Measured rate {} differs from target {} by more than 30% ({}%)",
-                requests_per_second,
-                rate_limit,
-                rate_diff_pct
+                "Measured rate {requests_per_second} differs from target {rate_limit} by more than 30% ({rate_diff_pct}%)"
             );
 
             // 3. Check distribution - each second should have roughly the target rate of requests
@@ -726,24 +720,22 @@ mod tests {
                 let avg_deviation = total_deviation / valid_periods as f64;
                 assert!(
                     avg_deviation <= 25.0,
-                    "Average per-second deviation from target rate too high: {}%",
-                    avg_deviation
+                    "Average per-second deviation from target rate too high: {avg_deviation}%"
                 );
             }
 
-            println!("✅ Rate limit {} RPS test passed:", rate_limit);
+            println!("✅ Rate limit {rate_limit} RPS test passed:");
             println!(
-                "   - Total requests: {} (expected ~{})",
-                total_requests, expected_requests
+                "   - Total requests: {total_requests} (expected ~{expected_requests})"
             );
-            println!("   - Measured rate: {:.2} RPS", requests_per_second);
+            println!("   - Measured rate: {requests_per_second:.2} RPS");
             println!(
                 "   - Test duration: {:.2}s",
                 start_time.elapsed().as_secs_f64()
             );
 
             // Store results for this scenario
-            let dir_name = format!("output/limit_lens_test_{}_rps", rate_limit);
+            let dir_name = format!("output/limit_lens_test_{rate_limit}_rps");
             let output_dir = Path::new(&dir_name);
             fs::create_dir_all(output_dir)?;
 

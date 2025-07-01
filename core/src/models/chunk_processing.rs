@@ -93,8 +93,8 @@ impl ToSql for TokenizerType {
         out: &mut postgres_types::private::BytesMut,
     ) -> Result<postgres_types::IsNull, Box<dyn std::error::Error + Sync + Send>> {
         let s = match self {
-            TokenizerType::Enum(t) => format!("enum:{}", t),
-            TokenizerType::String(s) => format!("string:{}", s),
+            TokenizerType::Enum(t) => format!("enum:{t}"),
+            TokenizerType::String(s) => format!("string:{s}"),
         };
         s.to_sql(ty, out)
     }

@@ -12,6 +12,6 @@ pub async fn timeout(timeout: u32) -> Result<(), Box<dyn std::error::Error>> {
         )
         .await?;
 
-    println!("Timed out {} starting and processing tasks", rows_affected);
+    println!("Timed out {rows_affected} starting and processing tasks");
     Ok(())
 }

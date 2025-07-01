@@ -234,7 +234,7 @@ impl Pipeline {
                 ),
                 false => step.start_message(),
             };
-            println!("Executing step: {}", message);
+            println!("Executing step: {message}");
             task.update(
                 Some(Status::Processing),
                 Some(message),
@@ -278,7 +278,7 @@ impl Pipeline {
                     return Ok(());
                 }
                 Err(e) => {
-                    println!("Error {} in step {}", e, step);
+                    println!("Error {e} in step {step}");
                     last_error = Some(e.to_string());
                     retries += 1;
                     let context = Context::current();
@@ -407,7 +407,7 @@ impl Pipeline {
             {
                 Ok(_) => Ok(()),
                 Err(e) => {
-                    println!("Error in completing task: {:?}", e);
+                    println!("Error in completing task: {e:?}");
                     revert_to_previous(&mut task, &task_payload).await?;
                     Err(e)
                 }

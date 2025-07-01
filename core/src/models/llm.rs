@@ -31,7 +31,7 @@ impl ToSql for FallbackStrategy {
         let s = match self {
             FallbackStrategy::None => "none".to_string(),
             FallbackStrategy::Default => "default".to_string(),
-            FallbackStrategy::Model(id) => format!("model:{}", id),
+            FallbackStrategy::Model(id) => format!("model:{id}"),
         };
         s.to_sql(ty, out)
     }

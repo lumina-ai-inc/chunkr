@@ -1,6 +1,8 @@
 services:
   server:
-    image: luminainc/server:1.20.3
+    build:
+      context: ./docker/server
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -16,7 +18,9 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task:1.20.3
+    build:
+      context: ./docker/task
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - redis
@@ -30,7 +34,9 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   web:
-    image: luminainc/web:1.20.3
+    build:
+      context: ./docker/web
+      dockerfile: Dockerfile
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -52,7 +58,9 @@ services:
     restart: always
 
   segmentation-backend:
-    image: luminainc/segmentation:1.4.2
+    build:
+      context: ./docker/segmentation
+      dockerfile: Dockerfile
     expose:
       - "8000"
     deploy:
@@ -84,7 +92,9 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:1.20.3
+    build:
+      context: ./docker/doctr
+      dockerfile: Dockerfile
     expose:
       - "8000"
     deploy:

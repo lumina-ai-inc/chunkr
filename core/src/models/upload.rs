@@ -275,7 +275,7 @@ impl UpdateForm {
         match llm_config.validate_llm_processing(&llm_processing) {
             Ok(_) => {}
             Err(e) => {
-                return Err(format!("The LLM processing configuration is probably outdated. Please update the configuration: {}", e));
+                return Err(format!("The LLM processing configuration is probably outdated. Please update the configuration: {e}"));
             }
         }
         Ok(Configuration {

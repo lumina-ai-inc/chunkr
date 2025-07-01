@@ -116,7 +116,7 @@ mod tests {
                 match perform_general_ocr(vec![&temp_file]).await {
                     Ok(_) => Ok(()),
                     Err(e) => {
-                        println!("Error processing {:?}: {:?}", input_file, e);
+                        println!("Error processing {input_file:?}: {e:?}");
                         Err(e)
                     }
                 }
@@ -128,7 +128,7 @@ mod tests {
         let mut error_count = 0;
         for task in tasks {
             if let Err(e) = task.await? {
-                println!("Error processing: {:?}", e);
+                println!("Error processing: {e:?}");
                 error_count += 1;
             }
         }
@@ -139,12 +139,12 @@ mod tests {
             "General OCR rate limit: {:?}",
             throttle_config.general_ocr_rate_limit
         );
-        println!("Time taken: {:?}", duration);
-        println!("Images per second: {:?}", images_per_second);
-        println!("Error count: {:?}", error_count);
+        println!("Time taken: {duration:?}");
+        println!("Images per second: {images_per_second:?}");
+        println!("Error count: {error_count:?}");
 
         if error_count > 0 {
-            Err(format!("Error count {} > 0", error_count).into())
+            Err(format!("Error count {error_count} > 0").into())
         } else {
             Ok(())
         }

@@ -101,13 +101,13 @@ impl Config {
             .map_err(|e| PdfiumError::DownloadError(e.to_string()))?;
 
         let temp_dir = tempfile::tempdir()
-            .map_err(|e| PdfiumError::DownloadError(format!("Failed to create temp dir: {}", e)))?;
+            .map_err(|e| PdfiumError::DownloadError(format!("Failed to create temp dir: {e}")))?;
 
         let gz = GzDecoder::new(&bytes[..]);
         let mut archive = Archive::new(gz);
         archive
             .unpack(temp_dir.path())
-            .map_err(|e| PdfiumError::DownloadError(format!("Failed to extract archive: {}", e)))?;
+            .map_err(|e| PdfiumError::DownloadError(format!("Failed to extract archive: {e}")))?;
 
         let lib_path = temp_dir.path().join("lib");
         let binary_name = self.os_binary_name()?;
@@ -115,7 +115,7 @@ impl Config {
         let source_path = lib_path.join(binary_name);
 
         fs::copy(&source_path, target_path)
-            .map_err(|e| PdfiumError::DownloadError(format!("Failed to copy binary: {}", e)))?;
+            .map_err(|e| PdfiumError::DownloadError(format!("Failed to copy binary: {e}")))?;
 
         Ok(())
     }

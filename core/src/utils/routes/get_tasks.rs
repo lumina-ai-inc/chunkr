@@ -13,16 +13,16 @@ pub async fn get_tasks(
     conditions.push("(expires_at > NOW() OR expires_at IS NULL)".to_string());
 
     if let Some(start) = task_query.start {
-        conditions.push(format!("created_at >= '{}'", start));
+        conditions.push(format!("created_at >= '{start}'"));
     }
 
     if let Some(end) = task_query.end {
-        conditions.push(format!("created_at <= '{}'", end));
+        conditions.push(format!("created_at <= '{end}'"));
     }
 
     let pagination = match (task_query.page, task_query.limit) {
         (Some(p), Some(l)) => Ok(format!("OFFSET {} LIMIT {}", (p - 1) * l, l)),
-        (None, Some(l)) => Ok(format!("LIMIT {}", l)),
+        (None, Some(l)) => Ok(format!("LIMIT {l}")),
         (Some(_), None) => Err("Limit is required when page is provided".to_string()),
         _ => Ok("".to_string()),
     };
@@ -56,12 +56,12 @@ pub async fn get_tasks(
                         Ok::<Option<TaskResponse>, Box<dyn std::error::Error>>(Some(response))
                     }
                     Err(e) => {
-                        println!("Error converting task {}: {}", task_id, e);
+                        println!("Error converting task {task_id}: {e}");
                         Ok(None)
                     }
                 },
                 Err(e) => {
-                    println!("Error fetching task {}: {}", task_id, e);
+                    println!("Error fetching task {task_id}: {e}");
                     Ok(None)
                 }
             }

@@ -54,7 +54,7 @@ impl Config {
         if let Some(config) = CONFIG.read().unwrap().as_ref() {
             return match config {
                 Ok(cfg) => Ok(cfg.clone()),
-                Err(e) => Err(ConfigError::Message(format!("{}", e))),
+                Err(e) => Err(ConfigError::Message(format!("{e}"))),
             };
         }
 
@@ -131,21 +131,21 @@ impl Config {
 
     fn load_models_from_file(file_path: &str) -> Result<Option<Vec<LlmModel>>, ConfigError> {
         let contents = fs::read_to_string(file_path).map_err(|_| {
-            ConfigError::Message(format!("Could not read file at path: {}", file_path))
+            ConfigError::Message(format!("Could not read file at path: {file_path}"))
         })?;
 
         let yaml = serde_yaml::from_str::<serde_yaml::Value>(&contents)
-            .map_err(|e| ConfigError::Message(format!("Error parsing YAML: {:?}", e)))?;
+            .map_err(|e| ConfigError::Message(format!("Error parsing YAML: {e:?}")))?;
 
         let models = yaml
             .get("models")
             .ok_or_else(|| ConfigError::Message("No 'models' key found in YAML".to_string()))?;
 
         let parsed_models: Vec<LlmModel> = serde_yaml::from_value(models.clone())
-            .map_err(|e| ConfigError::Message(format!("Error parsing models: {:?}", e)))?;
+            .map_err(|e| ConfigError::Message(format!("Error parsing models: {e:?}")))?;
 
         Self::validate_models(&parsed_models)
-            .map_err(|err| ConfigError::Message(format!("Invalid model configuration: {}", err)))?;
+            .map_err(|err| ConfigError::Message(format!("Invalid model configuration: {err}")))?;
 
         println!("Successfully loaded models configuration");
         Ok(Some(parsed_models))
@@ -161,15 +161,13 @@ impl Config {
 
         if default_count != 1 {
             return Err(format!(
-                "Exactly one model must be set as default, found {}",
-                default_count
+                "Exactly one model must be set as default, found {default_count}"
             ));
         }
 
         if fallback_count != 1 {
             return Err(format!(
-                "Exactly one model must be set as fallback, found {}",
-                fallback_count
+                "Exactly one model must be set as fallback, found {fallback_count}"
             ));
         }
 
@@ -248,8 +246,7 @@ impl Config {
                         .unwrap_or_default();
 
                     return Err(format!(
-                        "Unknown model_id '{}'. Supported model IDs are: {}",
-                        model_id, available_models
+                        "Unknown model_id '{model_id}'. Supported model IDs are: {available_models}"
                     ));
                 }
             }
@@ -273,8 +270,7 @@ impl Config {
                         .unwrap_or_default();
 
                     return Err(format!(
-                        "Unknown fallback model_id '{}'. Supported model IDs are: {}",
-                        fallback_model_id, available_models
+                        "Unknown fallback model_id '{fallback_model_id}'. Supported model IDs are: {available_models}"
                     ));
                 }
             }
@@ -351,7 +347,7 @@ fn load_prompt_template(prompt_name: &str) -> Result<String, std::io::Error> {
         .ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
-                format!("Prompt '{}' not found", prompt_name),
+                format!("Prompt '{prompt_name}' not found"),
             )
         })
 }
@@ -369,7 +365,7 @@ fn substitute_template_placeholders(
         // Remove the surrounding quotes that to_string adds
         let escaped_value = &escaped_value[1..escaped_value.len() - 1];
 
-        template = template.replace(&format!("{{{}}}", key), escaped_value);
+        template = template.replace(&format!("{{{key}}}"), escaped_value);
     }
 
     Ok(template)
@@ -407,7 +403,7 @@ mod tests {
     #[tokio::test]
     async fn test_load_template() -> Result<(), Box<dyn std::error::Error>> {
         let prompt = load_prompt_template("formula")?;
-        println!("Template JSON: {}", prompt);
+        println!("Template JSON: {prompt}");
         Ok(())
     }
 
@@ -420,7 +416,7 @@ mod tests {
 
         let template = get_test_template();
         let filled_json = substitute_template_placeholders(&template, &values)?;
-        println!("Filled template: {}", filled_json);
+        println!("Filled template: {filled_json}");
 
         // Parse to verify it's valid JSON
         let parsed: Vec<Message> = serde_json::from_str(&filled_json)?;
@@ -436,7 +432,7 @@ mod tests {
             "https://example.com/image.jpg".to_string(),
         );
         let messages = create_messages_from_template("md_table", &values)?;
-        println!("Message: {:?}", messages);
+        println!("Message: {messages:?}");
         Ok(())
     }
 
@@ -449,7 +445,7 @@ mod tests {
         );
         for &(template_name, _) in PROMPT_TEMPLATES {
             let messages = create_messages_from_template(template_name, &values)?;
-            println!("Message: {:?}", messages);
+            println!("Message: {messages:?}");
         }
         Ok(())
     }
