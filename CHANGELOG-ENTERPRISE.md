@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.0.0-enterprise...v2.1.0-enterprise) (2025-07-03)
+
+
+### Features
+
+* Added flag for experimental features, and set default for spreadsheet feature to be off ([455a13e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/455a13ebd05f2a15fa68a2bdefda38d6b367a50e))
+
+
+### Bug Fixes
+
+* Added chrome sandbox false for docker containers ([181debd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/181debd637e051610f5ed0e9afd9ae5e8581ba5a))
+* Remove keycloakify theme ([ea46cbe](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ea46cbea3e6d6abca04f2c79f8c5bd75d496ac7b))
+
 ## [2.0.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v1.22.1-enterprise...v2.0.0-enterprise) (2025-06-29)
 
 

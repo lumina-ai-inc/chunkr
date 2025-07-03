@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.2...chunkr-chart-enterprise-v1.2.3) (2025-07-03)
+
+
+### Bug Fixes
+
+* Added chrome sandbox false for docker containers ([181debd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/181debd637e051610f5ed0e9afd9ae5e8581ba5a))
+
 ## [1.2.2](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.1...chunkr-chart-enterprise-v1.2.2) (2025-06-29)
 
 

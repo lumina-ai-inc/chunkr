@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.8.0-enterprise...chunkr-web-enterprise-v1.8.1-enterprise) (2025-07-03)
+
+
+### Bug Fixes
+
+* Remove keycloakify theme ([ea46cbe](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ea46cbea3e6d6abca04f2c79f8c5bd75d496ac7b))
+
 ## [1.8.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.7.2-enterprise...chunkr-web-enterprise-v1.8.0-enterprise) (2025-06-29)
 
 
