@@ -2,9 +2,8 @@ services:
   keycloak:
     enabled: true
     image:
-      repository: keycloak
-      tag: 25.0.2
-      registry: quay.io/keycloak
+      repository: auth
+      tag: 2.1.0-enterprise
     port: 8080
     targetPort: 8080
     ingress:
