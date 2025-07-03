@@ -93,7 +93,7 @@ impl Task {
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
         let (mime_type, extension) = check_file_type(file, original_extension)?;
-        let is_spreadsheet = check_is_spreadsheet(&mime_type);
+        let is_spreadsheet = check_is_spreadsheet(&mime_type)?;
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
@@ -253,7 +253,7 @@ impl Task {
             }
         };
         let mime_type = row.get::<_, String>("mime_type");
-        let is_spreadsheet = check_is_spreadsheet(&mime_type);
+        let is_spreadsheet = check_is_spreadsheet(&mime_type)?;
         Ok(Self {
             api_key: row.get("api_key"),
             configuration,

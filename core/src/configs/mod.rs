@@ -1,6 +1,7 @@
 pub mod auth_config;
 pub mod azure_config;
 pub mod email_config;
+pub mod feature_config;
 pub mod github_config;
 pub mod job_config;
 pub mod llm_config;

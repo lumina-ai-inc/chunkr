@@ -1,4 +1,7 @@
-use crate::configs::worker_config::{Config as WorkerConfig, FileUrlFormat};
+use crate::configs::{
+    feature_config::Config as FeatureConfig,
+    worker_config::{Config as WorkerConfig, FileUrlFormat},
+};
 use crate::models::file_operations::{HtmlConversionResult, ImageConversionResult};
 use crate::utils::clients;
 use crate::utils::services::pdf::count_pages;
@@ -12,9 +15,14 @@ use tempfile::{Builder, NamedTempFile};
 use url;
 use urlencoding;
 
-pub fn check_is_spreadsheet(mime_type: &str) -> bool {
-    mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        || mime_type == "application/vnd.ms-excel"
+pub fn check_is_spreadsheet(mime_type: &str) -> Result<bool, Box<dyn Error>> {
+    if !FeatureConfig::from_env()?.enable_excel_parse {
+        return Ok(false);
+    }
+    Ok(
+        mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            || mime_type == "application/vnd.ms-excel",
+    )
 }
 
 pub fn check_file_type(

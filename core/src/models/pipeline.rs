@@ -1135,7 +1135,7 @@ impl Pipeline {
                 .as_ref()
                 .ok_or("No mime type found")?
                 .as_str(),
-        );
+        )?;
         if task_payload.previous_configuration.is_some() {
             println!("Previous configuration found, loading artifacts");
             let (input_file, pdf_file, page_images, segment_images, output) =
