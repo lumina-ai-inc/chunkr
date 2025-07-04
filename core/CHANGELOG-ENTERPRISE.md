@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.1.0-enterprise...chunkr-core-enterprise-v2.2.0-enterprise) (2025-07-04)
+
+
+### Features
+
+* Enhance excel parser to identify all element types with improved error handling ([#133](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/133)) ([9f15fd7](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/9f15fd73b39bd529aba7af245822deeb4dce7cc6))
+
+
+### Bug Fixes
+
+* Browser errors on kube ([#128](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/128)) ([418af50](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/418af50cffbc34ece97d4de0e51b56ac2bcfdeb5))
+
 ## [2.1.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.0.0-enterprise...chunkr-core-enterprise-v2.1.0-enterprise) (2025-07-03)
 
 

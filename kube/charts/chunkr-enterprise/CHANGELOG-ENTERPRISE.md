@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.3...chunkr-chart-enterprise-v1.2.4) (2025-07-04)
+
+
+### Bug Fixes
+
+* Browser errors on kube ([#128](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/128)) ([418af50](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/418af50cffbc34ece97d4de0e51b56ac2bcfdeb5))
+
 ## [1.2.3](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.2...chunkr-chart-enterprise-v1.2.3) (2025-07-03)
 
 
