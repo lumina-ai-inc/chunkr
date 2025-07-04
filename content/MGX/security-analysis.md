@@ -1,52 +1,125 @@
 # Chunkr Security Analysis
 
-## Pre-signed URLs
+## Current deployment 
 
-### Overview
+![Current Deployment](current_deployment.png)
+
+### Current Security Compliance Features
+
+**Network Security & Isolation**
+- Private AKS cluster (no public API endpoint)
+- Azure Firewall Premium with threat intelligence and intrusion detection
+- VNet segmentation with dedicated subnets (AKS, services, endpoints, jumpbox)
+- Network Security Groups with restrictive rules
+- User-defined routes forcing all traffic through firewall
+- Azure Bastion for secure VM access without public IPs
+
+**Identity & Access Controls**
+- System-assigned managed identity for AKS cluster
+- Azure Key Vault integration with automatic secret rotation
+- PostgreSQL with Entra ID authentication enabled
+- Jumpbox with Azure bastion access only
+- Private container registry (ACR) access
+- Keycloak SSO integration with Entra ID for federated authentication
+
+**Security Monitoring & Compliance**
+- Microsoft Defender for Containers enabled
+- Comprehensive audit logging (API server, audit, controller manager, scheduler)
+- Log Analytics workspace for centralized monitoring
+- Diagnostic settings capturing all AKS security events
+
+**Data Security**
+- PostgreSQL with private networking only (no public access)
+- Private DNS zones for internal service resolution
+- Customer-managed encryption keys via Key Vault
+- Network policies enabled for pod-to-pod communication control
+
+**Infrastructure Hardening**
+- Firewall rules allowing only necessary outbound connections
+- SSL/TLS termination and inspection capabilities
+- Container image scanning in ACR
+- Pod Security Standards enforcement ready
+
+## MGX Security Observations on the Current Deployment
+
+MGX's assessment has surfaced three opportunities to raise the security bar:
+
+1) Refine AKS / Kubernetes RBAC – Existing roles work, but tightening them will clearly separate infrastructure duties from any data-plane permissions. Next step: introduce maintenance-only roles without data access in Azure and Kubernetes (see Recommendations).
+
+2) Scope Pre-Signed URLs to the VPC – MinIO links are functional everywhere until they expire; scoping them to VNet endpoints or IP allow-lists will remove even that short-lived external surface. Next step: enforce VNet endpoint policies and optional CIDR/IP allow-lists.
+
+3) Offer an In-VPC Vision-Language Model Option – Inference currently runs on a trusted BAA/ZDR partner (Open AI); some MGX workloads may prefer an on-prem GPU path. 
+
+These observations can be easily implemented, and are explained into the two recommendations below.
+
+## Implementation Plan
+
+![Security Recommendation](security_recommendation.png)
+
+### Recommendation — Maximum Security (All In-VPC)
+
+Adopt a VPC-only access model for every storage and compute component. Enforce strict network policies so all traffic flows exclusively through private endpoints or VPN connections—no data ever touches the public Internet. 
+These decisions mirror the configuration already deployed at a Fortune 500 chip manufacturer and reflect proven best practices for enterprises requiring full VPC isolation, traceability, and zero public data exposure.
+
+#### Personnel Access
+
+Utilize Chunkr personnel for cluster maintenance under a locked-down RBAC role. Maintainers will have time-boxed access and will have no access to any data - set up through RBAC.
+
+#### Key Personnel Guidelines:
+
+- Chunkr engineers hold minimal, time-boxed permissions  
+- Duties limited to deployment updates, node management, and system operations  
+- No access to secrets, persistent volumes, or customer data  
+- Optional security training since RBAC already enforces isolation  
+- Regular access reviews and audit-trail monitoring  
+
+#### Black-Box Deployment
+
+Recommended Approach: Comprehensive container isolation with encrypted volumes, network segmentation, and strict Pod Security Standards.
+
+**Data residency & network:** All Chunkr components—API, workers, MinIO, and GPU-backed Vision-Language Model—run inside your private VPC. Zero egress.
+
+**Model hosting:**  
+- **Primary (Full In-VPC):** Self-hosted VLM containers on in-cluster GPUs, auto-scaled via Kubernetes HPA. No external model endpoints.  
+- **Alternate (Trusted Provider):** Optionally, inference and fine-tuning can be routed to a foundation-model provider covered by your existing BAA/ZDR. This provider performs all processing via a private, encrypted API with zero data retention. Chunkr orchestrates these calls but does not store data externally.
+
+**Fine-tuning service (optional):** We can optionally finetune compliant endpoint to improve accuracy while honoring BAA/ZDR commitments.
+
+**Signed URLs:** Time-limited (5–10 min), HMAC-signed URLs served from self-hosted MinIO private endpoints (optionally surfaced via Azure Private Link). Links are reachable only inside the VPC, or through explicitly approved CIDR/IP allow-lists enforced by network policies / firewall rules. Objects stay encrypted with customer-managed keys and every access is logged.
+
+**Cluster maintenance:** Least-privilege AKS Maintenance Operator role via Azure PIM — *maintenance-only* (no data-plane access, no secret or volume access)
+
+
+## Security touchpoints
+
+We based our recommendation on three core decisions: how data is shared, where models are hosted (self-hosted vs. BAA/ZDR provider), and who performs maintenance (Chunkr vs. MGX personnel). Each choice carries trade-offs in auditability, risk surface, and operational complexity.
+
+The following information was taken into consideration to make the recommendations:
+
+## 1. Secure Object Storage
+
+### Challenge
+Pre-Signed URLs are accessible via the internet which creates a potential security exposure. Even though the URLs are time-limited and cryptographically signed, they can be accessed from any location with internet connectivity until they expire.
+
+### 1.1 Pre-Signed URLs
+
+Pre-signed URLs offer granular, cryptographically signed, time-limited access to objects without exposing credentials. They are industry-standard (used by Netflix, Dropbox, GitHub) and provide:
+
+* **HMAC-based tamper protection**
+* **No credential leakage** to clients
+* **TTL-based expiry** (default 5–10 minutes)
+* **Full audit logging** via cloud provider
+
+#### VPC-Only Enforcement (Recommended)
+
+* Bucket/Container policies allow access *only* from VPC endpoints.
+* **Links resolve *only* inside the VPC; any request from the public Internet is denied even if the URL is leaked, ensuring a zero-exposure attack surface.**
+* Optionally layer IP allow-listing for branch offices or VPN CIDRs.
 
 Pre-signed URLs are cryptographically signed, time-limited URLs that provide secure access to cloud storage without exposing credentials. They are widely adopted across the industry by companies like Netflix, Dropbox, and GitHub due to their balance of security and usability.
 
-**How they work:**
-- Cloud provider (AWS/Azure) generates URLs with embedded cryptographic signatures
-- URLs contain proof of authorization without exposing API keys or credentials
-- Time-bounded access with built-in expiration prevents indefinite access
-- HMAC signatures prevent URL tampering and unauthorized modifications
-
-### Current Implementation: Standard Pre-Signed URLs
-
-**Security features:**
-- **Cryptographic security**: HMAC signatures prevent URL tampering
-- **No credential exposure**: Eliminates need for API keys in client applications  
-- **Time-based expiration**: Typically 5-10 mins prevents indefinite access
-- **Audit logging**: Full access tracking through cloud provider logs
-
-**Use case:** Appropriate for public-facing applications where ease of access is prioritized alongside reasonable security measures.
-
-### Enhanced Security Options
-
-#### Option 1: IP Allowlisting (VPC-Adjacent)
-
 **Implementation:**
-- Pre-signed URLs restricted to specific IP ranges or CIDR blocks
-- Client organizations provide approved IP addresses
-- Bucket policies enforce IP-based access control at the cloud level
-
-**Security benefits:**
-- **Restricted access perimeter**: URLs only function from known networks
-- **Prevents casual sharing**: URLs are useless outside approved IP ranges
-- **Configurable scope**: Per-client IP restrictions possible
-- **Audit trail**: Access logs show source IPs for security investigation
-
-**Operational considerations:**
-- **IP management overhead**: Clients must maintain current IP address lists
-- **Remote work challenges**: May require VPN for remote employees
-- **Dynamic IP handling**: Regular IP list updates may be needed
-- **Multi-region complexity**: Global clients need multiple IP ranges managed
-
-#### Option 2: VPC-Only Access (Maximum Security)
-
-**Implementation:**
-- S3/Azure storage configured with VPC endpoints and restrictive bucket policies
+- MinIO/Azure storage configured with VPC endpoints and restrictive bucket policies
 - Storage accessible only within private network infrastructure
 - Pre-signed URLs fail when accessed from public internet
 
@@ -62,9 +135,9 @@ Pre-signed URLs are cryptographically signed, time-limited URLs that provide sec
 - **Infrastructure complexity**: Requires VPN setup and user training
 - **Access management**: VPN credentials become critical security component
 
-### Azure Blob Storage vs MinIO Storage
+### 1.2 MinIO vs Azure Blob
 
-Both Azure Blob Storage and MinIO support pre-signed URLs with similar security features. However, given the existing MinIO infrastructure, there are no compelling advantages to switching to Azure Blob Storage.
+Self-hosted MinIO already S3-compatible APIs with VPC isolation, customer-controlled encryption keys, and data sovereignty. 
 
 **Current MinIO setup:**
 - Already integrated and operational
@@ -79,17 +152,58 @@ Both Azure Blob Storage and MinIO support pre-signed URLs with similar security 
 
 **Assessment:** No technical advantages justify migrating from the existing MinIO deployment to Azure Blob Storage. The current setup meets all security requirements while maintaining infrastructure control.
 
-## AKS Cluster Maintenance Access Security
+---
+
+## 2. Model Hosting & Fine-Tuning
+
+### Challenge
+Achieving optimal document processing performance while keeping all data within the VPC for maximum security.
+
+### 2.1 Self-Hosted VLM
+
+All Chunkr models, including the vision-language model used for segment processing, can run entirely inside your VPC. Deploying them on your own GPU nodes keeps every document in-cloud, eliminating third-party traffic and preserving strict data privacy.
+
+**Implementation:**
+* Chunkr VLM containers deployed on GPU nodes inside the AKS/EKS cluster
+* Horizontal Pod Autoscaler adds/removes GPU capacity based on queue depth
+* Model instances scale horizontally with Kubernetes for dynamic workload management
+* *Data never leaves* the VPC
+
+**Security advantages:**
+* Complete data isolation within your infrastructure
+* No external API calls or third-party dependencies
+* Full control over model inference and processing
+* Zero egress traffic for document processing
+
+### 2.2 Provider Fine-Tuning under BAA/ZDR (Recommended)
+
+If you already hold a Business Associate Agreement (BAA) or Zero-Data-Retention (ZDR) contract with a major model vendor, we can fine-tune that provider's foundation model to improve performance over your documents.
+
+**Implementation:**
+* Training & inference routed to the provider's private, compliant endpoints
+* Data protected by contractual zero-retention and encryption at rest/in transit
+* Chunkr orchestrates API calls but does not store data externally
+
+**Use case:** Useful when you want best-in-class foundation model performance while maintaining compliance coverage through existing vendor relationships.
+
+---
+
+## 3. Cluster Maintenance & Access Control
 
 ### Challenge
 Maintenance personnel require cluster access to update images and perform system operations, but must be prevented from accessing customer data stored in workloads or persistent volumes.
 
-### Azure RBAC Solution for Limited Cluster Access
+### 3.1 RBAC Design (Recommended)
+
+* **Custom Azure RBAC Role** "AKS Maintenance Operator" with *infrastructure-only* permissions (start/stop, upgrade, node cordon).
+* **Kubernetes Role/ClusterRole** excluding Secrets, ConfigMaps, volumes, `exec`, `attach`.
+* **Time-limited** grants via Azure PIM; MFA enforced.
+* **Audit logs** captured in Azure Activity Log & Kubernetes Audit.
 
 **Implementation Strategy:**
 Azure provides granular role-based access control that can separate cluster management from data access through custom roles and Kubernetes RBAC integration.
 
-#### Option 1: Custom Azure RBAC Role (Recommended)
+#### Custom Azure RBAC Role 
 
 **Create maintenance-specific role with minimal permissions:**
 ```yaml
@@ -109,7 +223,7 @@ permissions:
 - **Audit trail**: All actions logged through Azure Activity Log
 - **Time-limited access**: Can be combined with PIM (Privileged Identity Management)
 
-#### Option 2: Kubernetes RBAC Integration
+#### Kubernetes RBAC Integration
 
 **Implement role binding for maintenance tasks:**
 ```yaml
@@ -138,14 +252,9 @@ rules:
 - **No pod exec**: Cannot execute commands inside running containers
 - **Limited to system resources**: Only node and deployment management
 
-### Implementation Recommendations
-
 #### For Maximum Data Protection:
 1. **Use Azure AD integration** with custom RBAC roles
 2. **Enable Kubernetes RBAC** with restrictive role bindings
-3. **Implement Pod Security Standards** to prevent privilege escalation
-4. **Deploy Network Policies** for workload isolation
-5. **Enable audit logging** for all cluster operations - already configured
 6. **Use JIT access** through Azure PIM for time-limited permissions
 
 #### Operational Benefits:
@@ -160,25 +269,15 @@ rules:
 - **No volume access**: Cannot mount or access persistent storage
 - **Limited blast radius**: Compromise of maintenance credentials cannot access customer data
 
-### Current Infrastructure Analysis
+### 3.2 Personnel Options
 
-- **Private cluster**: Already network-isolated from public internet
-- **VNet integration**: Provides network-level security boundaries
-- **Bastion/Jumpbox access**: Secure access pattern already established
-- **Microsoft Defender**: Monitoring for security threats enabled
-
-**Recommended additions:**
-- Configure Azure AD authentication for the cluster
-- Implement custom RBAC roles for maintenance personnel
-- Enable Kubernetes audit logging
-- Deploy Pod Security Standards policies
-
-## Personnel Options for Cluster Maintenance
+1. **Chunkr Employee** (recommended): deep system knowledge; least-privilege role ensures no data access.
+2. **Customer Employee**: possible with training; same RBAC template.
 
 ### Challenge
 Determining who should have access to perform cluster maintenance operations while maintaining security boundaries and operational efficiency.
 
-### Option 1: Compliant Chunkr Employee
+### Option 1: Compliant Chunkr Employee with no data access (recommended)
 
 **Implementation:**
 - Designate dedicated Chunkr employee for MGX cluster maintenance
@@ -230,39 +329,18 @@ Determining who should have access to perform cluster maintenance operations whi
 - **Backup coverage**: Need for secondary trained personnel for availability
 - **Support requirements**: Ongoing technical support from Chunkr team
 
-## Blackbox Deployment Security
-
-### Overview
 
 
-### Chunkr Models Running on GPUs Inside Cluster
+## 4. Summary
+
+This architecture is VPC-native by design. All Chunkr services—storage, models, APIs run entirely inside your cloud. No shared tenancy, no external traffic, no public URL exposure. It's hardened for zero egress.
+
+As a result, Chunkr will only be reachable from within the same VNet. Any application consuming Chunkr output, web app, backend, or pipeline, must also be deployed inside that VNet. While this constraint enhances security by ensuring only your internal services can call Chunkr endpoints, it does require all users and services to access Chunkr through the VPC (either by being deployed within it or connecting via VPN/private network connections).
+
+If desired, external model fine-tuning is supported via encrypted channels under BAA/ZDR agreements. But by default, every document, URL, and inference stays local, backed by customer-managed keys, private endpoints, and auditable RBAC. We've delivered this exact airgapped architecture for a Fortune 500 chip manufacturer, and can do the same for MGX. This includes VPC-only reachability, in-cluster model inference, scoped signed URLs, and tightly bound RBAC maintenance roles. Every service—APIs, storage, GPU-backed model containers—runs in your cloud under your control. There are no shared components, no shared tenancy, and no egress to the public Internet unless explicitly required under a trusted contract.
+
+We have deployed completely airgapped architectures before and can support MGX with the same rigor. With this setup, your documents, outputs, and model activations remain locked inside infrastructure you control, completely inaccessible from outside the VPC.
 
 
-### OpenAI Model Fine-tuning
 
 
-## Recommendations
-
-![Security Recommendation](security_recommendation.png)
-
-### For Maximum Security
-
-**Recommended Approach:**  
-Adopt a VPC-only access model for all storage and services. Enforce strict network policies so that all access occurs exclusively through private endpoints or VPN connections. Ensure that no data ever traverses the public internet.
-
-### Personnel Access
-
-**Recommended Approach:**  
-Utilize Chunkr personnel for cluster maintenance with minimal access permissions. Given the implementation of strict RBAC controls that prevent access to customer data, specialized compliance training should be optional rather than required.
-
-**Key Personnel Guidelines:**
-- Chunkr employees maintain cluster infrastructure with minimal, time-limited permissions
-- Access restricted to deployment updates, node management, and system operations only
-- No access to secrets, persistent volumes, or customer data through technical controls
-- Optional security training since RBAC implementation prevents data access
-- Regular access reviews and audit trail monitoring for all maintenance activities
-
-### Blackbox Deployment
-
-**Recommended Approach:**
-Implement comprehensive container-based isolation for all model deployments with encrypted storage, network segmentation, and strict access controls. For OpenAI fine-tuning, ensure all customer data remains within the secure cluster environment with ephemeral training processes and encrypted data pipelines.
