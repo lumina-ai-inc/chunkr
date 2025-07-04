@@ -1,6 +1,6 @@
 use crate::models::output::BoundingBox;
 use image::*;
-use tempfile::NamedTempFile;
+use tempfile::{Builder, NamedTempFile};
 
 /// Get the dimensions of an image
 ///
@@ -50,7 +50,7 @@ pub fn crop_image(
     let height = target_height.min(image.height().saturating_sub(top));
 
     let sub_img = imageops::crop(&mut image, left, top, width, height);
-    let output_file = NamedTempFile::new()?;
+    let output_file = Builder::new().suffix(".jpg").tempfile()?;
     let cropped_image = sub_img.to_image();
 
     cropped_image.save_with_format(output_file.path(), ImageFormat::Jpeg)?;

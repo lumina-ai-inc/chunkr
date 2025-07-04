@@ -5,6 +5,7 @@ use headless_chrome::{Browser, LaunchOptions};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::sync::Arc;
+use tempfile::Builder;
 use tempfile::NamedTempFile;
 use thiserror::Error;
 use uuid::Uuid;
@@ -17,6 +18,8 @@ pub enum RendererError {
     Chrome(String),
     #[error("Config error: {0}")]
     Config(String),
+    #[error("Chrome cache cleanup error: {0}")]
+    CacheCleanup(String),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -117,19 +120,230 @@ pub struct HTMLToImageRenderer {
 
 impl HTMLToImageRenderer {
     /// Initialize the renderer with a headless Chrome browser instance.
+    /// Includes retry logic and cache cleanup for corrupted Chrome downloads.
     pub fn new() -> Result<Self, RendererError> {
         let config = Config::from_env().map_err(|e| RendererError::Config(e.to_string()))?;
-        // Launch browser (auto-downloads Chrome if needed)
-        let browser = Browser::new(
-            LaunchOptions::default_builder()
-                .headless(config.headless)
-                .sandbox(config.sandbox) // Disable sandbox when running as root (common in Docker)
-                .build()
-                .map_err(|e| RendererError::Chrome(format!("Launch options error: {e}")))?,
-        )
-        .map_err(|e| RendererError::Chrome(format!("Browser launch error: {e}")))?;
+
+        // Try to create browser with retry and cleanup logic
+        let browser = Self::create_browser_with_retry(&config)?;
 
         Ok(Self { browser })
+    }
+
+    fn create_browser_with_retry(config: &Config) -> Result<Browser, RendererError> {
+        const MAX_RETRIES: u32 = 3;
+        let mut last_error = None;
+
+        for attempt in 1..=MAX_RETRIES {
+            match Self::try_create_browser(config) {
+                Ok(browser) => {
+                    return Ok(browser);
+                }
+                Err(e) => {
+                    println!("❌ Chrome browser creation failed (attempt {attempt}): {e}");
+                    last_error = Some(e);
+
+                    // Check if this is a zip corruption error and attempt cleanup
+                    if let RendererError::Chrome(ref error_msg) = last_error.as_ref().unwrap() {
+                        if error_msg.contains("invalid Zip archive") || error_msg.contains("EOCD") {
+                            println!(
+                                "🧹 Detected corrupted Chrome download, attempting cache cleanup",
+                            );
+                            if let Err(cleanup_err) = Self::cleanup_chrome_cache(config) {
+                                println!("⚠️ Cache cleanup failed: {cleanup_err}");
+                            }
+                        }
+                    }
+
+                    // For permission errors, try cleaning up Chrome directories and retry
+                    if let RendererError::Chrome(ref error_msg) = last_error.as_ref().unwrap() {
+                        if error_msg.contains("Permission denied") {
+                            println!(
+                                "🧹 Permission error detected, cleaning up Chrome directories"
+                            );
+                            if let Err(setup_err) = config.setup_chrome_directories() {
+                                println!("⚠️ Chrome directory setup failed: {setup_err}");
+                            }
+                        }
+                    }
+
+                    // Wait before retry (exponential backoff)
+                    if attempt < MAX_RETRIES {
+                        let wait_time = std::time::Duration::from_secs(2_u64.pow(attempt - 1));
+                        std::thread::sleep(wait_time);
+                    }
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or_else(|| {
+            RendererError::Chrome("Failed to create browser after all retries".to_string())
+        }))
+    }
+
+    fn try_create_browser(config: &Config) -> Result<Browser, RendererError> {
+        // Check Chrome executable permissions before attempting launch
+        let chrome_executable = config
+            .chrome_path
+            .clone()
+            .unwrap_or_else(|| std::path::PathBuf::from("/usr/bin/google-chrome"));
+
+        if !chrome_executable.exists() {
+            println!("⚠️ Chrome executable not found at: {chrome_executable:?}");
+        }
+
+        // Build launch options
+        let mut options_builder = LaunchOptions::default_builder();
+        options_builder
+            .headless(config.headless)
+            .sandbox(config.sandbox);
+
+        // Ensure Chrome temporary directories exist and have proper permissions
+        config
+            .setup_chrome_directories()
+            .map_err(|e| RendererError::Config(e.to_string()))?;
+
+        // Use custom Chrome path if provided
+        if let Some(chrome_path) = &config.chrome_path {
+            if chrome_path.exists() {
+                options_builder.path(Some(chrome_path.clone()));
+            } else {
+                println!("⚠️ Custom Chrome path does not exist: {chrome_path:?}");
+            }
+        }
+
+        // Set user data directory for Chrome cache
+        if let Some(cache_dir) = &config.chrome_cache_dir {
+            options_builder.user_data_dir(Some(cache_dir.clone()));
+        }
+
+        // Add Chrome arguments for better containerized execution
+        let mut chrome_args = vec![
+            "--no-first-run".to_string(),
+            "--no-default-browser-check".to_string(),
+            "--disable-background-timer-throttling".to_string(),
+            "--disable-backgrounding-occluded-windows".to_string(),
+            "--disable-renderer-backgrounding".to_string(),
+            "--disable-features=TranslateUI".to_string(),
+            "--disable-ipc-flooding-protection".to_string(),
+            "--disable-dev-shm-usage".to_string(),
+            "--disable-gpu".to_string(),
+            "--disable-software-rasterizer".to_string(),
+            "--disable-extensions".to_string(),
+            "--disable-plugins".to_string(),
+            "--disable-web-security".to_string(),
+            "--allow-running-insecure-content".to_string(),
+            "--ignore-certificate-errors".to_string(),
+            "--ignore-ssl-errors".to_string(),
+            "--ignore-certificate-errors-spki-list".to_string(),
+            "--ignore-certificate-errors-ssl-errors".to_string(),
+            "--memory-pressure-off".to_string(),
+            "--max_old_space_size=4096".to_string(),
+            // Additional flags for container compatibility and permission issues
+            "--disable-background-networking".to_string(),
+            "--disable-default-apps".to_string(),
+            "--disable-sync".to_string(),
+            "--disable-translate".to_string(),
+            "--hide-scrollbars".to_string(),
+            "--metrics-recording-only".to_string(),
+            "--mute-audio".to_string(),
+            "--no-pings".to_string(),
+            "--disable-logging".to_string(),
+            "--disable-gpu-logging".to_string(),
+            "--disable-crash-reporter".to_string(),
+            "--disable-in-process-stack-traces".to_string(),
+            "--disable-build-revision-check".to_string(),
+            "--disable-device-discovery-notifications".to_string(),
+            "--use-mock-keychain".to_string(),
+            "--test-type".to_string(),
+            "--single-process".to_string(), // Run everything in single process to avoid permission issues
+            // Additional containerization and permission flags
+            "--disable-zygote".to_string(), // Disable zygote process for containers
+            "--disable-features=VizDisplayCompositor".to_string(), // Disable compositor for container compatibility
+            "--homedir=/tmp".to_string(),                          // Set home dir to tmp
+            "--disable-features=AudioServiceOutOfProcess".to_string(), // Disable audio service process
+            "--disable-features=MediaRouter".to_string(),              // Disable media router
+            "--disable-namespace-sandbox".to_string(), // Disable namespace sandbox for containers
+            "--disable-breakpad".to_string(),          // Disable crash reporter
+            "--disable-component-extensions-with-background-pages".to_string(),
+            "--disable-component-cloud-policy".to_string(),
+            "--disable-domain-reliability".to_string(),
+            "--disable-client-side-phishing-detection".to_string(),
+            "--disable-hang-monitor".to_string(),
+            "--disable-prompt-on-repost".to_string(),
+            "--disable-session-crashed-bubble".to_string(),
+            "--disable-speech-api".to_string(),
+            "--disable-web-resources".to_string(),
+            "--disable-webgl".to_string(),
+            "--disable-webrtc".to_string(),
+            "--disable-print-preview".to_string(),
+            "--disable-permissions-api".to_string(),
+            "--disable-notifications".to_string(),
+            "--disable-gesture-typing".to_string(),
+            "--disable-file-system".to_string(),
+            "--disable-databases".to_string(),
+            "--disable-application-cache".to_string(),
+            "--disable-accelerated-2d-canvas".to_string(),
+            "--disable-accelerated-video-decode".to_string(),
+            "--disable-accelerated-video-encode".to_string(),
+            "--disable-blink-features=AutomationControlled".to_string(), // Prevent automation detection
+        ];
+
+        // Add directory-specific Chrome arguments from config
+        chrome_args.extend(config.get_chrome_args());
+
+        // Add sandbox-specific arguments
+        if !config.sandbox {
+            chrome_args.extend(vec![
+                "--no-sandbox".to_string(),
+                "--disable-setuid-sandbox".to_string(),
+            ]);
+        }
+
+        options_builder.args(
+            chrome_args
+                .iter()
+                .map(|s| s.as_ref())
+                .collect::<Vec<&std::ffi::OsStr>>(),
+        );
+
+        let options = options_builder
+            .build()
+            .map_err(|e| RendererError::Chrome(format!("Launch options error: {e}")))?;
+
+        Browser::new(options)
+            .map_err(|e| RendererError::Chrome(format!("Browser launch error: {e}")))
+    }
+
+    fn cleanup_chrome_cache(config: &Config) -> Result<(), RendererError> {
+        if !config.clear_cache_on_error {
+            return Ok(());
+        }
+
+        // Clean up potential Chrome cache directories
+        let cache_dirs = vec![
+            config.chrome_cache_dir.clone(),
+            Some(std::env::temp_dir().join("rust_headless_chrome")),
+            Some(
+                std::env::current_dir()
+                    .unwrap_or_default()
+                    .join("chrome-cache"),
+            ),
+            Some(std::env::current_dir().unwrap_or_default().join(".cache")),
+        ];
+
+        for cache_dir in cache_dirs.into_iter().flatten() {
+            if cache_dir.exists() && cache_dir.is_dir() {
+                match fs::remove_dir_all(&cache_dir) {
+                    Ok(()) => {}
+                    Err(e) => {
+                        println!("⚠️ Failed to clean cache directory {cache_dir:?}: {e}")
+                    }
+                }
+            }
+        }
+
+        Ok(())
     }
 
     fn validate_html_suffix(&self, html_file: &NamedTempFile) -> Result<(), RendererError> {
@@ -362,7 +576,6 @@ impl HTMLToImageRenderer {
             }
         }
 
-        log::info!("Extracted {} HTML elements", elements.len());
         Ok(elements)
     }
 
@@ -376,7 +589,7 @@ impl HTMLToImageRenderer {
     pub fn render_html(&self, html_file: &NamedTempFile) -> Result<Capture, RendererError> {
         let tab = self.setup_html_tab(html_file)?;
         self.setup_viewport_sizing(&tab)?;
-        let output_file = NamedTempFile::new()?;
+        let output_file = Builder::new().suffix(".jpg").tempfile()?;
 
         self.scroll_and_wait_for_images(&tab)?;
 
@@ -399,8 +612,6 @@ impl HTMLToImageRenderer {
 
         // Save screenshot to file
         fs::write(output_file.path(), screenshot_data)?;
-
-        log::info!("✅ Image rendered: {:?}", output_file.path());
 
         // Create and return Capture struct
         let capture = Capture::new(output_file, width, height, dpi, elements);
@@ -473,7 +684,7 @@ impl HTMLToImageRenderer {
         dpi: Option<f64>,
     ) -> Result<NamedTempFile, RendererError> {
         let tab = self.setup_html_tab(html_file)?;
-        let output_file = NamedTempFile::new()?;
+        let output_file = Builder::new().suffix(".pdf").tempfile()?;
         let default_dpi = 96.0;
         let dpi = dpi.unwrap_or(default_dpi);
         // Set up viewport sizing for consistent layout
@@ -508,7 +719,6 @@ impl HTMLToImageRenderer {
         // Save PDF to file
         fs::write(output_file.path(), pdf_data)?;
 
-        log::info!("✅ PDF rendered: {:?}", output_file.path());
         Ok(output_file)
     }
 }

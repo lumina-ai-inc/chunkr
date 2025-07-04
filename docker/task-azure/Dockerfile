@@ -18,7 +18,7 @@ RUN cargo build --release --bin "task" --features "azure memory_profiling"
 FROM ubuntu:24.04 AS runtime
 WORKDIR /app
 
-# Install all deps except LibreOffice
+# Install main dependencies
 RUN apt-get update -y && \
     apt-get install -y \
     pkg-config \
@@ -58,6 +58,23 @@ RUN mkdir -p /app/pdfium-binaries && \
 
 # Copy your built Rust binary in
 COPY --from=builder /app/target/release/task /app/task
+
+# Create Chrome cache directory with proper permissions
+RUN mkdir -p /app/chrome-cache && chmod 755 /app/chrome-cache
+
+# Install Chrome browser for headless operation
+RUN apt-get update -y && \
+    apt-get install -y \
+    wget \
+    gnupg \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update -y \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Chrome to run as root (required for container execution)
+RUN echo 'export CHROME_DEVEL_SANDBOX=/opt/google/chrome/chrome-sandbox' >> /etc/environment
 
 EXPOSE 8000
 ENTRYPOINT ["/app/task"]

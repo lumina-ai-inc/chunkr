@@ -18,7 +18,7 @@ RUN cargo build --release --features "azure memory_profiling"
 FROM ubuntu:24.04 AS runtime
 WORKDIR /app
 
-# Install all deps except LibreOffice
+# Install all deps
 RUN apt-get update -y && \
     apt-get install -y \
     pkg-config \

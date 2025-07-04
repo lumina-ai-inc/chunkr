@@ -17,7 +17,7 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task-azure:2.0.0-enterprise
+    image: luminainc/task-azure:2.0.0-enterprise-v2
     platform: linux/amd64
     depends_on:
       - postgres

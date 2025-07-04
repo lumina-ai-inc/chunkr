@@ -150,15 +150,44 @@ services:
         value: '3'
       - name: RENDERER__SANDBOX
         value: 'false'
+      - name: RENDERER__CLEAR_CACHE_ON_ERROR
+        value: 'true'
+      - name: CHROME_NO_FIRST_RUN
+        value: '1'
+      - name: CHROME_DISABLE_GPU
+        value: '1'
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      fsGroup: 0
+      capabilities:
+        add:
+          - SYS_ADMIN
+          - NET_ADMIN
+      privileged: false
+      # Add additional security context for Chrome compatibility
+      readOnlyRootFilesystem: false
+      allowPrivilegeEscalation: false
     volumes:
       - name: llm-models-config
         configMap:
           name: llm-models-configmap
+      - name: dev-shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 256Mi
+      - name: chrome-tmp
+        emptyDir:
+          sizeLimit: 512Mi
     volumeMounts:
       - name: llm-models-config
         mountPath: /app/models.yaml
         subPath: models.yaml
         readOnly: true
+      - name: dev-shm
+        mountPath: /dev/shm
+      - name: chrome-tmp
+        mountPath: /tmp
   web:
     enabled: true
     image:

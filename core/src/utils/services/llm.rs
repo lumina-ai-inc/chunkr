@@ -405,7 +405,7 @@ async fn try_extract_from_open_ai_response(
         temperature,
         schema_definition,
         tracer,
-        parent_context,
+        &ctx,
     )
     .await
     .and_then(|response| try_extract_from_response(&response, fence_type))
