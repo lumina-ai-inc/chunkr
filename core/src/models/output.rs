@@ -80,8 +80,8 @@ pub struct OutputResponse {
     pub file_name: Option<String>,
     /// The MIME type of the file.
     pub mime_type: Option<String>,
-    /// The presigned URL of the page/sheet images.
-    pub page_images: Option<Vec<String>>,
+    /// The pages of the file. Includes the image and metadata for each page.
+    pub pages: Option<Vec<Page>>,
     /// The number of pages in the file.
     pub page_count: Option<u32>,
     /// The presigned URL of the PDF file.
@@ -89,6 +89,20 @@ pub struct OutputResponse {
     #[deprecated]
     /// The extracted JSON from the document.
     pub extracted_json: Option<serde_json::Value>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct Page {
+    /// The presigned URL of the page/sheet image.
+    pub image: String,
+    /// The number of pages in the file.
+    pub page_number: u32,
+    /// The number of pages in the file.
+    pub page_height: f32,
+    /// The number of pages in the file.
+    pub page_width: f32,
+    /// The name of the sheet containing the page. Only used for Spreadsheets.
+    pub ss_sheet_name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -366,7 +380,7 @@ impl Segment {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn new_from_tables(
+    pub fn new_from_elements(
         segment_id: String,
         confidence: Option<f32>,
         header_range: Option<String>,
@@ -377,6 +391,7 @@ impl Segment {
         sheet_name: String,
         sheet_html: String,
         capture: Capture,
+        segment_type: SegmentType,
         tracer: &opentelemetry::global::BoxedTracer,
         context: &opentelemetry::Context,
     ) -> Result<Self, SegmentCreationError> {
@@ -711,7 +726,7 @@ impl Segment {
             page_number,
             page_width,
             segment_id,
-            segment_type: SegmentType::Table,
+            segment_type,
             segment_length: None,
             ss_cells: Some(filtered_cells),
             ss_header_range: header_range,

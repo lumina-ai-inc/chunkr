@@ -1,9 +1,10 @@
 use crate::configs::pdfium_config::Config as PdfiumConfig;
 use crate::models::output::{BoundingBox, OCRResult};
 use image::ImageFormat;
+use image::ImageReader;
 use pdfium_render::prelude::*;
 use std::error::Error;
-use tempfile::NamedTempFile;
+use tempfile::{Builder, NamedTempFile};
 
 /// Render each PDF page to a JPEG and return a Vec of temp files.
 pub fn pages_as_images(
@@ -141,4 +142,57 @@ pub fn combine_pdfs(pdf_files: Vec<&NamedTempFile>) -> Result<NamedTempFile, Box
     combined_document.save_to_file(output_file.path())?;
 
     Ok(output_file)
+}
+
+/// Convert an image file to a PDF with the image filling a single page.
+/// Creates a PDF page with the same dimensions as the image and places the image in it.
+pub fn create_pdf_from_image(
+    input_file: &NamedTempFile,
+) -> Result<NamedTempFile, Box<dyn Error + Send + Sync>> {
+    let output_file = Builder::new().suffix(".pdf").tempfile()?;
+    let img = ImageReader::open(input_file.path())?
+        .with_guessed_format()?
+        .decode()?;
+    let width = img.width();
+    let height = img.height();
+    let pdfium = PdfiumConfig::from_env()?
+        .get_pdfium()
+        .map_err(|e| Box::<dyn Error + Send + Sync>::from(e.to_string()))?;
+    let mut document = pdfium.create_new_pdf()?;
+    let page_width = PdfPoints::new(width as f32 * 72.0);
+    let page_height = PdfPoints::new(height as f32 * 72.0);
+    let mut page = document
+        .pages_mut()
+        .create_page_at_end(PdfPagePaperSize::Custom(page_width, page_height))?;
+    page.objects_mut().create_image_object(
+        PdfPoints::ZERO,
+        PdfPoints::ZERO,
+        &img,
+        Some(page_width),
+        Some(page_height),
+    )?;
+    document.save_to_file(output_file.path())?;
+    Ok(output_file)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use tempfile::Builder;
+
+    #[test]
+    fn test_create_pdf_from_image() {
+        let input_file_path = Path::new("/home/akhilesh/Downloads/page_3.jpg");
+        let mut output_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        output_file_path.push("output/pdf/test_create_pdf_from_image.pdf");
+        std::fs::create_dir_all(output_file_path.parent().unwrap()).unwrap();
+        let input_file = Builder::new().suffix(".jpg").tempfile().unwrap();
+        fs::copy(input_file_path, input_file.path()).unwrap();
+        let output_file = create_pdf_from_image(&input_file).unwrap();
+        fs::copy(output_file.path(), &output_file_path).unwrap();
+        assert!(output_file.path().exists());
+        println!("Output file path: {}", output_file_path.as_path().display());
+    }
 }

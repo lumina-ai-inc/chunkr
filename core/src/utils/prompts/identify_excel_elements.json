@@ -1,0 +1,17 @@
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Analyze the following excel file HTML, perform document layout analysis and identify distinct logical elements within it. Get all elements from the HTML, if in doubt use `Text` as the type. Your answer must maintain the reading order of the elements. DO NOT return content of the elements, only the elements range, type and header range (if applicable). \n\nExcel HTML:\n{cleaned_html}"
+  }
+]

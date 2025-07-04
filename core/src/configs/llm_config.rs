@@ -525,7 +525,7 @@ const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "md_text_extended",
     "md_title",
     "md_title_extended",
-    "identify_tables",
+    "identify_excel_elements",
 ];
 
 fn load_prompt_template(prompt_name: &str) -> Result<String, std::io::Error> {

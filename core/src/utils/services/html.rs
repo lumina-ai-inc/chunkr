@@ -141,12 +141,31 @@ pub fn parse_range(range: &str) -> Result<Indices, Box<dyn Error + Send + Sync>>
         let col_str = &cell[..col_end];
         let row_str = &cell[col_end..];
 
+        // Validate that we have column letters
+        if col_str.is_empty() {
+            return Err("Invalid cell format: no column letters found".into());
+        }
+
+        // Validate that all characters in col_str are valid letters (A-Z)
+        if !col_str.chars().all(|c: char| c.is_ascii_uppercase()) {
+            return Err(
+                "Invalid cell format: column must contain only uppercase letters A-Z".into(),
+            );
+        }
+
+        // Validate that we have row digits
+        if row_str.is_empty() {
+            return Err("Invalid cell format: no row number found".into());
+        }
+
         // Convert column letters to zero-based index
         let mut col_index = 0;
         for c in col_str.chars() {
             col_index = col_index * 26 + (c as usize - 'A' as usize + 1);
         }
-        col_index -= 1; // Convert to zero-based
+
+        // Convert to zero-based - we know col_index > 0 because we validated col_str is not empty
+        col_index -= 1;
 
         // Convert row to zero-based index
         let row_index = row_str.parse::<usize>()? - 1;
@@ -747,52 +766,81 @@ pub fn extract_rows_from_indicies(
                     .map(|cell| cell.html().to_string())
                     .collect::<Vec<String>>();
 
-                // Filter cells by data-cell-ref attribute instead of array index
-                let filtered_cells: Result<Vec<String>, Box<dyn Error + Send + Sync>> = cell_htmls
-                    .par_iter()
-                    .filter_map(|cell_html| {
-                        let wrapped_cell_html = format!("<table><tr>{cell_html}</tr></table>");
-                        let cell = Document::from(wrapped_cell_html.as_str());
-                        let only_cell = cell.select("td, th").first();
-                        if let Some(cell_ref) = only_cell.attr("data-cell-ref") {
-                            // Check if this cell falls within our desired column range
-                            match is_cell_in_column_range(
-                                &cell_ref,
-                                indices.start_col,
-                                indices.end_col,
-                            ) {
-                                Ok(true) => {
-                                    // Extract only content and specified attributes
-                                    let content = only_cell.text();
-                                    let mut attributes = Vec::new();
+                // Check if any cells have data-cell-ref attributes to determine which mode to use
+                let has_cell_refs = cell_htmls.iter().any(|cell_html| {
+                    let wrapped_cell_html = format!("<table><tr>{cell_html}</tr></table>");
+                    let cell = Document::from(wrapped_cell_html.as_str());
+                    let only_cell = cell.select("td, th").first();
+                    only_cell.attr("data-cell-ref").is_some()
+                });
 
-                                    // Only preserve colspan, rowspan, and data-cell-ref attributes
-                                    if let Some(colspan) = only_cell.attr("colspan") {
-                                        attributes.push(format!("colspan=\"{colspan}\""));
+                let filtered_cells: Result<Vec<String>, Box<dyn Error + Send + Sync>> =
+                    if has_cell_refs {
+                        // Filter cells by data-cell-ref attribute
+                        cell_htmls
+                            .par_iter()
+                            .filter_map(|cell_html| {
+                                let wrapped_cell_html =
+                                    format!("<table><tr>{cell_html}</tr></table>");
+                                let cell = Document::from(wrapped_cell_html.as_str());
+                                let only_cell = cell.select("td, th").first();
+                                if let Some(cell_ref) = only_cell.attr("data-cell-ref") {
+                                    // Check if this cell falls within our desired column range
+                                    match is_cell_in_column_range(
+                                        &cell_ref,
+                                        indices.start_col,
+                                        indices.end_col,
+                                    ) {
+                                        Ok(true) => {
+                                            // Extract only content and specified attributes
+                                            let content = only_cell.text();
+                                            let mut attributes = Vec::new();
+
+                                            // Only preserve colspan, rowspan, and data-cell-ref attributes
+                                            if let Some(colspan) = only_cell.attr("colspan") {
+                                                attributes.push(format!("colspan=\"{colspan}\""));
+                                            }
+                                            if let Some(rowspan) = only_cell.attr("rowspan") {
+                                                attributes.push(format!("rowspan=\"{rowspan}\""));
+                                            }
+                                            attributes
+                                                .push(format!("data-cell-ref=\"{cell_ref}\""));
+
+                                            // Create simplified td element (convert th to td)
+                                            let attrs_str = if attributes.is_empty() {
+                                                String::new()
+                                            } else {
+                                                format!(" {}", attributes.join(" "))
+                                            };
+
+                                            let cell_html =
+                                                format!("<td{attrs_str}>{content}</td>");
+                                            Some(Ok(cell_html))
+                                        }
+                                        Ok(false) => None,
+                                        Err(e) => Some(Err(e)),
                                     }
-                                    if let Some(rowspan) = only_cell.attr("rowspan") {
-                                        attributes.push(format!("rowspan=\"{rowspan}\""));
-                                    }
-                                    attributes.push(format!("data-cell-ref=\"{cell_ref}\""));
-
-                                    // Create simplified td element (convert th to td)
-                                    let attrs_str = if attributes.is_empty() {
-                                        String::new()
-                                    } else {
-                                        format!(" {}", attributes.join(" "))
-                                    };
-
-                                    let cell_html = format!("<td{attrs_str}>{content}</td>");
-                                    Some(Ok(cell_html))
+                                } else {
+                                    None
                                 }
-                                Ok(false) => None,
-                                Err(e) => Some(Err(e)),
-                            }
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
+                            })
+                            .collect()
+                    } else {
+                        // Fallback to array-based indexing when no data-cell-ref attributes
+                        cell_htmls
+                            .into_iter()
+                            .enumerate()
+                            .filter_map(|(cell_index, cell_html)| {
+                                // Check if this cell index falls within our desired column range
+                                if cell_index >= indices.start_col && cell_index <= indices.end_col
+                                {
+                                    Some(Ok(cell_html))
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect()
+                    };
 
                 let row_cells = filtered_cells?;
 

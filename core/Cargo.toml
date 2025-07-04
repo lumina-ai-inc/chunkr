@@ -46,7 +46,7 @@ mime = "0.3.17"
 nipper = "0.1.9"
 once_cell = "1.19.0"
 openssl = "0.10.66"
-pdfium-render = "=0.8.31"
+pdfium-render = { version = "0.8.33", features= [ "image" ] }
 postgres-openssl = "0.5.0"
 postgres-types = { version = "0.2.7", features = ["derive", "with-serde_json-1"] }
 prefixed-api-key = { version = "0.3.0", features = ["sha2"] }

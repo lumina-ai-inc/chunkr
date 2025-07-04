@@ -1,7 +1,8 @@
 use crate::configs::{otel_config, worker_config};
+use crate::models::auth::UserInfo;
 use crate::models::chunk_processing::ChunkProcessing;
 use crate::models::llm::LlmProcessing;
-use crate::models::output::{Chunk, OutputResponse, Segment, SegmentType};
+use crate::models::output::{Chunk, OutputResponse, Page, Segment, SegmentType};
 use crate::models::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentFormat, SegmentProcessing,
 };
@@ -15,6 +16,7 @@ use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use futures::future::try_join_all;
 use postgres_types::{FromSql, ToSql};
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -24,8 +26,6 @@ use strum_macros::{Display, EnumString};
 use tempfile::NamedTempFile;
 use utoipa::ToSchema;
 use uuid::Uuid;
-
-use super::auth::UserInfo;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskDetails {
@@ -393,14 +393,61 @@ impl Task {
             try_join_all(futures).await?;
         }
 
-        if let Some(ref mut page_images) = output_response.page_images {
-            let page_futures = page_images.iter().map(|image| async move {
-                generate_presigned_url(image, true, None, base64_urls, "image/jpeg").await
+        if let Some(pages) = &mut output_response.pages {
+            let page_futures = pages.iter().map(|page| async move {
+                generate_presigned_url(&page.image, true, None, base64_urls, "image/jpeg").await
             });
             let urls = try_join_all(page_futures).await?;
-            for (image, url) in page_images.iter_mut().zip(urls) {
-                *image = url;
+            for (page, url) in pages.iter_mut().zip(urls) {
+                page.image = url;
             }
+        } else if let Some(page_count) = self.page_count {
+            let all_segments = output_response
+                .chunks
+                .iter()
+                .flat_map(|chunk| chunk.segments.iter())
+                .collect::<Vec<_>>();
+
+            let (_, _, _, _, pages_location, _) = Self::generate_s3_paths(
+                &self.user_id,
+                &self.task_id,
+                &self.file_name.clone().unwrap_or_default(),
+            );
+
+            let pages_locations: Vec<String> = (0..page_count)
+                .map(|idx| format!("{pages_location}/page_{idx}.jpg"))
+                .collect();
+
+            let page_futures = pages_locations.iter().map(|location| async move {
+                generate_presigned_url(location, true, None, base64_urls, "image/jpeg").await
+            });
+            let urls = try_join_all(page_futures).await?;
+
+            let pages = pages_locations
+                .iter()
+                .enumerate()
+                .zip(urls)
+                .map(|((idx, _location), url)| {
+                    let page_number = idx as u32 + 1;
+                    let segment_on_page = all_segments
+                        .iter()
+                        .find(|segment| segment.page_number == page_number);
+                    Page {
+                        image: url,
+                        page_number,
+                        page_height: segment_on_page
+                            .map(|segment| segment.page_height)
+                            .unwrap_or(0.0),
+                        page_width: segment_on_page
+                            .map(|segment| segment.page_width)
+                            .unwrap_or(0.0),
+                        ss_sheet_name: segment_on_page
+                            .and_then(|segment| segment.ss_sheet_name.clone()),
+                    }
+                })
+                .collect();
+
+            output_response.pages = Some(pages);
         }
         output_response.pdf_url = Some(pdf_url.clone());
         output_response.page_count = self.page_count;
@@ -661,13 +708,40 @@ impl Task {
         upload_to_s3_futures.push(upload_to_s3(&self.pdf_location, pdf_file.path()));
         try_join_all(upload_to_s3_futures).await?;
 
+        let all_segments = chunks
+            .iter()
+            .flat_map(|chunk| chunk.segments.iter())
+            .collect::<Vec<_>>();
+        let pages = pages_locations
+            .par_iter()
+            .enumerate()
+            .map(|(idx, location)| {
+                let page_number = idx as u32 + 1;
+                let segment_on_page = all_segments
+                    .iter()
+                    .find(|segment| segment.page_number == page_number);
+                Page {
+                    image: location.clone(),
+                    page_number,
+                    page_height: segment_on_page
+                        .map(|segment| segment.page_height)
+                        .unwrap_or(0.0),
+                    page_width: segment_on_page
+                        .map(|segment| segment.page_width)
+                        .unwrap_or(0.0),
+                    ss_sheet_name: segment_on_page
+                        .and_then(|segment| segment.ss_sheet_name.clone()),
+                }
+            })
+            .collect();
+
         let mut output_response = OutputResponse {
             chunks,
             file_name: self.file_name.clone(),
             page_count: self.page_count,
             pdf_url: Some(self.pdf_location.clone()),
             mime_type: self.mime_type.clone(),
-            page_images: Some(pages_locations.clone()),
+            pages: Some(pages),
             extracted_json: None,
         };
 

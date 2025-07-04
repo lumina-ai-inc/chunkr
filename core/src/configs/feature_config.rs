@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
-    #[serde(default = "default_enable_excel_parse")]
-    pub enable_excel_parse: bool,
+    #[serde(default = "default_excel_parser")]
+    pub excel_parser: bool,
 }
 
-fn default_enable_excel_parse() -> bool {
+fn default_excel_parser() -> bool {
     false
 }
 

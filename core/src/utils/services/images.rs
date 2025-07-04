@@ -1,8 +1,6 @@
 use crate::models::output::BoundingBox;
 use image::*;
-use std::error::Error;
-use std::process::Command;
-use tempfile::{Builder, NamedTempFile};
+use tempfile::NamedTempFile;
 
 /// Get the dimensions of an image
 ///
@@ -56,38 +54,6 @@ pub fn crop_image(
     let cropped_image = sub_img.to_image();
 
     cropped_image.save_with_format(output_file.path(), ImageFormat::Jpeg)?;
-
-    Ok(output_file)
-}
-
-pub fn convert_img_to_pdf(
-    input_file: &NamedTempFile,
-) -> Result<NamedTempFile, Box<dyn Error + Send + Sync>> {
-    let output_file = Builder::new().suffix(".pdf").tempfile()?;
-
-    // Use ImageMagick for image to PDF conversion (limits handled by policy.xml)
-    let output = Command::new("convert")
-        .args([
-            input_file.path().to_str().unwrap(),
-            output_file.path().to_str().unwrap(),
-        ])
-        .output()?;
-
-    if !output.status.success() {
-        // Get image dimensions for debugging
-        let dimensions_info = match get_image_dimensions(input_file) {
-            Ok((width, height)) => format!("Image dimensions: {width}x{height} pixels"),
-            Err(e) => format!("Could not get image dimensions: {e}"),
-        };
-
-        log::error!(
-            "Image to PDF conversion failed for image with {dimensions_info}. Error: {output:?}"
-        );
-
-        return Err(Box::new(std::io::Error::other(format!(
-            "Image to PDF conversion failed: {dimensions_info}. {output:?}"
-        ))));
-    }
 
     Ok(output_file)
 }

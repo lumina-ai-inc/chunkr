@@ -1,7 +1,7 @@
 use crate::configs::{otel_config, worker_config};
-use crate::models::excel::{IdentifiedTable, IdentifiedTables};
+use crate::models::excel::{IdentifiedElement, IdentifiedElements};
 use crate::models::file_operations::ImageConversionResult;
-use crate::models::output::{Cell, Chunk, Segment, SegmentCreationError};
+use crate::models::output::{Cell, Chunk, Segment, SegmentCreationError, SegmentType};
 use crate::models::task::{Status, Task, TaskPayload};
 use crate::utils::services::excel::count_sheets;
 use crate::utils::services::file_operations::{check_is_spreadsheet, convert_to_pdf};
@@ -10,8 +10,7 @@ use crate::utils::services::html::{
     extract_rows_from_indicies, get_cell_ref_for_image_src, get_img_sources, indices_to_range,
     parse_range,
 };
-use crate::utils::services::images::convert_img_to_pdf;
-use crate::utils::services::pdf::{combine_pdfs, count_pages};
+use crate::utils::services::pdf::{combine_pdfs, count_pages, create_pdf_from_image};
 use crate::utils::services::renderer::{render_html_to_image, Capture};
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
@@ -21,6 +20,7 @@ use opentelemetry::Context;
 use rayon::prelude::*;
 use std::error::Error;
 use std::fs;
+use std::path::Path;
 use std::sync::Arc;
 use strum_macros::{Display, EnumString};
 use tempfile::{Builder, NamedTempFile};
@@ -98,34 +98,36 @@ pub struct SheetInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct Table {
-    pub table_id: String,
-    pub table_range: String,
+pub struct Element {
+    pub element_id: String,
+    pub range: String,
     pub header_range: Option<String>,
     pub html: Option<Arc<NamedTempFile>>,
     pub capture: Option<Capture>,
+    pub segment_type: SegmentType,
 }
 
-impl Table {
-    /// Create a new Table
+impl Element {
+    /// Create a new Element
     ///
-    /// The table will create the HTML and render it for the image.
+    /// The element will create the HTML and render it for the image.
     ///
     /// ### Arguments
-    /// * `table_range` - The range of the table in Excel notation (e.g., "A1:D10")
-    /// * `header_range` - The range of the table header in Excel notation (e.g., "A1:D1")
+    /// * `range` - The range of the element in Excel notation (e.g., "A1:D10")
+    /// * `header_range` - The range of the element header in Excel notation (e.g., "A1:D1")
     ///
     /// ### Returns
     /// A new Table
     pub fn new(
-        table_range: String,
+        range: String,
         mut header_range: Option<String>,
+        segment_type: SegmentType,
     ) -> Result<Self, Box<dyn Error + Send + Sync>> {
         let header_indices = header_range
             .as_ref()
             .map(|header_range| parse_range(header_range))
             .transpose()?;
-        let table_indices = parse_range(&table_range)?;
+        let table_indices = parse_range(&range)?;
 
         // If the header range is inside the table range and the header start row is not the first row, remove the header range
         if header_indices.is_some() {
@@ -141,11 +143,12 @@ impl Table {
         }
 
         Ok(Self {
-            table_id: generate_uuid(),
-            table_range,
+            element_id: generate_uuid(),
+            range,
             header_range,
             html: None,
             capture: None,
+            segment_type,
         })
     }
 
@@ -160,17 +163,21 @@ impl Table {
     ///
     /// ### Returns
     /// A new Table with properly formatted Excel ranges
-    pub fn from_indices(table_indices: Indices, header_indices: Option<Indices>) -> Self {
+    pub fn from_indices(
+        table_indices: Indices,
+        header_indices: Option<Indices>,
+        segment_type: SegmentType,
+    ) -> Self {
         let table_range = indices_to_range(&table_indices);
-
         let header_range = header_indices.map(|indices| indices_to_range(&indices));
 
         Self {
-            table_id: generate_uuid(),
-            table_range,
+            element_id: generate_uuid(),
+            range: table_range,
             header_range,
             html: None,
             capture: None,
+            segment_type,
         }
     }
 
@@ -195,13 +202,13 @@ impl Table {
     fn table_indices_without_overlap(
         &mut self,
     ) -> Result<Option<Indices>, Box<dyn Error + Send + Sync>> {
-        let table_indices = parse_range(&self.table_range)?;
+        let table_indices = parse_range(&self.range)?;
         if self.header_range.is_none() {
             return Ok(Some(table_indices));
         }
 
         let header_indices = parse_range(self.header_range.as_ref().unwrap())?;
-        parse_range(&self.table_range)?;
+        parse_range(&self.range)?;
 
         // Check if there's row overlap
         if table_indices.start_row <= header_indices.end_row
@@ -256,21 +263,23 @@ impl Table {
             return Ok(None);
         }
 
-        // If header is to the left of the table, don't align
-        if header_indices.start_col < table_indices.start_col {
+        // If header is completely to the left of the table, don't align
+        if header_indices.end_col < table_indices.start_col {
             return Ok(None);
         }
 
-        // If header is to the right of the table, don't align
-        if header_indices.end_col > table_indices.end_col {
+        // If header is completely to the right of the table, don't align
+        if header_indices.start_col > table_indices.end_col {
             return Ok(None);
         }
 
-        // Get the number of empty cells to align the header start col with the table start col
-        let left_padding = header_indices.start_col - table_indices.start_col;
+        // Calculate left padding (how many empty cells to add at the start)
+        let left_padding = header_indices
+            .start_col
+            .saturating_sub(table_indices.start_col);
 
-        // Get the number of empty cells to make the header col count equal to the table col count including the left padding
-        let right_padding = table_col_count - header_col_count - left_padding;
+        // Calculate right padding (how many empty cells to add at the end)
+        let right_padding = table_indices.end_col.saturating_sub(header_indices.end_col);
 
         Ok(Some((left_padding, right_padding)))
     }
@@ -292,60 +301,32 @@ impl Table {
         left_padding: usize,
         right_padding: usize,
     ) -> Result<String, Box<dyn Error + Send + Sync>> {
-        use nipper::Document;
-
         if left_padding == 0 && right_padding == 0 {
             return Ok(header_html.to_string());
         }
 
-        let document = Document::from(header_html);
-        let rows = document.select("tr");
+        // Use string replacement to handle HTML where <tr> and </tr> might be on the same line
+        let mut result = header_html.to_string();
 
-        let mut result = String::new();
+        // Generate padding cells
+        let left_padding_cells = (0..left_padding)
+            .map(|_| "<td></td>")
+            .collect::<Vec<_>>()
+            .join("");
+        let right_padding_cells = (0..right_padding)
+            .map(|_| "<td></td>")
+            .collect::<Vec<_>>()
+            .join("");
 
-        // Get opening and closing tags for the wrapper (thead, tbody, etc.)
-        let wrapper_start = if header_html.starts_with("<thead>") {
-            "<thead>"
-        } else if header_html.starts_with("<tbody>") {
-            "<tbody>"
-        } else {
-            ""
-        };
-
-        let wrapper_end = if header_html.ends_with("</thead>") {
-            "</thead>"
-        } else if header_html.ends_with("</tbody>") {
-            "</tbody>"
-        } else {
-            ""
-        };
-
-        result.push_str(wrapper_start);
-
-        for row in rows.iter() {
-            result.push_str("<tr>\n");
-
-            // Add left padding cells
-            for _ in 0..left_padding {
-                result.push_str("<td></td>\n");
-            }
-
-            // Add original cells
-            let cells = row.select("td, th");
-            for cell in cells.iter() {
-                result.push_str(cell.html().as_ref());
-                result.push('\n');
-            }
-
-            // Add right padding cells
-            for _ in 0..right_padding {
-                result.push_str("<td></td>\n");
-            }
-
-            result.push_str("</tr>\n");
+        // Find and replace <tr> with <tr> + left padding cells
+        if left_padding > 0 {
+            result = result.replace("<tr>", &format!("{left_padding_cells}<tr>"));
         }
 
-        result.push_str(wrapper_end);
+        // Find and replace </tr> with right padding cells + </tr>
+        if right_padding > 0 {
+            result = result.replace("</tr>", &format!("{right_padding_cells}</tr>"));
+        }
 
         Ok(result)
     }
@@ -396,7 +377,7 @@ impl Table {
     }
 }
 
-impl From<SheetInfo> for Table {
+impl From<SheetInfo> for Element {
     /// Convert a SheetInfo into an Table
     ///
     /// This conversion treats the entire sheet range (starting from the first filled cell to the last filled cell) as the table range
@@ -416,11 +397,12 @@ impl From<SheetInfo> for Table {
                 end_col: sheet_info.end_column.unwrap_or(0) as usize,
             },
             None,
+            SegmentType::Table,
         )
     }
 }
 
-impl From<SheetInfo> for Vec<Table> {
+impl From<SheetInfo> for Vec<Element> {
     /// Convert a SheetInfo into an Table
     ///
     /// This conversion treats the entire sheet range (starting from the first filled cell to the last filled cell) as the table range
@@ -436,36 +418,46 @@ impl From<SheetInfo> for Vec<Table> {
     }
 }
 
-impl TryFrom<IdentifiedTable> for Table {
+impl TryFrom<IdentifiedElement> for Element {
     type Error = Box<dyn Error + Send + Sync>;
 
-    /// Convert an IdentifiedTable into a Table
+    /// Convert an IdentifiedElement into a Element
     ///
     /// ### Arguments
-    /// * `identified_table` - The IdentifiedTable to convert
+    /// * `identified_element` - The IdentifiedElement to convert
     ///
     /// ### Returns
-    fn try_from(identified_table: IdentifiedTable) -> Result<Self, Self::Error> {
-        Table::new(identified_table.table_range, identified_table.header_range)
+    fn try_from(identified_element: IdentifiedElement) -> Result<Self, Self::Error> {
+        Element::new(
+            identified_element.range,
+            identified_element.header_range,
+            identified_element.r#type.try_into()?,
+        )
     }
 }
 
-impl TryFrom<IdentifiedTables> for Vec<Table> {
+impl TryFrom<IdentifiedElements> for Vec<Element> {
     type Error = Box<dyn Error + Send + Sync>;
-    /// Convert a list of IdentifiedTables into a list of Tables
+    /// Convert a list of IdentifiedElements into a list of Elements
     ///
     /// ### Arguments
-    /// * `identified_tables` - The IdentifiedTables to convert
+    /// * `identified_elements` - The IdentifiedElements to convert
     ///
     /// ### Returns
-    /// A list of Tables
-    fn try_from(identified_tables: IdentifiedTables) -> Result<Self, Self::Error> {
-        identified_tables
-            .tables
+    /// A list of Elements
+    fn try_from(identified_elements: IdentifiedElements) -> Result<Self, Self::Error> {
+        identified_elements
+            .elements
             .into_iter()
-            .map(|table| table.try_into())
+            .map(|element| element.try_into())
             .collect::<Result<Vec<_>, _>>()
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum ReadingPattern {
+    RowBased,
+    ColumnBased,
 }
 
 /// Represents an individual sheet extracted from Excel HTML
@@ -476,7 +468,7 @@ pub struct Sheet {
     pub sheet_capture: Capture,
     pub sheet_capture_with_headers: Capture,
     pub embedded_images: Vec<ImageConversionResult>,
-    pub tables: Option<Vec<Table>>,
+    pub elements: Option<Vec<Element>>,
     pub sheet_info: SheetInfo,
     pub pdf_file: Option<Arc<NamedTempFile>>,
 }
@@ -621,7 +613,7 @@ impl Sheet {
             sheet_capture,
             sheet_capture_with_headers,
             embedded_images: relevant_embedded_images,
-            tables: None,
+            elements: None,
             sheet_info,
             pdf_file: None,
         })
@@ -702,16 +694,18 @@ impl Sheet {
     robust like column identification, eliminating the need for manual offsets that could
     break if we replace LibreOffice with a different HTML generation method.
     */
-    pub fn set_tables(&mut self, tables: Vec<Table>) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let mut tables = tables;
-        tables.par_iter_mut().try_for_each(
-            |table| -> Result<(), Box<dyn Error + Send + Sync>> {
+    pub fn set_elements(
+        &mut self,
+        mut elements: Vec<Element>,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        elements.par_iter_mut().try_for_each(
+            |element| -> Result<(), Box<dyn Error + Send + Sync>> {
                 let sheet_html = fs::read_to_string(self.html_file.path())?;
-                table.create_html(&sheet_html, self.sheet_info.start_row, Some(0))?;
+                element.create_html(&sheet_html, self.sheet_info.start_row, Some(0))?;
                 Ok(())
             },
         )?;
-        self.tables = Some(tables);
+        self.elements = Some(elements);
         Ok(())
     }
 
@@ -723,8 +717,8 @@ impl Sheet {
     /// ### Returns
     /// Option containing Arc<NamedTempFile> of the HTML file, or None if not found
     pub fn get_table_html_by_id(&self, table_id: &str) -> Option<Arc<NamedTempFile>> {
-        self.tables.as_ref()?.iter().find_map(|table| {
-            if table.table_id == table_id {
+        self.elements.as_ref()?.iter().find_map(|table| {
+            if table.element_id == table_id {
                 table.html.clone()
             } else {
                 None
@@ -748,63 +742,171 @@ impl Sheet {
             }
         })
     }
-}
 
-/// Trait for applying reading order to chunks
-pub trait ReadingOrder {
-    /// Sort segments within chunks by reading order (left to right, top to bottom)
-    fn apply_reading_order(&mut self);
-}
+    /// Determine reading pattern based on consecutive elements' spatial positions
+    fn analyze_reading_pattern(chunks: &[Chunk]) -> ReadingPattern {
+        if chunks.len() < 2 {
+            return ReadingPattern::RowBased; // Default fallback
+        }
 
-impl ReadingOrder for Vec<Chunk> {
-    /// Apply reading order to chunks
-    ///
-    /// The reading order is left to right, top to bottom.
-    ///
-    /// ### Arguments
-    /// * `self` - The vector of chunks to apply reading order to
-    ///
-    /// ### Returns
-    /// The vector of chunks with reading order applied
-    fn apply_reading_order(&mut self) {
-        for chunk in self.iter_mut() {
-            chunk.segments.sort_by(|a, b| {
-                let a_centroid = a.bbox.centroid();
-                let b_centroid = b.bbox.centroid();
+        let mut row_based_score = 0;
+        let mut col_based_score = 0;
 
-                // Define a tolerance for considering segments on the same "line"
-                let y_tolerance = 10.0; // pixels
+        // Analyze consecutive pairs of chunks
+        for pair in chunks.windows(2) {
+            let bbox1 = &pair[0].segments[0].bbox;
+            let bbox2 = &pair[1].segments[0].bbox;
 
-                // If segments are roughly on the same horizontal line, sort by x (left to right)
-                if (a_centroid.1 - b_centroid.1).abs() < y_tolerance {
-                    a_centroid
-                        .0
-                        .partial_cmp(&b_centroid.0)
-                        .unwrap_or(std::cmp::Ordering::Equal)
-                } else {
-                    // Otherwise, sort by y (top to bottom)
-                    a_centroid
-                        .1
-                        .partial_cmp(&b_centroid.1)
-                        .unwrap_or(std::cmp::Ordering::Equal)
+            let (center1_x, center1_y) = bbox1.centroid();
+            let (center2_x, center2_y) = bbox2.centroid();
+
+            // Tolerance for considering elements on the same row/column
+            const ALIGNMENT_TOLERANCE: f32 = 20.0;
+
+            // Check if they are roughly on the same row (row-based reading)
+            if (center1_y - center2_y).abs() <= ALIGNMENT_TOLERANCE {
+                if center2_x > center1_x {
+                    row_based_score += 1; // Left to right movement
                 }
-            });
+            }
+            // Check if they are roughly in the same column (column-based reading)
+            else if (center1_x - center2_x).abs() <= ALIGNMENT_TOLERANCE {
+                if center2_y > center1_y {
+                    col_based_score += 1; // Top to bottom movement
+                }
+            }
+            // Check for row-based pattern with line breaks
+            else if center2_y > center1_y && center2_x < center1_x {
+                row_based_score += 1; // Next row, back to left
+            }
+            // Check for column-based pattern with column breaks
+            else if center2_x > center1_x && center2_y < center1_y {
+                col_based_score += 1; // Next column, back to top
+            }
+        }
+
+        if row_based_score >= col_based_score {
+            ReadingPattern::RowBased
+        } else {
+            ReadingPattern::ColumnBased
         }
     }
-}
 
-impl Sheet {
-    /// Convert a Sheet into multiple Chunks
-    ///
-    /// Each identified table becomes a separate chunk with a Table segment
-    /// Each embedded image becomes a separate chunk with a Picture segment
+    /// Find the best insertion point for a new chunk based on reading pattern
+    fn find_insertion_point(
+        new_chunk: &Chunk,
+        existing_chunks: &[Chunk],
+        pattern: ReadingPattern,
+    ) -> usize {
+        if existing_chunks.is_empty() {
+            return 0;
+        }
+
+        let new_bbox = &new_chunk.segments[0].bbox;
+        let (new_x, new_y) = new_bbox.centroid();
+
+        for (i, existing_chunk) in existing_chunks.iter().enumerate() {
+            let existing_bbox = &existing_chunk.segments[0].bbox;
+            let (existing_x, existing_y) = existing_bbox.centroid();
+
+            let should_insert_before = match pattern {
+                ReadingPattern::RowBased => {
+                    // For row-based: insert before if new element is above, or on same row but to the left
+                    const ROW_TOLERANCE: f32 = 20.0;
+                    if new_y < existing_y - ROW_TOLERANCE {
+                        true // New element is clearly above
+                    } else if (new_y - existing_y).abs() <= ROW_TOLERANCE {
+                        new_x < existing_x // Same row, check horizontal position
+                    } else {
+                        false // New element is below
+                    }
+                }
+                ReadingPattern::ColumnBased => {
+                    // For column-based: insert before if new element is to the left, or in same column but above
+                    const COL_TOLERANCE: f32 = 20.0;
+                    if new_x < existing_x - COL_TOLERANCE {
+                        true // New element is clearly to the left
+                    } else if (new_x - existing_x).abs() <= COL_TOLERANCE {
+                        new_y < existing_y // Same column, check vertical position
+                    } else {
+                        false // New element is to the right
+                    }
+                }
+            };
+
+            if should_insert_before {
+                return i;
+            }
+        }
+
+        // If we didn't find a position to insert before, insert at the end
+        existing_chunks.len()
+    }
+
+    /// Insert new chunks while preserving the original reading order
+    fn insert_chunks_preserving_order(
+        original_chunks: Vec<Chunk>,
+        new_chunks: Vec<Chunk>,
+        pattern: ReadingPattern,
+    ) -> Vec<Chunk> {
+        let mut result = original_chunks;
+
+        // Sort new chunks by reading order first to ensure consistent insertion
+        let mut sorted_new_chunks = new_chunks;
+        sorted_new_chunks.sort_by(|a, b| {
+            let bbox_a = &a.segments[0].bbox;
+            let bbox_b = &b.segments[0].bbox;
+            let (x_a, y_a) = bbox_a.centroid();
+            let (x_b, y_b) = bbox_b.centroid();
+
+            match pattern {
+                ReadingPattern::RowBased => {
+                    // Sort by row first, then by column
+                    if (y_a - y_b).abs() <= 20.0 {
+                        x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
+                    } else {
+                        y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal)
+                    }
+                }
+                ReadingPattern::ColumnBased => {
+                    // Sort by column first, then by row
+                    if (x_a - x_b).abs() <= 20.0 {
+                        y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal)
+                    } else {
+                        x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
+                    }
+                }
+            }
+        });
+
+        // Insert each new chunk at its appropriate position
+        for new_chunk in sorted_new_chunks {
+            let insertion_point = Self::find_insertion_point(&new_chunk, &result, pattern.clone());
+            result.insert(insertion_point, new_chunk);
+        }
+
+        result
+    }
+
+    /// Check if two ranges overlap
+    fn ranges_overlap(range1: &str, range2: &str) -> Result<bool, Box<dyn Error + Send + Sync>> {
+        let indices1 = parse_range(range1)?;
+        let indices2 = parse_range(range2)?;
+
+        // Check if there's any overlap in rows and columns
+        let row_overlap =
+            indices1.start_row <= indices2.end_row && indices1.end_row >= indices2.start_row;
+        let col_overlap =
+            indices1.start_col <= indices2.end_col && indices1.end_col >= indices2.start_col;
+
+        Ok(row_overlap && col_overlap)
+    }
+
     pub fn to_chunks(
         self,
         tracer: &opentelemetry::global::BoxedTracer,
         context: &Context,
     ) -> Result<Vec<Chunk>, Box<dyn Error + Send + Sync>> {
-        let mut chunks = Vec::new();
-
         let html_content = fs::read_to_string(self.html_file.path()).unwrap();
         let sheet_range = indices_to_range(&Indices {
             start_row: self.sheet_info.start_row.unwrap_or(0) as usize,
@@ -813,46 +915,66 @@ impl Sheet {
             end_col: self.sheet_info.end_column.unwrap_or(0) as usize,
         });
         let all_cells = extract_cells_from_ranges(&html_content, Some(&sheet_range), None).unwrap();
-        // Convert tables to chunks
-        if let Some(tables) = self.tables {
+
+        // Convert elements to chunks (preserving LLM reading order)
+        let mut element_chunks = Vec::new();
+        if let Some(elements) = self.elements {
+            // Get embedded image ranges for filtering
+            let embedded_image_ranges: Vec<String> = self
+                .embedded_images
+                .iter()
+                .filter_map(|img| img.range.clone())
+                .collect();
+
+            // Filter out picture elements that overlap with embedded images
+            let filtered_elements: Vec<Element> = elements
+                .into_par_iter()
+                .filter(|element| {
+                    // Keep all non-picture elements
+                    if element.segment_type != SegmentType::Picture {
+                        return true;
+                    }
+
+                    // For picture elements, check if they overlap with any embedded image
+                    !embedded_image_ranges.par_iter().any(|embedded_range| {
+                        Self::ranges_overlap(&element.range, embedded_range).unwrap_or(false)
+                    })
+                })
+                .collect();
             let mut span = tracer.start_with_context(
                 otel_config::SpanName::ConvertTablesToChunks.to_string(),
                 context,
             );
             span.set_attribute(opentelemetry::KeyValue::new(
-                "table_count",
-                tables.len() as i64,
+                "element_count",
+                filtered_elements.len() as i64,
             ));
 
-            let table_chunks: Result<Vec<Chunk>, _> = tables
+            let element_result: Result<Vec<Chunk>, _> = filtered_elements
                 .into_par_iter()
                 .filter_map(
-                    |table| -> Option<Result<Chunk, Box<dyn Error + Send + Sync>>> {
-                        match Segment::new_from_tables(
-                            table.table_id.clone(),
+                    |element| -> Option<Result<Chunk, Box<dyn Error + Send + Sync>>> {
+                        match Segment::new_from_elements(
+                            element.element_id.clone(),
                             Some(1.0),
-                            table.header_range,
+                            element.header_range,
                             self.sheet_capture.height as f32,
                             self.sheet_capture.width as f32,
                             self.sheet_info.sheet_number,
-                            Some(table.table_range.clone()),
+                            Some(element.range.clone()),
                             self.sheet_info.name.clone(),
                             html_content.clone(),
                             self.sheet_capture.clone(),
+                            element.segment_type,
                             tracer,
                             context,
                         ) {
-                            Ok(segment) => {
-                                if segment.clone().ss_cells.is_none_or(|cells| {
-                                    cells.iter().all(|cell| cell.text.is_empty())
-                                }) {
-                                    println!("Table is empty, skipping");
-                                    return None;
-                                }
-                                Some(Ok(Chunk::new(vec![segment])))
-                            }
+                            Ok(segment) => Some(Ok(Chunk::new(vec![segment]))),
                             Err(SegmentCreationError::NoBoundingBox(msg)) => {
-                                println!("Skipping table {} - {}", table.table_id, msg);
+                                println!(
+                                    "Skipping element as no bounding box found {} - {}",
+                                    element.element_id, msg
+                                );
                                 None
                             }
                             Err(e) => Some(Err(e.into())),
@@ -861,27 +983,26 @@ impl Sheet {
                 )
                 .collect();
 
-            let table_result = table_chunks.inspect_err(|e| {
+            element_chunks = element_result.inspect_err(|e| {
                 span.set_status(opentelemetry::trace::Status::error(e.to_string()));
                 span.record_error(e.as_ref());
                 span.set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-            });
+            })?;
             span.end();
-            chunks.extend(table_result?);
         }
+
+        // Analyze reading pattern from element chunks
+        let reading_pattern = Self::analyze_reading_pattern(&element_chunks);
 
         // Convert embedded images to chunks
         let mut span = tracer.start_with_context(
             otel_config::SpanName::ConvertImagesToChunks.to_string(),
             context,
         );
-        span.set_attribute(opentelemetry::KeyValue::new(
-            "image_count",
-            self.embedded_images.len() as i64,
-        ));
 
-        let image_chunks: Result<Vec<Chunk>, _> = self
+        let image_result: Result<Vec<Chunk>, _> = self
             .embedded_images
+            .clone()
             .into_par_iter()
             .filter_map(
                 |image| -> Option<Result<Chunk, Box<dyn Error + Send + Sync>>> {
@@ -907,26 +1028,30 @@ impl Sheet {
                         context,
                     ) {
                         Ok(segment) => Some(Ok(Chunk::new(vec![segment]))),
-                        Err(SegmentCreationError::NoBoundingBox(msg)) => {
-                            println!("Skipping image {} - {}", image.image_id, msg);
-                            None
-                        }
+                        Err(SegmentCreationError::NoBoundingBox(_msg)) => None,
                         Err(e) => Some(Err(e.into())),
                     }
                 },
             )
             .collect();
 
-        let image_result = image_chunks.inspect_err(|e| {
+        let image_chunks = image_result.inspect_err(|e| {
             span.set_status(opentelemetry::trace::Status::error(e.to_string()));
             span.record_error(e.as_ref());
             span.set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-        });
+        })?;
+
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "image_count",
+            self.embedded_images.clone().len() as i64,
+        ));
         span.end();
-        chunks.extend(image_result?);
 
         // Get all cell ranges that are already used by table and image segments
-        let used_cell_ranges: std::collections::HashSet<String> = chunks
+        let mut all_existing_chunks = element_chunks.clone();
+        all_existing_chunks.extend(image_chunks.clone());
+
+        let used_cell_ranges: Vec<String> = all_existing_chunks
             .iter()
             .flat_map(|chunk| &chunk.segments)
             .filter_map(|segment| segment.ss_cells.as_ref())
@@ -936,7 +1061,7 @@ impl Sheet {
 
         // Filter out cells that are already in table or image segments
         let remaining_cells: Vec<Cell> = all_cells
-            .into_iter()
+            .into_par_iter()
             .filter(|cell| !used_cell_ranges.contains(&cell.range))
             .collect();
 
@@ -945,12 +1070,9 @@ impl Sheet {
             otel_config::SpanName::ConvertRemainingCellsToChunks.to_string(),
             context,
         );
-        span.set_attribute(opentelemetry::KeyValue::new(
-            "remaining_cells_count",
-            remaining_cells.len() as i64,
-        ));
 
-        let remaining_cells_chunks: Result<Vec<Chunk>, _> = remaining_cells
+        let remaining_cells_result: Result<Vec<Chunk>, _> = remaining_cells
+            .clone()
             .into_par_iter()
             .filter(|cell| !cell.text.trim().is_empty())
             .filter_map(
@@ -969,37 +1091,52 @@ impl Sheet {
                         context,
                     ) {
                         Ok(segment) => Some(Ok(Chunk::new(vec![segment]))),
-                        Err(SegmentCreationError::NoBoundingBox(msg)) => {
-                            println!("Skipping cell - {msg}");
-                            None
-                        }
+                        Err(SegmentCreationError::NoBoundingBox(_msg)) => None,
                         Err(e) => Some(Err(e.into())),
                     }
                 },
             )
             .collect();
 
-        let remaining_cells_result = remaining_cells_chunks.inspect_err(|e| {
+        let remaining_cell_chunks = remaining_cells_result.inspect_err(|e| {
             span.set_status(opentelemetry::trace::Status::error(e.to_string()));
             span.record_error(e.as_ref());
             span.set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
-        });
-        span.end();
-        chunks.extend(remaining_cells_result?);
+        })?;
 
-        // Apply reading order to all chunks
+        span.set_attribute(opentelemetry::KeyValue::new(
+            "remaining_cells_count",
+            remaining_cells.clone().len() as i64,
+        ));
+        span.end();
+
+        // Insert images and remaining cells while preserving element reading order
         let mut span = tracer.start_with_context(
             otel_config::SpanName::ApplyReadingOrder.to_string(),
             context,
         );
+
+        // First, insert image chunks
+        let chunks_with_images = Self::insert_chunks_preserving_order(
+            element_chunks,
+            image_chunks,
+            reading_pattern.clone(),
+        );
+
+        // Then, insert remaining cell chunks
+        let final_chunks = Self::insert_chunks_preserving_order(
+            chunks_with_images,
+            remaining_cell_chunks,
+            reading_pattern.clone(),
+        );
+
         span.set_attribute(opentelemetry::KeyValue::new(
-            "chunk_count",
-            chunks.len() as i64,
+            "final_chunk_count",
+            final_chunks.len() as i64,
         ));
-        chunks.apply_reading_order();
         span.end();
 
-        Ok(chunks)
+        Ok(final_chunks)
     }
 }
 
@@ -1020,8 +1157,8 @@ pub enum PipelineStep {
     SegmentProcessing,
     #[strum(serialize = "convert_excel_to_html")]
     ConvertExcelToHtml,
-    #[strum(serialize = "identify_tables_in_sheet")]
-    IdentifyTablesInSheet,
+    #[strum(serialize = "identify_elements_in_sheet")]
+    IdentifyElementsInSheet,
 }
 
 pub trait PipelineStepMessages {
@@ -1040,7 +1177,7 @@ impl PipelineStepMessages for PipelineStep {
             PipelineStep::Crop => "Cropping segments".to_string(),
             PipelineStep::SegmentProcessing => "Processing segments".to_string(),
             PipelineStep::ConvertExcelToHtml => "Preparing spreadsheet for analysis".to_string(),
-            PipelineStep::IdentifyTablesInSheet => "Analyzing tables in spreadsheet".to_string(),
+            PipelineStep::IdentifyElementsInSheet => "Analyzing tables in spreadsheet".to_string(),
         }
     }
 
@@ -1058,7 +1195,7 @@ impl PipelineStepMessages for PipelineStep {
             PipelineStep::ConvertExcelToHtml => {
                 "Failed to prepare spreadsheet for analysis".to_string()
             }
-            PipelineStep::IdentifyTablesInSheet => {
+            PipelineStep::IdentifyElementsInSheet => {
                 "Failed to analyze tables in spreadsheet".to_string()
             }
         }
@@ -1172,7 +1309,8 @@ impl Pipeline {
                     .ok_or("No input file found for page count")?
                     .path()
                     .to_str()
-                    .ok_or("No input file path found for page count")?,
+                    .ok_or("No input file path found for page count")
+                    .map(Path::new)?,
             )?
         } else {
             count_pages(
@@ -1191,7 +1329,8 @@ impl Pipeline {
             None,
             None,
         )
-        .await?;
+        .await
+        .map_err(|e| -> Box<dyn Error> { format!("Task update error: {e:?}").into() })?;
         self.task_payload = Some(task_payload.clone());
         self.task = Some(task.clone());
         Ok(())
@@ -1240,7 +1379,7 @@ impl Pipeline {
                         sheet.sheet_info.sheet_number.to_string(),
                     ));
                     let pdf_file =
-                        convert_img_to_pdf(&sheet.sheet_capture.image).inspect_err(|e| {
+                        create_pdf_from_image(&sheet.sheet_capture.image).inspect_err(|e| {
                             span.set_status(opentelemetry::trace::Status::error(e.to_string()));
                             span.record_error(e.as_ref());
                             span.set_attribute(opentelemetry::KeyValue::new(
@@ -1375,8 +1514,6 @@ impl Pipeline {
             .into_iter()
             .flatten()
             .collect::<Vec<Chunk>>();
-        self.chunks.apply_reading_order();
-
         Ok(())
     }
 
@@ -1496,8 +1633,8 @@ impl Pipeline {
                 PipelineStep::ConvertExcelToHtml => {
                     crate::pipeline::convert_excel_to_html::process(self, tracer).await
                 }
-                PipelineStep::IdentifyTablesInSheet => {
-                    match crate::pipeline::identify_tables_in_sheet::process(self, tracer).await {
+                PipelineStep::IdentifyElementsInSheet => {
+                    match crate::pipeline::identify_elements_in_sheet::process(self, tracer).await {
                         Ok(_) => Ok(()),
                         Err(e) => Err(e),
                     }
@@ -1720,7 +1857,7 @@ mod tests {
     #[test]
     fn test_from_indices() {
         // Table without header
-        let table = Table::from_indices(
+        let table = Element::from_indices(
             Indices {
                 start_row: 0,
                 start_col: 0,
@@ -1728,12 +1865,13 @@ mod tests {
                 end_col: 3,
             },
             None,
+            SegmentType::Table,
         );
-        assert_eq!(table.table_range, "A1:D5");
+        assert_eq!(table.range, "A1:D5");
         assert_eq!(table.header_range, None);
 
         // Table with header
-        let table_with_header = Table::from_indices(
+        let table_with_header = Element::from_indices(
             Indices {
                 start_row: 0,
                 start_col: 0,
@@ -1746,12 +1884,13 @@ mod tests {
                 end_row: 0,
                 end_col: 3,
             }),
+            SegmentType::Table,
         );
-        assert_eq!(table_with_header.table_range, "A1:D5");
+        assert_eq!(table_with_header.range, "A1:D5");
         assert_eq!(table_with_header.header_range, Some("A1:D1".to_string()));
 
         // Table with multi-row header
-        let table_multi_header = Table::from_indices(
+        let table_multi_header = Element::from_indices(
             Indices {
                 start_row: 0,
                 start_col: 1,
@@ -1764,8 +1903,9 @@ mod tests {
                 end_row: 1,
                 end_col: 4,
             }),
+            SegmentType::Table,
         );
-        assert_eq!(table_multi_header.table_range, "B1:E7");
+        assert_eq!(table_multi_header.range, "B1:E7");
         assert_eq!(table_multi_header.header_range, Some("B1:E2".to_string()));
     }
 
@@ -1780,8 +1920,8 @@ mod tests {
             sheet_number: 1,
         };
 
-        let table: Table = sheet_info.into();
-        assert_eq!(table.table_range, "B1:D5");
+        let table: Element = sheet_info.into();
+        assert_eq!(table.range, "B1:D5");
         assert_eq!(table.header_range, None);
     }
 
@@ -1812,8 +1952,12 @@ mod tests {
 </table>"#;
 
         // Test table with header range
-        let mut table_with_header =
-            Table::new("A1:C4".to_string(), Some("A1:C1".to_string())).unwrap();
+        let mut table_with_header = Element::new(
+            "A1:C4".to_string(),
+            Some("A1:C1".to_string()),
+            SegmentType::Table,
+        )
+        .unwrap();
         let result = table_with_header.create_html(sheet_html, None, None);
         assert!(result.is_ok());
 
@@ -1841,7 +1985,8 @@ mod tests {
         assert!(html_content.contains("Data9"));
 
         // Test table without header range
-        let mut table_no_header = Table::new("A2:C4".to_string(), None).unwrap();
+        let mut table_no_header =
+            Element::new("A2:C4".to_string(), None, SegmentType::Table).unwrap();
         let result_no_header = table_no_header.create_html(sheet_html, None, None);
         assert!(result_no_header.is_ok());
 
@@ -1887,8 +2032,12 @@ mod tests {
 </table>"#;
 
         // Test table where header and table ranges overlap
-        let mut table_with_overlap =
-            Table::new("A1:B3".to_string(), Some("A1:B1".to_string())).unwrap();
+        let mut table_with_overlap = Element::new(
+            "A1:B3".to_string(),
+            Some("A1:B1".to_string()),
+            SegmentType::Table,
+        )
+        .unwrap();
         let result = table_with_overlap.create_html(sheet_html, None, None);
         assert!(result.is_ok());
 
@@ -1924,13 +2073,19 @@ mod tests {
 </table>"#;
 
         // Test with invalid range format that will cause parse error
-        let mut table_invalid = Table::new("A1:Z99999".to_string(), None).unwrap(); // Valid format but out of bounds
+        let mut table_invalid =
+            Element::new("A1:Z99999".to_string(), None, SegmentType::Table).unwrap(); // Valid format but out of bounds
         let result = table_invalid.create_html(sheet_html, None, None);
         // This should fail because the range A1:Z99999 is out of bounds for our 1-row table
         assert!(result.is_err());
 
         // Test another invalid scenario - empty range
-        let mut table_empty = Table::new("A1:A1".to_string(), Some("A2:A2".to_string())).unwrap(); // Header after table
+        let mut table_empty = Element::new(
+            "A1:A1".to_string(),
+            Some("A2:A2".to_string()),
+            SegmentType::Table,
+        )
+        .unwrap(); // Header after table
         let result_empty = table_empty.create_html(sheet_html, None, None);
         // This should also fail because header range A2:A2 is out of bounds for our 1-row table
         assert!(result_empty.is_err());
@@ -1938,7 +2093,7 @@ mod tests {
 
     #[test]
     fn test_calculate_header_alignment() {
-        let table = Table::new("A1:D5".to_string(), None).unwrap();
+        let table = Element::new("A1:D5".to_string(), None, SegmentType::Table).unwrap();
 
         // Test perfect alignment - no padding needed
         let result = table.calculate_header_alignment("A1:D1", "A2:D5").unwrap();
@@ -1980,7 +2135,7 @@ mod tests {
 
     #[test]
     fn test_add_padding_to_header() {
-        let table = Table::new("A1:D5".to_string(), None).unwrap();
+        let table = Element::new("A1:D5".to_string(), None, SegmentType::Table).unwrap();
 
         // Test basic padding addition
         let header_html = r#"<thead>
@@ -2021,6 +2176,58 @@ mod tests {
 
         let td_count_tbody = result_tbody.matches("<td").count();
         assert_eq!(td_count_tbody, 4); // 1 padding + 2 original + 1 padding
+
+        // Test with single-line HTML (the format that was causing the original issue)
+        let single_line_html = r#"<thead><tr> <td data-cell-ref="C42">Contract (X)</td> <td data-cell-ref="D42">TF/Tower</td> <td data-cell-ref="E42">Actual Headcount</td> </tr> </thead>"#;
+
+        let result_single_line = table.add_padding_to_header(single_line_html, 2, 0).unwrap();
+
+        // Should contain original headers plus padding cells
+        assert!(result_single_line.contains("<thead>"));
+        assert!(result_single_line.contains("</thead>"));
+        assert!(result_single_line.contains("Contract (X)"));
+        assert!(result_single_line.contains("TF/Tower"));
+        assert!(result_single_line.contains("Actual Headcount"));
+        assert!(result_single_line.contains("<td></td>")); // Should have empty padding cells
+
+        // Count the number of td elements (should be 5: 2 padding + 3 original)
+        let td_count_single_line = result_single_line.matches("<td").count();
+        assert_eq!(td_count_single_line, 5);
+
+        // Verify the padding cells are at the beginning (right after <tr>)
+        assert!(result_single_line
+            .contains("<tr><td></td><td></td> <td data-cell-ref=\"C42\">Contract (X)</td>"));
+    }
+
+    #[test]
+    fn test_ranges_overlap() {
+        // Test exact overlap
+        assert!(Sheet::ranges_overlap("A1:D5", "A1:D5").unwrap());
+
+        // Test partial overlap
+        assert!(Sheet::ranges_overlap("A1:D5", "C3:F7").unwrap());
+        assert!(Sheet::ranges_overlap("C3:F7", "A1:D5").unwrap());
+
+        // Test no overlap - different rows
+        assert!(!Sheet::ranges_overlap("A1:D3", "A5:D7").unwrap());
+
+        // Test no overlap - different columns
+        assert!(!Sheet::ranges_overlap("A1:C5", "E1:G5").unwrap());
+
+        // Test adjacent ranges (should not overlap)
+        assert!(!Sheet::ranges_overlap("A1:D3", "A4:D6").unwrap());
+        assert!(!Sheet::ranges_overlap("A1:C5", "D1:F5").unwrap());
+
+        // Test contained ranges
+        assert!(Sheet::ranges_overlap("A1:F6", "B2:E5").unwrap());
+        assert!(Sheet::ranges_overlap("B2:E5", "A1:F6").unwrap());
+
+        // Test single cell overlap
+        assert!(Sheet::ranges_overlap("A1:A1", "A1:A1").unwrap());
+        assert!(Sheet::ranges_overlap("A1:D5", "D5:D5").unwrap());
+
+        // Test single cell no overlap
+        assert!(!Sheet::ranges_overlap("A1:A1", "B1:B1").unwrap());
     }
 
     #[test]
@@ -2054,8 +2261,12 @@ mod tests {
 </table>"#;
 
         // Test table with header alignment (header: C1:E1, table: A2:F3)
-        let mut table_with_alignment =
-            Table::new("A2:F3".to_string(), Some("C1:E1".to_string())).unwrap();
+        let mut table_with_alignment = Element::new(
+            "A2:F3".to_string(),
+            Some("C1:E1".to_string()),
+            SegmentType::Table,
+        )
+        .unwrap();
         let result = table_with_alignment.create_html(sheet_html, None, None);
         assert!(result.is_ok());
 

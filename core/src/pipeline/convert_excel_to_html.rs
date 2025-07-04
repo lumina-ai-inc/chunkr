@@ -1,8 +1,8 @@
 use crate::configs::otel_config;
 use crate::models::pipeline::{Sheet, SheetInfo};
+use crate::utils::services::excel::get_worksheets_info;
 use crate::utils::services::html::{extract_sheets_from_html, get_html_table_bounds};
 use crate::{models::pipeline::Pipeline, utils::services::file_operations::convert_to_html};
-use calamine::{open_workbook_auto, Reader};
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use rayon::prelude::*;
@@ -10,14 +10,13 @@ use std::error::Error;
 use std::path::Path;
 
 fn get_sheet_infos(file_path: &Path) -> Result<Vec<SheetInfo>, Box<dyn Error>> {
-    let mut workbook = open_workbook_auto(file_path).expect("Cannot open file");
-    let sheets_info = workbook
-        .worksheets()
+    let worksheets_info = get_worksheets_info(file_path)?;
+    let sheets_info = worksheets_info
         .iter()
         .enumerate()
-        .map(|(sheet_idx, (name, range))| {
-            let (start_row, start_column) = match range.start() {
-                Some((row, col)) => (Some(row), Some(col)),
+        .map(|(sheet_idx, (name, start_pos, _end_pos))| {
+            let (start_row, start_column) = match start_pos {
+                Some((row, col)) => (Some(*row), Some(*col)),
                 None => (None, None),
             };
             SheetInfo {

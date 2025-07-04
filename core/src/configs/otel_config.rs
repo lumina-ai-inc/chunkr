@@ -103,8 +103,8 @@ pub enum SpanName {
     ConvertImageToPdf,
     #[strum(serialize = "combine_pdfs")]
     CombinePdfs,
-    #[strum(serialize = "identify_tables")]
-    IdentifyTables,
+    #[strum(serialize = "identify_elements")]
+    IdentifyElements,
     #[strum(serialize = "identify_table_in_sheet")]
     IdentifyTableInSheet,
     #[strum(serialize = "set_tables_on_sheets")]

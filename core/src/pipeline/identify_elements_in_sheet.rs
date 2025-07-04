@@ -1,7 +1,7 @@
 use crate::configs::{llm_config::Config as LlmConfig, otel_config};
-use crate::models::excel::IdentifiedTables;
+use crate::models::excel::IdentifiedElements;
 use crate::models::llm::{FallbackStrategy, LlmProcessing};
-use crate::models::pipeline::{Pipeline, Table};
+use crate::models::pipeline::{Element, Pipeline};
 use crate::models::upload::{ErrorHandlingStrategy, SegmentationStrategy};
 use crate::utils::services::file_operations::get_file_url;
 use crate::utils::services::html::clean_html_for_llm;
@@ -42,7 +42,7 @@ fn get_llm_processing() -> Result<LlmProcessing, Box<dyn Error>> {
         Some(excel_model.id),
         excel_fallback_strategy,
         None,
-        0.7,
+        0.0,
     ))
 }
 
@@ -63,11 +63,11 @@ pub async fn process(
     let image_folder_location = task.image_folder_location.clone();
 
     // Create futures for each sheet
-    let identify_tables_span = tracer.start_with_context(
-        otel_config::SpanName::IdentifyTables.to_string(),
+    let identify_elements_span = tracer.start_with_context(
+        otel_config::SpanName::IdentifyElements.to_string(),
         &Context::current(),
     );
-    let identify_tables_context = Context::current().with_span(identify_tables_span);
+    let identify_elements_context = Context::current().with_span(identify_elements_span);
 
     let identification_futures = sheets.par_iter().enumerate().map(|(index, sheet)| {
         if sheet.sheet_info.start_row.is_none() {
@@ -75,11 +75,11 @@ pub async fn process(
                 "Skipping sheet for identification {:?} due to no start row",
                 sheet.sheet_info.name
             );
-            let result: Result<Vec<Table>, Box<dyn Error + Send + Sync>> = Ok(vec![]);
+            let result: Result<Vec<Element>, Box<dyn Error + Send + Sync>> = Ok(vec![]);
             return futures::future::ready(result).boxed();
         }
         if segmentation_strategy == SegmentationStrategy::Page {
-            let result: Result<Vec<Table>, Box<dyn Error + Send + Sync>> =
+            let result: Result<Vec<Element>, Box<dyn Error + Send + Sync>> =
                 Ok(sheet.sheet_info.clone().into());
             return futures::future::ready(result).boxed();
         }
@@ -87,11 +87,11 @@ pub async fn process(
         let llm_processing = llm_processing.clone();
         let error_handling = error_handling.clone();
         let image_folder_location = image_folder_location.clone();
-        let identify_tables_context = identify_tables_context.clone();
+        let identify_elements_context = identify_elements_context.clone();
         async move {
             let mut span = tracer.start_with_context(
                 otel_config::SpanName::IdentifyTableInSheet.to_string(),
-                &identify_tables_context,
+                &identify_elements_context,
             );
             span.set_attribute(opentelemetry::KeyValue::new("sheet_index", index as i64));
             span.set_attribute(opentelemetry::KeyValue::new(
@@ -99,7 +99,7 @@ pub async fn process(
                 sheet.sheet_info.name.clone(),
             ));
 
-            let sheet_context = identify_tables_context.with_span(span);
+            let sheet_context = identify_elements_context.with_span(span);
             let html_file = sheet.html_file.clone();
 
             let html_content = match fs::read_to_string(html_file.path()) {
@@ -162,10 +162,10 @@ pub async fn process(
             values.insert("cleaned_html".to_string(), cleaned_html);
             values.insert("image_url".to_string(), image_url);
 
-            let result = match structured_output_from_template::<IdentifiedTables>(
-                "identify_tables",
-                Some("Identify individual tables in the sheet".to_string()),
-                "identify_tables",
+            let result = match structured_output_from_template::<IdentifiedElements>(
+                "identify_excel_elements",
+                Some("Identify individual elements in the sheet".to_string()),
+                "identify_excel_elements",
                 &values,
                 llm_processing,
                 tracer,
@@ -173,10 +173,10 @@ pub async fn process(
             )
             .await
             {
-                Ok(identified_tables) => match identified_tables.try_into() {
-                    Ok(tables) => Ok(tables),
+                Ok(identified_elements) => match identified_elements.try_into() {
+                    Ok(elements) => Ok(elements),
                     Err(e) => {
-                        let error_msg = format!("Failed to convert identified tables: {e}");
+                        let error_msg = format!("Failed to convert identified elements: {e}");
                         sheet_context
                             .span()
                             .set_status(opentelemetry::trace::Status::error(error_msg.clone()));
@@ -190,20 +190,18 @@ pub async fn process(
                     }
                 },
                 Err(e) => {
-                    // Check if this is a 400-level error (like token limit exceeded)
+                    // Check if this is a non-retryable client error
                     // TODO: Add a way to let the user know that the sheet was skipped
-                    if let Some(LLMError::NonRetryable(error_msg)) = e.downcast_ref::<LLMError>() {
-                        if error_msg.contains("HTTP 4") {
-                            println!("Skipping sheet {index} due to 400-level error: {e}");
-                            sheet_context
-                                .span()
-                                .set_attribute(opentelemetry::KeyValue::new(
-                                    "skipped_reason",
-                                    "http_4xx_error",
-                                ));
-                            sheet_context.span().end();
-                            return Ok(sheet.sheet_info.clone().into());
-                        }
+                    if let Some(LLMError::NonRetryable(_error_msg)) = e.downcast_ref::<LLMError>() {
+                        println!("Skipping table identification for sheet {index} due to non-retryable client error: {e}");
+                        sheet_context
+                            .span()
+                            .set_attribute(opentelemetry::KeyValue::new(
+                                "skipped_reason",
+                                "non_retryable_client_error",
+                            ));
+                        sheet_context.span().end();
+                        return Ok(sheet.sheet_info.clone().into());
                     }
                     if error_handling == ErrorHandlingStrategy::Fail {
                         println!("Failed to identify tables for sheet {index}: {e}");
@@ -243,20 +241,20 @@ pub async fn process(
         .boxed()
     });
 
-    let identification_results: Vec<Vec<Table>> =
+    let identification_results: Vec<Vec<Element>> =
         futures::future::try_join_all(identification_futures.collect::<Vec<_>>())
             .await
             .map_err(|e| -> Box<dyn Error> { e })
             .inspect_err(|e| {
-                identify_tables_context
+                identify_elements_context
                     .span()
                     .set_status(opentelemetry::trace::Status::error(e.to_string()));
-                identify_tables_context.span().record_error(e.as_ref());
-                identify_tables_context
+                identify_elements_context.span().record_error(e.as_ref());
+                identify_elements_context
                     .span()
                     .set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
             })?;
-    identify_tables_context.span().end();
+    identify_elements_context.span().end();
 
     let mut set_tables_span = tracer.start_with_context(
         otel_config::SpanName::SetTablesOnSheets.to_string(),
@@ -269,8 +267,8 @@ pub async fn process(
         .par_iter_mut()
         .zip(identification_results.par_iter())
         .try_for_each(
-            |(sheet, tables)| -> Result<(), Box<dyn Error + Send + Sync>> {
-                match sheet.set_tables(tables.clone()) {
+            |(sheet, elements)| -> Result<(), Box<dyn Error + Send + Sync>> {
+                match sheet.set_elements(elements.clone()) {
                     Ok(_) => Ok(()),
                     Err(e) => {
                         if error_handling == ErrorHandlingStrategy::Fail {
@@ -366,14 +364,14 @@ mod tests {
                 "For sheet {} found {} tables",
                 sheet.sheet_info.name,
                 sheet
-                    .tables
+                    .elements
                     .as_ref()
                     .map(|tables| tables.len())
                     .unwrap_or(0)
             );
             let sheet_dir = sheets_dir.join(sheet.sheet_info.name.to_lowercase());
             sheet
-                .tables
+                .elements
                 .as_ref()
                 .unwrap()
                 .iter()
@@ -383,7 +381,7 @@ mod tests {
                     fs::create_dir_all(&table_dir).unwrap();
 
                     let table_json = serde_json::json!({
-                        "table_range": table.table_range.clone(),
+                        "table_range": table.range.clone(),
                         "header_range": table.header_range.clone(),
                     });
                     fs::write(

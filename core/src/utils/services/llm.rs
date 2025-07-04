@@ -27,6 +27,9 @@ pub enum LLMError {
 
     #[error("Non-retryable error: {0}")]
     NonRetryable(String),
+
+    #[error("Error parsing schema: {error} \n\n Response: {response}")]
+    SchemaParseError { error: String, response: String },
 }
 
 /// Check if an error should be retried
@@ -92,8 +95,8 @@ pub async fn open_ai_call(
         let error_text = response.text().await?;
         let error_message = format!("HTTP {status}: {error_text}");
 
-        // 400-level errors (client errors) should not be retried
-        if status.as_u16() >= 400 && status.as_u16() < 500 {
+        // 400-level errors (client errors) should not be retried except for 429 (rate limit)
+        if status.as_u16() >= 400 && status.as_u16() < 500 && status.as_u16() != 429 {
             return Err(Box::new(LLMError::NonRetryable(error_message)));
         } else {
             return Err(Box::new(LLMError::Generic(error_message)));
@@ -164,8 +167,12 @@ pub async fn genai_call(
         let error_text = response.text().await?;
         let error_message = format!("HTTP {status}: {error_text}");
 
-        // 400-level errors (client errors) should not be retried
-        if status.as_u16() >= 400 && status.as_u16() < 500 {
+        // 400-level errors (client errors) should not be retried except for 429 (rate limit) and 404 (not found) [random genai error]
+        if status.as_u16() >= 400
+            && status.as_u16() < 500
+            && status.as_u16() != 429
+            && status.as_u16() != 404
+        {
             return Err(Box::new(LLMError::NonRetryable(error_message)));
         } else {
             return Err(Box::new(LLMError::Generic(error_message)));
@@ -645,7 +652,7 @@ where
 
     let parsed: T =
         serde_json::from_str(&response).map_err(|e| -> Box<dyn Error + Send + Sync> {
-            Box::new(LLMError::JsonParseError {
+            Box::new(LLMError::SchemaParseError {
                 error: e.to_string(),
                 response: response.clone(),
             })

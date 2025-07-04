@@ -6,6 +6,7 @@ use core::models::task::TaskPayload;
 use core::models::task::{Status, Task};
 use core::utils::clients::get_redis_pool;
 use core::utils::clients::initialize;
+use core::utils::services::excel::ExcelError;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::{global, Context, KeyValue};
 
@@ -22,7 +23,7 @@ fn orchestrate_task(
     let mut steps = vec![];
     if is_spreadsheet {
         steps.push(PipelineStep::ConvertExcelToHtml);
-        steps.push(PipelineStep::IdentifyTablesInSheet);
+        steps.push(PipelineStep::IdentifyElementsInSheet);
     } else {
         steps.push(PipelineStep::ConvertToImages);
         #[cfg(feature = "azure")]
@@ -79,9 +80,28 @@ pub async fn process(
             Err(e) => {
                 let mut task =
                     Task::get(&task_payload.task_id, &task_payload.user_info.user_id).await?;
-                let message = match e.to_string().contains("LibreOffice") {
-                    true => "Failed to convert file to PDF".to_string(),
-                    false => "Failed to initialize task".to_string(),
+
+                // Check if error is an ExcelError by walking the error chain
+                let message = if let Some(excel_error) = e.downcast_ref::<ExcelError>() {
+                    match excel_error {
+                        ExcelError::CalamineError(_) => "Failed to process Excel file".to_string(),
+                        ExcelError::InvalidFile(_) => "Invalid or corrupted Excel file".to_string(),
+                        ExcelError::NoSheetsFound => {
+                            "Excel file contains no worksheets".to_string()
+                        }
+                        ExcelError::IoError(_) => "Failed to read Excel file".to_string(),
+                        ExcelError::PanicError(_) => {
+                            "Excel file contains corrupted data that cannot be processed"
+                                .to_string()
+                        }
+                    }
+                } else {
+                    let error_str = e.to_string();
+                    if error_str.contains("LibreOffice") {
+                        "Failed to convert file to PDF".to_string()
+                    } else {
+                        "Failed to initialize task".to_string()
+                    }
                 };
                 if task.status == Status::Processing {
                     task.update(
@@ -96,6 +116,7 @@ pub async fn process(
                     )
                     .await?;
                 }
+                println!("Error in pipeline init: {e:?}");
                 return Err(e);
             }
         }

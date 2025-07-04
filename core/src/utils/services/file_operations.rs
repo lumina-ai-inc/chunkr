@@ -16,7 +16,7 @@ use url;
 use urlencoding;
 
 pub fn check_is_spreadsheet(mime_type: &str) -> Result<bool, Box<dyn Error>> {
-    if !FeatureConfig::from_env()?.enable_excel_parse {
+    if !FeatureConfig::from_env()?.excel_parser {
         return Ok(false);
     }
     Ok(
@@ -33,7 +33,8 @@ pub fn check_file_type(
         .arg("--mime-type")
         .arg("-b")
         .arg(file.path().to_str().unwrap())
-        .output()?;
+        .output()
+        .map_err(|e| -> Box<dyn Error> { format!("File Command Error: {e:?}").into() })?;
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
     match mime_type.as_str() {
@@ -230,8 +231,10 @@ pub async fn get_file_url(
     s3_location: &str,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let config = WorkerConfig::from_env()?;
-    let (mime_type, _) = check_file_type(temp_file, None)
-        .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
+    let (mime_type, _) =
+        check_file_type(temp_file, None).map_err(|e| -> Box<dyn Error + Send + Sync> {
+            format!("Check File Type Error: {e:?}").into()
+        })?;
     match config.file_url_format {
         FileUrlFormat::Base64 => {
             let mut buffer = Vec::new();
@@ -241,13 +244,15 @@ pub async fn get_file_url(
             Ok(format!("data:{mime_type};base64,{base64_data}"))
         }
         FileUrlFormat::Url => {
-            upload_to_s3(s3_location, temp_file.path())
-                .await
-                .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
+            upload_to_s3(s3_location, temp_file.path()).await.map_err(
+                |e| -> Box<dyn Error + Send + Sync> { format!("S3 Upload Error: {e:?}").into() },
+            )?;
 
             let presigned_url = generate_presigned_url(s3_location, true, None, false, &mime_type)
                 .await
-                .map_err(|e| -> Box<dyn Error + Send + Sync> { e.to_string().into() })?;
+                .map_err(|e| -> Box<dyn Error + Send + Sync> {
+                    format!("Presigned URL Error: {e:?}").into()
+                })?;
 
             Ok(presigned_url)
         }
@@ -325,6 +330,16 @@ mod tests {
     use super::*;
     use std::fs;
     use std::path::PathBuf;
+
+    #[tokio::test]
+    async fn test_check_file_type() {
+        let mut input_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        input_file_path.push("/home/akhilesh/Downloads/1_runtime.xls");
+        let input_file = NamedTempFile::new().unwrap();
+        fs::copy(input_file_path.clone(), input_file.path()).unwrap();
+        let result = check_file_type(&input_file, None).unwrap();
+        println!("Result: {result:?}");
+    }
 
     #[tokio::test]
     async fn test_convert_to_html() {

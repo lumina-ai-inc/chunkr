@@ -198,7 +198,7 @@ impl Default for LlmProcessing {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct JsonSchemaDefinition {
     pub name: String,
     pub description: Option<String>,
@@ -219,12 +219,6 @@ impl JsonSchemaDefinition {
         Self::new(name, description, schema)
     }
 
-    pub fn from_struct_with_defaults<T: SchemarsJsonSchema>() -> Self {
-        Self::from_struct::<T>(
-            "response".to_string(),
-            Some("Structured response".to_string()),
-        )
-    }
     /// Generates a raw JSON schema from a Rust struct
     ///
     /// The struct must implement `SchemarsJsonSchema` and have doc comments on fields for descriptions.
