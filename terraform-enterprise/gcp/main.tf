@@ -207,6 +207,53 @@ resource "google_storage_bucket_iam_member" "gcs_interop_object_admin" {
 }
 
 ###############################################################
+# Workload Identity Setup
+###############################################################
+resource "google_service_account" "workload_identity" {
+  account_id   = "${local.current_config.base_name}-workload-identity"
+  display_name = "Chunkr Enterprise Workload Identity Service Account"
+  description  = "Service account for Chunkr Enterprise pods to access Google Cloud services"
+}
+
+# Grant necessary permissions for Chunkr operations
+resource "google_project_iam_member" "workload_identity_aiplatform" {
+  project = local.current_config.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.workload_identity.email}"
+}
+
+resource "google_project_iam_member" "workload_identity_storage" {
+  project = local.current_config.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.workload_identity.email}"
+}
+
+resource "google_project_iam_member" "workload_identity_secrets" {
+  project = local.current_config.project
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.workload_identity.email}"
+}
+
+resource "google_project_iam_member" "workload_identity_logging" {
+  project = local.current_config.project
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.workload_identity.email}"
+}
+
+resource "google_project_iam_member" "workload_identity_monitoring" {
+  project = local.current_config.project
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.workload_identity.email}"
+}
+
+# Enable workload identity binding for chunkr namespace
+resource "google_service_account_iam_member" "workload_identity_binding" {
+  service_account_id = google_service_account.workload_identity.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${local.current_config.project}.svc.id.goog[chunkr/chunkr-workload-identity]"
+}
+
+###############################################################
 # Set up the Networking Components
 ###############################################################
 resource "google_compute_network" "vpc_network" {
@@ -330,6 +377,11 @@ resource "google_container_cluster" "cluster" {
     enabled = true
   }
 
+  # Enable workload identity
+  workload_identity_config {
+    workload_pool = "${local.current_config.project}.svc.id.goog"
+  }
+
   private_cluster_config {
     enable_private_nodes    = true
     enable_private_endpoint = false
@@ -383,7 +435,7 @@ resource "google_container_node_pool" "general_purpose_nodes" {
     }
 
     workload_metadata_config {
-      mode = "GCE_METADATA"
+      mode = "GKE_METADATA"
     }
 
     labels = {
@@ -458,7 +510,7 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     workload_metadata_config {
-      mode = "GCE_METADATA"
+      mode = "GKE_METADATA"
     }
 
     labels = {
@@ -624,4 +676,14 @@ output "gcs_s3_compatible_region" {
 output "bucket_name" {
   value       = google_storage_bucket.project_bucket.name
   description = "The name of the GCS bucket"
+}
+
+output "workload_identity_service_account_email" {
+  value       = google_service_account.workload_identity.email
+  description = "The email of the workload identity service account"
+}
+
+output "workload_identity_service_account_name" {
+  value       = google_service_account.workload_identity.name
+  description = "The name of the workload identity service account"
 }

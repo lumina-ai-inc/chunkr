@@ -1,8 +1,4 @@
 # GCP Dev deployment helmfile
-repositories:
-  - name: argo
-    url: https://argoproj.github.io/argo-helm
-
 releases:
   - name: chunkr
     namespace: chunkr
@@ -10,28 +6,27 @@ releases:
     values:
       - ../../../charts/chunkr-enterprise/values.yaml
       - ../../../charts/chunkr-enterprise/infrastructure.yaml
-      - ../../../charts/chunkr-enterprise/embeddings.yaml
     set:
       - name: services.embeddings.ingress.enabled
-        value: true
+        value: false
       - name: services.embeddings.ingress.subdomain
         value: dev-embed
       - name: services.reranker.enabled
-        value: true
+        value: false
       - name: services.reranker.ingress.enabled
-        value: true
+        value: false
       - name: services.reranker.ingress.subdomain
         value: dev-rerank
       - name: services.sparse-doc-embeddings.enabled
-        value: true
+        value: false
       - name: services.sparse-doc-embeddings.ingress.enabled
-        value: true
+        value: false
       - name: services.sparse-doc-embeddings.ingress.subdomain
         value: dev-sparse-doc
       - name: services.sparse-query-embeddings.enabled
-        value: true
+        value: false
       - name: services.sparse-query-embeddings.ingress.enabled
-        value: true
+        value: false
       - name: services.sparse-query-embeddings.ingress.subdomain
         value: dev-sparse-query
       - name: ingress.subdomains.root

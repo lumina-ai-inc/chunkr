@@ -35,11 +35,11 @@ RUN apt-get update -y && \
 
 # Check if pandoc is installed and print version, else print error and exit
 RUN if pandoc --version >/dev/null 2>&1; then \
-        echo "Pandoc version:"; \
-        pandoc --version; \
+    echo "Pandoc version:"; \
+    pandoc --version; \
     else \
-        echo "Pandoc is not installed or not working!" >&2; \
-        exit 1; \
+    echo "Pandoc is not installed or not working!" >&2; \
+    exit 1; \
     fi
 
 # Tweak ImageMagick policy
@@ -72,6 +72,14 @@ RUN apt-get update -y && \
     && apt-get update -y \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Google Cloud SDK
+RUN curl -sSL https://sdk.cloud.google.com | bash \
+    && echo "source /root/google-cloud-sdk/path.bash.inc" >> /root/.bashrc \
+    && echo "source /root/google-cloud-sdk/completion.bash.inc" >> /root/.bashrc
+
+# Add gcloud to PATH
+ENV PATH="/root/google-cloud-sdk/bin:$PATH"
 
 # Set Chrome to run as root (required for container execution)
 RUN echo 'export CHROME_DEVEL_SANDBOX=/opt/google/chrome/chrome-sandbox' >> /etc/environment

@@ -35,11 +35,11 @@ RUN apt-get update -y && \
 
 # Check if pandoc is installed and print version, else print error and exit
 RUN if command -v pandoc >/dev/null 2>&1; then \
-        echo "Pandoc version:"; \
-        pandoc --version; \
+    echo "Pandoc version:"; \
+    pandoc --version; \
     else \
-        echo "Pandoc is not installed!" >&2; \
-        exit 1; \
+    echo "Pandoc is not installed!" >&2; \
+    exit 1; \
     fi
 
 # Tweak ImageMagick policy
@@ -55,6 +55,14 @@ RUN mkdir -p /app/pdfium-binaries && \
     curl -L https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz | \
     tar -xz -C /tmp && \
     cp /tmp/lib/libpdfium.so /app/pdfium-binaries/
+
+# Install Google Cloud SDK
+RUN curl -sSL https://sdk.cloud.google.com | bash \
+    && echo "source /root/google-cloud-sdk/path.bash.inc" >> /root/.bashrc \
+    && echo "source /root/google-cloud-sdk/completion.bash.inc" >> /root/.bashrc
+
+# Add gcloud to PATH
+ENV PATH="/root/google-cloud-sdk/bin:$PATH"
 
 # Copy your built Rust binary in
 COPY --from=builder /app/target/release/core /app/core

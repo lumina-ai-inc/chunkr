@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: chunkr-workload-identity
+  namespace: chunkr
+  annotations:
+    # Replace with your GCP service account email from terraform output
+    # Run: terraform output workload_identity_service_account_email
+    iam.gke.io/gcp-service-account: chunkr-dev-workload-identity@lumina-prod-424120.iam.gserviceaccount.com
+  labels:
+    app.kubernetes.io/name: chunkr
+    app.kubernetes.io/component: workload-identity
+    app.kubernetes.io/part-of: chunkr-enterprise
+---
+# ConfigMap with example usage
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chunkr-workload-identity-example
+  namespace: chunkr
+  labels:
+    app.kubernetes.io/name: chunkr
+    app.kubernetes.io/component: workload-identity
+    app.kubernetes.io/part-of: chunkr-enterprise
+data:
+  test-auth.sh: |
+    #!/bin/bash
+    # Test script to verify workload identity is working
+    
+    echo "Testing Workload Identity..."
+    echo "Current service account: $(curl -s -H 'Metadata-Flavor: Google' http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email 2>/dev/null || echo 'Not available')"
+    
+    echo "Testing gcloud auth..."
+    if gcloud auth application-default print-access-token > /dev/null 2>&1; then
+      echo "✓ gcloud authentication working"
+      echo "Project: $(gcloud config get-value project 2>/dev/null || echo 'Not set')"
+    else
+      echo "✗ gcloud authentication failed"
+      exit 1
+    fi
+    
+    echo "Testing Google Cloud APIs..."
+    if gcloud projects describe $(gcloud config get-value project) > /dev/null 2>&1; then
+      echo "✓ Google Cloud API access working"
+    else
+      echo "✗ Google Cloud API access failed"
+      exit 1
+    fi
+---
+# Test pod to verify workload identity setup
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workload-identity-test
+  namespace: chunkr
+  labels:
+    app.kubernetes.io/name: chunkr
+    app.kubernetes.io/component: workload-identity-test
+    app.kubernetes.io/part-of: chunkr-enterprise
+spec:
+  serviceAccountName: chunkr-workload-identity
+  containers:
+  - name: test
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+    command: ["/bin/bash"]
+    args:
+    - -c
+    - |
+      echo "Workload Identity Test Pod"
+      echo "=========================="
+      /scripts/test-auth.sh
+      echo "Sleeping for 1 hour... (kubectl delete pod workload-identity-test -n chunkr to remove)"
+      sleep 3600
+    volumeMounts:
+    - name: test-scripts
+      mountPath: /scripts
+      readOnly: true
+  volumes:
+  - name: test-scripts
+    configMap:
+      name: chunkr-workload-identity-example
+      defaultMode: 0755
+  restartPolicy: Never 
