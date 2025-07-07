@@ -244,18 +244,22 @@ impl JsonSchemaDefinition {
     }
 }
 
-#[derive(Debug, Clone, Display)]
+#[derive(Debug, Clone, Display, Deserialize)]
 pub enum LlmProvider {
     #[strum(serialize = "openai")]
     OpenAI,
     #[strum(serialize = "genai")]
     Genai,
+    #[strum(serialize = "vertexai")]
+    VertexAI,
 }
 
 impl LlmProvider {
     pub fn from_url(url: &str) -> Self {
         if url.contains("generativelanguage.googleapis.com") {
             Self::Genai
+        } else if url.contains("aiplatform.googleapis.com") {
+            Self::VertexAI
         } else {
             Self::OpenAI
         }

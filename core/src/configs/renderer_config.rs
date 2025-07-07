@@ -114,14 +114,11 @@ impl Config {
             if let Some(dir_path) = dir_option.as_ref() {
                 // Remove existing directory to prevent permission conflicts
                 if dir_path.exists() {
-                    match fs::remove_dir_all(dir_path) {
-                        Ok(()) => {
-                            println!("🧹 Cleaned existing {dir_name} directory: {dir_path:?}")
-                        }
-                        Err(e) => {
-                            println!("⚠️ Failed to clean {dir_name} directory {dir_path:?}: {e}")
-                        }
-                    }
+                    fs::remove_dir_all(dir_path).map_err(|e| {
+                        ConfigError::Message(format!(
+                            "Failed to remove {dir_name} directory {dir_path:?}: {e}"
+                        ))
+                    })?;
                 }
 
                 // Create directory with proper permissions
@@ -144,8 +141,6 @@ impl Config {
                         "Failed to set permissions for {dir_name} directory {dir_path:?}: {e}"
                     ))
                 })?;
-
-                println!("✅ {dir_name} directory ready: {dir_path:?}");
             }
         }
 

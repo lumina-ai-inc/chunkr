@@ -1,5 +1,5 @@
-use crate::configs::llm_config::create_messages_from_template;
-use crate::configs::llm_config::{Config as LlmConfig, LlmModel};
+use crate::configs::gcp_config::Config as GcpConfig;
+use crate::configs::llm_config::{create_messages_from_template, Config as LlmConfig, LlmModel};
 use crate::configs::otel_config;
 use crate::models::genai::{GenerateContentRequest, GenerateContentResponse};
 use crate::models::llm::LlmProcessing;
@@ -45,9 +45,7 @@ fn is_retryable_error(error: &Box<dyn Error + Send + Sync>) -> bool {
 }
 
 pub async fn open_ai_call(
-    url: String,
-    key: String,
-    model: String,
+    model: LlmModel,
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
@@ -70,7 +68,7 @@ pub async fn open_ai_call(
     };
 
     let request = OpenAiRequest {
-        model: model.clone(),
+        model: model.model.clone(),
         messages,
         max_completion_tokens,
         temperature,
@@ -78,9 +76,9 @@ pub async fn open_ai_call(
     };
     let client = reqwest::Client::new();
     let mut openai_request = client
-        .post(url)
+        .post(model.provider_url.clone())
         .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {key}"));
+        .header("Authorization", format!("Bearer {}", model.api_key));
 
     if let Some(Some(timeout_value)) = LLM_TIMEOUT.get() {
         openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
@@ -117,19 +115,17 @@ pub async fn open_ai_call(
 }
 
 pub async fn genai_call(
-    url: String,
-    key: String,
-    model: String,
+    model: LlmModel,
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
     schema_definition: Option<JsonSchemaDefinition>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    println!("Gemini call with model: {model:?}");
+    println!("Gemini call with model: {:?}", model.model);
 
     // Create a basic OpenAI request for conversion
     let openai_request = OpenAiRequest {
-        model: model.clone(),
+        model: model.model.clone(),
         messages,
         max_completion_tokens,
         temperature,
@@ -149,7 +145,10 @@ pub async fn genai_call(
     }
 
     let client = reqwest::Client::new();
-    let gemini_url = format!("{url}/models/{model}:generateContent?key={key}");
+    let gemini_url = format!(
+        "{}/models/{}:generateContent?key={}",
+        model.provider_url, model.model, model.api_key
+    );
     let mut gemini_request = client
         .post(gemini_url)
         .header("Content-Type", "application/json");
@@ -194,11 +193,84 @@ pub async fn genai_call(
     genai_response.try_into()
 }
 
+pub async fn vertexai_call(
+    model: LlmModel,
+    messages: Vec<Message>,
+    max_completion_tokens: Option<u32>,
+    temperature: Option<f32>,
+    schema_definition: Option<JsonSchemaDefinition>,
+) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
+    println!("VertexAI call with model: {:?}", model.model);
+    let gcp_config = GcpConfig::from_env().unwrap();
+    let access_token = gcp_config.get_access_token().unwrap();
+
+    // Create a basic OpenAI request for conversion
+    let openai_request = OpenAiRequest {
+        model: model.model.clone(),
+        messages,
+        max_completion_tokens,
+        temperature,
+        response_format: None,
+    };
+
+    let mut genai_request: GenerateContentRequest = openai_request.into();
+
+    // Add schema to generation config if provided
+    if let Some(schema_def) = schema_definition {
+        if let Some(ref mut gen_config) = genai_request.generation_config {
+            gen_config.response_mime_type = Some("application/json".to_string());
+            gen_config.response_schema = Some(
+                crate::models::genai::convert_schema_to_genai_format(schema_def.schema)?,
+            );
+        }
+    }
+
+    let client = reqwest::Client::new();
+    let gemini_url = format!("{}/{}:generateContent", model.provider_url, model.model);
+    let mut gemini_request = client
+        .post(gemini_url)
+        .header("Authorization", format!("Bearer {access_token}"))
+        .header("Content-Type", "application/json");
+
+    if let Some(Some(timeout_value)) = LLM_TIMEOUT.get() {
+        gemini_request = gemini_request.timeout(std::time::Duration::from_secs(*timeout_value));
+    }
+
+    let response = gemini_request.json(&genai_request).send().await?;
+
+    let response = if response.status().is_success() {
+        response
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        let error_message = format!("HTTP {status}: {error_text}");
+
+        // 400-level errors (client errors) should not be retried except for 429 (rate limit)
+        if status.as_u16() >= 400 && status.as_u16() < 500 && status.as_u16() != 429 {
+            return Err(Box::new(LLMError::NonRetryable(error_message)));
+        } else {
+            return Err(Box::new(LLMError::Generic(error_message)));
+        }
+    };
+
+    let text = response.text().await?;
+    let genai_response: GenerateContentResponse = match serde_json::from_str(&text) {
+        Ok(parsed) => parsed,
+        Err(e) => {
+            return Err(Box::new(LLMError::JsonParseError {
+                error: e.to_string(),
+                response: text.trim().to_string(),
+            }));
+        }
+    };
+
+    // Convert Gemini response back to OpenAI format
+    genai_response.try_into()
+}
+
 #[allow(clippy::too_many_arguments)]
 pub async fn llm_call_router(
-    url: String,
-    key: String,
-    model: String,
+    model: LlmModel,
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
@@ -206,26 +278,25 @@ pub async fn llm_call_router(
     tracer: &opentelemetry::global::BoxedTracer,
     parent_context: &Context,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    let provider = LlmProvider::from_url(&url);
     let span = tracer.start_with_context(
         otel_config::SpanName::LlmCallRouter.to_string(),
         parent_context,
     );
     let ctx = parent_context.with_span(span);
     ctx.span()
-        .set_attribute(opentelemetry::KeyValue::new("model", model.clone()));
-    ctx.span()
-        .set_attribute(opentelemetry::KeyValue::new("provider_url", url.clone()));
+        .set_attribute(opentelemetry::KeyValue::new("model", model.model.clone()));
+    ctx.span().set_attribute(opentelemetry::KeyValue::new(
+        "provider_url",
+        model.provider_url.clone(),
+    ));
     ctx.span().set_attribute(opentelemetry::KeyValue::new(
         "provider",
-        provider.to_string(),
+        model.provider.to_string(),
     ));
 
-    match provider {
+    match model.provider {
         LlmProvider::Genai => {
             genai_call(
-                url,
-                key,
                 model,
                 messages,
                 max_completion_tokens,
@@ -236,8 +307,16 @@ pub async fn llm_call_router(
         }
         LlmProvider::OpenAI => {
             open_ai_call(
-                url,
-                key,
+                model,
+                messages,
+                max_completion_tokens,
+                temperature,
+                schema_definition,
+            )
+            .await
+        }
+        LlmProvider::VertexAI => {
+            vertexai_call(
                 model,
                 messages,
                 max_completion_tokens,
@@ -314,9 +393,7 @@ async fn open_ai_call_handler(
     }
 
     match llm_call_router(
-        model.provider_url.clone(),
-        model.api_key.clone(),
-        model.model.clone(),
+        model,
         messages.clone(),
         max_completion_tokens,
         temperature,

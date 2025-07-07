@@ -100,7 +100,7 @@
 //! let fallback = config.get_excel_fallback_model(FallbackStrategy::Default)?; // Uses excel_fallback if configured, otherwise None
 //! ```
 
-use crate::models::llm::{FallbackStrategy, LlmProcessing};
+use crate::models::llm::{FallbackStrategy, LlmProcessing, LlmProvider};
 use crate::models::open_ai::Message;
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
@@ -110,7 +110,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::sync::RwLock;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     fallback_model: Option<String>,
     key: Option<String>,
@@ -121,21 +121,58 @@ pub struct Config {
     pub excel_parsing_fallback_model: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct LlmModel {
     pub id: String,
     pub model: String,
     pub provider_url: String,
     pub api_key: String,
-    #[serde(default)]
     pub default: bool,
-    #[serde(default)]
     pub fallback: bool,
-    #[serde(default)]
     pub excel_default: bool,
-    #[serde(default)]
     pub excel_fallback: bool,
     pub rate_limit: Option<f32>,
+    pub provider: LlmProvider,
+}
+
+impl<'de> Deserialize<'de> for LlmModel {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct LlmModelHelper {
+            id: String,
+            model: String,
+            provider_url: String,
+            api_key: String,
+            #[serde(default)]
+            default: bool,
+            #[serde(default)]
+            fallback: bool,
+            #[serde(default)]
+            excel_default: bool,
+            #[serde(default)]
+            excel_fallback: bool,
+            rate_limit: Option<f32>,
+        }
+
+        let helper = LlmModelHelper::deserialize(deserializer)?;
+        let provider = LlmProvider::from_url(&helper.provider_url);
+
+        Ok(LlmModel {
+            id: helper.id,
+            model: helper.model,
+            provider_url: helper.provider_url,
+            api_key: helper.api_key,
+            default: helper.default,
+            fallback: helper.fallback,
+            excel_default: helper.excel_default,
+            excel_fallback: helper.excel_fallback,
+            rate_limit: helper.rate_limit,
+            provider,
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -210,6 +247,12 @@ impl Config {
                 excel_default: false,
                 excel_fallback: false,
                 rate_limit: None,
+                provider: LlmProvider::from_url(
+                    &config
+                        .url
+                        .clone()
+                        .ok_or(ConfigError::Message("No URL provided".to_string()))?,
+                ),
             };
 
             let fallback_model_id = config
@@ -226,6 +269,12 @@ impl Config {
                 excel_default: false,
                 excel_fallback: false,
                 rate_limit: None,
+                provider: LlmProvider::from_url(
+                    &config
+                        .url
+                        .clone()
+                        .ok_or(ConfigError::Message("No URL provided".to_string()))?,
+                ),
             };
 
             config.llm_models = Some(vec![default_model, fallback_model]);
@@ -301,6 +350,14 @@ impl Config {
         for model in models {
             if !seen_ids.insert(&model.id) {
                 return Err(format!("Duplicate model ID found: {}", model.id));
+            }
+
+            // Validate API key requirements based on provider
+            if model.api_key.is_empty() && !matches!(model.provider, LlmProvider::VertexAI) {
+                return Err(format!(
+                    "API key is required for model '{}' with provider '{}'",
+                    model.id, model.provider
+                ));
             }
         }
 

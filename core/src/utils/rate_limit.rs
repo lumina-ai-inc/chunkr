@@ -418,17 +418,7 @@ mod tests {
         }];
 
         let start_time = std::time::Instant::now();
-        match open_ai_call(
-            llm_model.provider_url,
-            llm_model.api_key,
-            llm_model.model,
-            messages,
-            None,
-            None,
-            None,
-        )
-        .await
-        {
+        match open_ai_call(llm_model, messages, None, None, None).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 println!(
@@ -459,17 +449,7 @@ mod tests {
 
         let start_time = std::time::Instant::now();
         loop {
-            match open_ai_call(
-                llm_model.provider_url.clone(),
-                llm_model.api_key.clone(),
-                llm_model.model.clone(),
-                messages.clone(),
-                None,
-                None,
-                None,
-            )
-            .await
-            {
+            match open_ai_call(llm_model.clone(), messages.clone(), None, None, None).await {
                 Ok(_) => return Ok(()),
                 Err(e) => {
                     if let Some(reqwest_err) = e.downcast_ref::<reqwest::Error>() {
