@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.4...chunkr-chart-enterprise-v1.3.0) (2025-07-07)
+
+
+### Features
+
+* Added workload identity to tf and kube, and add GCP CLI to the docker images  ([#141](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/141)) ([f514cef](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f514cef95f4d2cfe3e53cbfb0898347a9b4a501b))
+
 ## [1.2.4](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.3...chunkr-chart-enterprise-v1.2.4) (2025-07-04)
 
 

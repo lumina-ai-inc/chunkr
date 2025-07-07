@@ -114,7 +114,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -139,7 +139,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -191,7 +191,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     port: 8000
     targetPort: 8000
     ingress:
@@ -239,7 +239,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -277,7 +277,7 @@ services:
     enabled: true
     image:
       repository: emails
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -289,7 +289,7 @@ services:
     enabled: true
     image:
       repository: analytics-web
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -306,7 +306,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: 2.2.0-enterprise
+      tag: 2.3.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -325,5 +325,3 @@ services:
           secretKeyRef:
             name: chunkr-secret
             key: PG__URL
-
-

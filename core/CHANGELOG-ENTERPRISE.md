@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.2.0-enterprise...chunkr-core-enterprise-v2.3.0-enterprise) (2025-07-07)
+
+
+### Features
+
+* Added vertex ai support ([#143](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/143)) ([2ce9327](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/2ce9327a2c02bd4d0a3ca22fc67c24119ceddc28))
+
 ## [2.2.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.1.0-enterprise...chunkr-core-enterprise-v2.2.0-enterprise) (2025-07-04)
 
 
