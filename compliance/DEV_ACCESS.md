@@ -34,3 +34,13 @@ Last Name: Kung
 Temp password: MacHeRtRoVER
 Expiration date: Friday, July 18, 2025
 
+
+---
+
+URL: https://dev.chunkr.ai
+Username: joseph
+Email: joe@prosights.co
+First Name: Joseph  
+Last Name: Nam
+Temp password: MacHeRtRoVER
+Expiration date: Monday, July 21, 2025
