@@ -44,7 +44,8 @@ use routes::tasks::get_tasks_route;
 use routes::user::get_or_create_user;
 use utils::clients::initialize;
 use utils::routes::admin_user::get_or_create_admin_user;
-
+use utils::routes::create_onboarding::create_onboarding;
+use utils::routes::get_slots::get_slots;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 const ONE_GB: usize = 1024 * 1024 * 1024; // 1 GB in bytes
@@ -205,6 +206,14 @@ pub fn main() -> std::io::Result<()> {
                 )
                 .route("/tasks", web::get().to(get_tasks_route))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
+
+            if std::env::var("CAL__API_KEY").is_ok() {
+                let onboarding_scope = web::scope("/cal")
+                    .wrap(AuthMiddlewareFactory)
+                    .route("/slots", web::get().to(get_slots))
+                    .route("/onboarding", web::post().to(create_onboarding));
+                app = app.service(onboarding_scope);
+            }
 
             if std::env::var("STRIPE__API_KEY").is_ok() {
                 app = app.route("/stripe/webhook", web::post().to(stripe_webhook));

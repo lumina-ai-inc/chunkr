@@ -20,6 +20,8 @@ node_modules
 *.log
 dist
 dist-ssr
+dist_keycloak
+.keycloakify/
 *.local
 *.tsbuildinfo
 .env

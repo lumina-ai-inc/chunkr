@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 #[derive(
     Serialize,
@@ -109,6 +110,88 @@ impl UsageType {
     }
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, Default)]
+pub enum Status {
+    #[default]
+    Pending,
+    Completed,
+}
+
+impl ToSql for Status {
+    fn to_sql(
+        &self,
+        ty: &postgres_types::Type,
+        out: &mut postgres_types::private::BytesMut,
+    ) -> Result<postgres_types::IsNull, Box<dyn std::error::Error + Sync + Send>> {
+        let s = match self {
+            Status::Pending => "Pending",
+            Status::Completed => "Completed",
+        };
+        s.to_sql(ty, out)
+    }
+
+    fn accepts(ty: &postgres_types::Type) -> bool {
+        <String as ToSql>::accepts(ty)
+    }
+
+    postgres_types::to_sql_checked!();
+}
+
+impl<'a> FromSql<'a> for Status {
+    fn from_sql(
+        ty: &postgres_types::Type,
+        raw: &'a [u8],
+    ) -> Result<Self, Box<dyn std::error::Error + Sync + Send>> {
+        let s = String::from_sql(ty, raw)?;
+        match s.as_str() {
+            "Pending" => Ok(Status::Pending),
+            "Completed" => Ok(Status::Completed),
+            _ => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("Invalid Status value: {s}"),
+            ))),
+        }
+    }
+
+    fn accepts(ty: &postgres_types::Type) -> bool {
+        <String as FromSql>::accepts(ty)
+    }
+}
+
+#[derive(
+    Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, Default, ToSql, FromSql,
+)]
+pub struct Information {
+    pub use_case: String,
+    pub usage: String,
+    pub file_types: String,
+    pub referral_source: String,
+    pub add_ons: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema)]
+pub struct OnboardingRecord {
+    pub id: String,
+    pub status: Status,
+    pub information: Information,
+}
+
+impl Default for OnboardingRecord {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl OnboardingRecord {
+    pub fn new() -> Self {
+        Self {
+            id: Uuid::new_v4().to_string(),
+            status: Status::default(),
+            information: Information::default(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema)]
 pub struct User {
     pub user_id: String,
@@ -123,6 +206,7 @@ pub struct User {
     pub usage: Vec<UsageLimit>,
     pub task_count: Option<i32>,
     pub last_paid_status: Option<String>,
+    pub onboarding_record: Option<OnboardingRecord>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]

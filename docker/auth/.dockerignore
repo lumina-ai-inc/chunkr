@@ -1,0 +1,95 @@
+# Node.js dependencies and build artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# Runtime directories
+.cache/
+.temp/
+.tmp/
+
+# Editor-specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git directory
+.git/
+.gitignore
+
+# Environment files
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Log files
+*.log
+logs/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage and testing
+.coverage/
+.lcov
+.nyc_output/
+coverage/
+*.tgz
+
+# Dependency directories that shouldn't be copied (we install fresh)
+**/node_modules/
+**/bower_components/
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Other cache directories
+.cache/
+.parcel-cache/
+
+# Build tools
+.vite/
+.rollup.cache/
+
+# Keycloak specific ignores
+*.jar
+.keycloakify/
+
+# Other services and infrastructure
+core/
+services/
+docker/
+terraform*/
+kube/
+scripts/
+load-test/
+machine-learning/
+benchmark/

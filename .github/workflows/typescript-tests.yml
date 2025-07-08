@@ -11,6 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize git for keycloakify
+        working-directory: ./apps/web
+        run: |
+          git config user.email "ci@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Initial commit for keycloakify" || true
       - name: Installing pnpm
         run: npm i -g pnpm
       - name: Install dependencies
@@ -23,11 +30,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize git for keycloakify
+        working-directory: ./apps/web
+        run: |
+          git config user.email "ci@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Initial commit for keycloakify" || true
       - name: Installing pnpm
         run: npm i -g pnpm
       - name: Install dependencies
         working-directory: ./apps/web
         run: pnpm i
+      - name: Run postinstall
+        working-directory: ./apps/web
+        run: pnpm run postinstall
       - name: Running lint
         working-directory: ./apps/web
         run: pnpm lint

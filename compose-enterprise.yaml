@@ -179,7 +179,7 @@ services:
       "
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.2
+    image: luminainc/auth:latest
     platform: linux/amd64
     ports:
       - "8080:8080"
@@ -193,7 +193,7 @@ services:
       - KC_DB_PASSWORD=postgres
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: ["start-dev", "--import-realm"]
+    command: ["--import-realm"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
       interval: 30s

@@ -1,10 +1,11 @@
 use crate::configs::postgres_config::Client;
 use crate::configs::user_config::Config as UserConfig;
 use crate::models::auth::UserInfo;
-use crate::models::user::{Tier, UsageLimit, UsageType, User};
+use crate::models::user::{OnboardingRecord, Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
+use serde_json;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PreAppliedPages {
@@ -99,6 +100,24 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         )
         .await?;
 
+    let onboarding_record = OnboardingRecord::new();
+    let onboarding_query = r#"
+    INSERT INTO onboarding_records (id, user_id, information, status)
+    VALUES ($1, $2, $3, $4)
+    "#;
+
+    transaction
+        .execute(
+            onboarding_query,
+            &[
+                &onboarding_record.id,
+                &user_info.user_id,
+                &serde_json::to_value(onboarding_record.information.clone())?,
+                &onboarding_record.status,
+            ],
+        )
+        .await?;
+
     let check_result = transaction
         .query_opt(
             "SELECT 1 FROM pre_applied_free_pages WHERE email = $1",
@@ -150,6 +169,7 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         }],
         task_count: Some(0),
         last_paid_status: None,
+        onboarding_record: Some(onboarding_record),
     };
 
     Ok(user)

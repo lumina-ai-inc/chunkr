@@ -182,7 +182,7 @@ services:
       replicas: 1
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.2
+    image: luminainc/auth:latest
     ports:
       - "8080:8080"
     environment:
@@ -200,7 +200,7 @@ services:
       - KC_TRANSACTION_XA_ENABLED=false
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: [ "start-dev", "--import-realm" ]
+    command: ["--import-realm"]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 30s

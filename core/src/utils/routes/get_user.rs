@@ -1,5 +1,5 @@
 use crate::configs::postgres_config::Client;
-use crate::models::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::models::user::{InvoiceStatus, OnboardingRecord, Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use std::str::FromStr;
 
@@ -17,23 +17,30 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         u.created_at,
         u.updated_at,
         u.task_count,
-        u.invoice_status as last_paid_status
+        u.invoice_status as last_paid_status,
+        row_to_json(oi.*) as onboarding_record
     FROM 
         users u
     LEFT JOIN 
         api_keys ak ON u.user_id = ak.user_id
     LEFT JOIN 
         monthly_usage mu ON u.user_id = mu.user_id AND mu.created_at = (
-            SELECT MAX(created_at) 
+            SELECT MAX(created_at)  
             FROM monthly_usage 
             WHERE user_id = u.user_id
         )
+    LEFT JOIN 
+        onboarding_records oi ON u.user_id = oi.user_id
     WHERE 
         u.user_id = $1
     GROUP BY 
         u.user_id,
         u.invoice_status,
-        mu.tier;
+        mu.tier,
+        oi.user_id,
+        oi.status,
+        oi.id,
+        oi.information;
     "#;
 
     let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
@@ -65,7 +72,9 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
 
     let tier_str: String = row.get("tier");
     let tier = tier_str.parse::<Tier>().unwrap_or(Tier::Free);
-
+    let onboarding_record: Option<OnboardingRecord> = row
+        .get::<_, Option<serde_json::Value>>("onboarding_record")
+        .and_then(|value| serde_json::from_value(value).ok());
     let user = User {
         user_id: row.get("user_id"),
         customer_id: row.get("customer_id"),
@@ -79,6 +88,7 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         usage,
         task_count: row.get("task_count"),
         last_paid_status: row.get("last_paid_status"),
+        onboarding_record,
     };
 
     Ok(user)

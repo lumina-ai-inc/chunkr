@@ -5,6 +5,12 @@ WORKDIR /app
 
 COPY apps/web/ .
 
+RUN git init && \
+    git config user.email "build@docker.com" && \
+    git config user.name "Docker Build" && \
+    git add . && \
+    git commit -m "Initial commit for keycloakify"
+
 # Install pnpm, turbo, and required type definitions
 RUN npm install -g pnpm turbo
 RUN rm -rf node_modules && pnpm install --frozen-lockfile

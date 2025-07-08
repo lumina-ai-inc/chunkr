@@ -4,6 +4,23 @@ export interface UserUsage {
   overage_usage?: number;
 }
 
+export enum OnboardingStatus {
+  Pending = "Pending",
+  Completed = "Completed",
+}
+
+interface OnboardingInformation {
+  use_case: string;
+  usage: string;
+  file_types: string;
+}
+
+interface OnboardingRecord {
+  id: string;
+  status: OnboardingStatus;
+  information: OnboardingInformation;
+}
+
 export interface User {
   user_id: string;
   customer_id: string | null;
@@ -17,6 +34,7 @@ export interface User {
   updated_at: string;
   usage: UserUsage[];
   last_paid_status: string | null;
+  onboarding_record: OnboardingRecord | null;
 }
 
 export interface AuthUser {

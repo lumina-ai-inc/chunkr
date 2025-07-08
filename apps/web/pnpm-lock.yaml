@@ -11,6 +11,9 @@ importers:
       '-':
         specifier: ^0.0.1
         version: 0.0.1
+      '@calcom/embed-react':
+        specifier: ^1.5.3
+        version: 1.5.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@contentful/rich-text-react-renderer':
         specifier: ^16.0.1
         version: 16.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -24,8 +27,8 @@ importers:
         specifier: ^11.13.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
       '@keycloakify/login-ui':
-        specifier: ~250004.1.0
-        version: 250004.1.0(tsafe@1.8.5)
+        specifier: ~250004.1.1
+        version: 250004.1.1(tsafe@1.8.5)
       '@mui/icons-material':
         specifier: ^6.3.0
         version: 6.4.1(@mui/material@6.4.1(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
@@ -134,6 +137,9 @@ importers:
       keycloak-js:
         specifier: ^25.0.4
         version: 25.0.6
+      keycloakify:
+        specifier: ^11.8.49
+        version: 11.8.49
       lenis:
         specifier: ^1.1.20
         version: 1.1.20(react@18.3.1)
@@ -396,6 +402,18 @@ packages:
   '@babel/types@7.26.7':
     resolution: {integrity: sha512-t8kDRGrKXyp6+tjUh7hw2RLyclsW4TRoRvRHtSyAX9Bb5ldlFh+90YAYY6awRXrlB4G5G2izNeGySpATlFzmOg==}
     engines: {node: '>=6.9.0'}
+
+  '@calcom/embed-core@1.5.3':
+    resolution: {integrity: sha512-GeId9gaByJ5EWiPmuvelZOvFWPOTWkcWZr5vGTCbIUTX125oE5yn0n8lDF1MJk5Xj1WO+/dk9jKIE08Ad9ytiQ==}
+
+  '@calcom/embed-react@1.5.3':
+    resolution: {integrity: sha512-JCgge04pc8fhdvUmPNVLhW8/lCWK+AAziKecKWWPfv1nn2s+qKP2BwsEAnxhxK9yPOBgE1EIEgmYkrrNB1iajA==}
+    peerDependencies:
+      react: ^18.2.0 || ^19.0.0
+      react-dom: ^18.2.0 || ^19.0.0
+
+  '@calcom/embed-snippet@1.3.3':
+    resolution: {integrity: sha512-pqqKaeLB8R6BvyegcpI9gAyY6Xyx1bKYfWvIGOvIbTpguWyM1BBBVcT9DCeGe8Zw7Ujp5K56ci7isRUrT2Uadg==}
 
   '@contentful/content-source-maps@0.11.16':
     resolution: {integrity: sha512-+zgnLPt2bfuFuoYAxtbBGGRuhYfOq3FrxAjKendH3bSR8L4a/NZIPu39BqrWS4CNbkj4qJ3k2Q42eD/lFvZhtw==}
@@ -732,8 +750,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@keycloakify/login-ui@250004.1.0':
-    resolution: {integrity: sha512-/BcIrfousFP/yQYQTlcHLH7+vp/8NSr8zR3htyoDtnkRlZEOg1H7FnDXPJeomAxB6HNDU1bwyCCCA3+Rcj8htA==}
+  '@keycloakify/login-ui@250004.1.1':
+    resolution: {integrity: sha512-cmh3bSOvdkeoZgfOTeH5XDnrFlO1849F2eG82dnIK1PzzfxBwLVzagGakU99TRyUBFZ/LgUp4ZUZ+JLknEt8tQ==}
     peerDependencies:
       tsafe: ^1.8.5
 
@@ -3031,6 +3049,10 @@ packages:
   keycloak-js@25.0.6:
     resolution: {integrity: sha512-Km+dc+XfNvY6a4az5jcxTK0zPk52ns9mAxLrHj7lF3V+riVYvQujfHmhayltJDjEpSOJ4C8a57LFNNKnNnRP2g==}
 
+  keycloakify@11.8.49:
+    resolution: {integrity: sha512-Lrt6BeYLtXXp82kDIw1LD/5bWyrEaDgAe6AOduScmeGUeoTCFBaNB/1FwR8JStYpXkfeWD643IlQYZ8KShN/PA==}
+    hasBin: true
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -4525,6 +4547,19 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
+  '@calcom/embed-core@1.5.3': {}
+
+  '@calcom/embed-react@1.5.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@calcom/embed-core': 1.5.3
+      '@calcom/embed-snippet': 1.3.3
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@calcom/embed-snippet@1.3.3':
+    dependencies:
+      '@calcom/embed-core': 1.5.3
+
   '@contentful/content-source-maps@0.11.16':
     dependencies:
       '@vercel/stega': 0.1.2
@@ -4831,7 +4866,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@keycloakify/login-ui@250004.1.0(tsafe@1.8.5)':
+  '@keycloakify/login-ui@250004.1.1(tsafe@1.8.5)':
     dependencies:
       tsafe: 1.8.5
 
@@ -7340,6 +7375,10 @@ snapshots:
     dependencies:
       js-sha256: 0.11.0
       jwt-decode: 4.0.0
+
+  keycloakify@11.8.49:
+    dependencies:
+      tsafe: 1.8.5
 
   keyv@4.5.4:
     dependencies:

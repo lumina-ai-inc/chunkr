@@ -27,6 +27,7 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "none",
+  "loginTheme": "chunkr-web",
   "registrationAllowed": true,
   "registrationEmailAsUsername": false,
   "rememberMe": true,

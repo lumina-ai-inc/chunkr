@@ -18,14 +18,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    discounts (user_id, usage_type) {
-        user_id -> Text,
-        usage_type -> Text,
-        amount -> Nullable<Float8>,
-    }
-}
-
-diesel::table! {
     invoices (invoice_id) {
         invoice_id -> Text,
         user_id -> Text,
@@ -36,6 +28,7 @@ diesel::table! {
         amount_due -> Float8,
         total_pages -> Int4,
         stripe_invoice_id -> Nullable<Text>,
+        bill_date -> Nullable<Timestamptz>,
     }
 }
 
@@ -49,6 +42,20 @@ diesel::table! {
         month -> Int4,
         created_at -> Nullable<Timestamptz>,
         updated_at -> Nullable<Timestamptz>,
+        overage_usage -> Nullable<Int4>,
+        tier -> Nullable<Text>,
+        usage_limit -> Nullable<Int4>,
+        billing_cycle_start -> Nullable<Timestamptz>,
+        billing_cycle_end -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
+    onboarding_records (id) {
+        id -> Text,
+        user_id -> Text,
+        information -> Jsonb,
+        status -> Text,
     }
 }
 
@@ -86,12 +93,39 @@ diesel::table! {
 }
 
 diesel::table! {
+    subscriptions (user_id) {
+        user_id -> Text,
+        stripe_subscription_id -> Nullable<Text>,
+        tier -> Text,
+        last_paid_date -> Nullable<Timestamptz>,
+        last_paid_status -> Nullable<Text>,
+        created_at -> Nullable<Timestamptz>,
+        updated_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
     task_invoices (task_id) {
         task_id -> Text,
         invoice_id -> Text,
         usage_type -> Text,
         pages -> Int4,
         cost -> Float8,
+        created_at -> Timestamp,
+        bill_date -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
+    task_ledger (ledger_id) {
+        ledger_id -> Text,
+        task_id -> Text,
+        user_id -> Text,
+        tier -> Text,
+        usage_type -> Text,
+        tier_cost -> Float8,
+        usage_amount -> Int4,
+        total_cost -> Float8,
         created_at -> Timestamp,
     }
 }
@@ -114,13 +148,24 @@ diesel::table! {
         output_location -> Nullable<Text>,
         configuration -> Nullable<Text>,
         message -> Nullable<Text>,
+        image_folder_location -> Nullable<Text>,
         pdf_location -> Nullable<Text>,
-        input_file_type -> Nullable<Text>,
         #[max_length = 255]
         mime_type -> Nullable<Varchar>,
         started_at -> Nullable<Timestamptz>,
         #[max_length = 255]
-        image_folder_location -> Nullable<Varchar>,
+        version -> Nullable<Varchar>,
+    }
+}
+
+diesel::table! {
+    tiers (tier) {
+        tier -> Text,
+        price_per_month -> Float8,
+        usage_limit -> Int4,
+        overage_rate -> Float8,
+        created_at -> Nullable<Timestamptz>,
+        updated_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -129,20 +174,10 @@ diesel::table! {
         id -> Int4,
         user_id -> Nullable<Text>,
         usage -> Nullable<Int4>,
-        usage_limit -> Nullable<Int4>,
         usage_type -> Nullable<Text>,
         unit -> Nullable<Text>,
         created_at -> Nullable<Timestamptz>,
         updated_at -> Nullable<Timestamptz>,
-    }
-}
-
-diesel::table! {
-    usage_limits (id) {Hobby
-        id -> Int4,
-        usage_type -> Text,
-        tier -> Text,
-        usage_limit -> Int4,
     }
 }
 
@@ -172,17 +207,24 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(monthly_usage -> tiers (tier));
+diesel::joinable!(onboarding_records -> users (user_id));
+diesel::joinable!(subscriptions -> tiers (tier));
+diesel::joinable!(subscriptions -> users (user_id));
+
 diesel::allow_tables_to_appear_in_same_query!(
     api_keys,
-    discounts,
     invoices,
     monthly_usage,
+    onboarding_records,
     pre_applied_free_pages,
     segment_process,
+    subscriptions,
     task_invoices,
+    task_ledger,
     tasks,
+    tiers,
     usage,
-    usage_limits,
     usage_type,
     users,
 );
