@@ -6,10 +6,17 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     #[serde(default = "default_excel_parser")]
     pub excel_parser: bool,
+
+    #[serde(default = "default_include_excel_headers")]
+    pub include_excel_headers: bool,
 }
 
 fn default_excel_parser() -> bool {
     false
+}
+
+fn default_include_excel_headers() -> bool {
+    true
 }
 
 impl Config {

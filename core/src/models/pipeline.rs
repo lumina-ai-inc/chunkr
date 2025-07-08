@@ -1,4 +1,4 @@
-use crate::configs::{otel_config, worker_config};
+use crate::configs::{feature_config, otel_config, worker_config};
 use crate::models::excel::{IdentifiedElement, IdentifiedElements};
 use crate::models::file_operations::ImageConversionResult;
 use crate::models::output::{Cell, Chunk, Segment, SegmentCreationError, SegmentType};
@@ -338,6 +338,20 @@ impl Element {
         col_offset: Option<u32>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let mut table_html = "<table>".to_string();
+
+        // Check feature flag to include headers
+        let include_headers = feature_config::Config::from_env()?.include_excel_headers;
+
+        if !include_headers {
+            // When headers are disabled, just render the table range as-is without header processing
+            let indices = parse_range(&self.range)?.with_offset(row_offset, col_offset);
+            table_html += &extract_rows_from_indicies(sheet_html, &indices, Some("<tbody>"))?;
+            table_html += "</table>";
+            self.html = Some(Arc::new(Builder::new().suffix(".html").tempfile()?));
+            fs::write(self.html.as_ref().unwrap().path(), table_html)?;
+            return Ok(());
+        }
+
         let table_indices_without_overlap = self.table_indices_without_overlap()?;
 
         if self.header_range.is_none() && table_indices_without_overlap.is_none() {
