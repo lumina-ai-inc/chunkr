@@ -53,3 +53,7 @@ releases:
         value: standard 
       - name: services.emails.enabled
         value: false
+      - name: services.task.serviceAccountName
+        value: chunkr-workload-identity
+      - name: services.server.serviceAccountName
+        value: chunkr-workload-identity

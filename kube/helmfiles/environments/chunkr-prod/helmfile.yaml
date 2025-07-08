@@ -40,3 +40,7 @@ releases:
         value: chunkr-prod
       - name: global.storageClass
         value: standard 
+      - name: services.task.serviceAccountName
+        value: chunkr-workload-identity
+      - name: services.server.serviceAccountName
+        value: chunkr-workload-identity 

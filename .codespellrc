@@ -3,4 +3,4 @@
 skip = .git*,*.pdf,*.svg,package-lock.json,*-lock.yaml,*.css,.codespellrc,*.csv,pdf.worker.min.mjs,./machine-learning/training/Qwen2-VL-Finetune-master
 check-hidden = true
 ignore-regex = \bafterAll\b
-ignore-words-list = AKS, aks
+ignore-words-list = AKS, aks, Nam

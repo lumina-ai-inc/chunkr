@@ -7,7 +7,7 @@ metadata:
   annotations:
     # Replace with your GCP service account email from terraform output
     # Run: terraform output workload_identity_service_account_email
-    iam.gke.io/gcp-service-account: chunkr-dev-workload-identity@lumina-prod-424120.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: chunkr-prod-workload-identity@lumina-prod-424120.iam.gserviceaccount.com
   labels:
     app.kubernetes.io/name: chunkr
     app.kubernetes.io/component: workload-identity

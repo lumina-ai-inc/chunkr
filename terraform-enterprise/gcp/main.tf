@@ -222,6 +222,20 @@ resource "google_project_iam_member" "workload_identity_aiplatform" {
   member  = "serviceAccount:${google_service_account.workload_identity.email}"
 }
 
+# Grant permissions for ML operations and custom models
+resource "google_project_iam_member" "workload_identity_ml_developer" {
+  project = local.current_config.project
+  role    = "roles/ml.developer"
+  member  = "serviceAccount:${google_service_account.workload_identity.email}"
+}
+
+# Grant permissions for batch predictions and advanced AI features
+# resource "google_project_iam_member" "workload_identity_aiplatform_admin" {
+#   project = local.current_config.project
+#   role    = "roles/aiplatform.admin"
+#   member  = "serviceAccount:${google_service_account.workload_identity.email}"
+# }
+
 resource "google_project_iam_member" "workload_identity_storage" {
   project = local.current_config.project
   role    = "roles/storage.objectViewer"

@@ -44,6 +44,9 @@ spec:
       securityContext:
         {{- toYaml $service.securityContext | nindent 8 }}
       {{- end }}
+      {{- if $service.serviceAccountName }}
+      serviceAccountName: {{ $service.serviceAccountName }}
+      {{- end }}
       {{- if and (not $service.useGPU) $service.tolerations }}
       tolerations:
         {{- toYaml $service.tolerations | nindent 8 }}
