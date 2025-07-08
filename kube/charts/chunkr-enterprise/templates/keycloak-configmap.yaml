@@ -8,7 +8,7 @@ data:
   KEYCLOAK_ADMIN: "admin"
   KEYCLOAK_ADMIN_PASSWORD: admin
   KC_PROXY: "edge"
-  KC_HOSTNAME: "{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+  KC_HOSTNAME: "{{ .Values.services.auth.ingress.subdomain }}.{{ .Values.ingress.domain }}"
   KC_FEATURES: "hostname:v2"
   KC_HOSTNAME_DEBUG: "true"
   KC_DB: "postgres"

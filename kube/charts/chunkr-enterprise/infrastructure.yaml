@@ -1,17 +1,17 @@
 services:
-  keycloak:
+  auth:
     enabled: true
     image:
-      repository: keycloak
-      tag: 25.0.2
-      registry: quay.io/keycloak
+      repository: auth
+      tag: 2.4.0-enterprise
+    imagePullSecrets:
+      - name: regcred
     port: 8080
     targetPort: 8080
     ingress:
       enabled: true
       subdomain: auth
     args:
-      - start-dev
       - '--import-realm'
     envFrom:
       - configMapRef:

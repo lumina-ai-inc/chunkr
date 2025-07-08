@@ -55,7 +55,7 @@ spec:
       volumes:
         {{- toYaml $service.volumes | nindent 8 }}
       {{- end }}
-      {{- if and $service.imagePullSecretsEnabled $service.imagePullSecrets }}
+      {{- if $service.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml $service.imagePullSecrets | nindent 8 }}
       {{- end }}

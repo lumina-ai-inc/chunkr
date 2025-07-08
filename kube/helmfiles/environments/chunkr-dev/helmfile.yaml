@@ -6,7 +6,10 @@ releases:
     values:
       - ../../../charts/chunkr-enterprise/values.yaml
       - ../../../charts/chunkr-enterprise/infrastructure.yaml
+      - ../../../charts/chunkr-enterprise/embeddings.yaml
     set:
+      - name: services.embeddings.enabled
+        value: false
       - name: services.embeddings.ingress.enabled
         value: false
       - name: services.embeddings.ingress.subdomain
@@ -35,7 +38,7 @@ releases:
         value: dev
       - name: services.server.ingress.subdomain
         value: dev-api
-      - name: services.keycloak.ingress.subdomain
+      - name: services.auth.ingress.subdomain
         value: dev-auth
       - name: services.analytics-web.ingress.subdomain
         value: dev-analytics

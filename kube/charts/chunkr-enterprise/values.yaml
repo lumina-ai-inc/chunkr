@@ -21,7 +21,7 @@ ingress:
       tunnelName: chunkr
       services:
         - name: server
-        - name: keycloak
+        - name: auth
         - name: web
         - name: minio
         - name: embeddings
@@ -34,7 +34,7 @@ common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
       value: >-
-        https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
+        https://{{ .Values.services.auth.ingress.subdomain }}.{{
         .Values.ingress.domain }}
     - name: AWS__ENDPOINT
       value: http://{{- .Release.Name }}-minio:9000
@@ -220,7 +220,7 @@ services:
           .Values.ingress.domain }}/dashboard
       - name: VITE_KEYCLOAK_URL
         value: >-
-          https://{{ .Values.services.keycloak.ingress.subdomain }}.{{
+          https://{{ .Values.services.auth.ingress.subdomain }}.{{
           .Values.ingress.domain }}
       - name: VITE_STRIPE_API_KEY
         valueFrom:
