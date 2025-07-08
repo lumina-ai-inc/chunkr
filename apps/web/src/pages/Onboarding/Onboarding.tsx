@@ -90,8 +90,11 @@ export default function Onboarding() {
   };
 
   const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return "1M+";
+    }
     if (num >= 100000) {
-      return "100k+";
+      return `${(num / 1000).toFixed(0)}k`;
     }
     if (num >= 1000) {
       return `${(num / 1000).toFixed(0)}k`;
@@ -296,8 +299,8 @@ export default function Onboarding() {
                         <input
                           type="range"
                           min="1000"
-                          max="101000"
-                          step="5000"
+                          max="1000000"
+                          step="1000"
                           value={formData.monthlyUsage}
                           onChange={(e) =>
                             handleInputChange(
@@ -324,19 +327,17 @@ export default function Onboarding() {
                         [&::-moz-range-thumb]:shadow-lg 
                         [&::-moz-range-thumb]:border-none"
                           style={{
-                            background: `linear-gradient(to right, white 0%, white ${
-                              ((formData.monthlyUsage - 1000) / 100000) * 100
-                            }%, rgba(255,255,255,0.2) ${
-                              ((formData.monthlyUsage - 1000) / 100000) * 100
-                            }%, rgba(255,255,255,0.2) 100%)`,
+                            background: `linear-gradient(to right, white 0%, white ${((formData.monthlyUsage - 1000) / 1000000) * 100
+                              }%, rgba(255,255,255,0.2) ${((formData.monthlyUsage - 1000) / 1000000) * 100
+                              }%, rgba(255,255,255,0.2) 100%)`,
                           }}
                         />
                         <div className="flex justify-between text-sm text-white/60">
                           <span>1k</span>
-                          <span>25k</span>
-                          <span>50k</span>
-                          <span>75k</span>
-                          <span>100k+</span>
+                          <span>250k</span>
+                          <span>500k</span>
+                          <span>750k</span>
+                          <span>1M+</span>
                         </div>
                       </div>
                     </Flex>
@@ -505,11 +506,10 @@ export default function Onboarding() {
                         Onboarding Call <span className="text-red-500">*</span>
                       </Text>
                       <div
-                        className={`w-full mx-auto overflow-auto rounded-md transition-all duration-300 ${
-                          selectedDate && selectedTime
-                            ? "h-auto max-h-none"
-                            : "h-[240px] max-h-[240px]"
-                        }`}
+                        className={`w-full mx-auto overflow-auto rounded-md transition-all duration-300 ${selectedDate && selectedTime
+                          ? "h-auto max-h-none"
+                          : "h-[240px] max-h-[240px]"
+                          }`}
                       >
                         <CalendarSlots
                           calendarData={calendarData}
