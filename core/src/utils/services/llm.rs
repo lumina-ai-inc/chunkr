@@ -51,7 +51,7 @@ pub async fn open_ai_call(
     temperature: Option<f32>,
     schema_definition: Option<JsonSchemaDefinition>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    println!("OpenAI call with model: {model:?}");
+    println!("OpenAI call with model: {:?}", model.model);
 
     // Convert schema definition to OpenAI format if provided
     let response_format = if let Some(schema_def) = schema_definition {

@@ -110,7 +110,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::sync::RwLock;
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct Config {
     fallback_model: Option<String>,
     key: Option<String>,
@@ -121,7 +121,7 @@ pub struct Config {
     pub excel_parsing_fallback_model: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct LlmModel {
     pub id: String,
     pub model: String,

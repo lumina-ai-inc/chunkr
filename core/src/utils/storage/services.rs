@@ -36,7 +36,8 @@ pub async fn generate_presigned_url(
     base64_urls: bool,
     mime_type: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let s3_client = if external {
+    // If external is true and base64_urls is false, use the external S3 client - base64 urls should always use the internal S3 client
+    let s3_client = if external && !base64_urls {
         clients::get_external_s3_client()
     } else {
         clients::get_s3_client()
