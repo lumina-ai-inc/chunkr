@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.4.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.3.0-enterprise...chunkr-core-enterprise-v2.4.0-enterprise) (2025-07-08)
+
+
+### Features
+
+* Add a feature flag to include_excel_headers ([#140](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/140)) ([00e225e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/00e225e266d6bd6b385f5f75ffff6b1dbc63f54d))
+* Add intake form and restyle keycloak auth pages ([2d8bde8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/2d8bde81fa201a857d1afec3fe4ba489de741761))
+
+
+### Bug Fixes
+
+* Removed api key debug prints for llm, and base64 using external urls ([a4aaa53](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a4aaa535fd79e70e32dff7a2457eef75f7b0004a))
+
 ## [2.3.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.2.0-enterprise...chunkr-core-enterprise-v2.3.0-enterprise) (2025-07-07)
 
 

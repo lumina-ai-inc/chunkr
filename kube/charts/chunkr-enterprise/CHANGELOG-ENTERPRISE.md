@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.3.0...chunkr-chart-enterprise-v1.4.0) (2025-07-08)
+
+
+### Features
+
+* Workload identity added to chunkr pods ([#146](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/146)) ([7f05114](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7f0511409f3de3984af9460725fcb9de97a3250c))
+
 ## [1.3.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.2.4...chunkr-chart-enterprise-v1.3.0) (2025-07-07)
 
 

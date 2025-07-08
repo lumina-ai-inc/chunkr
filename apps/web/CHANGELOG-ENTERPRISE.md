@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.8.1-enterprise...chunkr-web-enterprise-v1.9.0-enterprise) (2025-07-08)
+
+
+### Features
+
+* Add intake form and restyle keycloak auth pages ([2d8bde8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/2d8bde81fa201a857d1afec3fe4ba489de741761))
+
+
+### Bug Fixes
+
+* Updated monthly page usage input for onboarding | 100K+ -&gt; 1M+ ([de7505a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/de7505a81b95195af8e7a11838ba28ecc1cbb39d))
+
 ## [1.8.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.8.0-enterprise...chunkr-web-enterprise-v1.8.1-enterprise) (2025-07-03)
 
 

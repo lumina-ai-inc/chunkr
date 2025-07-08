@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.4.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.3.0-enterprise...v2.4.0-enterprise) (2025-07-08)
+
+
+### Features
+
+* Add a feature flag to include_excel_headers ([#140](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/140)) ([00e225e](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/00e225e266d6bd6b385f5f75ffff6b1dbc63f54d))
+* Add intake form and restyle keycloak auth pages ([2d8bde8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/2d8bde81fa201a857d1afec3fe4ba489de741761))
+* Added teleport terraform as an ssh alternative([#145](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/145)) ([e464ab9](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e464ab99fb558c0ede131a82ee67817703998871))
+* Workload identity added to chunkr pods ([#146](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/146)) ([7f05114](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/7f0511409f3de3984af9460725fcb9de97a3250c))
+
+
+### Bug Fixes
+
+* Removed api key debug prints for llm, and base64 using external urls ([a4aaa53](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a4aaa535fd79e70e32dff7a2457eef75f7b0004a))
+* Updated monthly page usage input for onboarding | 100K+ -&gt; 1M+ ([de7505a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/de7505a81b95195af8e7a11838ba28ecc1cbb39d))
+
 ## [2.3.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.2.0-enterprise...v2.3.0-enterprise) (2025-07-07)
 
 
