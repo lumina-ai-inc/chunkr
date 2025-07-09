@@ -18,8 +18,13 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const onboardingStatus = data?.onboarding_record?.status;
 
   useEffect(() => {
-    if (!auth.isAuthenticated || isLoading || !onboardingStatus) {
+    if (!auth.isAuthenticated || isLoading) {
       return;
+    }
+
+    // If the user doesn't have an onboarding record, redirect to dashboard - for old users
+    if (!onboardingStatus) {
+      navigate("/dashboard", { replace: true });
     }
 
     const currentPath = location.pathname;
