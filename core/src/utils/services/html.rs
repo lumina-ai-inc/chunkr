@@ -143,19 +143,20 @@ pub fn parse_range(range: &str) -> Result<Indices, Box<dyn Error + Send + Sync>>
 
         // Validate that we have column letters
         if col_str.is_empty() {
-            return Err("Invalid cell format: no column letters found".into());
+            return Err(format!("Invalid cell format: no column letters found {cell}").into());
         }
 
         // Validate that all characters in col_str are valid letters (A-Z)
         if !col_str.chars().all(|c: char| c.is_ascii_uppercase()) {
-            return Err(
-                "Invalid cell format: column must contain only uppercase letters A-Z".into(),
-            );
+            return Err(format!(
+                "Invalid cell format: column must contain only uppercase letters A-Z {col_str}"
+            )
+            .into());
         }
 
         // Validate that we have row digits
         if row_str.is_empty() {
-            return Err("Invalid cell format: no row number found".into());
+            return Err(format!("Invalid cell format: no row number found {cell}").into());
         }
 
         // Convert column letters to zero-based index
@@ -176,7 +177,7 @@ pub fn parse_range(range: &str) -> Result<Indices, Box<dyn Error + Send + Sync>>
     if range.contains(':') {
         let parts: Vec<&str> = range.split(':').collect();
         if parts.len() != 2 {
-            return Err("Invalid range format".into());
+            return Err(format!("Invalid range format {range}").into());
         }
         let (start_row, start_col) = parse_cell(parts[0])?;
         let (end_row, end_col) = parse_cell(parts[1])?;

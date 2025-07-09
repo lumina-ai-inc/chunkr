@@ -466,27 +466,30 @@ impl Task {
         finished_at: Option<DateTime<Utc>>,
         expires_at: Option<DateTime<Utc>>,
         segment_count: Option<u32>,
+        allow_timed_out: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let client = get_pg_client().await?;
 
         // Check if the task is in a timeout state
-        let row = client
-            .query_opt(
-                "SELECT message FROM tasks WHERE task_id = $1 AND user_id = $2",
-                &[&self.task_id, &self.user_id],
-            )
-            .await?;
+        if !allow_timed_out {
+            let row = client
+                .query_opt(
+                    "SELECT message FROM tasks WHERE task_id = $1 AND user_id = $2",
+                    &[&self.task_id, &self.user_id],
+                )
+                .await?;
 
-        if let Some(row) = row {
-            let current_message: Option<String> = row.get("message");
-            if let Some(msg) = current_message {
-                if msg.to_lowercase().contains("timeout")
-                    || msg.to_lowercase().contains("timed out")
-                {
-                    self.message = Some(msg.clone());
-                    return Err(Box::new(TimeoutError {
-                        message: "Task has timed out and cannot be updated".to_string(),
-                    }));
+            if let Some(row) = row {
+                let current_message: Option<String> = row.get("message");
+                if let Some(msg) = current_message {
+                    if msg.to_lowercase().contains("timeout")
+                        || msg.to_lowercase().contains("timed out")
+                    {
+                        self.message = Some(msg.clone());
+                        return Err(Box::new(TimeoutError {
+                            message: "Task has timed out and cannot be updated".to_string(),
+                        }));
+                    }
                 }
             }
         }
@@ -575,6 +578,7 @@ impl Task {
                         None,
                         None,
                         None,
+                        false,
                     ))
                     .await
                 } else if e.to_string().contains("blocked") {
@@ -611,6 +615,7 @@ impl Task {
                         None,
                         None,
                         None,
+                        false,
                     ))
                     .await
                 } else {
@@ -674,6 +679,7 @@ impl Task {
             Some(Utc::now()),
             None,
             None,
+            false,
         )
         .await?;
 
@@ -761,80 +767,6 @@ impl Task {
         upload_to_s3(&self.output_location, output_temp_file.path()).await?;
 
         Ok(())
-    }
-
-    /// Get artifacts from S3
-    ///
-    /// # Arguments
-    /// * `self` - The task.
-    ///
-    /// # Returns
-    /// A tuple containing the artifacts.
-    /// * `input_file` - The input file.
-    /// * `pdf_file` - The PDF file.
-    /// * `page_images` - The page images.
-    /// * `segment_images` - The segment images.
-    /// * `output` - The output.
-    pub async fn get_artifacts(
-        &self,
-    ) -> Result<
-        (
-            NamedTempFile,
-            NamedTempFile,
-            Vec<NamedTempFile>,
-            DashMap<String, NamedTempFile>,
-            OutputResponse,
-        ),
-        Box<dyn std::error::Error>,
-    > {
-        let output_temp_file =
-            download_to_tempfile(&self.output_location, None, "application/json").await?;
-        let output: OutputResponse =
-            serde_json::from_str(&tokio::fs::read_to_string(output_temp_file.path()).await?)?;
-
-        let input_future =
-            download_to_tempfile(&self.input_location, None, self.mime_type.as_ref().unwrap());
-        let pdf_future = download_to_tempfile(&self.pdf_location, None, "application/pdf");
-
-        let page_count = self
-            .page_count
-            .ok_or("Page count is required but not found")?;
-        let page_futures: Vec<_> = (0..page_count)
-            .map(|idx| {
-                let s3_key = format!("{}/page_{}.jpg", self.pages_location, idx);
-                async move { download_to_tempfile(&s3_key, None, "image/jpeg").await }
-            })
-            .collect();
-
-        let segment_futures: Vec<_> = output
-            .chunks
-            .iter()
-            .flat_map(|chunk| chunk.segments.iter())
-            .filter_map(|segment| {
-                segment.image.as_ref().map(|image_path| {
-                    let segment_id = segment.segment_id.clone();
-                    async move {
-                        let segment_image =
-                            download_to_tempfile(image_path, None, "image/jpeg").await?;
-                        Result::<_, Box<dyn std::error::Error>>::Ok((segment_id, segment_image))
-                    }
-                })
-            })
-            .collect();
-
-        let (input_file, pdf_file, page_images, segment_results) = tokio::try_join!(
-            input_future,
-            pdf_future,
-            try_join_all(page_futures),
-            try_join_all(segment_futures)
-        )?;
-
-        let segment_images = DashMap::new();
-        for (segment_id, image) in segment_results {
-            segment_images.insert(segment_id, image);
-        }
-
-        Ok((input_file, pdf_file, page_images, segment_images, output))
     }
 
     /// Generate S3 paths for the task.

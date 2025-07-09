@@ -1261,6 +1261,7 @@ impl Pipeline {
             None,
             None,
             None,
+            false,
         )
         .await?;
         if task.status == Status::Cancelled {
@@ -1276,6 +1277,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    false,
                 )
                 .await?;
             }
@@ -1287,35 +1289,20 @@ impl Pipeline {
                 .ok_or("No mime type found")?
                 .as_str(),
         )?;
-        if task_payload.previous_configuration.is_some() {
-            println!("Previous configuration found, loading artifacts");
-            let (input_file, pdf_file, page_images, segment_images, output) =
-                task.get_artifacts().await?;
-            self.input_file = Some(Arc::new(input_file));
-            self.pdf_file = Some(Arc::new(pdf_file));
-            self.page_images = Some(page_images.into_iter().map(Arc::new).collect());
-            self.segment_images = segment_images
-                .into_iter()
-                .map(|(k, v)| (k, Arc::new(v)))
-                .collect();
-            self.chunks = output.chunks;
-            println!("Task initialized with artifacts");
-        } else {
-            self.input_file = Some(Arc::new(
-                download_to_tempfile(&task.input_location, None, task.mime_type.as_ref().unwrap())
-                    .await?,
-            ));
+        self.input_file = Some(Arc::new(
+            download_to_tempfile(&task.input_location, None, task.mime_type.as_ref().unwrap())
+                .await?,
+        ));
 
-            self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
-                "application/pdf" => Some(self.input_file.clone().unwrap()),
-                _ if is_spreadsheet => None, // PDF will be set later for spreadsheets
-                _ => Some(Arc::new(convert_to_pdf(
-                    self.input_file.as_ref().unwrap(),
-                    None,
-                )?)),
-            };
-            println!("Task initialized with input file");
-        }
+        self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
+            "application/pdf" => Some(self.input_file.clone().unwrap()),
+            _ if is_spreadsheet => None, // PDF will be set later for spreadsheets
+            _ => Some(Arc::new(convert_to_pdf(
+                self.input_file.as_ref().unwrap(),
+                None,
+            )?)),
+        };
+        println!("Task initialized with input file");
         let page_count = if is_spreadsheet {
             count_sheets(
                 self.input_file
@@ -1342,6 +1329,7 @@ impl Pipeline {
             None,
             None,
             None,
+            false,
         )
         .await
         .map_err(|e| -> Box<dyn Error> { format!("Task update error: {e:?}").into() })?;
@@ -1367,6 +1355,7 @@ impl Pipeline {
             None,
             None,
             None,
+            false,
         )
         .await?;
         self.sheets = Some(sheets.clone());
@@ -1626,6 +1615,7 @@ impl Pipeline {
                 None,
                 None,
                 None,
+                false,
             )
             .await?;
 
@@ -1693,6 +1683,7 @@ impl Pipeline {
                             None,
                             None,
                             None,
+                            false,
                         )
                         .await?;
 
@@ -1736,6 +1727,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    false,
                 )
                 .await?;
             } else {
@@ -1748,6 +1740,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    false,
                 )
                 .await?;
             }
@@ -1778,6 +1771,7 @@ impl Pipeline {
                 Some(finished_at),
                 expires_at,
                 Some(segment_count),
+                false,
             )
             .await?;
             Ok(())
@@ -1794,6 +1788,7 @@ impl Pipeline {
                     Some(finished_at),
                     expires_at,
                     None,
+                    false,
                 )
                 .await?;
                 Ok(())
