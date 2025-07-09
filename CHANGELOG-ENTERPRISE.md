@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.4.0-enterprise...v2.5.0-enterprise) (2025-07-09)
+
+
+### Features
+
+* Removed getting old artifacts and allows timed out tasks to be retried ([#150](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/150)) ([6b8de90](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6b8de9051a8b7f0da0822563a669792c6e8f5f2b))
+
+
+### Bug Fixes
+
+* Added /onboarding to web and updated TEI ([cc223fd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/cc223fdd8a615098f80d1d165420e18283dbcf45))
+* Auth styling changes, add regex in register form & fix redirect logic ([#153](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/153)) ([a09c730](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a09c730c421348f296f655a57e9f05febf0dcefc))
+* Image pull secrets being applied properly and updated to auth docker image from keycloak ([1642dc8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1642dc88f63285b53a007261dc777ff18abf066e))
+
 ## [2.4.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.3.0-enterprise...v2.4.0-enterprise) (2025-07-08)
 
 

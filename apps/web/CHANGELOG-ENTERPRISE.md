@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.9.0-enterprise...chunkr-web-enterprise-v1.9.1-enterprise) (2025-07-09)
+
+
+### Bug Fixes
+
+* Auth styling changes, add regex in register form & fix redirect logic ([#153](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/153)) ([a09c730](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a09c730c421348f296f655a57e9f05febf0dcefc))
+
 ## [1.9.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.8.1-enterprise...chunkr-web-enterprise-v1.9.0-enterprise) (2025-07-08)
 
 

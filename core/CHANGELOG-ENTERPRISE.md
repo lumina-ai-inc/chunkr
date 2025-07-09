@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.4.0-enterprise...chunkr-core-enterprise-v2.5.0-enterprise) (2025-07-09)
+
+
+### Features
+
+* Removed getting old artifacts and allows timed out tasks to be retried ([#150](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/150)) ([6b8de90](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6b8de9051a8b7f0da0822563a669792c6e8f5f2b))
+
 ## [2.4.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.3.0-enterprise...chunkr-core-enterprise-v2.4.0-enterprise) (2025-07-08)
 
 

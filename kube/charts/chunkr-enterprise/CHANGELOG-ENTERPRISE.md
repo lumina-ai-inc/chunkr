@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.4.0...chunkr-chart-enterprise-v1.4.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* Added /onboarding to web and updated TEI ([cc223fd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/cc223fdd8a615098f80d1d165420e18283dbcf45))
+* Image pull secrets being applied properly and updated to auth docker image from keycloak ([1642dc8](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/1642dc88f63285b53a007261dc777ff18abf066e))
+
 ## [1.4.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.3.0...chunkr-chart-enterprise-v1.4.0) (2025-07-08)
 
 
