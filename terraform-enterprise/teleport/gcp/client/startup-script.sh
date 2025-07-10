@@ -63,7 +63,7 @@ version: '3.8'
 
 services:
   teleport:
-    image: public.ecr.aws/gravitational/teleport:13
+    image: public.ecr.aws/gravitational/teleport:13.4.26
     container_name: teleport-server
     hostname: teleport
     ports:

@@ -27,6 +27,12 @@ variable "teleport_token" {
   sensitive   = true
 }
 
+variable "teleport_ca_pin" {
+  type        = string
+  description = "The Teleport CA pin for agents to verify server identity"
+  sensitive   = true
+}
+
 # Optional location override variables
 variable "override_region" {
   type        = string
@@ -184,6 +190,7 @@ locals {
   startup_script = templatefile("${path.module}/startup-script.sh", {
     teleport_server_ip = var.teleport_server_ip
     teleport_token     = var.teleport_token
+    teleport_ca_pin    = var.teleport_ca_pin
     agent_hostname     = "agent-${local.config.region}"
     region             = local.config.region
   })
@@ -228,6 +235,7 @@ resource "google_compute_instance" "agent_vms" {
     "startup-script"         = local.startup_script
     "teleport-server-ip"     = var.teleport_server_ip
     "teleport-token"         = var.teleport_token
+    "teleport-ca-pin"        = var.teleport_ca_pin
     "agent-id"               = "${local.config.base_name}-${count.index + 1}"
   }
 

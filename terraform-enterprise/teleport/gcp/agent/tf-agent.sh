@@ -25,12 +25,13 @@ show_usage() {
     echo "  output                         - Show terraform outputs"
     echo "  status                         - Show current status"
     echo "  check-agents                   - Check agent connectivity"
-    echo ""
-    echo "Required Variables:"
-    echo "  --teleport-server-ip <ip>      - IP of the Teleport server"
-    echo "  --teleport-token <token>       - Token for agents to connect"
+    echo "  debug-state                    - Debug terraform state detection"
+    echo "  get-token                      - Get and display fresh token for testing"
     echo ""
     echo "Optional Variables:"
+    echo "  --teleport-server-ip <ip>      - IP of the Teleport server (auto-retrieved)"
+    echo "  --teleport-token <token>       - Token for agents to connect (auto-retrieved)"
+    echo "  --teleport-ca-pin <pin>        - CA pin for server verification (auto-retrieved)"
     echo "  --agent-count <number>         - Number of agent VMs (default: 3)"
     echo "  --machine-type <type>          - VM machine type (default: n2-standard-2)"
     echo "  --disk-size <gb>               - Disk size in GB (default: 30)"
@@ -39,8 +40,11 @@ show_usage() {
     echo ""
     echo "Examples:"
     echo "  $0 init"
-    echo "  $0 plan --teleport-server-ip 1.2.3.4 --teleport-token abc123"
-    echo "  $0 apply --teleport-server-ip 1.2.3.4 --teleport-token abc123 --agent-count 5"
+    echo "  $0 plan                        # Automatically gets fresh teleport values"
+    echo "  $0 apply --agent-count 5       # Automatically gets fresh teleport values"
+    echo "  $0 plan --disk-size 1024       # Update disk size with fresh token"
+    echo "  $0 apply --disk-size 1024      # Apply with fresh token"
+    echo "  $0 get-token                   # Get and display fresh token for testing"
     echo "  $0 check-agents"
     echo "  $0 destroy"
 }
@@ -48,6 +52,7 @@ show_usage() {
 # Global variables for parsed arguments
 TELEPORT_SERVER_IP=""
 TELEPORT_TOKEN=""
+TELEPORT_CA_PIN=""
 AGENT_COUNT=""
 MACHINE_TYPE=""
 DISK_SIZE=""
@@ -60,6 +65,7 @@ parse_args() {
     # Reset global variables
     TELEPORT_SERVER_IP=""
     TELEPORT_TOKEN=""
+    TELEPORT_CA_PIN=""
     AGENT_COUNT=""
     MACHINE_TYPE=""
     DISK_SIZE=""
@@ -79,6 +85,11 @@ parse_args() {
             --teleport-token)
                 TELEPORT_TOKEN="$2"
                 TF_ARGS="$TF_ARGS -var teleport_token=$2"
+                shift 2
+                ;;
+            --teleport-ca-pin)
+                TELEPORT_CA_PIN="$2"
+                TF_ARGS="$TF_ARGS -var teleport_ca_pin=$2"
                 shift 2
                 ;;
             --agent-count)
@@ -118,21 +129,122 @@ parse_args() {
     echo "$remaining_args"
 }
 
+
+
+# Function to get fresh values from client
+get_fresh_values() {
+    echo -e "${BLUE}🔄 Getting fresh teleport values from client...${NC}"
+    
+    # Get server IP from client
+    if [[ -z "$TELEPORT_SERVER_IP" ]]; then
+        echo "  📡 Getting teleport server IP..."
+        if [[ -f "../client/tf-teleport.sh" ]]; then
+            local server_ip=$(cd ../client && ./tf-teleport.sh output 2>/dev/null | grep teleport_server_ip | sed 's/.*= "\(.*\)"/\1/')
+            if [[ -n "$server_ip" ]]; then
+                TELEPORT_SERVER_IP="$server_ip"
+                TF_ARGS="$TF_ARGS -var teleport_server_ip=$server_ip"
+                echo -e "${GREEN}  ✅ Got server IP: $server_ip${NC}"
+            else
+                echo -e "${RED}  ❌ Could not get server IP from client${NC}"
+                return 1
+            fi
+        else
+            echo -e "${RED}  ❌ Client terraform not found at ../client/${NC}"
+            return 1
+        fi
+    fi
+    
+    # Get fresh token and ca-pin from server
+    if [[ -z "$TELEPORT_TOKEN" ]] || [[ -z "$TELEPORT_CA_PIN" ]]; then
+        echo "  🎫 Getting fresh teleport token and ca-pin..."
+        echo -e "${YELLOW}  ⏳ SSHing to teleport server to get token and ca-pin...${NC}"
+        
+        # SSH to server and get token using Docker (includes ca-pin in output)
+        local token_output=$(gcloud compute ssh teleport-server --zone us-central1-b --tunnel-through-iap --command "sudo docker exec teleport-server tctl tokens add --type=node" 2>/dev/null)
+        
+        # Extract token from token output (from the "The invite token:" line)
+        local fresh_token=$(echo "$token_output" | grep -E 'The invite token: [a-f0-9]+' | sed 's/.*The invite token: \([a-f0-9]*\).*/\1/' | head -1)
+        
+        # Extract ca-pin from token output (from the --ca-pin= line)
+        local ca_pin=$(echo "$token_output" | grep -E '\-\-ca-pin=sha256:[a-f0-9]+' | sed 's/.*--ca-pin=\(sha256:[a-f0-9]*\).*/\1/' | head -1)
+        
+        if [[ -n "$fresh_token" ]] && [[ -n "$ca_pin" ]]; then
+            TELEPORT_TOKEN="$fresh_token"
+            TELEPORT_CA_PIN="$ca_pin"
+            TF_ARGS="$TF_ARGS -var teleport_token=$fresh_token -var teleport_ca_pin=$ca_pin"
+            echo -e "${GREEN}  ✅ Got fresh token: ${fresh_token:0:8}...${NC}"
+            echo -e "${GREEN}  ✅ Got ca-pin: ${ca_pin:0:20}...${NC}"
+        else
+            echo -e "${RED}  ❌ Could not get fresh token and ca-pin from server${NC}"
+            echo -e "${YELLOW}  🔍 Debug: Token output was:${NC}"
+            echo "$token_output"
+            echo "  💡 Try manually: gcloud compute ssh teleport-server --zone us-central1-b --tunnel-through-iap"
+            echo "     Then run: sudo docker exec teleport-server tctl tokens add --type=node"
+            return 1
+        fi
+    fi
+    
+    echo -e "${GREEN}🎉 Successfully got fresh teleport values!${NC}"
+    echo ""
+}
+
+# Function to get the join command for testing
+get_test_token() {
+    echo -e "${BLUE}🔑 Getting fresh token and ca-pin for testing...${NC}"
+    echo -e "${YELLOW}  ⏳ SSHing to teleport server to get token and ca-pin...${NC}"
+    
+    # SSH to server and get token using Docker (includes ca-pin in output)
+    local token_output=$(gcloud compute ssh teleport-server --zone us-central1-b --tunnel-through-iap --command "sudo docker exec teleport-server tctl tokens add --type=node" 2>/dev/null)
+    
+    echo ""
+    echo -e "${BLUE}📄 Token output (includes ca-pin):${NC}"
+    echo "$token_output"
+    echo ""
+    
+    # Extract token and ca-pin
+    local fresh_token=$(echo "$token_output" | grep -E 'The invite token: [a-f0-9]+' | sed 's/.*The invite token: \([a-f0-9]*\).*/\1/' | head -1)
+    local ca_pin=$(echo "$token_output" | grep -E '\-\-ca-pin=sha256:[a-f0-9]+' | sed 's/.*--ca-pin=\(sha256:[a-f0-9]*\).*/\1/' | head -1)
+    
+    if [[ -n "$fresh_token" ]] && [[ -n "$ca_pin" ]]; then
+        echo -e "${GREEN}✅ Fresh token and ca-pin retrieved successfully!${NC}"
+        echo -e "${BLUE}Token: ${fresh_token}${NC}"
+        echo -e "${BLUE}CA-Pin: ${ca_pin}${NC}"
+        echo -e "${BLUE}Token length: ${#fresh_token} characters${NC}"
+        echo ""
+        echo -e "${YELLOW}💡 This token will expire in 30 minutes${NC}"
+        echo ""
+        echo -e "${BLUE}Full teleport start command:${NC}"
+        echo "teleport start \\"
+        echo "  --roles=node \\"
+        echo "  --token=${fresh_token} \\"
+        echo "  --ca-pin=${ca_pin} \\"
+        echo "  --auth-server=TELEPORT_SERVER_IP:3025"
+        return 0
+    else
+        echo -e "${RED}❌ Could not extract token and ca-pin from server response${NC}"
+        return 1
+    fi
+}
+
 # Function to validate required variables
 validate_required() {
     local cmd=$1
     
     if [[ "$cmd" == "plan" || "$cmd" == "apply" ]]; then
-        if [[ -z "$TELEPORT_SERVER_IP" ]]; then
-            echo -e "${RED}❌ Error: --teleport-server-ip is required${NC}"
-            echo "Get it from the client deployment: cd ../client && ./tf-teleport.sh output"
-            exit 1
-        fi
-        
-        if [[ -z "$TELEPORT_TOKEN" ]]; then
-            echo -e "${RED}❌ Error: --teleport-token is required${NC}"
-            echo "Get it from the Teleport server by SSHing in and running: ./create-token.sh"
-            exit 1
+        # If no teleport values provided, get fresh ones
+        if [[ -z "$TELEPORT_SERVER_IP" ]] || [[ -z "$TELEPORT_TOKEN" ]] || [[ -z "$TELEPORT_CA_PIN" ]]; then
+            if get_fresh_values; then
+                echo -e "${GREEN}✅ Successfully obtained fresh teleport values${NC}"
+            else
+                echo -e "${RED}❌ Error: Could not automatically obtain teleport values${NC}"
+                echo ""
+                echo "Manual steps:"
+                echo "1. Get server IP: cd ../client && ./tf-teleport.sh output"
+                echo "2. Get token: gcloud compute ssh teleport-server --zone us-central1-b --tunnel-through-iap"
+                echo "   Then run: ./create-token.sh"
+                echo "3. Re-run with: $0 $cmd --teleport-server-ip <ip> --teleport-token <token> --teleport-ca-pin <pin>"
+                exit 1
+            fi
         fi
     fi
 }
@@ -341,6 +453,32 @@ case $CMD in
         ;;
     check-agents)
         check_agents
+        ;;
+    get-token)
+        get_test_token
+        ;;
+    debug-state)
+        echo "Debugging terraform state detection..."
+        echo ""
+        if [[ -d ".terraform" ]]; then
+            echo -e "${GREEN}✅ Terraform initialized and state file found${NC}"
+            echo "  - .terraform directory exists"
+            echo "  - terraform.tfstate file found"
+            echo "  - Checking for resources..."
+            if terraform show 2>/dev/null | grep -q "google_compute_instance.agent_vms"; then
+                echo -e "  ${GREEN}✅ google_compute_instance.agent_vms found${NC}"
+            else
+                echo -e "  ${RED}❌ google_compute_instance.agent_vms not found${NC}"
+            fi
+        else
+            echo -e "${RED}❌ Terraform not initialized or state file not found${NC}"
+            echo "  - .terraform directory does not exist"
+            echo "  - terraform.tfstate file does not exist"
+        fi
+        echo ""
+        ;;
+    get-token)
+        get_test_token
         ;;
     help-values)
         suggest_values
