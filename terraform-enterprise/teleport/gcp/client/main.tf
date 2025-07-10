@@ -62,6 +62,13 @@ resource "google_compute_subnetwork" "teleport_subnet" {
   ip_cidr_range = "10.4.0.0/16"
   region        = local.config.region
   network       = google_compute_network.teleport_network.id
+
+  # Enable flow logs for network monitoring and security compliance
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 # Firewall rules for Teleport
