@@ -109,6 +109,37 @@ nvidia:
     replicas: 8
     timeSlice: 2ms
 services:
+  auth:
+    enabled: true
+    image:
+      repository: auth
+      tag: 2.5.0-enterprise
+    imagePullSecrets:
+      - name: regcred
+    port: 8080
+    targetPort: 8080
+    ingress:
+      enabled: true
+      subdomain: auth
+    args:
+      - '--import-realm'
+    envFrom:
+      - configMapRef:
+          name: keycloak-config
+      - secretRef:
+          name: chunkr-secret
+    readinessProbe:
+      httpGet:
+        path: /realms/master
+        port: 8080
+    volumes:
+      - name: realm-config
+        configMap:
+          name: keycloak-realm-config
+    volumeMounts:
+      - name: realm-config
+        mountPath: /opt/keycloak/data/import/realm-export.json
+        subPath: realm-export.json
   server:
     enabled: true
     useStandardEnv: true
