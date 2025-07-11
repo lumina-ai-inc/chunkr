@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.9.1-enterprise...chunkr-web-enterprise-v1.10.0-enterprise) (2025-07-11)
+
+
+### Features
+
+* Add feature to convert pdf to images and improve regex check ([f62abcc](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f62abcc715e277a720b2c6954bc9f6c1fd83a025))
+
 ## [1.9.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.9.0-enterprise...chunkr-web-enterprise-v1.9.1-enterprise) (2025-07-09)
 
 

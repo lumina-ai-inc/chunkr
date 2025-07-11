@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.5.0-enterprise...v2.6.0-enterprise) (2025-07-11)
+
+
+### Features
+
+* Add feature to convert pdf to images and improve regex check ([f62abcc](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/f62abcc715e277a720b2c6954bc9f6c1fd83a025))
+
 ## [2.5.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.4.0-enterprise...v2.5.0-enterprise) (2025-07-09)
 
 
