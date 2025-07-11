@@ -25,6 +25,7 @@ show_usage() {
     echo "  output                         - Show terraform outputs"
     echo "  status                         - Show current status"
     echo "  check-agents                   - Check agent connectivity"
+    echo "  ssh [vm-number]                - SSH into an agent VM (defaults to VM 1)"
     echo "  debug-state                    - Debug terraform state detection"
     echo "  get-token                      - Get and display fresh token for testing"
     echo ""
@@ -44,6 +45,8 @@ show_usage() {
     echo "  $0 apply --agent-count 5       # Automatically gets fresh teleport values"
     echo "  $0 plan --disk-size 1024       # Update disk size with fresh token"
     echo "  $0 apply --disk-size 1024      # Apply with fresh token"
+    echo "  $0 ssh                         # SSH into agent VM 1"
+    echo "  $0 ssh 2                       # SSH into agent VM 2"
     echo "  $0 get-token                   # Get and display fresh token for testing"
     echo "  $0 check-agents"
     echo "  $0 destroy"
@@ -427,6 +430,45 @@ suggest_values() {
     echo ""
 }
 
+# Function to SSH into agent VM
+ssh_into_agent() {
+    local vm_number=${1:-1}
+    
+    echo -e "${BLUE}🔗 SSHing into agent VM ${vm_number}...${NC}"
+    echo ""
+    
+    # Check if terraform is initialized and has state
+    if ! terraform show -json > /dev/null 2>&1; then
+        echo -e "${RED}❌ No infrastructure deployed${NC}"
+        echo "Run: $0 apply"
+        return 1
+    fi
+    
+    # Get the VM name and zone
+    local vm_name=$(terraform output -json agent_vm_names 2>/dev/null | jq -r ".[${vm_number}-1]" 2>/dev/null)
+    local vm_zone=$(terraform show -json 2>/dev/null | jq -r ".values.root_module.resources[] | select(.type==\"google_compute_instance\" and .values.name==\"${vm_name}\") | .values.zone" 2>/dev/null)
+    
+    if [[ -z "$vm_name" || "$vm_name" == "null" ]]; then
+        echo -e "${RED}❌ Agent VM ${vm_number} not found${NC}"
+        echo ""
+        echo "Available VMs:"
+        terraform output -json agent_vm_names 2>/dev/null | jq -r 'to_entries[] | "  \(.key + 1): \(.value)"' 2>/dev/null || echo "  No VMs found"
+        return 1
+    fi
+    
+    if [[ -z "$vm_zone" || "$vm_zone" == "null" ]]; then
+        echo -e "${RED}❌ Could not determine zone for VM ${vm_name}${NC}"
+        return 1
+    fi
+    
+    echo -e "${GREEN}✅ Found VM: ${vm_name} in zone: ${vm_zone}${NC}"
+    echo -e "${BLUE}🚀 Connecting via IAP tunnel...${NC}"
+    echo ""
+    
+    # Execute the SSH command
+    gcloud compute ssh "${vm_name}" --zone "${vm_zone}" --tunnel-through-iap
+}
+
 # Main script logic
 if [[ $# -lt 1 ]]; then
     show_usage
@@ -453,6 +495,9 @@ case $CMD in
         ;;
     check-agents)
         check_agents
+        ;;
+    ssh)
+        ssh_into_agent $ARGS
         ;;
     get-token)
         get_test_token

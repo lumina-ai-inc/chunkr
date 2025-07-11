@@ -776,7 +776,7 @@ mod tests {
         let fence_type = None;
         let fallback_content = None;
         let llm_processing = LlmProcessing {
-            model_id: Some("gemini-pro-2.5".to_string()),
+            model_id: Some("o3-pro".to_string()),
             fallback_strategy: FallbackStrategy::None,
             max_completion_tokens: None,
             temperature: 0.0,
