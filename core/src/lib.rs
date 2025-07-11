@@ -26,6 +26,8 @@ pub mod pipeline;
 pub mod routes;
 pub mod utils;
 
+use configs::feature_config;
+
 use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
@@ -44,6 +46,7 @@ use routes::tasks::get_tasks_route;
 use routes::user::get_or_create_user;
 use utils::clients::initialize;
 use utils::routes::admin_user::get_or_create_admin_user;
+use utils::routes::convert_pdf::convert_pdf;
 use utils::routes::create_onboarding::create_onboarding;
 use utils::routes::get_slots::get_slots;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
@@ -148,6 +151,16 @@ pub fn main() -> std::io::Result<()> {
         get_or_create_admin_user()
             .await
             .expect("Failed to create admin user");
+
+        if feature_config::Config::from_env().unwrap().pdf_conversion {
+            let mut pdfium_config =
+                configs::pdfium_config::Config::from_env().expect("Failed to load pdfium config");
+            pdfium_config
+                .ensure_binary()
+                .await
+                .expect("Failed to ensure pdfium binaries are available");
+        }
+
         init_jobs();
 
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
@@ -206,6 +219,13 @@ pub fn main() -> std::io::Result<()> {
                 )
                 .route("/tasks", web::get().to(get_tasks_route))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
+
+            if feature_config::Config::from_env().unwrap().pdf_conversion {
+                let pdf_scope = web::scope("/pdf")
+                    .wrap(AuthMiddlewareFactory)
+                    .route("/images", web::post().to(convert_pdf));
+                app = app.service(pdf_scope);
+            }
 
             if std::env::var("CAL__API_KEY").is_ok() {
                 let onboarding_scope = web::scope("/cal")

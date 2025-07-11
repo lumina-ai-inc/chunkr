@@ -1,5 +1,6 @@
 pub mod admin_user;
 pub mod cancel_task;
+pub mod convert_pdf;
 pub mod create_onboarding;
 pub mod create_task;
 pub mod create_user;

@@ -9,6 +9,9 @@ pub struct Config {
 
     #[serde(default = "default_include_excel_headers")]
     pub include_excel_headers: bool,
+
+    #[serde(default = "default_pdf_conversion")]
+    pub pdf_conversion: bool,
 }
 
 fn default_excel_parser() -> bool {
@@ -17,6 +20,10 @@ fn default_excel_parser() -> bool {
 
 fn default_include_excel_headers() -> bool {
     true
+}
+
+fn default_pdf_conversion() -> bool {
+    false
 }
 
 impl Config {

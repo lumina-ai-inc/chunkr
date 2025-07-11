@@ -10,6 +10,7 @@ pub mod general_ocr;
 pub mod llm;
 pub mod open_ai;
 pub mod output;
+pub mod pdf_conversion;
 pub mod pipeline;
 pub mod search;
 pub mod segment_processing;
