@@ -5,7 +5,7 @@ description: >-
   RAG/LLM ready data. Features 11 semantic tags for layout analysis, OCR +
   Bounding Boxes, and Structured HTML and markdown output.
 type: application
-version: 2.6.0-enterprise
+version: 2.7.0-enterprise
 maintainers:
   - name: Lumina AI Inc.
     email: akhilesh@lumina.sh

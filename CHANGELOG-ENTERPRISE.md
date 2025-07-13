@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.6.0-enterprise...v2.7.0-enterprise) (2025-07-13)
+
+
+### Features
+
+* Add rate limiter to Azure requests with configurable limits ([#159](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/159)) ([10991fd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/10991fd168efe524022073961001a665ae95b96f))
+
 ## [2.6.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.5.0-enterprise...v2.6.0-enterprise) (2025-07-11)
 
 
