@@ -13,6 +13,9 @@ use std::collections::HashMap;
 use std::sync::RwLock;
 use std::time::Duration;
 
+pub static AZURE_ANALYSIS_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+pub static AZURE_POLLING_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+pub static AZURE_TIMEOUT: OnceCell<u64> = OnceCell::new();
 pub static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static GENERAL_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static LLM_RATE_LIMITERS: OnceCell<RwLock<HashMap<String, Option<RateLimiter>>>> =
@@ -21,7 +24,6 @@ pub static LLM_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 pub static SEGMENTATION_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
-pub static AZURE_TIMEOUT: OnceCell<u64> = OnceCell::new();
 
 #[derive(Clone)]
 pub struct RateLimiter {
@@ -188,6 +190,21 @@ impl RateLimiter {
     }
 }
 
+fn create_azure_analysis_rate_limiter(bucket_name: &str) -> RateLimiter {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    RateLimiter::new(throttle_config.azure_analysis_rate_limit, bucket_name)
+}
+
+fn create_azure_polling_rate_limiter(bucket_name: &str) -> RateLimiter {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    RateLimiter::new(throttle_config.azure_polling_rate_limit, bucket_name)
+}
+
+fn create_azure_timeout() -> u64 {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    throttle_config.azure_timeout
+}
+
 fn create_general_ocr_rate_limiter(bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(throttle_config.general_ocr_rate_limit, bucket_name)
@@ -217,18 +234,16 @@ fn create_segmentation_timeout() -> Option<u64> {
     throttle_config.segmentation_timeout
 }
 
-fn create_azure_timeout() -> u64 {
-    let throttle_config = ThrottleConfig::from_env().unwrap();
-    throttle_config.azure_timeout
-}
-
 pub fn init_throttle() {
     TOKEN_TIMEOUT.get_or_init(|| 10000);
+    AZURE_ANALYSIS_RATE_LIMITER
+        .get_or_init(|| create_azure_analysis_rate_limiter("azure_analysis"));
+    AZURE_POLLING_RATE_LIMITER.get_or_init(|| create_azure_polling_rate_limiter("azure_polling"));
+    AZURE_TIMEOUT.get_or_init(create_azure_timeout);
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| create_general_ocr_rate_limiter("general_ocr"));
     GENERAL_OCR_TIMEOUT.get_or_init(create_general_ocr_timeout);
     SEGMENTATION_RATE_LIMITER.get_or_init(|| create_segmentation_rate_limiter("segmentation"));
     SEGMENTATION_TIMEOUT.get_or_init(create_segmentation_timeout);
-    AZURE_TIMEOUT.get_or_init(create_azure_timeout);
     LLM_RATE_LIMITERS.get_or_init(|| {
         let mut llm_rate_limiters = HashMap::new();
         let llm_config = LlmConfig::from_env().unwrap();
@@ -268,6 +283,35 @@ pub fn get_llm_rate_limiter(model_id: &str) -> Result<Option<RateLimiter>, Strin
 
 pub fn print_rate_limits() {
     println!("=== Rate Limits (requests per second) ===");
+
+    // Print Azure rate limits
+    if let Some(limiter) = AZURE_ANALYSIS_RATE_LIMITER.get() {
+        println!(
+            "Azure Analysis: {:.2} requests/sec",
+            limiter.tokens_per_second
+        );
+
+        #[cfg(feature = "rate_monitor")]
+        if let Some(session_id) = &limiter.session_id {
+            println!("  Rate Monitoring Session: {session_id}");
+        }
+    } else {
+        println!("Azure Analysis: not initialized");
+    }
+
+    if let Some(limiter) = AZURE_POLLING_RATE_LIMITER.get() {
+        println!(
+            "Azure Polling: {:.2} requests/sec",
+            limiter.tokens_per_second
+        );
+
+        #[cfg(feature = "rate_monitor")]
+        if let Some(session_id) = &limiter.session_id {
+            println!("  Rate Monitoring Session: {session_id}");
+        }
+    } else {
+        println!("Azure Polling: not initialized");
+    }
 
     // Print OCR rate limit
     if let Some(limiter) = GENERAL_OCR_RATE_LIMITER.get() {

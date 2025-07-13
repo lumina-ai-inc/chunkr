@@ -3,12 +3,15 @@ use crate::models::azure::{AzureAnalysisResponse, DocumentAnalysisFeature};
 use crate::models::output::Chunk;
 use crate::models::upload::SegmentationStrategy;
 use crate::utils::clients;
-use crate::utils::rate_limit::AZURE_TIMEOUT;
+use crate::utils::rate_limit::{
+    AZURE_ANALYSIS_RATE_LIMITER, AZURE_POLLING_RATE_LIMITER, AZURE_TIMEOUT,
+};
 use crate::utils::retry::retry_with_backoff;
 use base64::{engine::general_purpose, Engine as _};
 use serde_json;
 use std::error::Error;
 use std::fs;
+use std::time::Duration;
 use tempfile::NamedTempFile;
 
 async fn azure_analysis(
@@ -50,6 +53,22 @@ async fn azure_analysis(
         azure_request = azure_request.timeout(std::time::Duration::from_secs(*timeout_value));
     }
 
+    // Apply rate limiting to the initial Azure request
+    if let Some(rate_limiter) = AZURE_ANALYSIS_RATE_LIMITER.get() {
+        let timeout_duration = Duration::from_secs(
+            *AZURE_TIMEOUT
+                .get()
+                .ok_or_else(|| "Azure timeout not set".to_string())?,
+        );
+
+        if !rate_limiter
+            .acquire_token_with_timeout(timeout_duration)
+            .await?
+        {
+            return Err("Failed to acquire rate limit token for Azure analysis request".into());
+        }
+    }
+
     let response = azure_request.json(&request_body).send().await?;
 
     if response.status() == 202 {
@@ -80,6 +99,24 @@ async fn azure_analysis(
             if let Some(timeout_value) = AZURE_TIMEOUT.get() {
                 azure_status_request =
                     azure_status_request.timeout(std::time::Duration::from_secs(*timeout_value));
+            }
+
+            // Apply rate limiting to the polling request
+            if let Some(rate_limiter) = AZURE_POLLING_RATE_LIMITER.get() {
+                let timeout_duration = Duration::from_secs(
+                    *AZURE_TIMEOUT
+                        .get()
+                        .ok_or_else(|| "Azure timeout not set".to_string())?,
+                );
+
+                if !rate_limiter
+                    .acquire_token_with_timeout(timeout_duration)
+                    .await?
+                {
+                    return Err(
+                        "Failed to acquire rate limit token for Azure polling request".into(),
+                    );
+                }
             }
 
             let status_response = azure_status_request.send().await?.error_for_status()?;
