@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.11.0-enterprise...chunkr-web-enterprise-v1.11.1-enterprise) (2025-07-14)
+
+
+### Bug Fixes
+
+* Adjusted ui to new segment processing API, fixes for picture description viewing, some functionality buttons moved around for cleaner UX, chunks are clearly differentiated ([#163](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/163)) ([a53d525](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a53d525aa632313bbe4add9b3a7e5f38ca35b40e))
+
 ## [1.11.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.10.0-enterprise...chunkr-web-enterprise-v1.11.0-enterprise) (2025-07-13)
 
 
