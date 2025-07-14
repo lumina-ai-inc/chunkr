@@ -107,7 +107,7 @@ button:focus-visible {
   width: 100%;
   height: 100vh;
   max-height: 1328px;
-  background-image: linear-gradient(to top, #050609 5%, rgba(2, 6, 9, 0.2) 35%),
+  background-image: linear-gradient(to top, #050609 5%, rgba(2, 6, 9, 0.2) 85%),
     url("../../assets/hero/hero_final.webp");
   background-size: cover;
   background-position: center;
@@ -198,40 +198,6 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   background: #050609;
-}
-
-.hero-content-container-switch-row {
-  margin-top: 24px;
-  padding: 8px;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-}
-
-.hero-content-switch {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.hero-content-switch.active {
-  background: rgba(255, 255, 255, 0.95);
-  color: #000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-}
-
-.hero-content-switch:hover:not(.active) {
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .yc-tag {

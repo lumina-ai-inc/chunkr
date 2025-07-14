@@ -242,3 +242,5 @@ backup-isolation-*.json
 backup-isolation-*.txt
 backup-isolation-*.csv
 backup-isolation-*.html
+
+node-compile-cache

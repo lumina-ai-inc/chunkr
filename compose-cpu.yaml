@@ -162,16 +162,6 @@ services:
         /usr/bin/mc anonymous set public myminio/chunkr
       "
 
-  emails:
-    image: luminainc/emails:e0d6fe8f
-    platform: linux/amd64
-    ports:
-      - "8009:8000"
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-
   keycloak:
     image: luminainc/auth:latest
     ports:

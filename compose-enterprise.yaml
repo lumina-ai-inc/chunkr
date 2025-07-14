@@ -203,33 +203,6 @@ services:
       - postgres
     restart: always
 
-  embeddings:
-    image: ghcr.io/huggingface/text-embeddings-inference:1.5
-    platform: linux/amd64
-    ports:
-      - "8003:80"
-    command:
-      [
-        "--model-id",
-        "BAAI/bge-m3",
-        "--max-client-batch-size",
-        "51",
-        "--max-batch-tokens",
-        "5120",
-        "--payload-limit",
-        "1000000",
-        "--auto-truncate",
-      ]
-    deploy:
-      replicas: 0
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    restart: always
-
   keycloak-proxy:
     image: nginx:latest
     ports:

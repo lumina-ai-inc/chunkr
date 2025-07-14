@@ -98,9 +98,6 @@ const Home = () => {
   const [checkoutClientSecret, setCheckoutClientSecret] = useState<
     string | null
   >(null);
-  const [selectedFormat, setSelectedFormat] = useState<"HTML" | "Markdown">(
-    "HTML"
-  );
 
   const { data: usageData, isLoading: isUsageDataLoading } = useMonthlyUsage();
   const currentTier = usageData?.[0]?.tier;
@@ -177,13 +174,7 @@ const Home = () => {
         </Flex>
       </div>
       <div className="window-content">
-        {taskResponse && (
-          <Viewer
-            task={taskResponse}
-            externalFormat={selectedFormat}
-            hideHeader={true}
-          />
-        )}
+        {taskResponse && <Viewer task={taskResponse} hideHeader={true} />}
       </div>
     </div>
   );
@@ -368,10 +359,6 @@ const Home = () => {
     }
   };
 
-  const handleFormatSwitch = (format: "HTML" | "Markdown") => {
-    setSelectedFormat(format);
-  };
-
   return (
     <>
       <Flex className={`header-container ${isScrolled ? "scrolled" : ""}`}>
@@ -464,66 +451,6 @@ const Home = () => {
             <div className="hero-content-container">
               <div className="hero-content">{renderPlaceholderWindow()}</div>
             </div>
-            <Flex className="hero-content-container-switch-row">
-              <Flex
-                align="center"
-                gap="6px"
-                className={`hero-content-switch ${
-                  selectedFormat === "HTML" ? "active" : ""
-                }`}
-                onClick={() => handleFormatSwitch("HTML")}
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4.17456 5.15007C4.08271 4.54492 4.55117 4 5.16324 4H18.8368C19.4488 4 19.9173 4.54493 19.8254 5.15007L18.0801 16.6489C18.03 16.9786 17.8189 17.2617 17.5172 17.4037L12.4258 19.7996C12.1561 19.9265 11.8439 19.9265 11.5742 19.7996L6.4828 17.4037C6.18107 17.2617 5.96997 16.9786 5.91993 16.6489L4.17456 5.15007Z"
-                    stroke={selectedFormat === "HTML" ? "#000" : "#FFFFFF"}
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M15 7.5H9.5V11H14.5V14.5L12.3714 15.3514C12.133 15.4468 11.867 15.4468 11.6286 15.3514L9.5 14.5"
-                    stroke={selectedFormat === "HTML" ? "#000" : "#FFFFFF"}
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <Text size="2" weight="bold">
-                  HTML
-                </Text>
-              </Flex>
-              <Flex
-                align="center"
-                gap="6px"
-                className={`hero-content-switch ${
-                  selectedFormat === "Markdown" ? "active" : ""
-                }`}
-                onClick={() => handleFormatSwitch("Markdown")}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 15 15"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M2.5 5.5L2.85355 5.14645C2.71055 5.00345 2.4955 4.96067 2.30866 5.03806C2.12182 5.11545 2 5.29777 2 5.5H2.5ZM4.5 7.5L4.14645 7.85355L4.5 8.20711L4.85355 7.85355L4.5 7.5ZM6.5 5.5H7C7 5.29777 6.87818 5.11545 6.69134 5.03806C6.5045 4.96067 6.28945 5.00345 6.14645 5.14645L6.5 5.5ZM10.5 9.5L10.1464 9.85355L10.5 10.2071L10.8536 9.85355L10.5 9.5ZM1.5 3H13.5V2H1.5V3ZM14 3.5V11.5H15V3.5H14ZM13.5 12H1.5V13H13.5V12ZM1 11.5V3.5H0V11.5H1ZM1.5 12C1.22386 12 1 11.7761 1 11.5H0C0 12.3284 0.671574 13 1.5 13V12ZM14 11.5C14 11.7761 13.7761 12 13.5 12V13C14.3284 13 15 12.3284 15 11.5H14ZM13.5 3C13.7761 3 14 3.22386 14 3.5H15C15 2.67157 14.3284 2 13.5 2V3ZM1.5 2C0.671573 2 0 2.67157 0 3.5H1C1 3.22386 1.22386 3 1.5 3V2ZM3 10V5.5H2V10H3ZM2.14645 5.85355L4.14645 7.85355L4.85355 7.14645L2.85355 5.14645L2.14645 5.85355ZM4.85355 7.85355L6.85355 5.85355L6.14645 5.14645L4.14645 7.14645L4.85355 7.85355ZM6 5.5V10H7V5.5H6ZM10 5V9.5H11V5H10ZM8.14645 7.85355L10.1464 9.85355L10.8536 9.14645L8.85355 7.14645L8.14645 7.85355ZM10.8536 9.85355L12.8536 7.85355L12.1464 7.14645L10.1464 9.14645L10.8536 9.85355Z"
-                    fill={selectedFormat === "HTML" ? "#FFF" : "#000"}
-                  />
-                </svg>
-                <Text size="2" weight="bold">
-                  Markdown
-                </Text>
-              </Flex>
-            </Flex>
           </Flex>
           <div className="features-container">
             <Flex

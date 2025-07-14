@@ -174,11 +174,11 @@ export const SegmentChunk = memo(
     {
       chunk: Chunk;
       chunkId: string;
-      selectedView: "html" | "markdown" | "json";
       onSegmentClick?: (chunkId: string, segmentId: string) => void;
       activeSegment?: { chunkId: string; segmentId: string } | null;
+      chunkIndex: number;
     }
-  >(({ chunk, chunkId, selectedView, onSegmentClick, activeSegment }, ref) => {
+  >(({ chunk, chunkId, onSegmentClick, activeSegment, chunkIndex }, ref) => {
     const [segmentDisplayModes, setSegmentDisplayModes] = useState<{
       [key: string]: {
         showJson: boolean;
@@ -228,16 +228,15 @@ export const SegmentChunk = memo(
         } else if (mode?.showImage) {
           textToCopy = segment.image || "";
         } else {
+          // Copy whichever format is available, preferring the generated content
           textToCopy =
-            selectedView === "html"
-              ? segment.html || ""
-              : segment.markdown || "";
+            segment.content || segment.html || segment.markdown || "";
         }
 
         navigator.clipboard.writeText(textToCopy);
         toast.success("Copied to clipboard");
       },
-      [segmentDisplayModes, selectedView]
+      [segmentDisplayModes]
     );
 
     const renderSegmentHtml = useCallback(
@@ -368,21 +367,105 @@ export const SegmentChunk = memo(
             );
           }
 
-          // === new formula special-case ===
-          if (selectedView === "html") {
-            if (segment.segment_type === SegmentType.Formula) {
-              // strip surrounding "$" from markdown before rendering
-              const raw = segment.markdown || "";
-              // removes one or more "$" at the start/end
-              const latex = raw.replace(/^\$+|\$+$/g, "");
+          // === formula special-case ===
+          if (
+            segment.segment_type === SegmentType.Formula &&
+            segment.markdown
+          ) {
+            // strip surrounding "$" from markdown before rendering
+            const raw = segment.markdown || "";
+            // removes one or more "$" at the start/end
+            const latex = raw.replace(/^\$+|\$+$/g, "");
 
-              return <KaTeXContent latex={latex} display={true} />;
-            }
-            return renderSegmentHtml(segment);
+            return <KaTeXContent latex={latex} display={true} />;
           }
 
-          // Markdown-mode: still just print markdown
-          return <MemoizedMarkdown content={segment.markdown || ""} />;
+          // === picture special-case ===
+          if (segment.segment_type === SegmentType.Picture) {
+            return (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {/* Show the cropped image if available */}
+                {segment.image && (
+                  <img
+                    src={segment.image}
+                    alt="Picture segment"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "400px",
+                      objectFit: "contain",
+                      display: "block",
+                    }}
+                  />
+                )}
+                {/* Show the content field below in a styled box */}
+                {segment.content && (
+                  <div
+                    style={{
+                      padding: "8px",
+                      border: "1px solid rgba(155, 155, 155, 0.3)",
+                      borderRadius: "4px",
+                      backgroundColor: "rgba(155, 155, 155, 0.05)",
+                    }}
+                  >
+                    <Text
+                      size="1"
+                      weight="medium"
+                      style={{
+                        color: "var(--pink-4)",
+                        marginBottom: "6px",
+                        display: "block",
+                      }}
+                    >
+                      Description
+                    </Text>
+                    {/* Render description with proper formatting support */}
+                    {(() => {
+                      const description = segment.content;
+
+                      // Check if it contains HTML tags
+                      if (/<[^>]+>/.test(description)) {
+                        return <MemoizedHtml html={description} />;
+                      }
+
+                      // Check if it contains markdown indicators (tables, headers, lists, emphasis, etc.)
+                      if (
+                        description.includes("|") || // tables
+                        description.includes("#") || // headers
+                        description.includes("**") || // bold
+                        description.includes("*") || // emphasis
+                        description.includes("```") || // code blocks
+                        description.includes("- ") || // lists
+                        description.includes("1. ") || // numbered lists
+                        /\$.*\$/.test(description) || // inline math
+                        /\$\$.*\$\$/.test(description) // display math
+                      ) {
+                        return <MemoizedMarkdown content={description} />;
+                      }
+
+                      // Otherwise render as plain text
+                      return description;
+                    })()}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          // Render based on what content is available
+          if (segment.html) {
+            return renderSegmentHtml(segment);
+          } else if (segment.markdown) {
+            return <MemoizedMarkdown content={segment.markdown} />;
+          } else {
+            // Fallback to text content if available
+            return <div>{segment.content || ""}</div>;
+          }
         };
 
         const currentButtonMode = segmentDisplayModes[segment.segment_id] || {
@@ -410,8 +493,6 @@ export const SegmentChunk = memo(
               }
             }}
             style={{ width: "100%", marginBottom: "4px" }}
-            // Consider adding CSS containment for performance
-            // style={{ contain: 'content' }}
           >
             <div className="scroll-x">
               {isSpecialSegment && !isActive && specialSegmentHeaderText && (
@@ -756,10 +837,11 @@ export const SegmentChunk = memo(
         data-chunk-id={chunkId}
         style={{
           position: "relative",
-          // Consider adding CSS containment for performance
-          // contain: 'layout paint',
         }}
       >
+        {chunkIndex !== undefined && (
+          <div className="chunk-label">Chunk {chunkIndex + 1}</div>
+        )}
         <div className="segment-content">{renderContent()}</div>
       </div>
     );

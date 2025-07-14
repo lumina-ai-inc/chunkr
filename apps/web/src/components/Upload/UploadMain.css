@@ -1,31 +1,42 @@
-.upload-form-container {
-  max-width: 1200px;
-  height: 100%;
-  margin: 0 auto;
-  padding: 24px;
+.upload-main-container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  overflow: auto;
+  height: 100%;
+  position: relative;
+}
+
+.upload-form-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.upload-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  padding-bottom: 36px; /* Space for sticky button */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
-.upload-form-container::-webkit-scrollbar {
+.upload-scrollable-content::-webkit-scrollbar {
   width: 6px;
 }
 
-.upload-form-container::-webkit-scrollbar-track {
+.upload-scrollable-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.upload-form-container::-webkit-scrollbar-thumb {
+.upload-scrollable-content::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   transition: background-color 0.2s ease;
 }
 
-.upload-form-container:hover::-webkit-scrollbar-thumb {
+.upload-scrollable-content:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -108,9 +119,20 @@
 }
 
 .submit-section {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 40px;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    to top,
+    rgba(2, 5, 6, 1) 0%,
+    rgba(2, 5, 6, 0.98) 90%,
+    rgba(2, 5, 6, 0.9) 100%
+  );
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 10;
 }
 
 .submit-button {
@@ -198,4 +220,48 @@
 
 .config-section > .config-grid + .config-card {
   margin-top: 32px;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 32px 0;
+}
+
+.documentation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.documentation-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.documentation-link svg {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.documentation-link:hover svg {
+  opacity: 1;
+}
+
+.white {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.7);
 }

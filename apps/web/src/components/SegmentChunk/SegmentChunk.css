@@ -409,3 +409,17 @@
   font-size: 1em; /* ↓ tweak this number to taste */
   text-align: left;
 }
+
+.chunk-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--gray-12);
+  color: var(--gray-6);
+  padding: 0.35rem 0.5rem;
+  border-bottom-left-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  font-weight: 600;
+  z-index: 10;
+}

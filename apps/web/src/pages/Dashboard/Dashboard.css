@@ -244,3 +244,77 @@
 .dashboard-nav-container.closed + .main-container .main-header-toggle {
   display: block;
 }
+
+/* Config popup styles */
+.config-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 400px;
+  max-height: 300px;
+  background: rgba(2, 5, 6, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.config-popup .react-json-view {
+  background-color: transparent !important;
+  font-size: 12px !important;
+}
+
+.config-popup-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.config-popup-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.config-popup-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.config-popup-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Download dropdown styles */
+.download-dropdown-container {
+  position: relative;
+}
+
+.download-options-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: rgba(2, 5, 6, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+}
+
+.download-options-menu {
+  width: 100%;
+  padding: 8px 0;
+}
+
+.download-options-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.download-options-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.viewer-header-config-button {
+  position: relative;
+}

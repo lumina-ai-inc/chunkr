@@ -8,75 +8,15 @@ interface ApiKeyDialogProps {
   user: User;
   showApiKey: boolean;
   setShowApiKey: (show: boolean) => void;
-  phone?: boolean;
 }
 
 export default function ApiKeyDialog({
   user,
   showApiKey,
   setShowApiKey,
-  phone = false,
 }: ApiKeyDialogProps) {
   return (
     <Dialog.Root open={showApiKey} onOpenChange={setShowApiKey}>
-      <Dialog.Trigger>
-        {phone ? (
-          <Text size="2" weight="regular" mt="2px" style={{ color: "#000000" }}>
-            API Key
-          </Text>
-        ) : (
-          <BetterButton>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 25 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clip-path="url(#clip0_113_1449)">
-                <path
-                  d="M17.25 7.75L21.75 12.08L17.25 16.25"
-                  stroke="#FFFFFF"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M7.75 16.25L3.25 11.92L7.75 7.75"
-                  stroke="#FFFFFF"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10.75 19.25L14.25 4.75"
-                  stroke="#FFFFFF"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_113_1449">
-                  <rect
-                    width="24"
-                    height="24"
-                    fill="white"
-                    transform="translate(0.5)"
-                  />
-                </clipPath>
-              </defs>
-            </svg>
-            <Text
-              size="2"
-              weight="medium"
-              style={{ color: "hsla(0, 0%, 100%)" }}
-            >
-              API Key
-            </Text>
-          </BetterButton>
-        )}
-      </Dialog.Trigger>
       <Dialog.Content
         style={{
           backgroundColor: "#020809",

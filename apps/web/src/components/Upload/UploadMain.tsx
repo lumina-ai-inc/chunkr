@@ -1,4 +1,4 @@
-import { Flex, Text } from "@radix-ui/themes";
+import { Flex, Text, Separator } from "@radix-ui/themes";
 import { useState, useCallback } from "react";
 import {
   UploadFormData,
@@ -166,28 +166,70 @@ export default function UploadMain({
   };
 
   return (
-    <div className="upload-form-container">
-      <section className="upload-section">
-        <Upload
-          onFileUpload={handleFileChange}
-          onFileRemove={handleFileRemove}
-          files={files}
-          isAuthenticated={isAuthenticated}
-          isUploading={isUploading}
-        />
-        {uploadError && (
-          <Text size="2" style={{ color: "red", marginTop: "8px" }}>
-            {uploadError}
-          </Text>
-        )}
-      </section>
+    <div className="upload-main-container">
+      <div className="upload-form-container">
+        <div className="upload-scrollable-content">
+          <section className="upload-section">
+            <Upload
+              onFileUpload={handleFileChange}
+              onFileRemove={handleFileRemove}
+              files={files}
+              isAuthenticated={isAuthenticated}
+              isUploading={isUploading}
+            />
+            {uploadError && (
+              <Text size="2" style={{ color: "red", marginTop: "8px" }}>
+                {uploadError}
+              </Text>
+            )}
+          </section>
 
-      <div>
-        <section
-          className={`config-section ${!isAuthenticated ? "disabled" : ""}`}
-        >
-          <div className="config-grid">
-            {features.pipeline && (
+          <section
+            className={`config-section ${!isAuthenticated ? "disabled" : ""}`}
+          >
+            <Separator size="4" className="separator" />
+            <Flex direction="column" gap="3">
+              <Flex align="center" justify="between">
+                <Text size="5" weight="medium" className="white">
+                  Configuration
+                </Text>
+                <a
+                  className="documentation-link"
+                  href={`${DOCS_URL}/docs/features/overview`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"
+                      stroke="rgba(255, 255, 255, 0.6)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <Text size="2" weight="medium">
+                    See the docs
+                  </Text>
+                </a>
+              </Flex>
+              <Text
+                size="2"
+                weight="regular"
+                className="subtitle"
+                style={{ opacity: 0.7 }}
+              >
+                Set configuration options for your task
+              </Text>
+            </Flex>
+            <Flex direction="column" gap="24px" mt="24px">
               <ToggleGroup
                 docsUrl={`${DOCS_URL}/docs/features/pipeline`}
                 label={
@@ -225,328 +267,261 @@ export default function UploadMain({
                   { label: "Chunkr", value: Pipeline.Chunkr },
                 ]}
               />
-            )}
-            <ToggleGroup
-              docsUrl={`${DOCS_URL}/docs/features/layout-analysis/what`}
-              label={
-                <Flex gap="2" align="center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g clipPath="url(#clip0_305_27919)">
-                      <path
-                        d="M7.75 20.25V8.75C7.75 8.2 8.2 7.75 8.75 7.75H20.25"
-                        stroke="#FFF"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M16.25 3.75V15.25C16.25 15.8 15.8 16.25 15.25 16.25H3.75"
-                        stroke="#FFF"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_305_27919">
-                        <rect width="24" height="24" fill="white" />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                  <span>Segmentation Strategy</span>
-                </Flex>
-              }
-              value={
-                config.segmentation_strategy ||
-                SegmentationStrategy.LayoutAnalysis
-              }
-              onChange={(value) =>
-                setConfig({
-                  ...config,
-                  segmentation_strategy: value as SegmentationStrategy,
-                })
-              }
-              options={[
-                {
-                  label: "Layout Analysis",
-                  value: SegmentationStrategy.LayoutAnalysis,
-                },
-                { label: "Page", value: SegmentationStrategy.Page },
-              ]}
-            />
-            <ToggleGroup
-              docsUrl={`${DOCS_URL}/docs/features/ocr`}
-              label={
-                <Flex gap="2" align="center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="9.25"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="5.25"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-
-                  <span>OCR Strategy</span>
-                </Flex>
-              }
-              value={config.ocr_strategy || OcrStrategy.Auto}
-              onChange={(value) =>
-                setConfig({ ...config, ocr_strategy: value as OcrStrategy })
-              }
-              options={[
-                { label: "Auto", value: OcrStrategy.Auto },
-                { label: "All", value: OcrStrategy.All },
-              ]}
-            />
-
-            <ToggleGroup
-              docsUrl={`${DOCS_URL}/api-references/task/create-task#body-high-resolution`}
-              label={
-                <Flex gap="2" align="center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      cx="12"
-                      cy="5.5"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="5.5"
-                      cy="5.5"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="18.5"
-                      cy="5.5"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="12"
-                      cy="18.5"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="5.5"
-                      cy="18.5"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="18.5"
-                      cy="18.5"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="5.5"
-                      cy="12"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="18.5"
-                      cy="12"
-                      r="1.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span>High Resolution</span>
-                </Flex>
-              }
-              value={config.high_resolution ? "ON" : "OFF"}
-              onChange={(value) =>
-                setConfig({ ...config, high_resolution: value === "ON" })
-              }
-              options={[
-                { label: "ON", value: "ON" },
-                { label: "OFF", value: "OFF" },
-              ]}
-            />
-
-            <ToggleGroup
-              docsUrl={`${DOCS_URL}/api-references/task/create-task#body-error-handling`} // Updated docs URL
-              label={
-                <Flex gap="2" align="center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 13.75V9.75"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <circle cx="12" cy="17" r="1" fill="#FFF" />
-                    <path
-                      d="M4.39877 20.25C3.64805 20.25 3.16502 19.4536 3.51196 18.7879L11.1132 4.20171C11.4869 3.48456 12.5131 3.48456 12.8868 4.20171L20.488 18.7879C20.835 19.4536 20.352 20.25 19.6012 20.25H4.39877Z"
-                      stroke="#FFF"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span>Error Handling</span>
-                </Flex>
-              }
-              // Use config.error_handling or default to ErrorHandling.Fail
-              value={config.error_handling || ErrorHandling.Fail}
-              onChange={(value) =>
-                // Update config.error_handling
-                setConfig({ ...config, error_handling: value as ErrorHandling })
-              }
-              // Updated options for ErrorHandling enum
-              options={[
-                { label: "Fail", value: ErrorHandling.Fail },
-                { label: "Continue", value: ErrorHandling.Continue },
-              ]}
-            />
-          </div>
-
-          <div className="config-card" style={{ marginTop: "32px" }}>
-            <div className="config-card-header">
-              <Flex direction="row" gap="2" align="center">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M21.25 12C21.25 17.1086 17.1086 21.25 12 21.25M2.75 12C2.75 6.89137 6.89137 2.75 12 2.75"
-                    stroke="#FFF"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M17.25 12C17.25 9.10051 14.8995 6.75 12 6.75M12 17.25C9.10051 17.25 6.75 14.8995 6.75 12"
-                    stroke="#FFF"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <Text size="3" weight="bold" className="white">
-                  Segment Processing
-                </Text>
-              </Flex>
-              <Flex
-                onClick={() =>
-                  DOCS_URL &&
-                  window.open(
-                    `${DOCS_URL}/docs/features/segment-processing`,
-                    "_blank"
-                  )
+              <ToggleGroup
+                docsUrl={`${DOCS_URL}/docs/features/layout-analysis/what`}
+                label={
+                  <Flex gap="2" align="center">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clipPath="url(#clip0_305_27919)">
+                        <path
+                          d="M7.75 20.25V8.75C7.75 8.2 8.2 7.75 8.75 7.75H20.25"
+                          stroke="#FFF"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M16.25 3.75V15.25C16.25 15.8 15.8 16.25 15.25 16.25H3.75"
+                          stroke="#FFF"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_305_27919">
+                          <rect width="24" height="24" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    <span>Segmentation Strategy</span>
+                  </Flex>
                 }
-                direction="row"
-                gap="1"
-                align="center"
-                justify="end"
-                className="docs-text"
-              >
-                <Text size="1" weight="bold" className="white ">
-                  Docs
-                </Text>
-                <svg
-                  width="12px"
-                  height="12px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
-                    stroke="#FFFFFF"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M9.8374 14.1625L14.1625 9.8374"
-                    stroke="#FFFFFF"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
-                    stroke="#FFFFFF"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </Flex>
-            </div>
+                value={
+                  config.segmentation_strategy ||
+                  SegmentationStrategy.LayoutAnalysis
+                }
+                onChange={(value) =>
+                  setConfig({
+                    ...config,
+                    segmentation_strategy: value as SegmentationStrategy,
+                  })
+                }
+                options={[
+                  {
+                    label: "Layout Analysis",
+                    value: SegmentationStrategy.LayoutAnalysis,
+                  },
+                  { label: "Page", value: SegmentationStrategy.Page },
+                ]}
+              />
+              <ToggleGroup
+                docsUrl={`${DOCS_URL}/docs/features/ocr`}
+                label={
+                  <Flex gap="2" align="center">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="9.25"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="5.25"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
 
+                    <span>OCR Strategy</span>
+                  </Flex>
+                }
+                value={config.ocr_strategy || OcrStrategy.Auto}
+                onChange={(value) =>
+                  setConfig({ ...config, ocr_strategy: value as OcrStrategy })
+                }
+                options={[
+                  { label: "Auto", value: OcrStrategy.Auto },
+                  { label: "All", value: OcrStrategy.All },
+                ]}
+              />
+
+              <ToggleGroup
+                docsUrl={`${DOCS_URL}/api-references/task/create-task#body-high-resolution`}
+                label={
+                  <Flex gap="2" align="center">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="12"
+                        cy="5.5"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="18.5"
+                        cy="5.5"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="12"
+                        cy="18.5"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="5.5"
+                        cy="18.5"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="18.5"
+                        cy="18.5"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="5.5"
+                        cy="12"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                      <circle
+                        cx="18.5"
+                        cy="12"
+                        r="1.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <span>High Resolution</span>
+                  </Flex>
+                }
+                value={config.high_resolution ? "ON" : "OFF"}
+                onChange={(value) =>
+                  setConfig({ ...config, high_resolution: value === "ON" })
+                }
+                options={[
+                  { label: "ON", value: "ON" },
+                  { label: "OFF", value: "OFF" },
+                ]}
+              />
+
+              <ToggleGroup
+                docsUrl={`${DOCS_URL}/api-references/task/create-task#body-error-handling`} // Updated docs URL
+                label={
+                  <Flex gap="2" align="center">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 13.75V9.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <circle cx="12" cy="17" r="1" fill="#FFF" />
+                      <path
+                        d="M4.39877 20.25C3.64805 20.25 3.16502 19.4536 3.51196 18.7879L11.1132 4.20171C11.4869 3.48456 12.5131 3.48456 12.8868 4.20171L20.488 18.7879C20.835 19.4536 20.352 20.25 19.6012 20.25H4.39877Z"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span>Error Handling</span>
+                  </Flex>
+                }
+                // Use config.error_handling or default to ErrorHandling.Fail
+                value={config.error_handling || ErrorHandling.Fail}
+                onChange={(value) =>
+                  // Update config.error_handling
+                  setConfig({
+                    ...config,
+                    error_handling: value as ErrorHandling,
+                  })
+                }
+                // Updated options for ErrorHandling enum
+                options={[
+                  { label: "Fail", value: ErrorHandling.Fail },
+                  { label: "Continue", value: ErrorHandling.Continue },
+                ]}
+              />
+            </Flex>
+          </section>
+
+          <div
+            className={`config-section ${!isAuthenticated ? "disabled" : ""}`}
+          >
             <SegmentProcessingControls
-              value={config.segment_processing || DEFAULT_SEGMENT_PROCESSING}
+              value={config.segment_processing || {}}
               onChange={(value) =>
                 setConfig({
                   ...config,
@@ -588,22 +563,22 @@ export default function UploadMain({
               docsUrl={`${DOCS_URL}/docs/features/llm-processing`}
             />
           </div>
-        </section>
-
-        <section
-          className={`submit-section ${!isAuthenticated ? "disabled" : ""}`}
-        >
-          <button
-            className="submit-button"
-            onClick={handleSubmit}
-            disabled={files.length === 0 || !isAuthenticated || isUploading}
-          >
-            <Text size="3" weight="bold">
-              {getButtonText()}
-            </Text>
-          </button>
-        </section>
+        </div>
       </div>
+
+      <section
+        className={`submit-section ${!isAuthenticated ? "disabled" : ""}`}
+      >
+        <button
+          className="submit-button"
+          onClick={handleSubmit}
+          disabled={files.length === 0 || !isAuthenticated || isUploading}
+        >
+          <Text size="3" weight="bold">
+            {getButtonText()}
+          </Text>
+        </button>
+      </section>
     </div>
   );
 }

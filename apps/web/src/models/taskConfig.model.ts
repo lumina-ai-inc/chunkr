@@ -54,51 +54,62 @@ export interface ChunkProcessing {
 /** Controls how content should be generated */
 export enum GenerationStrategy {
   LLM = "LLM",
-  Auto = "Auto",
+  AUTO = "Auto",
 }
 
 /** Controls when images should be cropped */
 export enum CroppingStrategy {
-  All = "All",
-  Auto = "Auto",
+  ALL = "All",
+  AUTO = "Auto",
 }
 
-export enum EmbedSource {
+/** The output format for generated content */
+export enum SegmentFormat {
+  HTML = "Html",
   MARKDOWN = "Markdown",
-  HTML = "HTML",
+}
+
+/** Sources of content for embeddings */
+export enum EmbedSource {
+  CONTENT = "Content",
   LLM = "LLM",
 }
 
-/** Base configuration for automatic content generation */
-export interface SegmentProcessingConfig {
+/** Configuration for content generation for each segment type */
+export interface GenerationConfig {
+  /** The output format for the generated content */
+  format: SegmentFormat;
+  /** The strategy to use for content generation */
+  strategy: GenerationStrategy;
+  /** When to crop images for this segment type */
   crop_image: CroppingStrategy;
-  html: GenerationStrategy;
+  /** Optional LLM prompt for custom processing */
   llm?: string;
-  markdown: GenerationStrategy;
+  /** Sources of content to include in the embed field */
   embed_sources?: EmbedSource[];
-  extended_context: boolean;
+  /** Whether to provide extended page context to the LLM */
+  extended_context?: boolean;
 }
 
 /**
  * Controls the post-processing of each segment type.
  * Allows you to generate HTML and Markdown from chunkr models for each segment type.
- * By default, the HTML and Markdown are generated manually using the segmentation information except for `Table` and `Formula`.
  * You can optionally configure custom LLM prompts and models to generate an additional `llm` field
  * with LLM-processed content for each segment type.
  */
 export interface SegmentProcessing {
-  Caption: SegmentProcessingConfig;
-  Formula: SegmentProcessingConfig;
-  Footnote: SegmentProcessingConfig;
-  ListItem: SegmentProcessingConfig;
-  Page: SegmentProcessingConfig;
-  PageFooter: SegmentProcessingConfig;
-  PageHeader: SegmentProcessingConfig;
-  Picture: SegmentProcessingConfig;
-  SectionHeader: SegmentProcessingConfig;
-  Table: SegmentProcessingConfig;
-  Text: SegmentProcessingConfig;
-  Title: SegmentProcessingConfig;
+  Caption?: GenerationConfig;
+  Formula?: GenerationConfig;
+  Footnote?: GenerationConfig;
+  ListItem?: GenerationConfig;
+  Page?: GenerationConfig;
+  PageFooter?: GenerationConfig;
+  PageHeader?: GenerationConfig;
+  Picture?: GenerationConfig;
+  SectionHeader?: GenerationConfig;
+  Table?: GenerationConfig;
+  Text?: GenerationConfig;
+  Title?: GenerationConfig;
 }
 
 export enum FallbackStrategyType {
@@ -153,35 +164,43 @@ export enum Pipeline {
   Chunkr = "Chunkr",
 }
 
-const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
-  crop_image: CroppingStrategy.Auto,
-  html: GenerationStrategy.Auto,
-  markdown: GenerationStrategy.Auto,
-  embed_sources: [EmbedSource.MARKDOWN],
+const DEFAULT_SEGMENT_CONFIG: GenerationConfig = {
+  format: SegmentFormat.MARKDOWN,
+  strategy: GenerationStrategy.AUTO,
+  crop_image: CroppingStrategy.AUTO,
+  embed_sources: [EmbedSource.CONTENT],
   extended_context: false,
 };
 
-const DEFAULT_TABLE_CONFIG: SegmentProcessingConfig = {
-  crop_image: CroppingStrategy.Auto,
-  html: GenerationStrategy.LLM,
-  markdown: GenerationStrategy.LLM,
-  embed_sources: [EmbedSource.MARKDOWN],
+const DEFAULT_TABLE_CONFIG: GenerationConfig = {
+  format: SegmentFormat.HTML,
+  strategy: GenerationStrategy.LLM,
+  crop_image: CroppingStrategy.AUTO,
+  embed_sources: [EmbedSource.CONTENT],
   extended_context: false,
 };
 
-const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
-  crop_image: CroppingStrategy.Auto,
-  html: GenerationStrategy.LLM,
-  markdown: GenerationStrategy.LLM,
-  embed_sources: [EmbedSource.MARKDOWN],
+const DEFAULT_FORMULA_CONFIG: GenerationConfig = {
+  format: SegmentFormat.MARKDOWN,
+  strategy: GenerationStrategy.LLM,
+  crop_image: CroppingStrategy.AUTO,
+  embed_sources: [EmbedSource.CONTENT],
   extended_context: false,
 };
 
-const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
-  crop_image: CroppingStrategy.All,
-  html: GenerationStrategy.LLM,
-  markdown: GenerationStrategy.LLM,
-  embed_sources: [EmbedSource.MARKDOWN],
+const DEFAULT_PAGE_CONFIG: GenerationConfig = {
+  format: SegmentFormat.MARKDOWN,
+  strategy: GenerationStrategy.LLM,
+  crop_image: CroppingStrategy.AUTO,
+  embed_sources: [EmbedSource.CONTENT],
+  extended_context: false,
+};
+
+const DEFAULT_PICTURE_CONFIG: GenerationConfig = {
+  format: SegmentFormat.MARKDOWN,
+  strategy: GenerationStrategy.LLM,
+  crop_image: CroppingStrategy.ALL,
+  embed_sources: [EmbedSource.CONTENT],
   extended_context: false,
 };
 
@@ -190,7 +209,7 @@ export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
   Formula: { ...DEFAULT_FORMULA_CONFIG },
   Footnote: { ...DEFAULT_SEGMENT_CONFIG },
   ListItem: { ...DEFAULT_SEGMENT_CONFIG },
-  Page: { ...DEFAULT_SEGMENT_CONFIG },
+  Page: { ...DEFAULT_PAGE_CONFIG },
   PageFooter: { ...DEFAULT_SEGMENT_CONFIG },
   PageHeader: { ...DEFAULT_SEGMENT_CONFIG },
   Picture: { ...DEFAULT_PICTURE_CONFIG },
