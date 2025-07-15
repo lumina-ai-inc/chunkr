@@ -255,7 +255,7 @@ services:
     enabled: true
     image:
       repository: segmentation
-      tag: 2.7.2-enterprise
+      tag: 1.5.0
     imagePullSecrets:
       - name: regcred
     port: 8000
