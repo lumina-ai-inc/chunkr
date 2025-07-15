@@ -174,12 +174,14 @@ interface SegmentProcessingControlsProps {
   value: SegmentProcessing;
   onChange: (value: SegmentProcessing) => void;
   showOnlyPage?: boolean;
+  docsUrl?: string;
 }
 
 export function SegmentProcessingControls({
   value,
   onChange,
   showOnlyPage = false,
+  docsUrl,
 }: SegmentProcessingControlsProps) {
   const segmentTypes = showOnlyPage
     ? (["Page"] as (keyof SegmentProcessing)[])
@@ -272,7 +274,89 @@ export function SegmentProcessingControls({
   };
 
   return (
-    <div className="segment-processing-container">
+    <div
+      className="segment-processing-container config-card"
+      style={{ marginTop: "40px" }}
+    >
+      {/* === Parent Header === */}
+      <div className="config-card-header" style={{ marginBottom: "0px" }}>
+        <Flex direction="row" gap="2" align="center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2L2 7L12 12L22 7L12 2Z"
+              stroke="#FFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 17L12 22L22 17"
+              stroke="#FFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 12L12 17L22 12"
+              stroke="#FFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <Text size="3" weight="bold" className="white">
+            Segment Processing
+          </Text>
+        </Flex>
+        {docsUrl && (
+          <Flex
+            onClick={() => window.open(docsUrl, "_blank")}
+            direction="row"
+            gap="1"
+            align="center"
+            justify="end"
+            className="docs-text"
+          >
+            <Text size="1" weight="bold" className="white">
+              Docs
+            </Text>
+            <svg
+              width="12px"
+              height="12px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14.1625 18.4876L13.4417 19.2084C11.053 21.5971 7.18019 21.5971 4.79151 19.2084C2.40283 16.8198 2.40283 12.9469 4.79151 10.5583L5.51236 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 14.1625L14.1625 9.8374"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M9.8374 5.51236L10.5583 4.79151C12.9469 2.40283 16.8198 2.40283 19.2084 4.79151M18.4876 14.1625L19.2084 13.4417C20.4324 12.2177 21.0292 10.604 20.9988 9"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </Flex>
+        )}
+      </div>
+
+      {/* === Segment Type Selector === */}
       <div className="model-selector" ref={dropdownRef}>
         <button
           className="model-selector-button"

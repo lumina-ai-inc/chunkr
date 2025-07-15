@@ -337,7 +337,7 @@ export default function Dashboard() {
       default:
         if (taskId) {
           return {
-            title: `Tasks > ${taskResponse?.output?.file_name || taskId}`,
+            title: "Tasks",
             component: (
               <Suspense fallback={<Loader />}>
                 {isLoading ? (

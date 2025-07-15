@@ -1,4 +1,4 @@
-import { Flex, Text, Separator } from "@radix-ui/themes";
+import { Flex, Text } from "@radix-ui/themes";
 import { useState, useCallback } from "react";
 import {
   UploadFormData,
@@ -187,49 +187,7 @@ export default function UploadMain({
           <section
             className={`config-section ${!isAuthenticated ? "disabled" : ""}`}
           >
-            <Separator size="4" className="separator" />
-            <Flex direction="column" gap="3">
-              <Flex align="center" justify="between">
-                <Text size="5" weight="medium" className="white">
-                  Configuration
-                </Text>
-                <a
-                  className="documentation-link"
-                  href={`${DOCS_URL}/docs/features/overview`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"
-                      stroke="rgba(255, 255, 255, 0.6)"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <Text size="2" weight="medium">
-                    See the docs
-                  </Text>
-                </a>
-              </Flex>
-              <Text
-                size="2"
-                weight="regular"
-                className="subtitle"
-                style={{ opacity: 0.7 }}
-              >
-                Set configuration options for your task
-              </Text>
-            </Flex>
-            <Flex direction="column" gap="24px" mt="24px">
+            <div className="config-grid" style={{ marginTop: "32px" }}>
               <ToggleGroup
                 docsUrl={`${DOCS_URL}/docs/features/pipeline`}
                 label={
@@ -514,7 +472,7 @@ export default function UploadMain({
                   { label: "Continue", value: ErrorHandling.Continue },
                 ]}
               />
-            </Flex>
+            </div>
           </section>
 
           <div
@@ -531,18 +489,8 @@ export default function UploadMain({
               showOnlyPage={
                 config.segmentation_strategy === SegmentationStrategy.Page
               }
+              docsUrl={`${DOCS_URL}/docs/features/segment-processing`}
             />
-            <Flex direction="row" mt="4" align="center">
-              <Text
-                size="1"
-                weight="medium"
-                className="white"
-                style={{ opacity: 0.8 }}
-              >
-                * Use checkboxes to select sources to include in the embed
-                field.
-              </Text>
-            </Flex>
           </div>
 
           <ChunkProcessingControls

@@ -64,7 +64,7 @@ const DOCUMENT_CATEGORIES: DocumentCategory[] = [
 ];
 
 const BASE_URL =
-  "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page_v2";
+  "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page_v3";
 
 const Home = () => {
   const auth = useAuth();

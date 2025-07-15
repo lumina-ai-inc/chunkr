@@ -22,6 +22,91 @@ import { useKatexRenderer } from "../../hooks/useKatexRenderer";
 import katex from "katex";
 import sanitizeHtml from "sanitize-html";
 
+// Helper function to format image sources (handles base64)
+const formatImageSrc = (src: string | undefined): string | undefined => {
+  if (!src) return src;
+
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("data:")
+  ) {
+    return src;
+  }
+
+  return `data:image;base64,${src}`;
+};
+
+const SmartImage = memo(
+  ({
+    src,
+    alt,
+    style = {},
+    className = "",
+    lowResThreshold = 150,
+  }: {
+    src: string | undefined;
+    alt: string;
+    style?: React.CSSProperties;
+    className?: string;
+    lowResThreshold?: number;
+  }) => {
+    const [imageDimensions, setImageDimensions] = useState<{
+      width: number;
+      height: number;
+    } | null>(null);
+    const [isLowRes, setIsLowRes] = useState(false);
+
+    const formattedSrc = formatImageSrc(src);
+
+    useEffect(() => {
+      if (!formattedSrc) return;
+
+      const img = new Image();
+      img.onload = () => {
+        setImageDimensions({
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+        });
+        setIsLowRes(
+          img.naturalWidth < lowResThreshold ||
+            img.naturalHeight < lowResThreshold
+        );
+      };
+      img.src = formattedSrc;
+    }, [formattedSrc, lowResThreshold]);
+
+    if (!formattedSrc) return null;
+
+    const adjustedStyle: React.CSSProperties = {
+      ...style,
+      ...(isLowRes && {
+        maxWidth: Math.min(
+          (style.maxWidth as number) || 300,
+          imageDimensions?.width ? imageDimensions.width * 2 : 300
+        ),
+        maxHeight: Math.min(
+          (style.maxHeight as number) || 300,
+          imageDimensions?.height ? imageDimensions.height * 2 : 300
+        ),
+        imageRendering: "pixelated",
+        border: "1px solid rgba(255, 165, 0, 0.3)",
+      }),
+    };
+
+    return (
+      <div style={{ position: "relative", display: "inline-block" }}>
+        <img
+          src={formattedSrc}
+          alt={alt}
+          style={adjustedStyle}
+          className={className}
+        />
+      </div>
+    );
+  }
+);
+
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
   const processedHtml = useMemo(() => {
@@ -120,11 +205,8 @@ const MemoizedMarkdown = memo(({ content }: { content: string }) => (
     rehypePlugins={[rehypeKatex]}
     components={{
       img: ({ src, alt, ...props }) => {
-        // Check if it's a base64 image that needs the data URI prefix
-        const formattedSrc = src?.startsWith("/9j/")
-          ? `data:image/jpeg;base64,${src}`
-          : src;
-        return <img src={formattedSrc} alt={alt} {...props} />;
+        // Use the helper function to format image sources
+        return <img src={formatImageSrc(src)} alt={alt} {...props} />;
       },
     }}
   >
@@ -252,7 +334,7 @@ export const SegmentChunk = memo(
           return <MemoizedMarkdown content={segment.llm} />;
         if (mode.showImage && segment.image)
           return (
-            <img
+            <SmartImage
               src={segment.image}
               alt="Cropped segment"
               style={{ maxWidth: "100%" }}
@@ -359,7 +441,7 @@ export const SegmentChunk = memo(
 
           if (mode.showImage && segment.image) {
             return (
-              <img
+              <SmartImage
                 src={segment.image}
                 alt="Cropped segment"
                 style={{ maxWidth: "100%" }}
@@ -392,7 +474,7 @@ export const SegmentChunk = memo(
               >
                 {/* Show the cropped image if available */}
                 {segment.image && (
-                  <img
+                  <SmartImage
                     src={segment.image}
                     alt="Picture segment"
                     style={{
