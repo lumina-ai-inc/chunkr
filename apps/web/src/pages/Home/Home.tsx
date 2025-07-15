@@ -36,35 +36,35 @@ import onPremAnimation from "../../assets/animations/onPrem.json";
 import { createCheckoutSession } from "../../services/stripeService";
 import { loadStripe } from "@stripe/stripe-js";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
-import Viewer from "../../components/Viewer/Viewer";
-import { TaskResponse } from "../../models/taskResponse.model";
+// import Viewer from "../../components/Viewer/Viewer";
+// import { TaskResponse } from "../../models/taskResponse.model";
 import toast from "react-hot-toast";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY, {});
 
 // Add new type and constants
-type DocumentCategory = {
-  id: string;
-  label: string;
-  pdfName: string;
-};
+// type DocumentCategory = {
+//   id: string;
+//   label: string;
+//   pdfName: string;
+// };
 
-const DOCUMENT_CATEGORIES: DocumentCategory[] = [
-  { id: "technical", label: "Technical", pdfName: "technical" },
-  { id: "billing", label: "Billing", pdfName: "billing" },
-  { id: "construction", label: "Construction", pdfName: "construction" },
-  { id: "consulting", label: "Consulting", pdfName: "consulting" },
-  { id: "education", label: "Education", pdfName: "education" },
-  { id: "financial", label: "Financial", pdfName: "financial" },
-  { id: "government", label: "Government", pdfName: "government" },
-  { id: "historical", label: "Historical", pdfName: "historical" },
-  { id: "legal", label: "Legal", pdfName: "legal" },
-  { id: "medical", label: "Medical", pdfName: "medical" },
-  { id: "research", label: "Research", pdfName: "research" },
-];
+// const DOCUMENT_CATEGORIES: DocumentCategory[] = [
+//   { id: "technical", label: "Technical", pdfName: "technical" },
+//   { id: "billing", label: "Billing", pdfName: "billing" },
+//   { id: "construction", label: "Construction", pdfName: "construction" },
+//   { id: "consulting", label: "Consulting", pdfName: "consulting" },
+//   { id: "education", label: "Education", pdfName: "education" },
+//   { id: "financial", label: "Financial", pdfName: "financial" },
+//   { id: "government", label: "Government", pdfName: "government" },
+//   { id: "historical", label: "Historical", pdfName: "historical" },
+//   { id: "legal", label: "Legal", pdfName: "legal" },
+//   { id: "medical", label: "Medical", pdfName: "medical" },
+//   { id: "research", label: "Research", pdfName: "research" },
+// ];
 
-const BASE_URL =
-  "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page_v3";
+// const BASE_URL =
+//   "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page_v3";
 
 const Home = () => {
   const auth = useAuth();
@@ -104,80 +104,80 @@ const Home = () => {
 
   const pricingRef = useRef<HTMLDivElement>(null);
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("technical");
-  const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
+  // const [selectedCategory, setSelectedCategory] = useState<string>("technical");
+  // const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
 
   // Function to fetch task response and update PDF URL
-  const fetchTaskResponse = async (pdfName: string) => {
-    try {
-      // Updated to match new structure from frontend_pdfs.py
-      const response = await fetch(
-        `${BASE_URL}/output/${pdfName}/${pdfName}_response.json`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: TaskResponse = await response.json();
+  // const fetchTaskResponse = async (pdfName: string) => {
+  //   try {
+  //     // Updated to match new structure from frontend_pdfs.py
+  //     const response = await fetch(
+  //       `${BASE_URL}/output/${pdfName}/${pdfName}_response.json`
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+  //     const data: TaskResponse = await response.json();
 
-      // Update the PDF URL in the response to match new structure
-      if (data.output) {
-        data.output.pdf_url = `${BASE_URL}/input/${pdfName}/${pdfName}.pdf`;
-      }
+  //     // Update the PDF URL in the response to match new structure
+  //     if (data.output) {
+  //       data.output.pdf_url = `${BASE_URL}/input/${pdfName}/${pdfName}.pdf`;
+  //     }
 
-      setTaskResponse(data);
-    } catch (error) {
-      console.error("Error loading task response:", error);
-    }
-  };
+  //     setTaskResponse(data);
+  //   } catch (error) {
+  //     console.error("Error loading task response:", error);
+  //   }
+  // };
 
   // Effect to fetch task response when category changes
-  useEffect(() => {
-    const category = DOCUMENT_CATEGORIES.find(
-      (cat) => cat.id === selectedCategory
-    );
-    if (category) {
-      fetchTaskResponse(category.pdfName);
-    }
-  }, [selectedCategory]);
+  // useEffect(() => {
+  //   const category = DOCUMENT_CATEGORIES.find(
+  //     (cat) => cat.id === selectedCategory
+  //   );
+  //   if (category) {
+  //     fetchTaskResponse(category.pdfName);
+  //   }
+  // }, [selectedCategory]);
 
   // Update the placeholder window content
-  const renderPlaceholderWindow = () => (
-    <div className="placeholder-window">
-      <div className="window-header">
-        <Flex
-          width="100%"
-          justify="start"
-          align="center"
-          overflow="auto"
-          gap="8px"
-          p="16px"
-          pb="12px"
-          className="category-scroll-container"
-        >
-          {DOCUMENT_CATEGORIES.map((category) => (
-            <BetterButton
-              key={category.id}
-              radius="8px"
-              padding="8px 24px"
-              onClick={() => setSelectedCategory(category.id)}
-              active={selectedCategory === category.id}
-            >
-              <Text
-                size="1"
-                weight="medium"
-                style={{ color: "white", width: "max-content" }}
-              >
-                {category.label}
-              </Text>
-            </BetterButton>
-          ))}
-        </Flex>
-      </div>
-      <div className="window-content">
-        {taskResponse && <Viewer task={taskResponse} hideHeader={true} />}
-      </div>
-    </div>
-  );
+  // const renderPlaceholderWindow = () => (
+  //   <div className="placeholder-window">
+  //     <div className="window-header">
+  //       <Flex
+  //         width="100%"
+  //         justify="start"
+  //         align="center"
+  //         overflow="auto"
+  //         gap="8px"
+  //         p="16px"
+  //         pb="12px"
+  //         className="category-scroll-container"
+  //       >
+  //         {DOCUMENT_CATEGORIES.map((category) => (
+  //           <BetterButton
+  //             key={category.id}
+  //             radius="8px"
+  //             padding="8px 24px"
+  //             onClick={() => setSelectedCategory(category.id)}
+  //             active={selectedCategory === category.id}
+  //           >
+  //             <Text
+  //               size="1"
+  //               weight="medium"
+  //               style={{ color: "white", width: "max-content" }}
+  //             >
+  //               {category.label}
+  //             </Text>
+  //           </BetterButton>
+  //         ))}
+  //       </Flex>
+  //     </div>
+  //     <div className="window-content">
+  //       {taskResponse && <Viewer task={taskResponse} hideHeader={true} />}
+  //     </div>
+  //   </div>
+  // );
 
   useEffect(() => {
     if (lottieRef.current) {
@@ -415,8 +415,7 @@ const Home = () => {
                   className="hero-description"
                   align="center"
                 >
-                  API service to convert complex documents into LLM/RAG-ready
-                  chunks
+                  API service to convert complex documents into LLM-ready data
                 </Text>
 
                 <Flex
@@ -442,15 +441,16 @@ const Home = () => {
           </div>
           <Flex
             px="24px"
+            py="128px"
             width="100%"
             align="center"
             justify="center"
             direction="column"
             className="hero-content-container-main"
           >
-            <div className="hero-content-container">
+            {/* <div className="hero-content-container">
               <div className="hero-content">{renderPlaceholderWindow()}</div>
-            </div>
+            </div> */}
           </Flex>
           <div className="features-container">
             <Flex

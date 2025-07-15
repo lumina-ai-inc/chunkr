@@ -311,37 +311,11 @@ export const SegmentChunk = memo(
           textToCopy = segment.image || "";
         } else {
           // Copy whichever format is available, preferring the generated content
-          textToCopy =
-            segment.content || segment.html || segment.markdown || "";
+          textToCopy = segment.content || "";
         }
 
         navigator.clipboard.writeText(textToCopy);
         toast.success("Copied to clipboard");
-      },
-      [segmentDisplayModes]
-    );
-
-    const renderSegmentHtml = useCallback(
-      (segment: Segment) => {
-        const mode = segmentDisplayModes[segment.segment_id] || {
-          showJson: false,
-          showLLM: false,
-          showImage: false,
-        };
-
-        if (mode.showJson) return <MemoizedJson segment={segment} />;
-        if (mode.showLLM && segment.llm)
-          return <MemoizedMarkdown content={segment.llm} />;
-        if (mode.showImage && segment.image)
-          return (
-            <SmartImage
-              src={segment.image}
-              alt="Cropped segment"
-              style={{ maxWidth: "100%" }}
-            />
-          );
-
-        return <MemoizedHtml html={segment.html || ""} />;
       },
       [segmentDisplayModes]
     );
@@ -450,12 +424,9 @@ export const SegmentChunk = memo(
           }
 
           // === formula special-case ===
-          if (
-            segment.segment_type === SegmentType.Formula &&
-            segment.markdown
-          ) {
-            // strip surrounding "$" from markdown before rendering
-            const raw = segment.markdown || "";
+          if (segment.segment_type === SegmentType.Formula && segment.content) {
+            // strip surrounding "$" from content before rendering
+            const raw = segment.content || "";
             // removes one or more "$" at the start/end
             const latex = raw.replace(/^\$+|\$+$/g, "");
 
@@ -539,15 +510,31 @@ export const SegmentChunk = memo(
             );
           }
 
-          // Render based on what content is available
-          if (segment.html) {
-            return renderSegmentHtml(segment);
-          } else if (segment.markdown) {
-            return <MemoizedMarkdown content={segment.markdown} />;
-          } else {
-            // Fallback to text content if available
-            return <div>{segment.content || ""}</div>;
+          // Always use content field and detect format
+          const content = segment.content || "";
+
+          // Check if content contains HTML tags
+          if (/<[^>]+>/.test(content)) {
+            return <MemoizedHtml html={content} />;
           }
+
+          // Check if content contains markdown indicators or LaTeX
+          if (
+            content.includes("|") || // tables
+            content.includes("#") || // headers
+            content.includes("**") || // bold
+            content.includes("*") || // emphasis
+            content.includes("```") || // code blocks
+            content.includes("- ") || // lists
+            content.includes("1. ") || // numbered lists
+            /\$.*\$/.test(content) || // inline math
+            /\$\$.*\$\$/.test(content) // display math
+          ) {
+            return <MemoizedMarkdown content={content} />;
+          }
+
+          // Plain text fallback
+          return <div>{content}</div>;
         };
 
         const currentButtonMode = segmentDisplayModes[segment.segment_id] || {
