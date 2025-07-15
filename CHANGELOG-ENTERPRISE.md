@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.7.1-enterprise...v2.7.2-enterprise) (2025-07-15)
+
+
+### Bug Fixes
+
+* Adjusted upload modal UI layout and fixed segment processing card ([#167](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/167)) ([ac8f9dc](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ac8f9dc2b05ab8862bdaf67de9ec89a1975244ad))
+
 ## [2.7.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.7.0-enterprise...v2.7.1-enterprise) (2025-07-14)
 
 
