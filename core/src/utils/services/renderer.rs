@@ -510,8 +510,10 @@ impl HTMLToImageRenderer {
                     // Get bounding rectangle
                     const rect = element.getBoundingClientRect();
                     
-                    // Skip elements with no dimensions
-                    if (rect.width === 0 || rect.height === 0) {
+                    // Skip elements with no dimensions OR NaN values
+                    if (rect.width === 0 || rect.height === 0 || 
+                        isNaN(rect.left) || isNaN(rect.top) || 
+                        isNaN(rect.width) || isNaN(rect.height)) {
                         continue;
                     }
                     

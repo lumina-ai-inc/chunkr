@@ -8,7 +8,7 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 use tempfile::NamedTempFile;
 
-use crate::models::output::Cell;
+use crate::models::output::{Cell, CellStyle};
 use crate::models::pipeline::Indices;
 
 static IMG_REGEX: Lazy<Regex> =
@@ -198,11 +198,93 @@ pub fn parse_range(range: &str) -> Result<Indices, Box<dyn Error + Send + Sync>>
     }
 }
 
+/// Helper function to check if a table row contains only empty/styled cells
+/// Returns true if the row only contains cells with br tags, whitespace, or empty content
+fn is_row_empty(row: &nipper::Selection) -> bool {
+    let cells = row.select("td, th");
+
+    // Consider row empty if it has no cells
+    if cells.length() == 0 {
+        return true;
+    }
+
+    // Check if all cells in the row are effectively empty
+    cells.iter().all(|cell| {
+        let text_content = cell.text();
+        let trimmed = text_content.trim();
+
+        // Consider the cell empty if:
+        // 1. It has no text content, OR
+        // 2. It only contains whitespace or line breaks
+        trimmed.is_empty() || trimmed.chars().all(|c| c.is_whitespace())
+    })
+}
+
+/// Remove the first empty row(s) from an HTML table
+///
+/// This function removes empty rows from the beginning of a table to handle
+/// LibreOffice's inconsistent HTML export behavior where styled empty rows
+/// are sometimes included at the top.
+///
+/// ### Arguments
+/// * `html_content` - The HTML content containing a table
+///
+/// ### Returns
+/// Modified HTML content with leading empty rows removed
+pub fn remove_leading_empty_rows(
+    html_content: &str,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let document = Document::from(html_content);
+
+    // Find the first table
+    let table = document.select("table").first();
+    if !table.exists() {
+        return Ok(html_content.to_string());
+    }
+
+    let rows = table.select("tr");
+    let mut rows_to_keep = Vec::new();
+    let mut found_content = false;
+
+    // Collect rows, skipping empty ones at the beginning
+    for row in rows.iter() {
+        if !found_content && is_row_empty(&row) {
+            continue; // Skip this empty row at the beginning
+        }
+
+        // Once we find the first non-empty row, keep all subsequent rows
+        found_content = true;
+        rows_to_keep.push(row.html().to_string());
+    }
+
+    // If no rows to keep, return original content
+    if rows_to_keep.is_empty() {
+        return Ok(html_content.to_string());
+    }
+
+    // Get the table's opening tag with all its attributes
+    let table_html = table.html().to_string();
+    let table_start_tag = if let Some(end) = table_html.find('>') {
+        &table_html[..=end]
+    } else {
+        "<table>"
+    };
+
+    // Reconstruct the table with filtered rows
+    let new_table_html = format!("{}{}</table>", table_start_tag, rows_to_keep.join(""));
+
+    // Replace the original table with the new one
+    let mut table_mut = table;
+    table_mut.replace_with_html(new_table_html.as_str());
+
+    Ok(document.html().to_string())
+}
+
 /// Add Excel-style cell references as data attributes to HTML table cells
 ///
 /// ### Arguments
 /// * `html_content` - The HTML content containing a table
-/// * `start_row` - The starting row offset (0-based)
+/// * `start_row` - The starting row offset (0-based)  
 /// * `start_col` - The starting column offset (0-based)
 ///
 /// ### Returns
@@ -363,8 +445,8 @@ fn create_sheet_html(table: &nipper::Selection, original_document: &Document) ->
         </style>
     "#;
 
-    // Create a basic HTML structure with the table
-    format!(
+    // Create the initial sheet HTML
+    let initial_sheet_html = format!(
         r#"<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -381,7 +463,13 @@ fn create_sheet_html(table: &nipper::Selection, original_document: &Document) ->
         styles,
         additional_css,
         table.html()
-    )
+    );
+
+    // Remove leading empty rows from the sheet
+    match remove_leading_empty_rows(&initial_sheet_html) {
+        Ok(cleaned_html) => cleaned_html,
+        Err(_) => initial_sheet_html, // Fallback to original if preprocessing fails
+    }
 }
 
 pub fn get_img_sources(html: &str) -> Vec<String> {
@@ -793,11 +881,13 @@ pub fn extract_rows_from_indicies(
                                         indices.end_col,
                                     ) {
                                         Ok(true) => {
-                                            // Extract only content and specified attributes
-                                            let content = only_cell.text();
+                                            // Extract clean text content without font/br tags
+                                            let text_content = only_cell.text();
+                                            let clean_content = text_content.trim();
+
                                             let mut attributes = Vec::new();
 
-                                            // Only preserve colspan, rowspan, and data-cell-ref attributes
+                                            // Preserve structural attributes
                                             if let Some(colspan) = only_cell.attr("colspan") {
                                                 attributes.push(format!("colspan=\"{colspan}\""));
                                             }
@@ -807,7 +897,69 @@ pub fn extract_rows_from_indicies(
                                             attributes
                                                 .push(format!("data-cell-ref=\"{cell_ref}\""));
 
-                                            // Create simplified td element (convert th to td)
+                                            // Preserve styling attributes
+                                            if let Some(formula) =
+                                                only_cell.attr("data-sheets-formula")
+                                            {
+                                                // HTML escape the formula to handle quotes and special characters
+                                                let escaped_formula = formula
+                                                    .replace('&', "&amp;")
+                                                    .replace('"', "&quot;")
+                                                    .replace('<', "&lt;")
+                                                    .replace('>', "&gt;");
+                                                attributes.push(format!(
+                                                    "data-sheets-formula=\"{escaped_formula}\""
+                                                ));
+                                            }
+
+                                            // Extract font information from font tags within the cell and convert to CSS
+                                            let mut style_parts = Vec::new();
+
+                                            // Convert bgcolor to CSS background-color
+                                            let bgcolor = only_cell
+                                                .attr("bgcolor")
+                                                .unwrap_or_else(|| "#FFFFFF".into());
+                                            let bg_color_value = if bgcolor.starts_with('#') {
+                                                bgcolor.to_string()
+                                            } else {
+                                                format!("#{bgcolor}")
+                                            };
+                                            style_parts.push(format!(
+                                                "background-color: {bg_color_value}"
+                                            ));
+
+                                            // if let Some(align) = only_cell.attr("align") {
+                                            //     style_parts.push(format!("text-align: {align}"));
+                                            // }
+                                            // if let Some(valign) = only_cell.attr("valign") {
+                                            //     style_parts
+                                            //         .push(format!("vertical-align: {}", valign));
+                                            // }
+
+                                            let font_elements = only_cell.select("font");
+                                            if font_elements.length() > 0 {
+                                                let font = font_elements.first();
+                                                if let Some(color) = font.attr("color") {
+                                                    // Handle both #RRGGBB and RRGGBB formats
+                                                    let color_value = if color.starts_with('#') {
+                                                        color.to_string()
+                                                    } else {
+                                                        format!("#{color}")
+                                                    };
+                                                    style_parts
+                                                        .push(format!("color: {color_value}"));
+                                                }
+                                            }
+
+                                            // Add CSS style attribute if we have styles
+                                            if !style_parts.is_empty() {
+                                                attributes.push(format!(
+                                                    "style=\"{}\"",
+                                                    style_parts.join("; ")
+                                                ));
+                                            }
+
+                                            // Create td element preserving all styling (convert th to td)
                                             let attrs_str = if attributes.is_empty() {
                                                 String::new()
                                             } else {
@@ -815,7 +967,7 @@ pub fn extract_rows_from_indicies(
                                             };
 
                                             let cell_html =
-                                                format!("<td{attrs_str}>{content}</td>");
+                                                format!("<td{attrs_str}>{clean_content}</td>");
                                             Some(Ok(cell_html))
                                         }
                                         Ok(false) => None,
@@ -1041,10 +1193,52 @@ pub fn extract_cells_from_ranges(
                 // Extract value if present
                 let value = cell.attr("sdval").map(|v| v.to_string());
 
+                // Extract styling information
+                let bg_color = cell.attr("bgcolor").map(|c| c.to_string());
+                let font_elements = cell.select("font");
+                let mut text_color = None;
+                let mut font_face = None;
+
+                if font_elements.length() > 0 {
+                    let font = font_elements.first();
+                    text_color = font.attr("color").map(|c| c.to_string());
+                    font_face = font.attr("face").map(|f| f.to_string());
+                }
+
+                let hyperlink = cell.select("a").first().attr("href").map(|h| h.to_string());
+                let is_bold = if cell.select("b").length() > 0 {
+                    Some(true)
+                } else {
+                    None
+                };
+
+                // Create CellStyle if any visual styling properties exist
+                let style = if bg_color.is_some()
+                    || text_color.is_some()
+                    || font_face.is_some()
+                    || is_bold.is_some()
+                {
+                    Some(CellStyle {
+                        bg_color,
+                        text_color,
+                        font_face,
+                        is_bold,
+                    })
+                } else {
+                    None
+                };
+
                 // Mark this cell reference as processed
                 processed_refs.insert(cell_ref.to_string());
 
-                let cell_info = Cell::new(text, cell_ref.to_string(), formula, value);
+                let cell_info = Cell::new_with_style(
+                    text,
+                    cell_ref.to_string(),
+                    formula,
+                    value,
+                    hyperlink,
+                    style,
+                );
 
                 cells.push(cell_info);
             }
@@ -1540,6 +1734,60 @@ Line 2 after empty br
     }
 
     #[test]
+    fn test_extract_rows_from_indicies_preserves_styling_attributes() {
+        // Test HTML with styling attributes to ensure they are preserved
+        let html_with_styling = r#"<table>
+<tr>
+<td data-cell-ref="A1" data-sheets-formula="=SUM(B1:B10)" bgcolor="FFFF00" style="font-weight:bold;">Total</td>
+<td data-cell-ref="B1" sdval="100.5" data-sheets-numberformat="{ &quot;1&quot;: 2 }">100.50</td>
+<td data-cell-ref="C1" align="center" valign="top"><font color="FF0000" face="Arial">Header</font></td>
+</tr>
+<tr>
+<td data-cell-ref="A2" bgcolor="E0E0E0">Data 1</td>
+<td data-cell-ref="B2" data-sheets-formula="=A2*2" style="text-align:right;">Data 2</td>
+<td data-cell-ref="C2">Data 3</td>
+</tr>
+</table>"#;
+
+        // Extract first row, all columns
+        let indices = Indices {
+            start_row: 0,
+            start_col: 0,
+            end_row: 0,
+            end_col: 2,
+        };
+
+        let result =
+            extract_rows_from_indicies(html_with_styling, &indices, Some("<table>")).unwrap();
+
+        // Should preserve formula attributes
+        assert!(result.contains("data-sheets-formula=\"=SUM(B1:B10)\""));
+
+        // Should preserve background color
+        assert!(result.contains("bgcolor=\"FFFF00\""));
+
+        // Should preserve style attributes
+        assert!(result.contains("style=\"font-weight:bold;\""));
+
+        // Should extract and preserve font information as data attributes
+        assert!(result.contains("data-font-color=\"FF0000\""));
+        assert!(result.contains("data-font-face=\"Arial\""));
+
+        // Should preserve inner HTML structure (font tags)
+        assert!(result.contains("<font color=\"FF0000\" face=\"Arial\">Header</font>"));
+
+        // Should still preserve cell references
+        assert!(result.contains("data-cell-ref=\"A1\""));
+        assert!(result.contains("data-cell-ref=\"B1\""));
+        assert!(result.contains("data-cell-ref=\"C1\""));
+
+        // Content should be preserved
+        assert!(result.contains("Total"));
+        assert!(result.contains("100.50"));
+        assert!(result.contains("Header"));
+    }
+
+    #[test]
     fn test_get_cell_ref_for_image_src() {
         // Test direct image in cell
         let html_direct = r#"<table>
@@ -1661,9 +1909,9 @@ Line 2 after empty br
         assert!(a1_cell.formula.is_some());
         assert_eq!(a1_cell.text, "Total");
 
-        // Check format extraction
+        // Check B1 cell - should not have formula since sdnum is not a formula
         let b1_cell = cells.iter().find(|c| c.range == "B1").unwrap();
-        assert_eq!(b1_cell.formula.as_ref().unwrap(), "1033");
+        assert!(b1_cell.formula.is_none()); // sdnum is not a formula
         assert_eq!(b1_cell.text, "100.50");
 
         // Test extracting all cells when no ranges specified
@@ -1680,6 +1928,107 @@ Line 2 after empty br
         let cell_refs: Vec<&str> = cells.iter().map(|c| c.range.as_str()).collect();
         assert_eq!(cell_refs.iter().filter(|&&r| r == "B1").count(), 1);
         assert_eq!(cell_refs.iter().filter(|&&r| r == "B2").count(), 1);
+    }
+
+    #[test]
+    fn test_extract_cells_with_styling() {
+        // Test HTML with styling information similar to the user's examples
+        let html = "<table>
+<tr>
+<td data-cell-ref=\"A1\" data-sheets-formula=\"='EQUITY WATER FALL'!R[-6]C[-12]\">
+  <font face=\"Daytona\" color=\"#000000\"> 9,697,582 </font>
+</td>
+<td data-cell-ref=\"B1\" align=\"left\" valign=\"bottom\" bgcolor=\"#DAE3F3\" data-sheets-value=\"{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}\">
+  <font face=\"Daytona\" color=\"#000000\"><br></font>
+</td>
+<td data-cell-ref=\"C1\" bgcolor=\"#FFFFFF\">
+  <font face=\"Arial\" color=\"#FF0000\">Test Text</font>
+</td>
+</tr>
+</table>";
+
+        let cells = extract_cells_from_ranges(html, None, None).unwrap();
+        assert_eq!(cells.len(), 3);
+
+        // Check A1 cell - should have formula and font styling
+        let a1_cell = cells.iter().find(|c| c.range == "A1").unwrap();
+        assert_eq!(a1_cell.text.trim(), "9,697,582");
+        assert_eq!(
+            a1_cell.formula.as_ref().unwrap(),
+            "='EQUITY WATER FALL'!R[-6]C[-12]"
+        );
+        let a1_style = a1_cell.style.as_ref().unwrap();
+        assert_eq!(a1_style.font_face.as_ref().unwrap(), "Daytona");
+        assert_eq!(a1_style.text_color.as_ref().unwrap(), "#000000");
+        assert!(a1_style.bg_color.is_none()); // No bgcolor attribute
+
+        // Check B1 cell - should have background color and font styling
+        let b1_cell = cells.iter().find(|c| c.range == "B1").unwrap();
+        let b1_style = b1_cell.style.as_ref().unwrap();
+        assert_eq!(b1_style.bg_color.as_ref().unwrap(), "#DAE3F3");
+        assert_eq!(b1_style.font_face.as_ref().unwrap(), "Daytona");
+        assert_eq!(b1_style.text_color.as_ref().unwrap(), "#000000");
+
+        // Check C1 cell - should have different font and colors
+        let c1_cell = cells.iter().find(|c| c.range == "C1").unwrap();
+        assert_eq!(c1_cell.text, "Test Text");
+        let c1_style = c1_cell.style.as_ref().unwrap();
+        assert_eq!(c1_style.bg_color.as_ref().unwrap(), "#FFFFFF");
+        assert_eq!(c1_style.font_face.as_ref().unwrap(), "Arial");
+        assert_eq!(c1_style.text_color.as_ref().unwrap(), "#FF0000");
+    }
+
+    #[test]
+    fn test_extract_cells_with_hyperlinks_and_bold() {
+        // Test HTML with hyperlinks and bold styling
+        let html = "<table>
+<tr>
+<td data-cell-ref=\"A1\" bgcolor=\"#FFFFFF\">
+<a href=\"https://www.google.com/maps/example\">Click Here</a>
+</td>
+<td data-cell-ref=\"B1\" bgcolor=\"#000000\">
+<b><font face=\"Daytona\" color=\"#FFFFFF\">PROJECT BUDGET</font></b>
+</td>
+<td data-cell-ref=\"C1\" bgcolor=\"#FFFFFF\">
+<font face=\"Arial\" color=\"#000000\">Regular Text</font>
+</td>
+</tr>
+</table>";
+
+        let cells = extract_cells_from_ranges(html, None, None).unwrap();
+        assert_eq!(cells.len(), 3);
+
+        // Check A1 cell - should have hyperlink
+        let a1_cell = cells.iter().find(|c| c.range == "A1").unwrap();
+        assert_eq!(a1_cell.text, "Click Here");
+        assert!(a1_cell.hyperlink.is_some());
+        assert_eq!(
+            a1_cell.hyperlink.as_ref().unwrap(),
+            "https://www.google.com/maps/example"
+        );
+        let a1_style = a1_cell.style.as_ref().unwrap();
+        assert_eq!(a1_style.bg_color.as_ref().unwrap(), "#FFFFFF");
+        assert!(a1_style.is_bold.is_none()); // No bold tag
+
+        // Check B1 cell - should have bold styling
+        let b1_cell = cells.iter().find(|c| c.range == "B1").unwrap();
+        assert_eq!(b1_cell.text, "PROJECT BUDGET");
+        assert!(b1_cell.hyperlink.is_none()); // No hyperlink
+        let b1_style = b1_cell.style.as_ref().unwrap();
+        assert_eq!(b1_style.is_bold, Some(true));
+        assert_eq!(b1_style.font_face.as_ref().unwrap(), "Daytona");
+        assert_eq!(b1_style.text_color.as_ref().unwrap(), "#FFFFFF");
+        assert_eq!(b1_style.bg_color.as_ref().unwrap(), "#000000");
+
+        // Check C1 cell - should have neither hyperlink nor bold
+        let c1_cell = cells.iter().find(|c| c.range == "C1").unwrap();
+        assert_eq!(c1_cell.text, "Regular Text");
+        assert!(c1_cell.hyperlink.is_none());
+        let c1_style = c1_cell.style.as_ref().unwrap();
+        assert!(c1_style.is_bold.is_none());
+        assert_eq!(c1_style.font_face.as_ref().unwrap(), "Arial");
+        assert_eq!(c1_style.text_color.as_ref().unwrap(), "#000000");
+        assert_eq!(c1_style.bg_color.as_ref().unwrap(), "#FFFFFF");
     }
 
     #[test]
@@ -1733,5 +2082,87 @@ Line 2 after empty br
         };
         let range = indices_to_range(&indices);
         assert_eq!(range, "ZZ10");
+    }
+
+    #[test]
+    fn test_remove_leading_empty_rows() {
+        // Test HTML with empty rows at the beginning (LibreOffice style)
+        let html_with_empty_rows = r#"<table>
+<tr>
+<td bgcolor="DAE3F3"><br></td>
+<td bgcolor="DAE3F3"><br></td>
+<td bgcolor="DAE3F3"><br></td>
+</tr>
+<tr>
+<td bgcolor="DAE3F3">  </td>
+<td bgcolor="DAE3F3">   </td>
+<td bgcolor="DAE3F3"></td>
+</tr>
+<tr>
+<td>Real Data 1</td>
+<td>Real Data 2</td>
+<td>Real Data 3</td>
+</tr>
+<tr>
+<td>More Data 1</td>
+<td>More Data 2</td>
+<td>More Data 3</td>
+</tr>
+<tr>
+<td></td>
+<td>Empty in middle</td>
+<td></td>
+</tr>
+</table>"#;
+
+        let result = remove_leading_empty_rows(html_with_empty_rows).unwrap();
+
+        // Should remove the first two empty rows but keep content
+        assert!(result.contains("Real Data 1"));
+        assert!(result.contains("More Data 1"));
+        assert!(result.contains("Empty in middle")); // Should keep empty rows after content
+
+        // Count the number of <tr> tags to verify row removal
+        let original_row_count = html_with_empty_rows.matches("<tr>").count();
+        let result_row_count = result.matches("<tr>").count();
+        assert_eq!(result_row_count, original_row_count - 2); // Removed 2 empty rows
+
+        // Test HTML with no empty rows at the beginning
+        let html_no_empty_rows = r#"<table>
+<tr>
+<td>Data 1</td>
+<td>Data 2</td>
+</tr>
+<tr>
+<td>Data 3</td>
+<td>Data 4</td>
+</tr>
+</table>"#;
+
+        let result_no_change = remove_leading_empty_rows(html_no_empty_rows).unwrap();
+        // Should be unchanged
+        assert_eq!(result_no_change.matches("<tr>").count(), 2);
+        assert!(result_no_change.contains("Data 1"));
+
+        // Test HTML with all empty rows
+        let html_all_empty = r#"<table>
+<tr>
+<td><br></td>
+<td>  </td>
+</tr>
+<tr>
+<td></td>
+<td>   </td>
+</tr>
+</table>"#;
+
+        let result_all_empty = remove_leading_empty_rows(html_all_empty).unwrap();
+        // Should return original content if all rows are empty
+        assert_eq!(result_all_empty, html_all_empty);
+
+        // Test HTML with no table
+        let html_no_table = r#"<div>No table here</div>"#;
+        let result_no_table = remove_leading_empty_rows(html_no_table).unwrap();
+        assert_eq!(result_no_table, html_no_table);
     }
 }

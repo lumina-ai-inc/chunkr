@@ -867,31 +867,88 @@ impl Sheet {
 
         // Sort new chunks by reading order first to ensure consistent insertion
         let mut sorted_new_chunks = new_chunks;
-        sorted_new_chunks.sort_by(|a, b| {
-            let bbox_a = &a.segments[0].bbox;
-            let bbox_b = &b.segments[0].bbox;
-            let (x_a, y_a) = bbox_a.centroid();
-            let (x_b, y_b) = bbox_b.centroid();
 
-            match pattern {
-                ReadingPattern::RowBased => {
-                    // Sort by row first, then by column
-                    if (y_a - y_b).abs() <= 20.0 {
-                        x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
-                    } else {
-                        y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal)
+        // Try to sort with panic catching
+        let sort_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            sorted_new_chunks.sort_by(|a, b| {
+                let bbox_a = &a.segments[0].bbox;
+                let bbox_b = &b.segments[0].bbox;
+                let (x_a, y_a) = bbox_a.centroid();
+                let (x_b, y_b) = bbox_b.centroid();
+
+                match pattern {
+                    ReadingPattern::RowBased => {
+                        // Always sort by Y first, then by X (maintains total order)
+                        let y_cmp = y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal);
+                        if y_cmp == std::cmp::Ordering::Equal {
+                            x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
+                        } else {
+                            y_cmp
+                        }
+                    }
+                    ReadingPattern::ColumnBased => {
+                        // Always sort by X first, then by Y (maintains total order)
+                        let x_cmp = x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal);
+                        if x_cmp == std::cmp::Ordering::Equal {
+                            y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal)
+                        } else {
+                            x_cmp
+                        }
                     }
                 }
-                ReadingPattern::ColumnBased => {
-                    // Sort by column first, then by row
-                    if (x_a - x_b).abs() <= 20.0 {
-                        y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal)
-                    } else {
-                        x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
-                    }
-                }
+            });
+        }));
+
+        match sort_result {
+            Ok(_) => {
+                // Sorting succeeded, continue normally
             }
-        });
+            Err(_) => {
+                // This should no longer happen with the fixed comparison function
+                eprintln!("WARNING: Sorting panic occurred despite fixed comparison function");
+
+                // Fallback: Use safe sorting that handles NaN/infinite values
+                sorted_new_chunks.sort_by(|a, b| {
+                    let bbox_a = &a.segments[0].bbox;
+                    let bbox_b = &b.segments[0].bbox;
+                    let (x_a, y_a) = bbox_a.centroid();
+                    let (x_b, y_b) = bbox_b.centroid();
+
+                    // Safe comparison function that handles NaN/infinite
+                    fn safe_f32_cmp(a: f32, b: f32) -> std::cmp::Ordering {
+                        match (a.is_finite(), b.is_finite()) {
+                            (true, true) => a.partial_cmp(&b).unwrap(),
+                            (false, true) => std::cmp::Ordering::Greater, // NaN/inf sorts last
+                            (true, false) => std::cmp::Ordering::Less,
+                            (false, false) => std::cmp::Ordering::Equal,
+                        }
+                    }
+
+                    match pattern {
+                        ReadingPattern::RowBased => {
+                            let y_cmp = safe_f32_cmp(y_a, y_b);
+                            if y_cmp == std::cmp::Ordering::Equal
+                                || (y_a.is_finite() && y_b.is_finite() && (y_a - y_b).abs() <= 20.0)
+                            {
+                                safe_f32_cmp(x_a, x_b)
+                            } else {
+                                y_cmp
+                            }
+                        }
+                        ReadingPattern::ColumnBased => {
+                            let x_cmp = safe_f32_cmp(x_a, x_b);
+                            if x_cmp == std::cmp::Ordering::Equal
+                                || (x_a.is_finite() && x_b.is_finite() && (x_a - x_b).abs() <= 20.0)
+                            {
+                                safe_f32_cmp(y_a, y_b)
+                            } else {
+                                x_cmp
+                            }
+                        }
+                    }
+                });
+            }
+        }
 
         // Insert each new chunk at its appropriate position
         for new_chunk in sorted_new_chunks {

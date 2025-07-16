@@ -17,8 +17,9 @@ fn get_sheet_infos(file_path: &Path) -> Result<Vec<SheetInfo>, Box<dyn Error>> {
         .map(|(sheet_idx, (name, start_pos, _end_pos))| {
             let (start_row, start_column) = match start_pos {
                 Some((row, col)) => (Some(*row), Some(*col)),
-                None => (None, None),
+                None => (Some(0), Some(0)),
             };
+            println!("Sheet {name} starts at row {start_row:?} and column {start_column:?}");
             SheetInfo {
                 name: name.to_string(),
                 start_row,
@@ -183,7 +184,7 @@ mod tests {
     async fn test_process() {
         initialize().await;
         let mut input_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input_file_path.push("input/LANCASTER-BTR-INTERNAL-8020.xlsx");
+        input_file_path.push("input/Quaterly costs example.xlsx");
         let input_file = Arc::new(NamedTempFile::new().unwrap());
         fs::copy(input_file_path.clone(), input_file.path()).unwrap();
 

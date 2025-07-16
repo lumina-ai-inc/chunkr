@@ -70,6 +70,8 @@ pub async fn process(
     let identify_elements_context = Context::current().with_span(identify_elements_span);
 
     let identification_futures = sheets.par_iter().enumerate().map(|(index, sheet)| {
+        println!("Processing sheet {}: '{}'", index, sheet.sheet_info.name);
+
         if sheet.sheet_info.start_row.is_none() {
             println!(
                 "Skipping sheet for identification {:?} due to no start row",
@@ -78,7 +80,12 @@ pub async fn process(
             let result: Result<Vec<Element>, Box<dyn Error + Send + Sync>> = Ok(vec![]);
             return futures::future::ready(result).boxed();
         }
+
         if segmentation_strategy == SegmentationStrategy::Page {
+            println!(
+                "Skipping sheet '{}' due to Page segmentation strategy",
+                sheet.sheet_info.name
+            );
             let result: Result<Vec<Element>, Box<dyn Error + Send + Sync>> =
                 Ok(sheet.sheet_info.clone().into());
             return futures::future::ready(result).boxed();
@@ -173,21 +180,8 @@ pub async fn process(
             )
             .await
             {
-                Ok(identified_elements) => match identified_elements.try_into() {
-                    Ok(elements) => Ok(elements),
-                    Err(e) => {
-                        let error_msg = format!("Failed to convert identified elements: {e}");
-                        sheet_context
-                            .span()
-                            .set_status(opentelemetry::trace::Status::error(error_msg.clone()));
-                        sheet_context
-                            .span()
-                            .set_attribute(opentelemetry::KeyValue::new(
-                                "error",
-                                error_msg.clone(),
-                            ));
-                        Err(error_msg.into())
-                    }
+                Ok(identified_elements) => {
+                    Ok(identified_elements.try_into()?)
                 },
                 Err(e) => {
                     // Check if this is a non-retryable client error

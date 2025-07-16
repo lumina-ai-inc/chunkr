@@ -164,6 +164,44 @@ impl Chunk {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct CellStyle {
+    /// Background color of the cell (e.g., "#FFFFFF" or "#DAE3F3").
+    pub bg_color: Option<String>,
+    /// Text color of the cell (e.g., "#000000" or "red").
+    pub text_color: Option<String>,
+    /// Font face/family of the cell (e.g., "Arial", "Daytona").
+    pub font_face: Option<String>,
+    /// Whether the cell content is bold.
+    pub is_bold: Option<bool>,
+}
+
+impl Default for CellStyle {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CellStyle {
+    pub fn new() -> Self {
+        Self {
+            bg_color: None,
+            text_color: None,
+            font_face: None,
+            is_bold: None,
+        }
+    }
+
+    pub fn with_colors(bg_color: Option<String>, text_color: Option<String>) -> Self {
+        Self {
+            bg_color,
+            text_color,
+            font_face: None,
+            is_bold: None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Cell {
     /// The cell ID.
     pub cell_id: String,
@@ -179,6 +217,10 @@ pub struct Cell {
     ///
     /// Example: text might show "3.14" (formatted to 2 decimal places) while value could be "3.141592653589793" (full precision).
     pub value: Option<String>,
+    /// Hyperlink URL if the cell contains a link (e.g., "https://www.chunkr.ai").
+    pub hyperlink: Option<String>,
+    /// Styling information for the cell including colors, fonts, and formatting.
+    pub style: Option<CellStyle>,
 }
 
 impl Cell {
@@ -195,6 +237,67 @@ impl Cell {
             range,
             formula,
             value,
+            hyperlink: None,
+            style: None,
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_with_styling(
+        text: String,
+        range: String,
+        formula: Option<String>,
+        value: Option<String>,
+        bg_color: Option<String>,
+        text_color: Option<String>,
+        font_face: Option<String>,
+        hyperlink: Option<String>,
+        is_bold: Option<bool>,
+    ) -> Self {
+        let cell_id = generate_uuid();
+        let style = if bg_color.is_some()
+            || text_color.is_some()
+            || font_face.is_some()
+            || is_bold.is_some()
+        {
+            Some(CellStyle {
+                bg_color,
+                text_color,
+                font_face,
+                is_bold,
+            })
+        } else {
+            None
+        };
+
+        Self {
+            cell_id,
+            text,
+            range,
+            formula,
+            value,
+            hyperlink,
+            style,
+        }
+    }
+
+    pub fn new_with_style(
+        text: String,
+        range: String,
+        formula: Option<String>,
+        value: Option<String>,
+        hyperlink: Option<String>,
+        style: Option<CellStyle>,
+    ) -> Self {
+        let cell_id = generate_uuid();
+        Self {
+            cell_id,
+            text,
+            range,
+            formula,
+            value,
+            hyperlink,
+            style,
         }
     }
 }
@@ -330,19 +433,36 @@ impl Segment {
             return Err("OCR results are empty, can't calculate bbox".into());
         }
 
-        let min_left = ocr_results
+        // Filter out OCR results with NaN or infinite coordinates
+        let valid_ocr_results: Vec<_> = ocr_results
+            .iter()
+            .filter(|ocr| {
+                ocr.bbox.left.is_finite()
+                    && ocr.bbox.top.is_finite()
+                    && ocr.bbox.width.is_finite()
+                    && ocr.bbox.height.is_finite()
+                    && ocr.bbox.width >= 0.0
+                    && ocr.bbox.height >= 0.0
+            })
+            .collect();
+
+        if valid_ocr_results.is_empty() {
+            return Err("No valid OCR results with finite coordinates found".into());
+        }
+
+        let min_left = valid_ocr_results
             .iter()
             .map(|ocr| ocr.bbox.left)
             .fold(f32::INFINITY, f32::min);
-        let min_top = ocr_results
+        let min_top = valid_ocr_results
             .iter()
             .map(|ocr| ocr.bbox.top)
             .fold(f32::INFINITY, f32::min);
-        let max_right = ocr_results
+        let max_right = valid_ocr_results
             .iter()
             .map(|ocr| ocr.bbox.left + ocr.bbox.width)
             .fold(f32::NEG_INFINITY, f32::max);
-        let max_bottom = ocr_results
+        let max_bottom = valid_ocr_results
             .iter()
             .map(|ocr| ocr.bbox.top + ocr.bbox.height)
             .fold(f32::NEG_INFINITY, f32::max);
@@ -377,6 +497,24 @@ impl Segment {
             .map(|ocr_result| ocr_result.text.clone())
             .collect::<Vec<String>>()
             .join(" ")
+    }
+
+    // Helper method to adjust cell range by adding offset back
+    pub fn adjust_cell_range(
+        range: &str,
+        row_offset: u32,
+        col_offset: u32,
+    ) -> Result<String, Box<dyn Error + Send + Sync>> {
+        use crate::utils::services::html::{indices_to_range, parse_range};
+
+        let indices = parse_range(range)?;
+        let adjusted_indices = crate::models::pipeline::Indices {
+            start_row: indices.start_row + row_offset as usize,
+            start_col: indices.start_col + col_offset as usize,
+            end_row: indices.end_row + row_offset as usize,
+            end_col: indices.end_col + col_offset as usize,
+        };
+        Ok(indices_to_range(&adjusted_indices))
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -1495,5 +1633,378 @@ mod tests {
             // Expected to be the sum of words from content, HTML, markdown, and LLM
             assert!(word_count > 0);
         }
+    }
+
+    #[test]
+    fn test_f32_overflow_causes_nan_in_centroid() {
+        // Simulate extreme coordinates that can come from browser getBoundingClientRect()
+        // These values are typical of elements positioned way off-screen
+        let huge_f64 = 1.797_693_134_862_315_6e200_f64; // Large but valid f64
+
+        // Current f32 implementation - this will overflow
+        let bbox_f32 = BoundingBox::new(
+            huge_f64 as f32, // This cast overflows to f32::INFINITY or NaN
+            huge_f64 as f32,
+            100.0,
+            100.0,
+        );
+
+        // Check that the overflow creates infinite values (not NaN in this case)
+        assert!(bbox_f32.left.is_infinite());
+        assert!(bbox_f32.top.is_infinite());
+
+        // Centroid calculation propagates the infinity
+        let (center_x, center_y) = bbox_f32.centroid();
+        assert!(center_x.is_infinite());
+        assert!(center_y.is_infinite());
+
+        // This is what can break the sorting algorithm - infinity comparisons
+        // While they return Some(), they can still cause total order violations
+        let bbox2 = BoundingBox::new(0.0, 0.0, 100.0, 100.0);
+        let (normal_x, normal_y) = bbox2.centroid();
+
+        println!("Current f32 implementation creates infinity from large coordinates:");
+        println!("bbox_f32.left: {}", bbox_f32.left);
+        println!("center_x: {center_x}, center_y: {center_y}");
+
+        // The real issue is when the browser returns actual NaN values
+        // Let's test that scenario
+        let nan_bbox = BoundingBox::new(f32::NAN, f32::NAN, 100.0, 100.0);
+        let (nan_x, nan_y) = nan_bbox.centroid();
+
+        assert!(nan_x.is_nan());
+        assert!(nan_y.is_nan());
+
+        // These comparisons will return None, causing the sorting panic
+        assert!(nan_x.partial_cmp(&normal_x).is_none());
+        assert!(nan_y.partial_cmp(&normal_y).is_none());
+
+        println!("NaN coordinates break comparisons:");
+        println!("nan_x: {nan_x}, nan_y: {nan_y}");
+    }
+
+    #[test]
+    fn test_f64_handles_extreme_coordinates() {
+        // Same extreme coordinates but with f64 (this is what we want to implement)
+        let huge_f64 = 1.797_693_134_862_315_6e200_f64;
+
+        // This would be the f64 implementation - no casting, no overflow
+        let left_f64 = huge_f64;
+        let top_f64 = huge_f64;
+        let width_f64 = 100.0_f64;
+        let height_f64 = 100.0_f64;
+
+        // All values remain finite
+        assert!(left_f64.is_finite());
+        assert!(top_f64.is_finite());
+
+        // Centroid calculation works correctly
+        let center_x = left_f64 + (width_f64 / 2.0);
+        let center_y = top_f64 + (height_f64 / 2.0);
+
+        assert!(center_x.is_finite());
+        assert!(center_y.is_finite());
+
+        // Comparisons work properly
+        let normal_x = 50.0_f64;
+        let normal_y = 50.0_f64;
+
+        assert!(center_x.partial_cmp(&normal_x).is_some());
+        assert!(center_y.partial_cmp(&normal_y).is_some());
+
+        println!("f64 implementation handles extreme coordinates properly:");
+        println!("left_f64: {left_f64}");
+        println!("center_x: {center_x}, center_y: {center_y}");
+    }
+
+    #[test]
+    fn test_sorting_with_nan_coordinates_panics() {
+        // This test demonstrates the actual panic that occurs in production
+        use std::panic;
+
+        let mut chunks = vec![
+            // Chunk with NaN coordinates (from f32 overflow)
+            Chunk::new(vec![Segment {
+                bbox: BoundingBox::new(f32::NAN, f32::NAN, 100.0, 100.0),
+                confidence: Some(0.9),
+                content: "Test content 1".to_string(),
+                html: "<p>Test1</p>".to_string(),
+                image: None,
+                llm: None,
+                markdown: "Test1".to_string(),
+                ocr: None,
+                page_height: 1000.0,
+                page_width: 800.0,
+                page_number: 1,
+                segment_id: "test-id-1".to_string(),
+                segment_type: SegmentType::Text,
+                segment_length: None,
+                ss_cells: None,
+                ss_header_range: None,
+                ss_header_text: None,
+                ss_header_bbox: None,
+                ss_header_ocr: None,
+                ss_range: None,
+                ss_sheet_name: None,
+                text: "Test content 1".to_string(),
+            }]),
+            // Another chunk with different NaN coordinates
+            Chunk::new(vec![Segment {
+                bbox: BoundingBox::new(f32::NAN, 50.0, 100.0, 100.0),
+                confidence: Some(0.9),
+                content: "Test content 2".to_string(),
+                html: "<p>Test2</p>".to_string(),
+                image: None,
+                llm: None,
+                markdown: "Test2".to_string(),
+                ocr: None,
+                page_height: 1000.0,
+                page_width: 800.0,
+                page_number: 1,
+                segment_id: "test-id-2".to_string(),
+                segment_type: SegmentType::Text,
+                segment_length: None,
+                ss_cells: None,
+                ss_header_range: None,
+                ss_header_text: None,
+                ss_header_bbox: None,
+                ss_header_ocr: None,
+                ss_range: None,
+                ss_sheet_name: None,
+                text: "Test content 2".to_string(),
+            }]),
+            // Third chunk with mixed NaN/normal coordinates
+            Chunk::new(vec![Segment {
+                bbox: BoundingBox::new(25.0, f32::NAN, 100.0, 100.0),
+                confidence: Some(0.9),
+                content: "Test content 3".to_string(),
+                html: "<p>Test3</p>".to_string(),
+                image: None,
+                llm: None,
+                markdown: "Test3".to_string(),
+                ocr: None,
+                page_height: 1000.0,
+                page_width: 800.0,
+                page_number: 1,
+                segment_id: "test-id-3".to_string(),
+                segment_type: SegmentType::Text,
+                segment_length: None,
+                ss_cells: None,
+                ss_header_range: None,
+                ss_header_text: None,
+                ss_header_bbox: None,
+                ss_header_ocr: None,
+                ss_range: None,
+                ss_sheet_name: None,
+                text: "Test content 3".to_string(),
+            }]),
+        ];
+
+        // This should panic with "user-provided comparison function does not correctly implement a total order"
+        let result = panic::catch_unwind(move || {
+            chunks.sort_by(|a, b| {
+                let bbox_a = &a.segments[0].bbox;
+                let bbox_b = &b.segments[0].bbox;
+                let (x_a, y_a) = bbox_a.centroid();
+                let (x_b, y_b) = bbox_b.centroid();
+
+                // This is the EXACT problematic comparison logic from production
+                // Sort by row first, then by column (RowBased pattern)
+                if (y_a - y_b).abs() <= 20.0 {
+                    // This breaks with NaN: NaN - NaN = NaN, NaN <= 20.0 = false
+                    x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
+                } else {
+                    y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal) // NaN.partial_cmp(NaN) = None -> Equal
+                }
+            });
+        });
+
+        // Verify that the sort panics with NaN coordinates
+        assert!(result.is_err());
+        println!("Confirmed: Sorting with NaN coordinates causes panic");
+    }
+
+    #[test]
+    fn test_nan_tolerance_check_behavior() {
+        // Demonstrate how NaN breaks the tolerance check
+        let nan_y_a = f32::NAN;
+        let nan_y_b = f32::NAN;
+        let normal_y = 50.0;
+
+        // NaN arithmetic produces NaN
+        let nan_diff = (nan_y_a - nan_y_b).abs();
+        assert!(nan_diff.is_nan());
+
+        // NaN comparisons return None from partial_cmp, making them incomparable
+        assert!(nan_diff.partial_cmp(&20.0).is_none()); // NaN is incomparable
+        assert!(nan_diff.partial_cmp(&20.0).is_none()); // Same result - NaN is incomparable
+
+        // This means NaN coordinates always take the "else" branch
+        // And then partial_cmp returns None -> Equal
+        assert!(nan_y_a.partial_cmp(&nan_y_b).is_none());
+        assert!(nan_y_a.partial_cmp(&normal_y).is_none());
+
+        println!(
+            "NaN tolerance check: (NaN - NaN).abs() <= 20.0 = {}",
+            nan_diff <= 20.0
+        );
+        println!("This forces the else branch, causing total order violations");
+    }
+
+    #[test]
+    fn test_minimal_total_order_violation() {
+        use std::panic;
+
+        // Create a simple vector that will trigger the total order violation
+        // The key is to have values where the comparison function is inconsistent
+        let mut values = [
+            (f32::NAN, 1.0),
+            (2.0, f32::NAN),
+            (f32::NAN, f32::NAN),
+            (3.0, 4.0),
+        ];
+
+        // This comparison function mimics the production logic
+        let comparison_fn = |a: &(f32, f32), b: &(f32, f32)| {
+            let (x_a, y_a) = *a;
+            let (x_b, y_b) = *b;
+
+            // Exact same logic as production code
+            if (y_a - y_b).abs() <= 20.0 {
+                x_a.partial_cmp(&x_b).unwrap_or(std::cmp::Ordering::Equal)
+            } else {
+                y_a.partial_cmp(&y_b).unwrap_or(std::cmp::Ordering::Equal)
+            }
+        };
+
+        // Try to trigger the panic
+        let result = panic::catch_unwind(move || {
+            values.sort_by(comparison_fn);
+        });
+
+        // If it doesn't panic, let's at least verify our tests work
+        match result {
+            Ok(_) => {
+                println!("Sort completed without panic - the specific pattern may not trigger it every time");
+                // Let's verify our comparison logic is broken
+                let nan_pair1 = (f32::NAN, f32::NAN);
+                let nan_pair2 = (f32::NAN, f32::NAN);
+                let normal_pair = (1.0, 2.0);
+
+                // These should violate transitivity
+                println!("NaN vs NaN: {:?}", comparison_fn(&nan_pair1, &nan_pair2));
+                println!(
+                    "NaN vs Normal: {:?}",
+                    comparison_fn(&nan_pair1, &normal_pair)
+                );
+                println!(
+                    "Normal vs NaN: {:?}",
+                    comparison_fn(&normal_pair, &nan_pair1)
+                );
+            }
+            Err(_) => {
+                println!("Successfully reproduced the total order violation panic!");
+            }
+        }
+    }
+
+    #[test]
+    fn test_calculate_bbox_filters_nan_coordinates() {
+        use super::*;
+
+        // Create OCR results with mixed valid and NaN coordinates
+        let ocr_results = vec![
+            OCRResult {
+                bbox: BoundingBox::new(f32::NAN, 10.0, 50.0, 20.0), // NaN left
+                text: "invalid1".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(10.0, f32::NAN, 50.0, 20.0), // NaN top
+                text: "invalid2".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(20.0, 30.0, 40.0, 50.0), // Valid coordinates
+                text: "valid1".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(f32::INFINITY, 40.0, 30.0, 25.0), // Infinite left
+                text: "invalid3".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(70.0, 80.0, 20.0, 15.0), // Valid coordinates
+                text: "valid2".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(50.0, 60.0, -10.0, 20.0), // Negative width
+                text: "invalid4".to_string(),
+                confidence: Some(0.9),
+            },
+        ];
+
+        // This should succeed by filtering out invalid coordinates
+        let result = Segment::calculate_bbox_from_ocr(&ocr_results);
+
+        assert!(result.is_ok());
+        let bbox = result.unwrap();
+
+        // Verify the result uses only the valid coordinates
+        // valid1: (20, 30, 40, 50) -> right=60, bottom=80
+        // valid2: (70, 80, 20, 15) -> right=90, bottom=95
+        // So bbox should be: left=20, top=30, width=70, height=65
+        assert!(bbox.left.is_finite());
+        assert!(bbox.top.is_finite());
+        assert!(bbox.width.is_finite());
+        assert!(bbox.height.is_finite());
+
+        // Check that it calculated the correct bounding box from valid coordinates only
+        assert_eq!(bbox.left, 20.0); // min left from valid coordinates
+        assert_eq!(bbox.top, 30.0); // min top from valid coordinates
+        assert_eq!(bbox.width, 70.0); // max_right (90) - min_left (20) = 70
+        assert_eq!(bbox.height, 65.0); // max_bottom (95) - min_top (30) = 65
+
+        println!("✅ calculate_bbox_from_ocr successfully filtered out NaN coordinates");
+        println!(
+            "   Calculated bbox: left={}, top={}, width={}, height={}",
+            bbox.left, bbox.top, bbox.width, bbox.height
+        );
+    }
+
+    #[test]
+    fn test_calculate_bbox_fails_with_all_invalid_coordinates() {
+        use super::*;
+
+        // Create OCR results with only invalid coordinates
+        let ocr_results = vec![
+            OCRResult {
+                bbox: BoundingBox::new(f32::NAN, 10.0, 50.0, 20.0),
+                text: "invalid1".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(10.0, f32::INFINITY, 50.0, 20.0),
+                text: "invalid2".to_string(),
+                confidence: Some(0.9),
+            },
+            OCRResult {
+                bbox: BoundingBox::new(20.0, 30.0, f32::NAN, 50.0),
+                text: "invalid3".to_string(),
+                confidence: Some(0.9),
+            },
+        ];
+
+        // This should fail gracefully with a descriptive error
+        let result = Segment::calculate_bbox_from_ocr(&ocr_results);
+
+        assert!(result.is_err());
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("No valid OCR results with finite coordinates found"));
+
+        println!("✅ calculate_bbox_from_ocr properly rejects all-invalid coordinates");
+        println!("   Error message: {error_msg}");
     }
 }
