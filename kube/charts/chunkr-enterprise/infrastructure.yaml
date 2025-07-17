@@ -3,7 +3,7 @@ services:
     enabled: true
     image:
       repository: auth
-      tag: 2.7.0-enterprise
+      tag: 2.8.0-enterprise
     imagePullSecrets:
       - name: regcred
     port: 8080
