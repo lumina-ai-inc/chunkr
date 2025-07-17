@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.8.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.7.2-enterprise...v2.8.0-enterprise) (2025-07-17)
+
+
+### Features
+
+* Added styling and formulas to cells and html in the excel parser ([#174](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/174)) ([9231675](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/9231675ab5b979e835a811b844a08a62cad798f1))
+* Excel viewer + segment chunk fix ([#176](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/176)) ([84b8792](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/84b8792f248f50799fe7603f9c28bb3382a40471))
+
+
+### Bug Fixes
+
+* Adjusted segment chunk rendering to reflect new output structure and removed homepage viewer for now ([#172](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/172)) ([6b4ab6b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6b4ab6b8e82be19f15fe7bf6b8efe76f0d8cee35))
+
 ## [2.7.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.7.1-enterprise...v2.7.2-enterprise) (2025-07-15)
 
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.12.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.11.2-enterprise...chunkr-web-enterprise-v1.12.0-enterprise) (2025-07-17)
+
+
+### Features
+
+* Excel viewer + segment chunk fix ([#176](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/176)) ([84b8792](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/84b8792f248f50799fe7603f9c28bb3382a40471))
+
+
+### Bug Fixes
+
+* Adjusted segment chunk rendering to reflect new output structure and removed homepage viewer for now ([#172](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/172)) ([6b4ab6b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/6b4ab6b8e82be19f15fe7bf6b8efe76f0d8cee35))
+
 ## [1.11.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.11.1-enterprise...chunkr-web-enterprise-v1.11.2-enterprise) (2025-07-15)
 
 
