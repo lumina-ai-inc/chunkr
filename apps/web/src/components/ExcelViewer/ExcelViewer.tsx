@@ -556,17 +556,18 @@ function ExcelViewer({
           </>
         )}
       </div>
-      <div className="flex border-t bg-gray-100">
+      <div className="flex border-t bg-gray-100 overflow-x-auto">
         {sheets.map((sheet, idx) => (
           <button
             key={idx}
-            className={`px-3 text-xs py-2 focus:outline-none rounded-none font-medium ${
+            className={`px-3 text-xs py-2 focus:outline-none rounded-none font-medium flex-shrink-0 w-32 h-8 truncate ${
               idx === activeSheet ? "bg-white" : "bg-gray-100"
             }`}
             onClick={() => {
               isManualSheetChange.current = true;
               setActiveSheet(idx);
             }}
+            title={sheet.name}
           >
             {sheet.name}
           </button>
