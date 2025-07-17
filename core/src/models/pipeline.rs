@@ -318,12 +318,12 @@ impl Element {
             .collect::<Vec<_>>()
             .join("");
 
-        // Find and replace <tr> with <tr> + left padding cells
+        // Find and replace <tr> with <tr> + left padding cells (place padding INSIDE the tr tag)
         if left_padding > 0 {
-            result = result.replace("<tr>", &format!("{left_padding_cells}<tr>"));
+            result = result.replace("<tr>", &format!("<tr>{left_padding_cells}"));
         }
 
-        // Find and replace </tr> with right padding cells + </tr>
+        // Find and replace </tr> with right padding cells + </tr> (place padding INSIDE the tr tag)
         if right_padding > 0 {
             result = result.replace("</tr>", &format!("{right_padding_cells}</tr>"));
         }
