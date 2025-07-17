@@ -177,7 +177,7 @@ services:
           sizeLimit: 256Mi
       - name: chrome-tmp
         emptyDir:
-          sizeLimit: 512Mi
+          sizeLimit: 2Gi
     volumeMounts:
       - name: llm-models-config
         mountPath: /app/models.yaml
