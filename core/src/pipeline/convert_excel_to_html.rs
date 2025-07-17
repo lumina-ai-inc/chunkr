@@ -17,7 +17,10 @@ fn get_sheet_infos(file_path: &Path) -> Result<Vec<SheetInfo>, Box<dyn Error>> {
         .map(|(sheet_idx, (name, start_pos, _end_pos))| {
             let (start_row, start_column) = match start_pos {
                 Some((row, col)) => (Some(*row), Some(*col)),
-                None => (Some(0), Some(0)),
+                None => {
+                    println!("Sheet {name} has no start position");
+                    (Some(0), Some(0))
+                }
             };
             println!("Sheet {name} starts at row {start_row:?} and column {start_column:?}");
             SheetInfo {

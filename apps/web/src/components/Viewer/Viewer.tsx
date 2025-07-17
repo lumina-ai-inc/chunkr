@@ -7,6 +7,8 @@ import Loader from "../../pages/Loader/Loader";
 import { TaskResponse, Chunk } from "../../models/taskResponse.model";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { debounce } from "lodash";
+import React from "react";
+import { ExcelViewerProps } from "../../models/excelViewer.model";
 
 const MemoizedPDF = memo(PDF);
 
@@ -16,9 +18,10 @@ const PAGE_CHUNK_SIZE = 5; // Number of pages to load at a time
 interface ViewerProps {
   task: TaskResponse;
   hideHeader?: boolean; // New prop to hide header
+  rightPanelContent?: React.ReactNode; // Custom content for the right panel
 }
 
-export default function Viewer({ task }: ViewerProps) {
+export default function Viewer({ task, rightPanelContent }: ViewerProps) {
   const output = task.output;
   const memoizedOutput = useMemo(() => output, [output]);
   const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -298,17 +301,26 @@ export default function Viewer({ task }: ViewerProps) {
           minSize={20}
           style={{ backgroundColor: "#0d0d0d" }}
         >
-          {memoizedOutput && memoizedOutput.pdf_url && (
-            <MemoizedPDF
-              containerRef={pdfContainerRef}
-              content={memoizedOutput.chunks}
-              inputFileUrl={memoizedOutput.pdf_url}
-              onSegmentClick={handlePDFSegmentClick}
-              activeSegment={activeSegment}
-              loadedPages={loadedPages}
-              onLoadSuccess={(pages) => setNumPages(pages)}
-            />
-          )}
+          {rightPanelContent
+            ?
+              React.isValidElement(rightPanelContent)
+              ? React.cloneElement(
+                  rightPanelContent as React.ReactElement<ExcelViewerProps>,
+                  { activeSegment, onRangeClick: scrollToSegment }
+                )
+              : rightPanelContent
+            : memoizedOutput &&
+              memoizedOutput.pdf_url && (
+                <MemoizedPDF
+                  containerRef={pdfContainerRef}
+                  content={memoizedOutput.chunks}
+                  inputFileUrl={memoizedOutput.pdf_url}
+                  onSegmentClick={handlePDFSegmentClick}
+                  activeSegment={activeSegment}
+                  loadedPages={loadedPages}
+                  onLoadSuccess={(pages) => setNumPages(pages)}
+                />
+              )}
         </Panel>
       </PanelGroup>
     </Flex>

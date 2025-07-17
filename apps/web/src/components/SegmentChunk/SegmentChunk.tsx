@@ -147,6 +147,8 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
         img: ["src", "alt"],
         a: ["href", "target"],
         span: ["class"],
+        td: ["colspan", "rowspan"],
+        th: ["colspan", "rowspan"],
       },
     });
 

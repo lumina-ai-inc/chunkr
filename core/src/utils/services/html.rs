@@ -928,27 +928,24 @@ pub fn extract_rows_from_indicies(
                                                 "background-color: {bg_color_value}"
                                             ));
 
-                                            // if let Some(align) = only_cell.attr("align") {
-                                            //     style_parts.push(format!("text-align: {align}"));
-                                            // }
-                                            // if let Some(valign) = only_cell.attr("valign") {
-                                            //     style_parts
-                                            //         .push(format!("vertical-align: {}", valign));
-                                            // }
-
                                             let font_elements = only_cell.select("font");
                                             if font_elements.length() > 0 {
                                                 let font = font_elements.first();
-                                                if let Some(color) = font.attr("color") {
-                                                    // Handle both #RRGGBB and RRGGBB formats
-                                                    let color_value = if color.starts_with('#') {
-                                                        color.to_string()
+                                                let color_value =
+                                                    if let Some(color) = font.attr("color") {
+                                                        // Handle both #RRGGBB and RRGGBB formats
+                                                        if color.starts_with('#') {
+                                                            color.to_string()
+                                                        } else {
+                                                            format!("#{color}")
+                                                        }
                                                     } else {
-                                                        format!("#{color}")
+                                                        // Default to black if no color specified
+                                                        "#000000".to_string()
                                                     };
-                                                    style_parts
-                                                        .push(format!("color: {color_value}"));
-                                                }
+                                                style_parts.push(format!("color: {color_value}"));
+                                            } else {
+                                                style_parts.push("color: #000000".to_string());
                                             }
 
                                             // Add CSS style attribute if we have styles
@@ -1194,16 +1191,41 @@ pub fn extract_cells_from_ranges(
                 let value = cell.attr("sdval").map(|v| v.to_string());
 
                 // Extract styling information
-                let bg_color = cell.attr("bgcolor").map(|c| c.to_string());
+                // Handle bgcolor with format normalization and default to white
+                let bg_color = Some(
+                    cell.attr("bgcolor")
+                        .map(|c| {
+                            if c.starts_with('#') {
+                                c.to_string()
+                            } else {
+                                format!("#{c}")
+                            }
+                        })
+                        .unwrap_or_else(|| "#FFFFFF".to_string()),
+                );
                 let font_elements = cell.select("font");
-                let mut text_color = None;
                 let mut font_face = None;
 
-                if font_elements.length() > 0 {
+                // Extract font styling if font elements exist
+                let text_color = if font_elements.length() > 0 {
                     let font = font_elements.first();
-                    text_color = font.attr("color").map(|c| c.to_string());
                     font_face = font.attr("face").map(|f| f.to_string());
-                }
+                    // Handle color with format normalization and default to black
+                    Some(
+                        font.attr("color")
+                            .map(|c| {
+                                if c.starts_with('#') {
+                                    c.to_string()
+                                } else {
+                                    format!("#{c}")
+                                }
+                            })
+                            .unwrap_or_else(|| "#000000".to_string()),
+                    )
+                } else {
+                    // Default to black even when no font elements
+                    Some("#000000".to_string())
+                };
 
                 let hyperlink = cell.select("a").first().attr("href").map(|h| h.to_string());
                 let is_bold = if cell.select("b").length() > 0 {
@@ -1212,21 +1234,18 @@ pub fn extract_cells_from_ranges(
                     None
                 };
 
-                // Create CellStyle if any visual styling properties exist
-                let style = if bg_color.is_some()
-                    || text_color.is_some()
-                    || font_face.is_some()
-                    || is_bold.is_some()
-                {
-                    Some(CellStyle {
-                        bg_color,
-                        text_color,
-                        font_face,
-                        is_bold,
-                    })
-                } else {
-                    None
-                };
+                let align = cell.attr("align").and_then(|align| align.parse().ok());
+                let valign = cell.attr("valign").and_then(|valign| valign.parse().ok());
+
+                // Create CellStyle with defaults for consistent styling
+                let style = Some(CellStyle {
+                    bg_color,
+                    text_color,
+                    font_face,
+                    is_bold,
+                    align,
+                    valign,
+                });
 
                 // Mark this cell reference as processed
                 processed_refs.insert(cell_ref.to_string());

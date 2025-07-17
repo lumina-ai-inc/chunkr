@@ -332,14 +332,13 @@ impl Task {
                 base64_urls: bool,
             ) -> Result<String, Box<dyn std::error::Error>> {
                 let url = generate_presigned_url(
-                    segment.image.as_ref().unwrap(),
+                    segment.image.as_ref().ok_or("Segment image is None")?,
                     true,
                     None,
                     base64_urls,
                     "image/jpeg",
                 )
-                .await
-                .ok();
+                .await?;
                 fn generate_html(url: &str, range: Option<String>) -> String {
                     match range {
                         Some(range) => {
@@ -355,13 +354,8 @@ impl Task {
                     // Primary strategy is to use the format and strategy to generate the content
                     if picture_generation_config.strategy == GenerationStrategy::Auto {
                         segment.text = match picture_generation_config.format {
-                            SegmentFormat::Html => generate_html(
-                                &url.clone().unwrap_or_default(),
-                                segment.ss_range.clone(),
-                            ),
-                            SegmentFormat::Markdown => {
-                                generate_markdown(&url.clone().unwrap_or_default())
-                            }
+                            SegmentFormat::Html => generate_html(&url, segment.ss_range.clone()),
+                            SegmentFormat::Markdown => generate_markdown(&url),
                         };
                     }
 
@@ -369,19 +363,16 @@ impl Task {
                     if picture_generation_config.html == Some(GenerationStrategy::Auto)
                         || picture_generation_config.format == SegmentFormat::Markdown
                     {
-                        segment.html = generate_html(
-                            &url.clone().unwrap_or_default(),
-                            segment.ss_range.clone(),
-                        );
+                        segment.html = generate_html(&url, segment.ss_range.clone());
                     }
                     if picture_generation_config.markdown == Some(GenerationStrategy::Auto)
                         || picture_generation_config.format == SegmentFormat::Html
                     {
-                        segment.markdown = generate_markdown(&url.clone().unwrap_or_default());
+                        segment.markdown = generate_markdown(&url);
                     }
                 }
-                segment.image = Some(url.clone().unwrap_or_default());
-                Ok(url.clone().unwrap_or_default())
+                segment.image = Some(url.clone());
+                Ok(url)
             }
             let futures = output_response
                 .chunks

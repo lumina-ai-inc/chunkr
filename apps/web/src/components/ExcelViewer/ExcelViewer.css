@@ -1,0 +1,33 @@
+.highlight-cell {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.highlight-cell:hover {
+  background-color: var(--excel-highlight-bg);
+  border-color: var(--excel-highlight-color);
+}
+
+.excel-grid-scrollbar {
+  scrollbar-color: #9ca3af transparent;
+}
+
+.excel-grid-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.excel-grid-scrollbar::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 4px;
+}
+
+.excel-grid-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+.excel-grid-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.excel-grid-scrollbar::-webkit-scrollbar-thumb:window-inactive {
+  background: #d1d5db;
+}

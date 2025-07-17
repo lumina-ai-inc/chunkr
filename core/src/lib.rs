@@ -84,6 +84,7 @@ fn run_migrations(url: &str) {
         schemas(
             models::chunk_processing::ChunkProcessing,
             models::cropping::CroppingStrategy,
+            models::output::Alignment,
             models::output::BoundingBox,
             models::output::Chunk,
             models::output::Cell,
@@ -93,6 +94,7 @@ fn run_migrations(url: &str) {
             models::output::Page,
             models::output::Segment,
             models::output::SegmentType,
+            models::output::VerticalAlignment,
             models::segment_processing::AutoGenerationConfig,
             models::segment_processing::GenerationStrategy,
             models::segment_processing::LlmGenerationConfig,

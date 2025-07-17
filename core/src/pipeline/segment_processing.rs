@@ -385,7 +385,7 @@ impl ContentGenerator for MarkdownGenerator {
     fn generate_auto(&self, content: &str) -> String {
         match self.segment_type {
             SegmentType::Caption => format!("_{content}_"),
-            SegmentType::Footnote => format!("[^{content}]"),
+            SegmentType::Footnote => content.to_string(),
             SegmentType::Formula => format!("${content}$"),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {

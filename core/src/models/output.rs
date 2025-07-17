@@ -163,6 +163,24 @@ impl Chunk {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, PartialEq, Eq, EnumString, Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum Alignment {
+    Left,
+    Center,
+    Right,
+    Justify,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, PartialEq, Eq, EnumString, Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum VerticalAlignment {
+    Top,
+    Middle,
+    Bottom,
+    Baseline,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct CellStyle {
     /// Background color of the cell (e.g., "#FFFFFF" or "#DAE3F3").
@@ -173,6 +191,10 @@ pub struct CellStyle {
     pub font_face: Option<String>,
     /// Whether the cell content is bold.
     pub is_bold: Option<bool>,
+    /// Alignment of the cell content.
+    pub align: Option<Alignment>,
+    /// Vertical alignment of the cell content.
+    pub valign: Option<VerticalAlignment>,
 }
 
 impl Default for CellStyle {
@@ -188,6 +210,8 @@ impl CellStyle {
             text_color: None,
             font_face: None,
             is_bold: None,
+            align: None,
+            valign: None,
         }
     }
 
@@ -197,6 +221,8 @@ impl CellStyle {
             text_color,
             font_face: None,
             is_bold: None,
+            align: None,
+            valign: None,
         }
     }
 }
@@ -239,45 +265,6 @@ impl Cell {
             value,
             hyperlink: None,
             style: None,
-        }
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub fn new_with_styling(
-        text: String,
-        range: String,
-        formula: Option<String>,
-        value: Option<String>,
-        bg_color: Option<String>,
-        text_color: Option<String>,
-        font_face: Option<String>,
-        hyperlink: Option<String>,
-        is_bold: Option<bool>,
-    ) -> Self {
-        let cell_id = generate_uuid();
-        let style = if bg_color.is_some()
-            || text_color.is_some()
-            || font_face.is_some()
-            || is_bold.is_some()
-        {
-            Some(CellStyle {
-                bg_color,
-                text_color,
-                font_face,
-                is_bold,
-            })
-        } else {
-            None
-        };
-
-        Self {
-            cell_id,
-            text,
-            range,
-            formula,
-            value,
-            hyperlink,
-            style,
         }
     }
 
