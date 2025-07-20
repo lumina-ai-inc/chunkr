@@ -2,6 +2,7 @@
 
 # === Owned files start ===
 # login/styleLevelCustomization.tsx
+# login/components/LogoutOtherSessions.tsx
 # login/components/PasswordWrapper.tsx
 # login/components/Template/Template.tsx
 # login/components/UserProfileFormFields/FieldErrors.tsx
@@ -17,6 +18,7 @@
 # login/pages/login/Page.tsx
 # login/pages/login-reset-password/Form.tsx
 # login/pages/login-reset-password/Page.tsx
+# login/pages/login-update-password/Page.tsx
 # login/pages/login-verify-email/Page.tsx
 # login/pages/register/Form.tsx
 # login/pages/register/Page.tsx
@@ -26,7 +28,6 @@
 /login/i18n.ts
 /login/KcContext.ts
 /login/KcPage.tsx
-/login/components/LogoutOtherSessions.tsx
 /login/mocks/getKcContextMock.ts
 /login/pages/PageIndex.tsx
 /login/components/Template/index.ts
@@ -81,7 +82,6 @@
 /login/pages/login-reset-otp/Page.tsx
 /login/pages/login-reset-password/index.ts
 /login/pages/login-update-password/index.ts
-/login/pages/login-update-password/Page.tsx
 /login/pages/login-update-profile/index.ts
 /login/pages/login-update-profile/Page.tsx
 /login/pages/login-username/index.ts
