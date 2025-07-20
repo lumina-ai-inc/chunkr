@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.0-enterprise...chunkr-core-enterprise-v2.8.1-enterprise) (2025-07-20)
+
+
+### Bug Fixes
+
+* Split header td not in tr bug ([#180](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/180)) ([446b6be](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/446b6bef5cb4aacde01a882314e42affdab943e6))
+
 ## [2.8.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.7.0-enterprise...chunkr-core-enterprise-v2.8.0-enterprise) (2025-07-17)
 
 

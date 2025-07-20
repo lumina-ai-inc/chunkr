@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.0-enterprise...chunkr-web-enterprise-v1.12.1-enterprise) (2025-07-20)
+
+
+### Bug Fixes
+
+* Style update password page ([#182](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/182)) ([70ab411](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/70ab411aa565ea839d75b60da88673a26db58ad7))
+
 ## [1.12.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.11.2-enterprise...chunkr-web-enterprise-v1.12.0-enterprise) (2025-07-17)
 
 
