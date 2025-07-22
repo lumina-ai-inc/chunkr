@@ -13,9 +13,11 @@
 # login/components/UserProfileFormFields/SelectTag.tsx
 # login/components/UserProfileFormFields/TextareaTag.tsx
 # login/components/UserProfileFormFields/UserProfileFormFields.tsx
+# login/pages/error/Page.tsx
 # login/pages/login/Form.tsx
 # login/pages/login/Info.tsx
 # login/pages/login/Page.tsx
+# login/pages/login-page-expired/Page.tsx
 # login/pages/login-reset-password/Form.tsx
 # login/pages/login-reset-password/Page.tsx
 # login/pages/login-update-password/Page.tsx
@@ -43,7 +45,6 @@
 /login/pages/delete-credential/index.ts
 /login/pages/delete-credential/Page.tsx
 /login/pages/error/index.ts
-/login/pages/error/Page.tsx
 /login/pages/frontchannel-logout/index.ts
 /login/pages/frontchannel-logout/Page.tsx
 /login/pages/idp-review-user-profile/index.ts
@@ -67,7 +68,6 @@
 /login/pages/login-otp/index.ts
 /login/pages/login-otp/Page.tsx
 /login/pages/login-page-expired/index.ts
-/login/pages/login-page-expired/Page.tsx
 /login/pages/login-passkeys-conditional-authenticate/index.ts
 /login/pages/login-passkeys-conditional-authenticate/Page.tsx
 /login/pages/login-passkeys-conditional-authenticate/useScript.tsx
