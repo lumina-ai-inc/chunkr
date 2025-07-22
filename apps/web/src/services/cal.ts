@@ -8,7 +8,7 @@ export async function getSlots(): Promise<CalSlotsResponse> {
   const start = new Date();
   const end = new Date();
   start.setDate(start.getDate() + 2);
-  end.setDate(end.getDate() + 7);
+  end.setDate(end.getDate() + 30);
 
   const startISO = start.toISOString();
   const endISO = end.toISOString();
@@ -44,4 +44,21 @@ export async function createOnboarding(
     }
   );
   return data;
+}
+
+export async function checkCalEndpoints(): Promise<boolean> {
+  try {
+    const start = new Date();
+    const end = new Date();
+    start.setDate(start.getDate() + 2);
+    end.setDate(end.getDate() + 30);
+
+    const startISO = start.toISOString();
+    const endISO = end.toISOString();
+
+    await axiosInstance.get(`/cal/slots?start=${startISO}&end=${endISO}`);
+    return true;
+  } catch {
+    return false;
+  }
 }

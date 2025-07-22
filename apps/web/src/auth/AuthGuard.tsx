@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Loader from "../pages/Loader/Loader";
 import useUser from "../hooks/useUser";
 import { OnboardingStatus } from "../models/user.model";
+import { checkCalEndpoints } from "../services/cal";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -22,24 +23,34 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
-    // If the user doesn't have an onboarding record, redirect to dashboard - for old users
-    if (!onboardingStatus) {
-      navigate("/dashboard", { replace: true });
-    }
+    const verifyCalEndpoints = async () => {
+      const calAvailable = await checkCalEndpoints();
+      if (!calAvailable) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
 
-    const currentPath = location.pathname;
+      // If the user doesn't have an onboarding record, redirect to dashboard - for old users
+      if (!onboardingStatus) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
 
-    if (
-      onboardingStatus === OnboardingStatus.Pending &&
-      currentPath !== "/onboarding"
-    ) {
-      navigate("/onboarding", { replace: true });
-    } else if (
-      onboardingStatus !== OnboardingStatus.Pending &&
-      currentPath === "/onboarding"
-    ) {
-      navigate("/dashboard", { replace: true });
-    }
+      const currentPath = location.pathname;
+      if (
+        onboardingStatus === OnboardingStatus.Pending &&
+        currentPath !== "/onboarding"
+      ) {
+        navigate("/onboarding", { replace: true });
+      } else if (
+        onboardingStatus !== OnboardingStatus.Pending &&
+        currentPath === "/onboarding"
+      ) {
+        navigate("/dashboard", { replace: true });
+      }
+    };
+
+    verifyCalEndpoints();
   }, [
     auth.isAuthenticated,
     isLoading,

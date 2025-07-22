@@ -231,7 +231,8 @@ pub fn main() -> std::io::Result<()> {
                 app = app.service(pdf_scope);
             }
 
-            if std::env::var("CAL__API_KEY").is_ok() {
+            if std::env::var("CAL__API_KEY").is_ok() && std::env::var("CAL__EVENT_TYPE_ID").is_ok()
+            {
                 let onboarding_scope = web::scope("/cal")
                     .wrap(AuthMiddlewareFactory)
                     .route("/slots", web::get().to(get_slots))

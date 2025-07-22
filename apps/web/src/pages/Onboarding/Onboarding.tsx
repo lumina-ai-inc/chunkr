@@ -110,8 +110,8 @@ export default function Onboarding() {
     formData.useCase.trim() !== "" &&
     formData.fileTypes.trim() !== "" &&
     formData.referralSource.trim() !== "" &&
-    selectedDate !== "" &&
-    selectedTime !== "";
+    ((selectedDate !== "" && selectedTime !== "") ||
+      Object.keys(calendarData).length === 0);
 
   const completeOnboarding = async () => {
     try {
@@ -327,9 +327,11 @@ export default function Onboarding() {
                         [&::-moz-range-thumb]:shadow-lg 
                         [&::-moz-range-thumb]:border-none"
                           style={{
-                            background: `linear-gradient(to right, white 0%, white ${((formData.monthlyUsage - 1000) / 1000000) * 100
-                              }%, rgba(255,255,255,0.2) ${((formData.monthlyUsage - 1000) / 1000000) * 100
-                              }%, rgba(255,255,255,0.2) 100%)`,
+                            background: `linear-gradient(to right, white 0%, white ${
+                              ((formData.monthlyUsage - 1000) / 1000000) * 100
+                            }%, rgba(255,255,255,0.2) ${
+                              ((formData.monthlyUsage - 1000) / 1000000) * 100
+                            }%, rgba(255,255,255,0.2) 100%)`,
                           }}
                         />
                         <div className="flex justify-between text-sm text-white/60">
@@ -506,10 +508,12 @@ export default function Onboarding() {
                         Onboarding Call <span className="text-red-500">*</span>
                       </Text>
                       <div
-                        className={`w-full mx-auto overflow-auto rounded-md transition-all duration-300 ${selectedDate && selectedTime
-                          ? "h-auto max-h-none"
-                          : "h-[240px] max-h-[240px]"
-                          }`}
+                        className={`w-full mx-auto overflow-auto rounded-md transition-all duration-300 ${
+                          (selectedDate && selectedTime) ||
+                          Object.keys(calendarData).length === 0
+                            ? "h-auto max-h-none"
+                            : "h-[240px] max-h-[240px]"
+                        }`}
                       >
                         <CalendarSlots
                           calendarData={calendarData}
@@ -530,6 +534,8 @@ export default function Onboarding() {
                       >
                         {isSubmitting
                           ? "Routing to Dashboard"
+                          : Object.keys(calendarData).length === 0
+                          ? "Complete Onboarding"
                           : "Schedule Call"}
                       </Button>
                     </Box>

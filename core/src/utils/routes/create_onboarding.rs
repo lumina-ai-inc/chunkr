@@ -1,7 +1,9 @@
 use crate::configs::cal_config::Config;
 use crate::configs::postgres_config::Client;
 use crate::models::auth::UserInfo;
-use crate::models::cal::{Attendee, CalBookingRequest, CalBookingResponse, OnboardingRequest};
+use crate::models::cal::{
+    Attendee, CalBookingRequest, CalBookingResponse, OnboardingRequest, Status as CalStatus,
+};
 use crate::models::user::{Information, Status};
 use crate::utils::clients;
 use crate::utils::clients::get_pg_client;
@@ -62,6 +64,17 @@ pub async fn create_onboarding(
     let email = user_info.email.clone().unwrap_or("".to_string());
     let name = user_info.first_name.clone().unwrap_or("".to_string());
     if !email.is_empty() && !name.is_empty() {
+        if request.start.trim().is_empty() {
+            let response = CalBookingResponse {
+                status: CalStatus::Success,
+                timestamp: None,
+                path: None,
+                data: None,
+                error: None,
+            };
+            return Ok(HttpResponse::Ok().json(response));
+        }
+
         let mut booking_fields_responses = std::collections::HashMap::new();
 
         let notes = format!(
