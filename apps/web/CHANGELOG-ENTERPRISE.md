@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.1-enterprise...chunkr-web-enterprise-v1.12.2-enterprise) (2025-07-23)
+
+
+### Bug Fixes
+
+* Increase slots, add edu to blocked regex and verify cal endpoints during auth ([#186](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/186)) ([5dd392a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5dd392a4e7f2496e32b308489fd26efd63f2c414))
+* Style error pages for auth ([#184](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/184)) ([3b56cac](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/3b56cac87658cb184cb7e716a5c67ba5c5f0b702))
+
 ## [1.12.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.0-enterprise...chunkr-web-enterprise-v1.12.1-enterprise) (2025-07-20)
 
 

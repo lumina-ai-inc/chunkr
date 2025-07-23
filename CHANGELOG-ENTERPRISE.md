@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.9.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.8.1-enterprise...v2.9.0-enterprise) (2025-07-23)
+
+
+### Features
+
+* Added pypi release ([254d493](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/254d4930e862c4e5c689c9b0e320c28210e77a09))
+* Update sdk with new models ([d2fccfd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d2fccfd493b768c0f52a53f69d4a58a925208412))
+
+
+### Bug Fixes
+
+* Increase slots, add edu to blocked regex and verify cal endpoints during auth ([#186](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/186)) ([5dd392a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5dd392a4e7f2496e32b308489fd26efd63f2c414))
+* Style error pages for auth ([#184](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/184)) ([3b56cac](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/3b56cac87658cb184cb7e716a5c67ba5c5f0b702))
+
 ## [2.8.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.8.0-enterprise...v2.8.1-enterprise) (2025-07-20)
 
 

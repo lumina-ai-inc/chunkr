@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.2-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.1-enterprise...chunkr-core-enterprise-v2.8.2-enterprise) (2025-07-23)
+
+
+### Bug Fixes
+
+* Increase slots, add edu to blocked regex and verify cal endpoints during auth ([#186](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/186)) ([5dd392a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5dd392a4e7f2496e32b308489fd26efd63f2c414))
+
 ## [2.8.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.0-enterprise...chunkr-core-enterprise-v2.8.1-enterprise) (2025-07-20)
 
 
