@@ -251,6 +251,42 @@ class SegmentType(str, Enum):
     TEXT = "Text"
     TITLE = "Title"
 
+class Alignment(str, Enum):
+    LEFT = "Left"
+    CENTER = "Center"
+    RIGHT = "Right"
+    JUSTIFY = "Justify"
+
+class VerticalAlignment(str, Enum):
+    TOP = "Top"
+    MIDDLE = "Middle"
+    BOTTOM = "Bottom"
+    BASELINE = "Baseline"
+
+class CellStyle(BaseModel):
+    bg_color: Optional[str] = None
+    text_color: Optional[str] = None
+    font_face: Optional[str] = None
+    is_bold: Optional[bool] = None
+    align: Optional[Alignment] = None
+    valign: Optional[VerticalAlignment] = None
+
+class Cell(BaseModel):
+    cell_id: str
+    text: str
+    range: str
+    formula: Optional[str] = None
+    value: Optional[str] = None
+    hyperlink: Optional[str] = None
+    style: Optional[CellStyle] = None
+
+class Page(BaseModel):
+    image: str
+    page_number: int
+    page_height: float
+    page_width: float
+    ss_sheet_name: Optional[str] = None
+
 class Segment(BaseModel):
     bbox: BoundingBox
     content: str = ""
@@ -266,6 +302,15 @@ class Segment(BaseModel):
     segment_type: SegmentType
     confidence: Optional[float]
     text: str = ""
+    segment_length: Optional[int] = None
+    # Spreadsheet-specific fields
+    ss_cells: Optional[List[Cell]] = None
+    ss_header_bbox: Optional[BoundingBox] = None
+    ss_header_ocr: Optional[List[OCRResult]] = None
+    ss_header_text: Optional[str] = None
+    ss_header_range: Optional[str] = None
+    ss_range: Optional[str] = None
+    ss_sheet_name: Optional[str] = None
 
 class Chunk(BaseModel):
     chunk_id: str
@@ -276,6 +321,8 @@ class Chunk(BaseModel):
 class OutputResponse(BaseModel):
     chunks: List[Chunk]
     file_name: Optional[str]
+    mime_type: Optional[str] = None
+    pages: Optional[List[Page]] = None
     page_count: Optional[int]
     pdf_url: Optional[str]
 

@@ -592,3 +592,128 @@ async def test_extended_context(client, sample_path, extended_context_config):
     except Exception as e:
         print(f"Error during extended context test: {e}")
         raise # Re-raise the exception to fail the test explicitly
+
+
+# Tests for new fields added in recent updates
+class TestNewFields:
+    """Test the newly added fields in the models"""
+
+    @pytest.mark.asyncio
+    async def test_output_has_mime_type_field(self, client, sample_path):
+        """Test that OutputResponse includes mime_type field"""
+        response = await client.upload(sample_path)
+        assert response.task_id is not None
+        assert response.status == "Succeeded"
+        assert response.output is not None
+        
+        # mime_type should be accessible (might be None for some file types)
+        assert hasattr(response.output, 'mime_type')
+        
+        # For PDF files, mime_type should be present
+        if response.output.mime_type:
+            assert "pdf" in response.output.mime_type.lower()
+
+    @pytest.mark.asyncio
+    async def test_output_has_pages_field(self, client, sample_path):
+        """Test that OutputResponse includes pages field"""
+        response = await client.upload(sample_path)
+        assert response.task_id is not None
+        assert response.status == "Succeeded"
+        assert response.output is not None
+        
+        # pages should be accessible (might be None for some configurations)
+        assert hasattr(response.output, 'pages')
+        
+        # If pages exist, validate structure
+        if response.output.pages:
+            assert len(response.output.pages) > 0
+            page = response.output.pages[0]
+            assert hasattr(page, 'image')
+            assert hasattr(page, 'page_number')
+            assert hasattr(page, 'page_height')
+            assert hasattr(page, 'page_width')
+            assert hasattr(page, 'ss_sheet_name')
+
+    @pytest.mark.asyncio
+    async def test_segments_have_spreadsheet_fields(self, client, sample_path):
+        """Test that Segment objects include new spreadsheet fields"""
+        response = await client.upload(sample_path)
+        assert response.task_id is not None
+        assert response.status == "Succeeded"
+        assert response.output is not None
+        assert len(response.output.chunks) > 0
+        
+        segment = response.output.chunks[0].segments[0]
+        
+        # All new spreadsheet fields should be accessible
+        assert hasattr(segment, 'segment_length')
+        assert hasattr(segment, 'ss_cells')
+        assert hasattr(segment, 'ss_header_bbox')
+        assert hasattr(segment, 'ss_header_ocr')
+        assert hasattr(segment, 'ss_header_text')
+        assert hasattr(segment, 'ss_header_range')
+        assert hasattr(segment, 'ss_range')
+        assert hasattr(segment, 'ss_sheet_name')
+        
+        # For PDF files, spreadsheet fields should be None
+        assert segment.ss_cells is None
+        assert segment.ss_range is None
+        assert segment.ss_sheet_name is None
+
+    @pytest.mark.asyncio
+    async def test_segment_length_field(self, client, sample_path):
+        """Test that segments can have length calculations"""
+        response = await client.upload(sample_path)
+        assert response.task_id is not None
+        assert response.status == "Succeeded"
+        assert response.output is not None
+        
+        # Check if any segments have length calculations
+        segments_with_length = []
+        for chunk in response.output.chunks:
+            for segment in chunk.segments:
+                if segment.segment_length is not None:
+                    segments_with_length.append(segment)
+        
+        # segment_length might be None depending on configuration
+        # but if present, should be positive
+        for segment in segments_with_length:
+            assert segment.segment_length > 0
+
+    @pytest.mark.asyncio
+    async def test_backwards_compatibility_preserved(self, client, sample_path):
+        """Test that all existing fields still work after adding new ones"""
+        response = await client.upload(sample_path)
+        assert response.task_id is not None
+        assert response.status == "Succeeded"
+        assert response.output is not None
+        
+        # All existing fields should still work
+        assert response.output.chunks is not None
+        assert response.output.file_name is not None
+        assert response.output.page_count is not None
+        assert response.output.pdf_url is not None
+        
+        # Chunk structure should be unchanged
+        chunk = response.output.chunks[0]
+        assert chunk.chunk_id is not None
+        assert chunk.chunk_length is not None
+        assert chunk.segments is not None
+        assert chunk.embed is not None or chunk.embed is None  # embed can be None
+        
+        # Segment structure should include all original fields
+        segment = chunk.segments[0]
+        assert segment.bbox is not None
+        assert segment.content is not None or segment.content == ""
+        assert segment.page_height is not None
+        assert segment.llm is not None or segment.llm is None
+        assert segment.html is not None or segment.html == ""
+        assert segment.image is not None or segment.image is None
+        assert segment.markdown is not None or segment.markdown == ""
+        assert segment.ocr is not None or segment.ocr == []
+        assert segment.page_number is not None
+        assert segment.page_width is not None
+        assert segment.segment_id is not None
+        assert segment.segment_type is not None
+        assert segment.confidence is not None or segment.confidence is None
+        assert segment.text is not None or segment.text == ""

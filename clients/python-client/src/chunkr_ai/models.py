@@ -1,5 +1,8 @@
 from .api.configuration import (
+    Alignment,
     BoundingBox,
+    Cell,
+    CellStyle,
     Chunk,
     ChunkProcessing,
     Configuration,
@@ -14,6 +17,7 @@ from .api.configuration import (
     OCRResult,
     OcrStrategy,
     OutputResponse,
+    Page,
     Segment,
     SegmentFormat,
     SegmentProcessing,
@@ -23,11 +27,15 @@ from .api.configuration import (
     Pipeline,
     Tokenizer,
     TokenizerType,
+    VerticalAlignment,
 )
 from .api.task_response import TaskResponse
 
 __all__ = [
+    "Alignment",
     "BoundingBox",
+    "Cell",
+    "CellStyle",
     "Chunk",
     "ChunkProcessing",
     "Configuration",
@@ -42,6 +50,7 @@ __all__ = [
     "OCRResult",
     "OcrStrategy",
     "OutputResponse",
+    "Page",
     "Segment",
     "SegmentFormat",
     "SegmentProcessing",
@@ -52,4 +61,5 @@ __all__ = [
     "Pipeline",
     "Tokenizer",
     "TokenizerType",
+    "VerticalAlignment",
 ]
