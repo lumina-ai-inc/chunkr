@@ -5,6 +5,10 @@
             "package-name": "chunkr-core-enterprise",
             "changelog-path": "CHANGELOG-ENTERPRISE.md"
         },
+        "clients/python-client": {
+            "release-type": "python",
+            "package-name": "chunkr-ai"
+        },
         "services": {
             "release-type": "python",
             "package-name": "chunkr-services-enterprise",
