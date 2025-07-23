@@ -3,7 +3,7 @@
     "services": "0.1.10-enterprise",
     "apps/web": "1.12.2-enterprise",
     "kube/charts/chunkr": "1.1.0-enterprise",
-    ".": "2.9.0-enterprise",
+    ".": "2.9.1-enterprise",
     "kube/charts/chunkr-enterprise": "1.4.1",
-    "clients/python-client": "0.2.0"
+    "clients/python-client": "0.3.0"
 }

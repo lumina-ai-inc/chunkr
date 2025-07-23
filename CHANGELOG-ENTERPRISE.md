@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.0-enterprise...v2.9.1-enterprise) (2025-07-23)
+
+
+### Bug Fixes
+
+* Added python client to config ([a248f9b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a248f9b3be09fbb69689723407e73e4ddf9f7b20))
+
 ## [2.9.0-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.8.1-enterprise...v2.9.0-enterprise) (2025-07-23)
 
 

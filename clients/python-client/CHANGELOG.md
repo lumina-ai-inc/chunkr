@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.3.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-ai-v0.2.0...chunkr-ai-v0.3.0) (2025-07-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* consolidate HTML/markdown generation into single format choice
+
+### Features
+
+* Add advanced Excel parser with automatic table identification, LibreOffice-based HTML conversion, headless Chrome rendering, and specialized spreadsheet chunking pipeline ([5616c21](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/5616c2107f35bdcbd6b6933c878043dc53665611))
+* Added configuration for `error_handling` which allows you to choose between `Fail` or `Continue` on non-critical errors ([0baca0a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/0baca0a519b44d139f64d02bec754f259ed329de))
+* Added extended context (full page + segment) in `segment_processing` ([#480](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/480)) ([542377b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/542377b904aef5fb215bdea3f837315a23eb37de))
+* Allow users to choose an LLM model to use for `segment_processing` by setting the `llm_processing.model_id` param in the POST and PATCH request. The available models can be configured using the `models.yaml` file. ([#437](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/437)) ([ea526c4](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/ea526c4c48692ae5d8a9ba00b70008ce238a4c14))
+* Chunking can now be configured using `embed_sources` in `segment_processing.{segment_type}` configuration and allows the choice of pre-configured tokenizers or any huggingface tokenizer by setting the `tokenizer` field in `chunk_processing` ([#420](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/420)) ([d88ac64](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d88ac646ece3935f1c7fcd028bb6c5df0b7d00d3))
+* Consolidate HTML/markdown generation into single format choice ([a974f3f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a974f3fbc2bd9158ca052c21a121b479e0eb7613))
+* Update sdk with new models ([d2fccfd](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d2fccfd493b768c0f52a53f69d4a58a925208412))
+
+
+### Bug Fixes
+
+* Added python client to config ([a248f9b](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/a248f9b3be09fbb69689723407e73e4ddf9f7b20))
+* **client:** Polling would error out on httpx.ReadTimeout ([#400](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/400)) ([aea1255](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/aea125533063de8bbddb36741aed5c1c07ba693b))
+* **core:** Auto-fix clippy warnings ([#518](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/518)) ([238f47f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/238f47fdaf5d2e62d12448424d1018eb1803b8f8))
+* Improved handling of base64, bytes-like and file-like file content in the python client ([#452](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/452)) ([db87f6c](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/db87f6ca2b725b617b84f788341a9ed613fe12c2))
+* Improved handling of base64, bytes-like and file-like file content in the python client ([#452](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/452)) ([65e479f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/65e479f75ecb91e676afcffe1843d4902a8736e7))
+* Paths decodable as base64 string can be used with the python client ([#444](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/444)) ([d544aac](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d544aac952d7a6b45ece09b691ad0d1d4b9454c1))
+
 ## [0.1.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-ai-v0.0.50...chunkr-ai-v0.1.0) (2025-06-24)
 
 
