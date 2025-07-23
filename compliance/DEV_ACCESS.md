@@ -34,6 +34,26 @@ Last Name: Kung
 Temp password: MacHeRtRoVER
 Expiration date: Friday, July 18, 2025
 
+URL: https://dev.chunkr.ai
+Username: robby
+Email: robby@sweetspot.so
+First Name: Robby   
+Last Name: Horvatgh
+Temp password: MacHeRtRoVER
+
+URL: https://dev.chunkr.ai
+Username: nathan
+Email: nathan@sweetspot.so
+First Name: Nathan   
+Last Name: Gage
+Temp password: MacHeRtRoVER
+
+URL: https://dev.chunkr.ai
+Username: andrew
+Email: andrew@sweetspot.so
+First Name: Andrew    
+Last Name: Arkhipov
+Temp password: MacHeRtRoVER
 
 ---
 
