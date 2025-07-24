@@ -218,7 +218,7 @@ impl<'de> Deserialize<'de> for IdentifiedElement {
                 // Parse all fields
                 while let Some(key) = map.next_key::<String>()? {
                     match key.as_str() {
-                        "range" | "cell_range" => {
+                        "range" | "cell_range" | "element_range" => {
                             if range_value.is_some() {
                                 return Err(de::Error::duplicate_field("range"));
                             }

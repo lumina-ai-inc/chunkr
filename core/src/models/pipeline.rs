@@ -468,6 +468,146 @@ impl TryFrom<IdentifiedElements> for Vec<Element> {
     }
 }
 
+/// Convert column index (0-based) to Excel letters (A, B, ..., Z, AA, AB, ...)
+fn column_index_to_letters(mut index: usize) -> String {
+    let mut result = String::new();
+    loop {
+        result.insert(0, (b'A' + ((index % 26) as u8)) as char);
+        if index < 26 {
+            break;
+        }
+        index = index / 26 - 1;
+    }
+    result
+}
+
+/// Truncate a range to fit within sheet bounds using SheetInfo
+fn truncate_range_to_sheet_bounds(
+    range: &str,
+    sheet_info: &SheetInfo,
+) -> Result<Option<String>, Box<dyn Error + Send + Sync>> {
+    let indices = match parse_range(range) {
+        Ok(indices) => indices,
+        Err(_) => {
+            println!("Invalid range format: {}", range);
+            return Ok(None); // Invalid range, remove it
+        }
+    };
+
+    // Get sheet bounds (convert to 0-based)
+    let max_row = sheet_info.end_row.unwrap_or(0) as usize;
+    let max_col = sheet_info.end_column.unwrap_or(0) as usize;
+
+    // Check if the range is completely out of bounds
+    if indices.start_row > max_row || indices.start_col > max_col {
+        println!(
+            "Range {} is completely out of bounds (sheet: {}x{}), removing",
+            range,
+            max_row + 1,
+            max_col + 1
+        );
+        return Ok(None);
+    }
+
+    // Truncate to fit within bounds
+    let truncated_end_row = indices.end_row.min(max_row);
+    let truncated_end_col = indices.end_col.min(max_col);
+
+    // Convert back to Excel notation
+    let start_col_str = column_index_to_letters(indices.start_col);
+    let end_col_str = column_index_to_letters(truncated_end_col);
+    let truncated_range = format!(
+        "{}{}:{}{}",
+        start_col_str,
+        indices.start_row + 1,
+        end_col_str,
+        truncated_end_row + 1
+    );
+
+    if truncated_range != range {
+        println!(
+            "Truncated range {} to {} to fit within sheet bounds ({}x{})",
+            range,
+            truncated_range,
+            max_row + 1,
+            max_col + 1
+        );
+    }
+
+    Ok(Some(truncated_range))
+}
+
+/// Validate and truncate ranges in IdentifiedElements using SheetInfo
+pub fn validate_and_convert_identified_elements(
+    elements: IdentifiedElements,
+    sheet_info: &SheetInfo,
+) -> Result<Vec<Element>, Box<dyn Error + Send + Sync>> {
+    println!(
+        "Sheet '{}' dimensions: {} rows x {} columns",
+        sheet_info.name,
+        sheet_info.end_row.unwrap_or(0) + 1,
+        sheet_info.end_column.unwrap_or(0) + 1
+    );
+
+    // Filter and fix elements
+    let validated_elements: Vec<_> = elements
+        .elements
+        .into_iter()
+        .filter_map(|mut element| {
+            // Validate and truncate main range
+            match truncate_range_to_sheet_bounds(&element.range, sheet_info) {
+                Ok(Some(truncated_range)) => {
+                    element.range = truncated_range;
+                }
+                Ok(None) => {
+                    println!("Removing element with invalid range: {}", element.range);
+                    return None; // Remove this element
+                }
+                Err(e) => {
+                    println!(
+                        "Error processing range {}: {}, removing element",
+                        element.range, e
+                    );
+                    return None;
+                }
+            }
+
+            // Validate and truncate header range if present
+            if let Some(header_range) = element.header_range.as_ref() {
+                match truncate_range_to_sheet_bounds(header_range, sheet_info) {
+                    Ok(Some(truncated_header)) => {
+                        element.header_range = Some(truncated_header);
+                    }
+                    Ok(None) => {
+                        println!("Removing invalid header range: {}", header_range);
+                        element.header_range = None; // Remove header but keep element
+                    }
+                    Err(e) => {
+                        println!(
+                            "Error processing header range {}: {}, removing header",
+                            header_range, e
+                        );
+                        element.header_range = None;
+                    }
+                }
+            }
+
+            Some(element)
+        })
+        .collect();
+
+    println!(
+        "Validated {} elements after range checking",
+        validated_elements.len()
+    );
+
+    // Convert to Elements
+    validated_elements
+        .into_iter()
+        .map(|element| element.try_into())
+        .collect::<Result<Vec<_>, _>>()
+}
+
 #[derive(Debug, Clone)]
 pub enum ReadingPattern {
     RowBased,
@@ -782,19 +922,19 @@ impl Sheet {
                 if center2_x > center1_x {
                     row_based_score += 1; // Left to right movement
                 }
-            }
+            } else if
             // Check if they are roughly in the same column (column-based reading)
-            else if (center1_x - center2_x).abs() <= ALIGNMENT_TOLERANCE {
+            (center1_x - center2_x).abs() <= ALIGNMENT_TOLERANCE {
                 if center2_y > center1_y {
                     col_based_score += 1; // Top to bottom movement
                 }
-            }
+            } else if
             // Check for row-based pattern with line breaks
-            else if center2_y > center1_y && center2_x < center1_x {
+            center2_y > center1_y && center2_x < center1_x {
                 row_based_score += 1; // Next row, back to left
-            }
+            } else if
             // Check for column-based pattern with column breaks
-            else if center2_x > center1_x && center2_y < center1_y {
+            center2_x > center1_x && center2_y < center1_y {
                 col_based_score += 1; // Next column, back to top
             }
         }
@@ -979,12 +1119,14 @@ impl Sheet {
         context: &Context,
     ) -> Result<Vec<Chunk>, Box<dyn Error + Send + Sync>> {
         let html_content = fs::read_to_string(self.html_file.path()).unwrap();
-        let sheet_range = indices_to_range(&Indices {
-            start_row: self.sheet_info.start_row.unwrap_or(0) as usize,
-            start_col: self.sheet_info.start_column.unwrap_or(0) as usize,
-            end_row: self.sheet_info.end_row.unwrap_or(0) as usize,
-            end_col: self.sheet_info.end_column.unwrap_or(0) as usize,
-        });
+        let sheet_range = indices_to_range(
+            &(Indices {
+                start_row: self.sheet_info.start_row.unwrap_or(0) as usize,
+                start_col: self.sheet_info.start_column.unwrap_or(0) as usize,
+                end_row: self.sheet_info.end_row.unwrap_or(0) as usize,
+                end_col: self.sheet_info.end_column.unwrap_or(0) as usize,
+            }),
+        );
         let all_cells = extract_cells_from_ranges(&html_content, Some(&sheet_range), None).unwrap();
 
         // Convert elements to chunks (preserving LLM reading order)
@@ -2372,5 +2514,282 @@ mod tests {
             .unwrap();
         let empty_cell_count = thead_section.matches("<td></td>").count();
         assert_eq!(empty_cell_count, 3); // 2 left + 1 right padding
+    }
+
+    #[test]
+    fn test_column_index_to_letters() {
+        // Test basic single letters
+        assert_eq!(column_index_to_letters(0), "A");
+        assert_eq!(column_index_to_letters(1), "B");
+        assert_eq!(column_index_to_letters(25), "Z");
+
+        // Test double letters
+        assert_eq!(column_index_to_letters(26), "AA");
+        assert_eq!(column_index_to_letters(27), "AB");
+        assert_eq!(column_index_to_letters(51), "AZ");
+
+        // Test triple letters
+        assert_eq!(column_index_to_letters(702), "AAA"); // 26*26 + 26 + 0
+        assert_eq!(column_index_to_letters(703), "AAB");
+
+        // Test some larger values
+        assert_eq!(column_index_to_letters(675), "YZ");
+        assert_eq!(column_index_to_letters(676), "ZA");
+        assert_eq!(column_index_to_letters(701), "ZZ");
+    }
+
+    #[test]
+    fn test_truncate_range_to_sheet_bounds_valid_ranges() {
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(9),    // 10 rows (0-9)
+            end_column: Some(4), // 5 columns (0-4, A-E)
+            sheet_number: 1,
+        };
+
+        // Test valid range that doesn't need truncation
+        let result = truncate_range_to_sheet_bounds("A1:E10", &sheet_info).unwrap();
+        assert_eq!(result, Some("A1:E10".to_string()));
+
+        // Test single cell
+        let result = truncate_range_to_sheet_bounds("C5:C5", &sheet_info).unwrap();
+        assert_eq!(result, Some("C5:C5".to_string()));
+
+        // Test range at boundaries
+        let result = truncate_range_to_sheet_bounds("E10:E10", &sheet_info).unwrap();
+        assert_eq!(result, Some("E10:E10".to_string()));
+    }
+
+    #[test]
+    fn test_truncate_range_to_sheet_bounds_truncation() {
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(4),    // 5 rows (0-4)
+            end_column: Some(2), // 3 columns (0-2, A-C)
+            sheet_number: 1,
+        };
+
+        // Test range that exceeds row bounds
+        let result = truncate_range_to_sheet_bounds("A1:C10", &sheet_info).unwrap();
+        assert_eq!(result, Some("A1:C5".to_string())); // Truncated to row 5
+
+        // Test range that exceeds column bounds
+        let result = truncate_range_to_sheet_bounds("A1:F5", &sheet_info).unwrap();
+        assert_eq!(result, Some("A1:C5".to_string())); // Truncated to column C
+
+        // Test range that exceeds both bounds
+        let result = truncate_range_to_sheet_bounds("A1:Z50", &sheet_info).unwrap();
+        assert_eq!(result, Some("A1:C5".to_string())); // Truncated to both limits
+
+        // Test range that starts within bounds but ends beyond
+        let result = truncate_range_to_sheet_bounds("B3:F8", &sheet_info).unwrap();
+        assert_eq!(result, Some("B3:C5".to_string())); // Truncated to fit
+    }
+
+    #[test]
+    fn test_truncate_range_to_sheet_bounds_out_of_bounds() {
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(4),    // 5 rows (0-4)
+            end_column: Some(2), // 3 columns (0-2, A-C)
+            sheet_number: 1,
+        };
+
+        // Test range completely out of bounds (row)
+        let result = truncate_range_to_sheet_bounds("A10:C15", &sheet_info).unwrap();
+        assert_eq!(result, None); // Should be removed
+
+        // Test range completely out of bounds (column)
+        let result = truncate_range_to_sheet_bounds("F1:H5", &sheet_info).unwrap();
+        assert_eq!(result, None); // Should be removed
+
+        // Test range completely out of bounds (both)
+        let result = truncate_range_to_sheet_bounds("F10:H15", &sheet_info).unwrap();
+        assert_eq!(result, None); // Should be removed
+
+        // Test invalid range format
+        let result = truncate_range_to_sheet_bounds("invalid_range", &sheet_info).unwrap();
+        assert_eq!(result, None); // Should be removed due to invalid format
+    }
+
+    #[test]
+    fn test_validate_and_convert_identified_elements_all_valid() {
+        use crate::models::excel::{IdentifiedElement, IdentifiedElements, LayoutElement};
+
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(9),    // 10 rows
+            end_column: Some(4), // 5 columns (A-E)
+            sheet_number: 1,
+        };
+
+        let elements = IdentifiedElements {
+            elements: vec![
+                IdentifiedElement {
+                    range: "A1:E5".to_string(),
+                    r#type: LayoutElement::Table,
+                    header_range: Some("A1:E1".to_string()),
+                },
+                IdentifiedElement {
+                    range: "A7:C9".to_string(),
+                    r#type: LayoutElement::Text,
+                    header_range: None,
+                },
+            ],
+        };
+
+        let result = validate_and_convert_identified_elements(elements, &sheet_info).unwrap();
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].range, "A1:E5");
+        assert_eq!(result[0].header_range, Some("A1:E1".to_string()));
+        assert_eq!(result[1].range, "A7:C9");
+        assert_eq!(result[1].header_range, None);
+    }
+
+    #[test]
+    fn test_validate_and_convert_identified_elements_with_truncation() {
+        use crate::models::excel::{IdentifiedElement, IdentifiedElements, LayoutElement};
+
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(4),    // 5 rows (0-4)
+            end_column: Some(2), // 3 columns (A-C)
+            sheet_number: 1,
+        };
+
+        let elements = IdentifiedElements {
+            elements: vec![
+                IdentifiedElement {
+                    range: "A1:F10".to_string(), // Exceeds both bounds
+                    r#type: LayoutElement::Table,
+                    header_range: Some("A1:F1".to_string()), // Exceeds column bounds
+                },
+                IdentifiedElement {
+                    range: "B2:Z20".to_string(), // Way out of bounds
+                    r#type: LayoutElement::Text,
+                    header_range: None,
+                },
+            ],
+        };
+
+        let result = validate_and_convert_identified_elements(elements, &sheet_info).unwrap();
+        assert_eq!(result.len(), 2);
+
+        // First element should be truncated
+        assert_eq!(result[0].range, "A1:C5"); // Truncated to fit bounds
+        assert_eq!(result[0].header_range, Some("A1:C1".to_string())); // Header also truncated
+
+        // Second element should also be truncated
+        assert_eq!(result[1].range, "B2:C5"); // Truncated to fit bounds
+    }
+
+    #[test]
+    fn test_validate_and_convert_identified_elements_with_removal() {
+        use crate::models::excel::{IdentifiedElement, IdentifiedElements, LayoutElement};
+
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(4),    // 5 rows (0-4)
+            end_column: Some(2), // 3 columns (A-C)
+            sheet_number: 1,
+        };
+
+        let elements = IdentifiedElements {
+            elements: vec![
+                IdentifiedElement {
+                    range: "A1:C5".to_string(), // Valid range
+                    r#type: LayoutElement::Table,
+                    header_range: Some("A1:C1".to_string()), // Valid header
+                },
+                IdentifiedElement {
+                    range: "F10:H15".to_string(), // Completely out of bounds
+                    r#type: LayoutElement::Text,
+                    header_range: None,
+                },
+                IdentifiedElement {
+                    range: "B2:C4".to_string(), // Valid range
+                    r#type: LayoutElement::Image,
+                    header_range: Some("F1:H1".to_string()), // Header out of bounds
+                },
+            ],
+        };
+
+        let result = validate_and_convert_identified_elements(elements, &sheet_info).unwrap();
+        assert_eq!(result.len(), 2); // One element should be removed
+
+        // First element should remain unchanged
+        assert_eq!(result[0].range, "A1:C5");
+        assert_eq!(result[0].header_range, Some("A1:C1".to_string()));
+
+        // Third element should have header removed but element kept
+        assert_eq!(result[1].range, "B2:C4");
+        assert_eq!(result[1].header_range, None); // Header was removed due to being out of bounds
+    }
+
+    #[test]
+    fn test_validate_and_convert_identified_elements_edge_cases() {
+        use crate::models::excel::{IdentifiedElement, IdentifiedElements, LayoutElement};
+
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(2),    // 3 rows (0-2)
+            end_column: Some(1), // 2 columns (A-B)
+            sheet_number: 1,
+        };
+
+        let elements = IdentifiedElements {
+            elements: vec![
+                IdentifiedElement {
+                    range: "invalid_range".to_string(), // Invalid format
+                    r#type: LayoutElement::Table,
+                    header_range: None,
+                },
+                IdentifiedElement {
+                    range: "A1:B3".to_string(), // Valid range
+                    r#type: LayoutElement::Text,
+                    header_range: Some("invalid_header".to_string()), // Invalid header format
+                },
+            ],
+        };
+
+        let result = validate_and_convert_identified_elements(elements, &sheet_info).unwrap();
+        assert_eq!(result.len(), 1); // Only one valid element should remain
+
+        // Only the second element should remain, with header removed
+        assert_eq!(result[0].range, "A1:B3");
+        assert_eq!(result[0].header_range, None); // Header was removed due to invalid format
+    }
+
+    #[test]
+    fn test_validate_and_convert_identified_elements_empty() {
+        use crate::models::excel::IdentifiedElements;
+
+        let sheet_info = SheetInfo {
+            name: "TestSheet".to_string(),
+            start_row: Some(0),
+            start_column: Some(0),
+            end_row: Some(4),
+            end_column: Some(2),
+            sheet_number: 1,
+        };
+
+        let elements = IdentifiedElements { elements: vec![] };
+
+        let result = validate_and_convert_identified_elements(elements, &sheet_info).unwrap();
+        assert_eq!(result.len(), 0);
     }
 }
