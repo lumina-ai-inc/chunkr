@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.3-enterprise...chunkr-core-enterprise-v2.8.4-enterprise) (2025-07-24)
+
+
+### Bug Fixes
+
+* Added truncation for excel file elements ([4843a25](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/4843a255e89d6950d92df61c1b2b44b33debe943))
+
 ## [2.8.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.2-enterprise...chunkr-core-enterprise-v2.8.3-enterprise) (2025-07-24)
 
 
