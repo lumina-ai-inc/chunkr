@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-ai-v0.3.0...chunkr-ai-v0.3.1) (2025-07-24)
+
+
+### Bug Fixes
+
+* Added better deserialization for range ([#192](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/192)) ([69489c0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/69489c0237ea558fbbad5f48f73b8c0142960587))
+
 ## [0.3.0](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-ai-v0.2.0...chunkr-ai-v0.3.0) (2025-07-23)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.4.1...chunkr-chart-enterprise-v1.4.2) (2025-07-24)
+
+
+### Bug Fixes
+
+* Added better deserialization for range ([#192](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/192)) ([69489c0](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/69489c0237ea558fbbad5f48f73b8c0142960587))
+
 ## [1.4.1](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-chart-enterprise-v1.4.0...chunkr-chart-enterprise-v1.4.1) (2025-07-09)
 
 
