@@ -176,11 +176,11 @@ function ExcelViewer({
             ({ r, c, cell }: { r: number; c: number; cell: RawCell }) => {
               cellsMatrix[r][c] = cell;
               if (cell.formula != null) {
-                rowsMatrix[r][c] = cell.value != null ? cell.value : cell.text;
+                rowsMatrix[r][c] = cell.text;
                 formulaMatrix[r][c] = true;
                 formulaStringsMatrix[r][c] = cell.formula;
               } else {
-                rowsMatrix[r][c] = cell.value != null ? cell.value : cell.text;
+                rowsMatrix[r][c] = cell.text;
                 formulaMatrix[r][c] = false;
                 formulaStringsMatrix[r][c] = "";
               }
@@ -560,9 +560,8 @@ function ExcelViewer({
         {sheets.map((sheet, idx) => (
           <button
             key={idx}
-            className={`px-3 text-xs py-2 focus:outline-none rounded-none font-medium flex-shrink-0 w-32 h-8 truncate ${
-              idx === activeSheet ? "bg-white" : "bg-gray-100"
-            }`}
+            className={`px-3 text-xs py-2 focus:outline-none rounded-none font-medium flex-shrink-0 w-32 h-8 truncate ${idx === activeSheet ? "bg-white" : "bg-gray-100"
+              }`}
             onClick={() => {
               isManualSheetChange.current = true;
               setActiveSheet(idx);
