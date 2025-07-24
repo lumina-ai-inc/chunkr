@@ -1,7 +1,7 @@
 {
   "name": "chunkr-web",
   "private": true,
-  "version": "1.12.3-enterprise",
+  "version": "1.12.4-enterprise",
   "type": "module",
   "scripts": {
     "postinstall": "keycloakify sync-extensions",

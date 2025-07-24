@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.3-enterprise...chunkr-web-enterprise-v1.12.4-enterprise) (2025-07-24)
+
+
+### Bug Fixes
+
+* Use cell.text instead of cell.value ([d970d75](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/d970d7579c9cda4addc9be627dcbc3979b481d81))
+
 ## [1.12.3-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.2-enterprise...chunkr-web-enterprise-v1.12.3-enterprise) (2025-07-24)
 
 
