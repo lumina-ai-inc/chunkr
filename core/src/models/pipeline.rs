@@ -1644,6 +1644,12 @@ impl Pipeline {
         let mut task = self.get_task()?;
         let mut retries = 0;
         let mut last_error: Option<String> = None;
+        let mut max_retries = max_retries;
+
+        // IdentifyElementsInSheet is a special case that needs to be retried more times
+        if step == PipelineStep::IdentifyElementsInSheet {
+            max_retries += 1;
+        }
         while retries < max_retries {
             let mut span = tracer.start_with_context(step.to_string(), &Context::current());
             span.set_attribute(opentelemetry::KeyValue::new(
@@ -1695,10 +1701,8 @@ impl Pipeline {
                     crate::pipeline::convert_excel_to_html::process(self, tracer).await
                 }
                 PipelineStep::IdentifyElementsInSheet => {
-                    match crate::pipeline::identify_elements_in_sheet::process(self, tracer).await {
-                        Ok(_) => Ok(()),
-                        Err(e) => Err(e),
-                    }
+                    crate::pipeline::identify_elements_in_sheet::process(self, tracer, retries)
+                        .await
                 }
             };
 

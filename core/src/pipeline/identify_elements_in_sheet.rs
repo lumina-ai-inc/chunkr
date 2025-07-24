@@ -23,7 +23,7 @@ use std::fs;
 ///
 /// A `Result` containing the LLM processing for the identify tables in sheet task.
 ///
-fn get_llm_processing() -> Result<LlmProcessing, Box<dyn Error>> {
+fn get_llm_processing(retry_count: u32) -> Result<LlmProcessing, Box<dyn Error>> {
     // Get excel-specific models from config, falling back to regular models if not configured
     let llm_config =
         LlmConfig::from_env().map_err(|e| format!("Failed to load LLM config: {e}"))?;
@@ -37,12 +37,12 @@ fn get_llm_processing() -> Result<LlmProcessing, Box<dyn Error>> {
         .as_ref()
         .and_then(|models| models.iter().find(|model| model.excel_fallback))
         .map(|model| FallbackStrategy::Model(model.id.clone()));
-
+    let temperature = (retry_count as f32 * 0.2).min(0.7);
     Ok(LlmProcessing::new(
         Some(excel_model.id),
         excel_fallback_strategy,
         None,
-        0.0,
+        temperature,
     ))
 }
 
@@ -52,11 +52,12 @@ fn get_llm_processing() -> Result<LlmProcessing, Box<dyn Error>> {
 pub async fn process(
     pipeline: &mut Pipeline,
     tracer: &opentelemetry::global::BoxedTracer,
+    retry_count: u32,
 ) -> Result<(), Box<dyn Error>> {
     let task = pipeline.get_task()?;
     let sheets = pipeline.sheets.clone().ok_or("No sheets found")?;
 
-    let llm_processing = get_llm_processing()?;
+    let llm_processing = get_llm_processing(retry_count)?;
 
     let error_handling = task.configuration.error_handling.clone();
     let segmentation_strategy = task.configuration.segmentation_strategy.clone();
@@ -347,7 +348,7 @@ mod tests {
             .await
             .unwrap();
         let tracer = global::tracer("test");
-        process(&mut pipeline, &tracer).await.unwrap();
+        process(&mut pipeline, &tracer, 0).await.unwrap();
 
         // Save the final output
         let output_dir = PathBuf::from("output/excel/html");

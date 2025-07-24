@@ -1,5 +1,5 @@
 use schemars::JsonSchema as SchemarsJsonSchema;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 
 use crate::models::output::SegmentType;
 use crate::utils::services::html::parse_range;
@@ -77,6 +77,90 @@ impl TryFrom<LayoutElement> for SegmentType {
     }
 }
 
+/// Helper function to split comma-separated ranges
+fn split_comma_separated_ranges(input: &str) -> Vec<String> {
+    input
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
+/// Helper function to detect if a range looks like a header
+/// Headers are typically horizontal (single row) and smaller than data ranges
+fn is_potential_header(range: &str) -> bool {
+    match parse_range(range) {
+        Ok(indices) => {
+            let rows = indices.end_row - indices.start_row + 1;
+            let cols = indices.end_col - indices.start_col + 1;
+
+            // Consider it a header if it's a single row and has multiple columns
+            rows == 1 && cols > 1
+        }
+        Err(_) => false,
+    }
+}
+
+/// Helper function to calculate the number of cells in a range
+fn calculate_range_size(range: &str) -> u64 {
+    match parse_range(range) {
+        Ok(indices) => {
+            let rows = (indices.end_row - indices.start_row + 1) as u64;
+            let cols = (indices.end_col - indices.start_col + 1) as u64;
+            rows * cols
+        }
+        Err(_) => 0,
+    }
+}
+
+/// Helper function to intelligently split ranges into header and data
+/// Returns (data_ranges, potential_header_range)
+fn split_ranges_intelligently(ranges: Vec<String>) -> (Vec<String>, Option<String>) {
+    if ranges.is_empty() {
+        return (vec![], None);
+    }
+
+    if ranges.len() == 1 {
+        return (ranges, None);
+    }
+
+    // Look for potential headers
+    let mut headers = vec![];
+    let mut data_ranges = vec![];
+
+    for range in ranges {
+        if is_potential_header(&range) {
+            headers.push(range);
+        } else {
+            data_ranges.push(range);
+        }
+    }
+
+    // If we found exactly one header, use it
+    if headers.len() == 1 && !data_ranges.is_empty() {
+        return (data_ranges, headers.into_iter().next());
+    }
+
+    // If we have multiple potential headers, select the largest one
+    let best_header = if headers.len() > 1 {
+        headers
+            .clone()
+            .into_iter()
+            .max_by_key(|range| calculate_range_size(range))
+    } else {
+        None
+    };
+
+    // If we couldn't identify a clear header, put everything in data_ranges
+    if best_header.is_none() {
+        let mut all_ranges = headers.clone();
+        all_ranges.extend(data_ranges);
+        return (all_ranges, None);
+    }
+
+    (data_ranges, best_header)
+}
+
 /// Helper function to select the largest range from a vector of ranges
 fn select_largest_range(ranges: Vec<String>) -> Option<String> {
     if ranges.is_empty() {
@@ -89,141 +173,158 @@ fn select_largest_range(ranges: Vec<String>) -> Option<String> {
     }
 
     // Find the largest range by calculating the number of cells each covers
-    ranges.into_iter().max_by_key(|range| {
-        match parse_range(range) {
-            Ok(indices) => {
-                let rows = (indices.end_row - indices.start_row + 1) as u64;
-                let cols = (indices.end_col - indices.start_col + 1) as u64;
-                rows * cols // Total number of cells
-            }
-            Err(_) => 0, // Invalid ranges get lowest priority
-        }
-    })
+    ranges
+        .into_iter()
+        .max_by_key(|range| calculate_range_size(range))
 }
 
-/// Custom deserializer for range fields that can handle both string and array inputs
-/// If an array is provided, it selects the largest range (covering the most cells)
-fn deserialize_range<'de, D>(deserializer: D) -> Result<String, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    use serde::de::{self, Visitor};
-    use std::fmt;
-
-    struct RangeVisitor;
-
-    impl<'de> Visitor<'de> for RangeVisitor {
-        type Value = String;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("a string or array of strings representing Excel ranges")
-        }
-
-        fn visit_str<E>(self, value: &str) -> Result<String, E>
-        where
-            E: de::Error,
-        {
-            Ok(value.to_string())
-        }
-
-        fn visit_string<E>(self, value: String) -> Result<String, E>
-        where
-            E: de::Error,
-        {
-            Ok(value)
-        }
-
-        fn visit_seq<A>(self, mut seq: A) -> Result<String, A::Error>
-        where
-            A: de::SeqAccess<'de>,
-        {
-            let mut ranges = Vec::new();
-
-            while let Some(range) = seq.next_element::<String>()? {
-                ranges.push(range);
-            }
-
-            select_largest_range(ranges).ok_or_else(|| de::Error::custom("Empty array of ranges"))
-        }
-    }
-
-    deserializer.deserialize_any(RangeVisitor)
-}
-
-/// Custom deserializer for optional range fields that can handle both string and array inputs
-/// If an array is provided, it selects the largest range (covering the most cells)
-fn deserialize_optional_range<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    use serde::de::{self, Visitor};
-    use std::fmt;
-
-    struct OptionalRangeVisitor;
-
-    impl<'de> Visitor<'de> for OptionalRangeVisitor {
-        type Value = Option<String>;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("null, a string, or array of strings representing Excel ranges")
-        }
-
-        fn visit_none<E>(self) -> Result<Option<String>, E>
-        where
-            E: de::Error,
-        {
-            Ok(None)
-        }
-
-        fn visit_unit<E>(self) -> Result<Option<String>, E>
-        where
-            E: de::Error,
-        {
-            Ok(None)
-        }
-
-        fn visit_str<E>(self, value: &str) -> Result<Option<String>, E>
-        where
-            E: de::Error,
-        {
-            Ok(Some(value.to_string()))
-        }
-
-        fn visit_string<E>(self, value: String) -> Result<Option<String>, E>
-        where
-            E: de::Error,
-        {
-            Ok(Some(value))
-        }
-
-        fn visit_seq<A>(self, mut seq: A) -> Result<Option<String>, A::Error>
-        where
-            A: de::SeqAccess<'de>,
-        {
-            let mut ranges = Vec::new();
-
-            while let Some(range) = seq.next_element::<String>()? {
-                ranges.push(range);
-            }
-
-            Ok(select_largest_range(ranges))
-        }
-    }
-
-    deserializer.deserialize_any(OptionalRangeVisitor)
-}
-
-#[derive(Debug, Serialize, Deserialize, SchemarsJsonSchema, PartialEq, Clone)]
+#[derive(Debug, Serialize, SchemarsJsonSchema, PartialEq, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct IdentifiedElement {
     /// The range of the element in Excel notation (e.g., "A1:D10")
-    #[serde(deserialize_with = "deserialize_range")]
     pub range: String,
     /// The type of the element
     pub r#type: LayoutElement,
     /// The header range of the table if the element is a `Table` in excel notation (e.g., "A1:C1").
-    #[serde(deserialize_with = "deserialize_optional_range", default)]
     pub header_range: Option<String>,
+}
+
+impl<'de> Deserialize<'de> for IdentifiedElement {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::{self, MapAccess, Visitor};
+        use serde_json::Value;
+        use std::fmt;
+
+        struct IdentifiedElementVisitor;
+
+        impl<'de> Visitor<'de> for IdentifiedElementVisitor {
+            type Value = IdentifiedElement;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a struct with range, type, and optional header_range fields")
+            }
+
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: MapAccess<'de>,
+            {
+                let mut range_value: Option<Value> = None;
+                let mut type_value: Option<LayoutElement> = None;
+                let mut header_range_value: Option<Value> = None;
+
+                // Parse all fields
+                while let Some(key) = map.next_key::<String>()? {
+                    match key.as_str() {
+                        "range" | "cell_range" => {
+                            if range_value.is_some() {
+                                return Err(de::Error::duplicate_field("range"));
+                            }
+                            range_value = Some(map.next_value()?);
+                        }
+                        "type" | "element_type" | "segment_type" => {
+                            if type_value.is_some() {
+                                return Err(de::Error::duplicate_field("type"));
+                            }
+                            type_value = Some(map.next_value()?);
+                        }
+                        "header_range" | "header_cell_range" => {
+                            if header_range_value.is_some() {
+                                return Err(de::Error::duplicate_field("header_range"));
+                            }
+                            header_range_value = Some(map.next_value()?);
+                        }
+                        _ => {
+                            return Err(de::Error::unknown_field(
+                                &key,
+                                &[
+                                    "range",
+                                    "cell_range",
+                                    "type",
+                                    "element_type",
+                                    "segment_type",
+                                    "header_range",
+                                    "header_cell_range",
+                                ],
+                            ));
+                        }
+                    }
+                }
+
+                // Ensure required fields are present
+                let range_value = range_value.ok_or_else(|| de::Error::missing_field("range"))?;
+                let type_value = type_value.ok_or_else(|| de::Error::missing_field("type"))?;
+
+                // Parse ranges from the range field
+                let ranges = parse_ranges_from_value(&range_value)?;
+
+                // Parse header_range if provided
+                let explicit_header_range = if let Some(header_val) = header_range_value {
+                    match header_val {
+                        Value::Null => None,
+                        _ => {
+                            let header_ranges = parse_ranges_from_value(&header_val)?;
+                            select_largest_range(header_ranges)
+                        }
+                    }
+                } else {
+                    None
+                };
+
+                // Apply the logic based on whether header_range is explicitly provided
+                let (final_range, final_header_range) = if explicit_header_range.is_some() {
+                    // If header_range is provided, use it as header and pick largest range as main range
+                    let main_range = select_largest_range(ranges)
+                        .ok_or_else(|| de::Error::custom("No valid ranges found"))?;
+                    (main_range, explicit_header_range)
+                } else {
+                    // If no explicit header_range, use intelligent splitting
+                    let (data_ranges, detected_header) = split_ranges_intelligently(ranges);
+                    let main_range = select_largest_range(data_ranges)
+                        .ok_or_else(|| de::Error::custom("No valid ranges found"))?;
+                    (main_range, detected_header)
+                };
+
+                Ok(IdentifiedElement {
+                    range: final_range,
+                    r#type: type_value,
+                    header_range: final_header_range,
+                })
+            }
+        }
+
+        deserializer.deserialize_map(IdentifiedElementVisitor)
+    }
+}
+
+// Helper function to parse ranges from a serde_json::Value
+fn parse_ranges_from_value<E>(value: &serde_json::Value) -> Result<Vec<String>, E>
+where
+    E: serde::de::Error,
+{
+    match value {
+        serde_json::Value::String(s) => {
+            if s.contains(',') {
+                Ok(split_comma_separated_ranges(s))
+            } else {
+                Ok(vec![s.clone()])
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            let mut ranges = Vec::new();
+            for item in arr {
+                if let serde_json::Value::String(s) = item {
+                    ranges.push(s.clone());
+                } else {
+                    return Err(E::custom("Array elements must be strings"));
+                }
+            }
+            Ok(ranges)
+        }
+        _ => Err(E::custom("Range must be a string or array of strings")),
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, SchemarsJsonSchema, PartialEq, Clone)]
@@ -377,5 +478,318 @@ mod tests {
         );
         // B26:C30 covers 5*2=10 cells, A26:A30 covers 5*1=5 cells
         assert_eq!(elements.elements[4].range, "B26:C30");
+    }
+
+    #[test]
+    fn test_split_comma_separated_ranges() {
+        // Test basic comma separation
+        let ranges = split_comma_separated_ranges("A1:B2,C3:D4");
+        assert_eq!(ranges, vec!["A1:B2", "C3:D4"]);
+
+        // Test with spaces
+        let ranges = split_comma_separated_ranges("A1:B2, C3:D4 ,E5:F6");
+        assert_eq!(ranges, vec!["A1:B2", "C3:D4", "E5:F6"]);
+
+        // Test single range
+        let ranges = split_comma_separated_ranges("A1:B2");
+        assert_eq!(ranges, vec!["A1:B2"]);
+
+        // Test empty string
+        let ranges = split_comma_separated_ranges("");
+        assert_eq!(ranges, Vec::<String>::new());
+    }
+
+    #[test]
+    fn test_is_potential_header() {
+        // Should be true for horizontal single-row ranges
+        assert!(is_potential_header("A1:D1"));
+        assert!(is_potential_header("B2:Z2"));
+
+        // Should be false for single cells
+        assert!(!is_potential_header("A1:A1"));
+
+        // Should be false for vertical ranges
+        assert!(!is_potential_header("A1:A5"));
+
+        // Should be false for multi-row ranges
+        assert!(!is_potential_header("A1:D5"));
+
+        // Should be false for invalid ranges
+        assert!(!is_potential_header("invalid"));
+    }
+
+    #[test]
+    fn test_calculate_range_size() {
+        assert_eq!(calculate_range_size("A1:A1"), 1);
+        assert_eq!(calculate_range_size("A1:B2"), 4);
+        assert_eq!(calculate_range_size("A1:D10"), 40);
+        assert_eq!(calculate_range_size("invalid"), 0);
+    }
+
+    #[test]
+    fn test_split_ranges_intelligently() {
+        // Test clear header + data scenario
+        let ranges = vec!["G4:Q4".to_string(), "C6:C9".to_string()];
+        let (data, header) = split_ranges_intelligently(ranges);
+        assert_eq!(data, vec!["C6:C9"]);
+        assert_eq!(header, Some("G4:Q4".to_string()));
+
+        // Test multiple data ranges, no header
+        let ranges = vec!["A1:A5".to_string(), "C1:C10".to_string()];
+        let (data, header) = split_ranges_intelligently(ranges);
+        assert_eq!(data.len(), 2);
+        assert_eq!(header, None);
+
+        // Test single range
+        let ranges = vec!["A1:B5".to_string()];
+        let (data, header) = split_ranges_intelligently(ranges);
+        assert_eq!(data, vec!["A1:B5"]);
+        assert_eq!(header, None);
+
+        // Test empty ranges
+        let ranges = vec![];
+        let (data, header) = split_ranges_intelligently(ranges);
+        assert_eq!(data, Vec::<String>::new());
+        assert_eq!(header, None);
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_range() {
+        // Test the example from the user query
+        let json = r#"{"range": "G4:Q4,C6:C9", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // G4:Q4 is 1x14=14 cells (header-like), C6:C9 is 4x1=4 cells (data)
+        // With null header_range, should use intelligent splitting
+        // Should detect G4:Q4 as header and use C6:C9 as main range
+        assert_eq!(element.range, "C6:C9");
+        assert_eq!(element.header_range, Some("G4:Q4".to_string()));
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_range_multiple_data() {
+        // Test comma-separated with multiple data ranges, no clear header
+        let json = r#"{"range": "A1:A5,C1:C10", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // A1:A5 is 5 cells, C1:C10 is 10 cells
+        // Should select the larger data range
+        assert_eq!(element.range, "C1:C10");
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_header_range() {
+        // Test comma-separated in header_range field
+        let json = r#"{"range": "A1:D10", "type": "Table", "header_range": "A1:D1,E1:E5"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // A1:D1 is 4 cells, E1:E5 is 5 cells
+        // With explicit header_range, should pick the largest range from header field
+        assert_eq!(element.header_range, Some("E1:E5".to_string()));
+
+        // Should use the provided range as-is (single range)
+        assert_eq!(element.range, "A1:D10");
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_no_header() {
+        // Test comma-separated where no range looks like a header
+        let json = r#"{"range": "A1:A5,C1:C10", "type": "Table", "header_range": "B1:B3,D1:D8"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Main range: A1:A5 is 5 cells, C1:C10 is 10 cells -> should pick C1:C10
+        // With explicit header_range, should pick largest from all provided ranges
+        assert_eq!(element.range, "C1:C10");
+
+        // Header range: B1:B3 is 3 cells, D1:D8 is 8 cells -> should pick D1:D8
+        assert_eq!(element.header_range, Some("D1:D8".to_string()));
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_with_spaces() {
+        // Test comma-separated with various spacing
+        let json = r#"{"range": "G4:Q4, C6:C9 ,A1:A2", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // G4:Q4 is header (14 cells), C6:C9 is 4 cells, A1:A2 is 2 cells
+        // Should pick C6:C9 as the largest data range
+        assert_eq!(element.range, "C6:C9");
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_mixed_valid_invalid() {
+        // Test comma-separated with mix of valid and invalid ranges
+        let json = r#"{"range": "invalid,A1:D10,bad:format,B1:B5", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // A1:D10 is 40 cells, B1:B5 is 5 cells, invalid ranges ignored
+        // Should pick A1:D10
+        assert_eq!(element.range, "A1:D10");
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_complex_scenario() {
+        // Test the original user example in a complete JSON structure
+        let json = r#"{
+            "elements": [
+                {"range": "G4:Q4,C6:C9", "type": "Table", "header_range": null},
+                {"range": "A1:B1,A2:B10", "type": "Table", "header_range": null},
+                {"range": "H1:H5,I1:J1", "type": "Table", "header_range": null}
+            ]
+        }"#;
+
+        let elements: IdentifiedElements = serde_json::from_str(json).unwrap();
+        assert_eq!(elements.elements.len(), 3);
+
+        // First element: G4:Q4 (header-like) + C6:C9 (data) -> should pick C6:C9 for range and G4:Q4 for header
+        assert_eq!(elements.elements[0].range, "C6:C9");
+        assert_eq!(elements.elements[0].header_range, Some("G4:Q4".to_string()));
+
+        // Second element: A1:B1 (header-like) + A2:B10 (data) -> should pick A2:B10 for range and A1:B1 for header
+        assert_eq!(elements.elements[1].range, "A2:B10");
+        assert_eq!(elements.elements[1].header_range, Some("A1:B1".to_string()));
+
+        // Third element: H1:H5 (data) + I1:J1 (header-like) -> should pick H1:H5 for range and I1:J1 for header
+        assert_eq!(elements.elements[2].range, "H1:H5");
+        assert_eq!(elements.elements[2].header_range, Some("I1:J1".to_string()));
+    }
+
+    #[test]
+    fn test_deserialize_comma_separated_edge_cases() {
+        // Test empty comma-separated string
+        let json = r#"{"range": "A1:B2", "type": "Table", "header_range": ","}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.header_range, None);
+
+        // Test single comma
+        let json = r#"{"range": "A1:B2", "type": "Table", "header_range": "A1:B1,"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.header_range, Some("A1:B1".to_string()));
+
+        // Test trailing comma
+        let json = r#"{"range": "A1:B2,", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.range, "A1:B2");
+    }
+
+    #[test]
+    fn test_explicit_header_range_provided() {
+        // Test when header_range is explicitly provided - should use it and treat all ranges as data
+        let json = r#"{"range": "G4:Q4,C6:C9", "type": "Table", "header_range": "A1:D1"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should use the provided header_range
+        assert_eq!(element.header_range, Some("A1:D1".to_string()));
+
+        // Should pick the largest range from all provided ranges as main range
+        // G4:Q4 is 1x14=14 cells, C6:C9 is 4x1=4 cells, so should pick G4:Q4
+        assert_eq!(element.range, "G4:Q4");
+    }
+
+    #[test]
+    fn test_explicit_header_range_array_provided() {
+        // Test when header_range is explicitly provided as array - should use largest from header array
+        let json = r#"{"range": ["A1:A5", "C1:C10"], "type": "Table", "header_range": ["B1:B1", "D1:F1"]}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should use the largest header range: D1:F1 (3 cells) vs B1:B1 (1 cell)
+        assert_eq!(element.header_range, Some("D1:F1".to_string()));
+
+        // Should pick the largest range from all provided ranges as main range
+        // C1:C10 is 10 cells, A1:A5 is 5 cells, so should pick C1:C10
+        assert_eq!(element.range, "C1:C10");
+    }
+
+    #[test]
+    fn test_no_header_range_provided_uses_intelligence() {
+        // Test when header_range is not provided - should use intelligent splitting
+        let json = r#"{"range": "G4:Q4,C6:C9", "type": "Table"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should detect G4:Q4 as header (single row, multiple columns)
+        assert_eq!(element.header_range, Some("G4:Q4".to_string()));
+
+        // Should use C6:C9 as the main range (data range)
+        assert_eq!(element.range, "C6:C9");
+    }
+
+    #[test]
+    fn test_null_header_range_provided_uses_intelligence() {
+        // Test when header_range is explicitly null - should use intelligent splitting
+        let json = r#"{"range": "G4:Q4,C6:C9", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should detect G4:Q4 as header (single row, multiple columns)
+        assert_eq!(element.header_range, Some("G4:Q4".to_string()));
+
+        // Should use C6:C9 as the main range (data range)
+        assert_eq!(element.range, "C6:C9");
+    }
+
+    #[test]
+    fn test_field_aliases_cell_range() {
+        // Test cell_range alias for range field
+        let json = r#"{"cell_range": "A1:D10", "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.range, "A1:D10");
+    }
+
+    #[test]
+    fn test_field_aliases_element_type() {
+        // Test element_type alias for type field
+        let json = r#"{"range": "A1:D10", "element_type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.r#type, LayoutElement::Table);
+    }
+
+    #[test]
+    fn test_field_aliases_segment_type() {
+        // Test segment_type alias for type field
+        let json = r#"{"range": "A1:D10", "segment_type": "Text", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.r#type, LayoutElement::Text);
+    }
+
+    #[test]
+    fn test_field_aliases_header_cell_range() {
+        // Test header_cell_range alias for header_range field
+        let json = r#"{"range": "A1:D10", "type": "Table", "header_cell_range": "A1:D1"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.header_range, Some("A1:D1".to_string()));
+    }
+
+    #[test]
+    fn test_field_aliases_combination() {
+        // Test multiple aliases used together
+        let json =
+            r#"{"cell_range": "A1:D10", "element_type": "Table", "header_cell_range": "A1:D1"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        assert_eq!(element.range, "A1:D10");
+        assert_eq!(element.r#type, LayoutElement::Table);
+        assert_eq!(element.header_range, Some("A1:D1".to_string()));
+    }
+
+    #[test]
+    fn test_field_aliases_with_arrays() {
+        // Test aliases with array values
+        let json = r#"{"cell_range": ["A1:B2", "C1:F5"], "segment_type": "Table", "header_cell_range": ["A1:B1", "A1:D1"]}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+        // C1:F5 covers 4*5=20 cells, A1:B2 covers 2*2=4 cells
+        assert_eq!(element.range, "C1:F5");
+        assert_eq!(element.r#type, LayoutElement::Table);
+        // A1:D1 covers 4 cells, A1:B1 covers 2 cells
+        assert_eq!(element.header_range, Some("A1:D1".to_string()));
+    }
+
+    #[test]
+    fn test_field_aliases_with_comma_separated() {
+        // Test aliases with comma-separated values
+        let json = r#"{"cell_range": "G4:Q4,C6:C9", "element_type": "Table", "header_cell_range": "A1:D1"}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // With explicit header_cell_range, should use it and pick largest range as main
+        assert_eq!(element.header_range, Some("A1:D1".to_string()));
+        // G4:Q4 is 14 cells, C6:C9 is 4 cells, so should pick G4:Q4
+        assert_eq!(element.range, "G4:Q4");
     }
 }
