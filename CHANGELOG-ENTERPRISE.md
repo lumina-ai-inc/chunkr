@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.4-enterprise...v2.9.5-enterprise) (2025-07-25)
+
+
+### Bug Fixes
+
+* On boarding redirect, register regex & get-tasks ([#201](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/201)) ([8adeaf1](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/8adeaf18cf1284c8a04be9f9dee40b388ef9c2bd))
+
 ## [2.9.4-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.3-enterprise...v2.9.4-enterprise) (2025-07-24)
 
 
