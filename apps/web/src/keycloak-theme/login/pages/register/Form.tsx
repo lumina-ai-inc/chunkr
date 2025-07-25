@@ -36,7 +36,7 @@ export function Form() {
 
     // Regex pattern to match blocked email domains
     const blockedEmailPattern =
-      /^(?!.*@gmail\.com$|.*@yahoo\.com$|.*@hotmail\.com$|.*@outlook\.com$|.*@aol\.com$|.*@icloud\.com$|.*@live\.com$|.*@msn\.com$|.*@qq\.com$|.*@.*\.edu$|.*@[A-Za-z0-9]\..*$|.*@[0-9]+\..*$).*$/;
+      /^(?!.*@gmail\.com$|.*@yahoo\.com$|.*@hotmail\.com$|.*@outlook\.com$|.*@aol\.com$|.*@icloud\.com$|.*@live\.com$|.*@msn\.com$|.*@qq\.com$|.*@.*\.edu$|.*@.*\.edu\..*|.*@[A-Za-z0-9]\..*$|.*@[0-9]+\..*$).*$/;
 
     if (blockedEmailPattern.test(email)) {
       setEmailValidationError(null);

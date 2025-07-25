@@ -32,7 +32,7 @@ export function useTasksQuery(
 ) {
   return useQuery<TaskResponse[], Error>(
     ["tasks", page, limit, start, end],
-    () => getTasks(page, limit, start, end),
+    () => getTasks(page, limit, start, end, false),
     {
       staleTime: 50000,
       refetchInterval:

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import CalendarSlots from "./CalendarSlots";
 import { createOnboarding, getSlots } from "../../services/cal";
 import heroImage from "../../assets/cards/vlm.webp";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import Loader from "../Loader/Loader";
 
@@ -39,7 +39,6 @@ export default function Onboarding() {
   const [calendarLoading, setCalendarLoading] = useState(true);
   const [calendarError, setCalendarError] = useState<string | null>(null);
 
-  const navigate = useNavigate();
   const auth = useAuth();
 
   useEffect(() => {
@@ -131,7 +130,8 @@ export default function Onboarding() {
       }
 
       setIsSubmitting(false);
-      navigate("/dashboard", { replace: true });
+
+      window.location.reload();
       return response.status;
     } catch (error) {
       setIsSubmitting(false);

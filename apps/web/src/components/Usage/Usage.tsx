@@ -55,7 +55,7 @@ export default function UsagePage({ customerId }: UsageProps) {
 
   const { data: tasks, refetch: refetchTasks } = useQuery(
     ["tasks", startDate, endDate],
-    () => getTasks(undefined, undefined, startDate, endDate),
+    () => getTasks(undefined, undefined, startDate, endDate, false),
     {
       staleTime: 50000,
       refetchInterval:
