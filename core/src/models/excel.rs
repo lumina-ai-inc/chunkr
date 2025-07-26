@@ -37,7 +37,9 @@ impl<'de> Deserialize<'de> for LayoutElement {
         let normalized = s.to_lowercase().replace([' ', '_', '-'], "");
 
         match normalized.as_str() {
-            "image" | "picture" | "logo" | "figure" | "visual" => Ok(LayoutElement::Image),
+            "image" | "picture" | "logo" | "figure" | "visual" | "chart" => {
+                Ok(LayoutElement::Image)
+            }
             "sectionheader" | "sectiontitle" | "section" | "header" | "subtitle" | "subheader" => {
                 Ok(LayoutElement::SectionHeader)
             }
@@ -299,6 +301,12 @@ impl<'de> Deserialize<'de> for IdentifiedElement {
     }
 }
 
+// Helper function to check if a string looks like a single cell reference (e.g., "A1", "B2", "Z99")
+fn is_single_cell_reference(s: &str) -> bool {
+    // Simple check: should have letters followed by numbers, no colon
+    !s.contains(':') && s.chars().any(|c| c.is_alphabetic()) && s.chars().any(|c| c.is_numeric())
+}
+
 // Helper function to parse ranges from a serde_json::Value
 fn parse_ranges_from_value<E>(value: &serde_json::Value) -> Result<Vec<String>, E>
 where
@@ -313,6 +321,20 @@ where
             }
         }
         serde_json::Value::Array(arr) => {
+            // Special case: if array has exactly 2 elements and both look like single cell references,
+            // treat them as start and end cells for a range
+            if arr.len() == 2 {
+                if let (serde_json::Value::String(start), serde_json::Value::String(end)) =
+                    (&arr[0], &arr[1])
+                {
+                    if is_single_cell_reference(start) && is_single_cell_reference(end) {
+                        // Convert to range format: "start:end"
+                        return Ok(vec![format!("{}:{}", start, end)]);
+                    }
+                }
+            }
+
+            // Standard array processing - treat each element as a separate range
             let mut ranges = Vec::new();
             for item in arr {
                 if let serde_json::Value::String(s) = item {
@@ -791,5 +813,55 @@ mod tests {
         assert_eq!(element.header_range, Some("A1:D1".to_string()));
         // G4:Q4 is 14 cells, C6:C9 is 4 cells, so should pick G4:Q4
         assert_eq!(element.range, "G4:Q4");
+    }
+
+    #[test]
+    fn test_deserialize_two_cell_array_to_range() {
+        // Test array with exactly two cell references - should convert to range
+        let json = r#"{"range": ["B2", "F47"], "type": "Table", "header_range": ["B2", "F2"]}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should convert ["B2", "F47"] to "B2:F47"
+        assert_eq!(element.range, "B2:F47");
+        // Should convert ["B2", "F2"] to "B2:F2"
+        assert_eq!(element.header_range, Some("B2:F2".to_string()));
+    }
+
+    #[test]
+    fn test_deserialize_two_range_array_stays_array() {
+        // Test array with two actual ranges - should pick largest
+        let json = r#"{"range": ["A1:B2", "C1:F5"], "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should pick the larger range (C1:F5 has 20 cells vs A1:B2 has 4 cells)
+        assert_eq!(element.range, "C1:F5");
+    }
+
+    #[test]
+    fn test_deserialize_mixed_cell_and_range_array() {
+        // Test array with mix of cell reference and range - should treat as separate ranges
+        let json = r#"{"range": ["A1", "C1:F5"], "type": "Table", "header_range": null}"#;
+        let element: IdentifiedElement = serde_json::from_str(json).unwrap();
+
+        // Should pick the larger range (C1:F5 has 20 cells vs A1 has 1 cell)
+        assert_eq!(element.range, "C1:F5");
+    }
+
+    #[test]
+    fn test_is_single_cell_reference() {
+        // Test valid single cell references
+        assert!(is_single_cell_reference("A1"));
+        assert!(is_single_cell_reference("B2"));
+        assert!(is_single_cell_reference("Z99"));
+        assert!(is_single_cell_reference("AA100"));
+
+        // Test invalid - ranges
+        assert!(!is_single_cell_reference("A1:B2"));
+        assert!(!is_single_cell_reference("C3:D4"));
+
+        // Test invalid - no letters or numbers
+        assert!(!is_single_cell_reference("123"));
+        assert!(!is_single_cell_reference("ABC"));
+        assert!(!is_single_cell_reference(""));
     }
 }

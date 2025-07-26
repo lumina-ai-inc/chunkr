@@ -149,21 +149,32 @@ pub fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     let configuration = pipeline.get_task()?.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
     let is_spreadsheet = pipeline.get_task()?.is_spreadsheet;
-    pipeline.chunks.par_iter().for_each(|chunk| {
-        chunk.segments.par_iter().for_each(|segment| {
-            let page_image = page_images
-                .get(segment.page_number as usize - 1)
-                .unwrap()
-                .as_ref();
+    pipeline
+        .chunks
+        .par_iter()
+        .try_for_each(|chunk| -> Result<(), String> {
+            chunk
+                .segments
+                .par_iter()
+                .try_for_each(|segment| -> Result<(), String> {
+                    let page_image = page_images
+                        .get(segment.page_number as usize - 1)
+                        .ok_or_else(|| {
+                            format!("Page image not found for page {}", segment.page_number)
+                        })?
+                        .as_ref();
 
-            let cropped_image = crop_segment(page_image, &configuration, segment, is_spreadsheet)
-                .expect("Failed to crop segment");
+                    let cropped_image =
+                        crop_segment(page_image, &configuration, segment, is_spreadsheet)
+                            .map_err(|e| e.to_string())?;
 
-            if let Some(cropped_image) = cropped_image {
-                segment_images.insert(segment.segment_id.clone(), Arc::new(cropped_image));
-            }
-        });
-    });
+                    if let Some(cropped_image) = cropped_image {
+                        segment_images.insert(segment.segment_id.clone(), Arc::new(cropped_image));
+                    }
+                    Ok(())
+                })
+        })
+        .map_err(|e| -> Box<dyn Error> { Box::new(std::io::Error::other(e)) })?;
     pipeline.segment_images = segment_images;
     Ok(())
 }

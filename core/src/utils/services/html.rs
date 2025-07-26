@@ -1,15 +1,15 @@
+use crate::models::output::{Cell, CellStyle};
+use crate::models::pipeline::Indices;
 use nipper::Document;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use regex::Regex;
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use tempfile::NamedTempFile;
-
-use crate::models::output::{Cell, CellStyle};
-use crate::models::pipeline::Indices;
 
 static IMG_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"<img(?:[^>]*?alt=["']([^"']*?)["'])?[^>]*>"#).unwrap());
@@ -60,7 +60,7 @@ fn get_cell_reference(row: usize, col: usize, colspan: usize, rowspan: usize) ->
 /// let col_name = column_index_to_name(0);
 /// assert_eq!(col_name, "A");
 /// ```
-pub fn column_index_to_name(mut col: usize) -> String {
+fn column_index_to_name(mut col: usize) -> String {
     let mut result = String::new();
 
     loop {
@@ -198,86 +198,131 @@ pub fn parse_range(range: &str) -> Result<Indices, Box<dyn Error + Send + Sync>>
     }
 }
 
-/// Helper function to check if a table row contains only empty/styled cells
-/// Returns true if the row only contains cells with br tags, whitespace, or empty content
-fn is_row_empty(row: &nipper::Selection) -> bool {
-    let cells = row.select("td, th");
-
-    // Consider row empty if it has no cells
-    if cells.length() == 0 {
-        return true;
-    }
-
-    // Check if all cells in the row are effectively empty
-    cells.iter().all(|cell| {
-        let text_content = cell.text();
-        let trimmed = text_content.trim();
-
-        // Consider the cell empty if:
-        // 1. It has no text content, OR
-        // 2. It only contains whitespace or line breaks
-        trimmed.is_empty() || trimmed.chars().all(|c| c.is_whitespace())
-    })
-}
-
-/// Remove the first empty row(s) from an HTML table
+/// Find the first row with meaningful text content in LibreOffice HTML output
+/// This helps synchronize Calamine's start position with LibreOffice's HTML coordinates
 ///
-/// This function removes empty rows from the beginning of a table to handle
-/// LibreOffice's inconsistent HTML export behavior where styled empty rows
-/// are sometimes included at the top.
+/// LibreOffice often includes rows before the first text row that Calamine detects:
+/// - Empty styled rows (with formatting but no text)
+/// - Image rows (with or without <br> tags)  
+/// - Rows with only whitespace/formatting artifacts
 ///
 /// ### Arguments
 /// * `html_content` - The HTML content containing a table
 ///
 /// ### Returns
-/// Modified HTML content with leading empty rows removed
-pub fn remove_leading_empty_rows(
+/// Zero-based index of the first row with meaningful text content in the HTML table
+/// Returns None if no meaningful text is found
+///
+/// ### Examples
+///
+/// ```
+/// // HTML with styled empty row + image row + text row
+/// let html = r#"<table>
+/// <tr><td bgcolor="#FFF"><br></td></tr>
+/// <tr><td><br><img src="img1.jpg"></td></tr>
+/// <tr><td>First meaningful text</td></tr>
+/// </table>"#;
+/// let index = find_first_text_row_in_libreoffice_html(html).unwrap();
+/// assert_eq!(index, Some(2)); // Third row (index 2) has first text
+/// ```
+fn find_first_text_row_in_libreoffice_html(
     html_content: &str,
-) -> Result<String, Box<dyn Error + Send + Sync>> {
+) -> Result<Option<usize>, Box<dyn Error + Send + Sync>> {
     let document = Document::from(html_content);
 
     // Find the first table
     let table = document.select("table").first();
     if !table.exists() {
-        return Ok(html_content.to_string());
+        return Ok(None);
     }
 
     let rows = table.select("tr");
-    let mut rows_to_keep = Vec::new();
-    let mut found_content = false;
 
-    // Collect rows, skipping empty ones at the beginning
-    for row in rows.iter() {
-        if !found_content && is_row_empty(&row) {
-            continue; // Skip this empty row at the beginning
+    // Find the first row with meaningful text
+    for (index, row) in rows.iter().enumerate() {
+        if row_has_meaningful_text(&row) {
+            return Ok(Some(index));
         }
-
-        // Once we find the first non-empty row, keep all subsequent rows
-        found_content = true;
-        rows_to_keep.push(row.html().to_string());
     }
 
-    // If no rows to keep, return original content
-    if rows_to_keep.is_empty() {
-        return Ok(html_content.to_string());
+    Ok(None) // No meaningful text found
+}
+
+/// Synchronize Calamine and LibreOffice coordinate systems
+///
+/// Calamine reports the first text row position in Excel coordinates, but LibreOffice's HTML
+/// may have additional rows (empty, styled, image-only) before that first text row.
+/// This function calculates the proper start position to align both coordinate systems.
+///
+/// ### Arguments
+/// * `html_content` - The HTML content from LibreOffice
+/// * `calamine_start_row` - The start row reported by Calamine (0-based)
+///
+/// ### Returns
+/// The actual start row position that aligns with LibreOffice's HTML coordinate system
+///
+/// ### Examples
+///
+/// ```
+/// // Calamine reports start_row = 5 (first text in Excel)
+/// // LibreOffice HTML has first text at row index 3
+/// // Result: actual start = 5 - 3 = 2 (LibreOffice HTML row 0 = Excel row 2)
+/// let actual_start = sync_calamine_with_libreoffice_coordinates(html, 5).unwrap();
+/// assert_eq!(actual_start, 2);
+/// ```
+pub fn sync_calamine_with_libreoffice_coordinates(
+    html_content: &str,
+    calamine_start_row: usize,
+) -> Result<usize, Box<dyn Error + Send + Sync>> {
+    // Find where the first text row appears in LibreOffice HTML
+    let first_text_row_index = find_first_text_row_in_libreoffice_html(html_content)?;
+
+    match first_text_row_index {
+        Some(html_index) => {
+            // Calculate offset: if Calamine says row 5 and LibreOffice has it at index 3,
+            // then LibreOffice's row 0 corresponds to Excel row 2
+            if calamine_start_row >= html_index {
+                Ok(calamine_start_row - html_index)
+            } else {
+                // Safety: shouldn't happen in normal cases, but default to 0
+                Ok(0)
+            }
+        }
+        None => {
+            // No text found in HTML - this is unusual, but use Calamine's position
+            Ok(calamine_start_row)
+        }
+    }
+}
+
+/// Check if a row contains meaningful text content
+/// Returns true if the row has text that would be detected by Calamine
+/// Returns false for rows with only styling, images, whitespace, or LibreOffice artifacts
+fn row_has_meaningful_text(row: &nipper::Selection) -> bool {
+    let cells = row.select("td, th");
+
+    if cells.length() == 0 {
+        return false;
     }
 
-    // Get the table's opening tag with all its attributes
-    let table_html = table.html().to_string();
-    let table_start_tag = if let Some(end) = table_html.find('>') {
-        &table_html[..=end]
-    } else {
-        "<table>"
-    };
+    for cell in cells.iter() {
+        let text_content = cell.text();
+        let trimmed = text_content.trim();
 
-    // Reconstruct the table with filtered rows
-    let new_table_html = format!("{}{}</table>", table_start_tag, rows_to_keep.join(""));
+        // Consider text meaningful if it's not empty, not just whitespace,
+        // and not just common LibreOffice artifacts
+        if !trimmed.is_empty()
+            && !trimmed.chars().all(|c| c.is_whitespace())
+            && trimmed != " "  // Single space
+            && trimmed != "\u{00A0}" // Non-breaking space
+            && trimmed != "\u{200B}"
+        // Zero-width space
+        {
+            return true; // Found meaningful text in this row
+        }
+    }
 
-    // Replace the original table with the new one
-    let mut table_mut = table;
-    table_mut.replace_with_html(new_table_html.as_str());
-
-    Ok(document.html().to_string())
+    false // No meaningful text found in any cell
 }
 
 /// Add Excel-style cell references as data attributes to HTML table cells
@@ -397,22 +442,91 @@ pub fn convert_html_to_markdown(html: String) -> Result<String, Box<dyn std::err
 /// Extract individual table HTML content from HTML generated by LibreOffice from Excel files
 ///
 /// This function parses the HTML and returns the table HTML content in order.
-pub fn extract_sheets_from_html(html_file: &NamedTempFile) -> Result<Vec<String>, Box<dyn Error>> {
+pub fn extract_sheets_from_html(
+    html_file: &NamedTempFile,
+) -> Result<HashMap<String, String>, Box<dyn Error>> {
     // Read the HTML content
     let html_content = fs::read_to_string(html_file.path())?;
     let document = Document::from(&html_content);
 
+    let sheet_names = extract_sheet_names_from_overview(&document)?;
+
     // Find all table elements in order
     let tables = document.select("table");
-    let mut sheet_htmls = Vec::new();
 
-    for table in tables.iter() {
-        // Create a complete HTML document for this sheet
-        let sheet_html = create_sheet_html(&table, &document);
-        sheet_htmls.push(sheet_html);
-    }
+    let sheet_htmls = tables
+        .iter()
+        .zip(sheet_names.iter())
+        .map(|(table, sheet_name)| {
+            // Create a complete HTML document for this sheet
+            let sheet_html = create_sheet_html(&table, &document);
+            (sheet_name.clone(), sheet_html)
+        })
+        .collect::<HashMap<String, String>>();
 
     Ok(sheet_htmls)
+}
+
+/// Extract sheet names from the overview section of LibreOffice HTML
+fn extract_sheet_names_from_overview(document: &Document) -> Result<Vec<String>, Box<dyn Error>> {
+    // Find links in the overview section: <A HREF="#table1">1 (Tradedesk P&L) (A)</A>
+    let overview_links = document.select("a[href^=\"#table\"]");
+
+    if overview_links.iter().count() == 0 {
+        return Ok(vec!["Unknown".to_string()]);
+    }
+
+    let sheet_names = overview_links
+        .iter()
+        .map(|link| {
+            let sheet_name = link.text();
+            // Decode HTML entities (e.g., &amp; -> &)
+            let decoded_name = sheet_name
+                .trim()
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"");
+            decoded_name
+        })
+        .collect::<Vec<String>>();
+
+    Ok(sheet_names)
+}
+
+/// Create an empty HTML document for sheets with no content
+pub fn create_empty_sheet_html() -> String {
+    r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empty Excel Sheet - {}</title>
+    <style>
+        html, body {{
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }}
+        .empty-sheet {{
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-family: Arial, sans-serif;
+        }}
+    </style>
+</head>
+<body>
+    <div class="empty-sheet">
+        <table>
+        </table>
+    </div>
+</body>
+</html>"#
+        .to_string()
 }
 
 /// Create a complete HTML document for a single sheet
@@ -446,7 +560,7 @@ fn create_sheet_html(table: &nipper::Selection, original_document: &Document) ->
     "#;
 
     // Create the initial sheet HTML
-    let initial_sheet_html = format!(
+    let sheet_html = format!(
         r#"<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -465,11 +579,7 @@ fn create_sheet_html(table: &nipper::Selection, original_document: &Document) ->
         table.html()
     );
 
-    // Remove leading empty rows from the sheet
-    match remove_leading_empty_rows(&initial_sheet_html) {
-        Ok(cleaned_html) => cleaned_html,
-        Err(_) => initial_sheet_html, // Fallback to original if preprocessing fails
-    }
+    sheet_html
 }
 
 pub fn get_img_sources(html: &str) -> Vec<String> {
@@ -762,15 +872,6 @@ fn parse_html_tag(
     }
 }
 
-pub fn extract_table_from_html(html: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let document = Document::from(html);
-    let table = document.select("table").first();
-    if !table.exists() {
-        return Err("No table found".into());
-    }
-    Ok(table.html().to_string())
-}
-
 pub fn extract_rows_from_indicies(
     html: &str,
     indices: &Indices,
@@ -1046,6 +1147,7 @@ pub fn get_html_table_bounds(
     let table = document.select("table").first();
 
     if !table.exists() {
+        println!("No table found in HTML content");
         return Ok((0, 0));
     }
 
@@ -1549,38 +1651,6 @@ Line 2 after empty br
             "HTML reduced to {}% of its original size",
             (result.len() as f32 / html_content.len() as f32) * 100.0
         );
-    }
-
-    #[test]
-    fn test_extract_table_from_html() {
-        let html = r#"<!DOCTYPE html>
-<html>
-<head>
-<title>Test Table</title>
-</head>
-<body>
-<table>
-<tr>
-<td>Data1</td>
-<td>Data2</td>
-</tr>
-</table>
-</body>
-</html>
-"#;
-        let result = extract_table_from_html(html).unwrap();
-        assert!(result.contains("<table>"));
-        assert!(result.contains("<tr>"));
-        assert!(result.contains("<td>"));
-        assert!(result.contains("Data1"));
-        assert!(result.contains("Data2"));
-        assert!(!result.contains("<!DOCTYPE html>"));
-        assert!(!result.contains("<html>"));
-        assert!(!result.contains("<head>"));
-        assert!(!result.contains("<title>"));
-        assert!(!result.contains("</head>"));
-        assert!(!result.contains("</body>"));
-        assert!(!result.contains("</html>"));
     }
 
     #[test]
@@ -2104,84 +2174,138 @@ Line 2 after empty br
     }
 
     #[test]
-    fn test_remove_leading_empty_rows() {
-        // Test HTML with empty rows at the beginning (LibreOffice style)
-        let html_with_empty_rows = r#"<table>
+    fn test_find_first_text_row_in_libreoffice_html() {
+        // Test HTML with leading non-text rows (styled empty + image rows)
+        let html_with_leading_non_text = r#"<table>
 <tr>
-<td bgcolor="DAE3F3"><br></td>
-<td bgcolor="DAE3F3"><br></td>
-<td bgcolor="DAE3F3"><br></td>
+<td bgcolor="FFFFFF"><br></td>
+<td style="border: 1px solid gray"> </td>
 </tr>
 <tr>
-<td bgcolor="DAE3F3">  </td>
-<td bgcolor="DAE3F3">   </td>
-<td bgcolor="DAE3F3"></td>
+<td><br><img src="image1.jpg"></td>
+<td><img src="image2.jpg"></td>
 </tr>
 <tr>
-<td>Real Data 1</td>
-<td>Real Data 2</td>
-<td>Real Data 3</td>
+<td>First meaningful text</td>
+<td>More text</td>
 </tr>
 <tr>
-<td>More Data 1</td>
-<td>More Data 2</td>
-<td>More Data 3</td>
+<td><img src="image4.jpg"></td>
+<td>Text after images</td>
+</tr>
+</table>"#;
+
+        let index = find_first_text_row_in_libreoffice_html(html_with_leading_non_text).unwrap();
+        assert_eq!(index, Some(2)); // Third row (index 2) has first meaningful text
+
+        // Test HTML with text in first row
+        let html_text_first = r#"<table>
+<tr>
+<td>Text content</td>
+<td>More text</td>
 </tr>
 <tr>
-<td></td>
-<td>Empty in middle</td>
+<td><img src="image1.jpg"></td>
 <td></td>
 </tr>
 </table>"#;
 
-        let result = remove_leading_empty_rows(html_with_empty_rows).unwrap();
+        let index = find_first_text_row_in_libreoffice_html(html_text_first).unwrap();
+        assert_eq!(index, Some(0)); // First row has text
 
-        // Should remove the first two empty rows but keep content
-        assert!(result.contains("Real Data 1"));
-        assert!(result.contains("More Data 1"));
-        assert!(result.contains("Empty in middle")); // Should keep empty rows after content
-
-        // Count the number of <tr> tags to verify row removal
-        let original_row_count = html_with_empty_rows.matches("<tr>").count();
-        let result_row_count = result.matches("<tr>").count();
-        assert_eq!(result_row_count, original_row_count - 2); // Removed 2 empty rows
-
-        // Test HTML with no empty rows at the beginning
-        let html_no_empty_rows = r#"<table>
+        // Test HTML with mixed content in first row (image + text)
+        let html_mixed_first = r#"<table>
 <tr>
-<td>Data 1</td>
-<td>Data 2</td>
+<td><img src="image1.jpg"></td>
+<td>Text content</td>
 </tr>
 <tr>
-<td>Data 3</td>
-<td>Data 4</td>
+<td><img src="image2.jpg"></td>
+<td></td>
 </tr>
 </table>"#;
 
-        let result_no_change = remove_leading_empty_rows(html_no_empty_rows).unwrap();
-        // Should be unchanged
-        assert_eq!(result_no_change.matches("<tr>").count(), 2);
-        assert!(result_no_change.contains("Data 1"));
+        let index = find_first_text_row_in_libreoffice_html(html_mixed_first).unwrap();
+        assert_eq!(index, Some(0)); // First row has both image and text
 
-        // Test HTML with all empty rows
-        let html_all_empty = r#"<table>
+        // Test HTML with empty rows before text
+        let html_empty_then_text = r#"<table>
 <tr>
-<td><br></td>
+<td></td>
 <td>  </td>
 </tr>
 <tr>
+<td><img src="image1.jpg"></td>
 <td></td>
-<td>   </td>
+</tr>
+<tr>
+<td>Text content</td>
 </tr>
 </table>"#;
 
-        let result_all_empty = remove_leading_empty_rows(html_all_empty).unwrap();
-        // Should return original content if all rows are empty
-        assert_eq!(result_all_empty, html_all_empty);
+        let index = find_first_text_row_in_libreoffice_html(html_empty_then_text).unwrap();
+        assert_eq!(index, Some(2)); // Third row has first text
 
-        // Test HTML with no table
-        let html_no_table = r#"<div>No table here</div>"#;
-        let result_no_table = remove_leading_empty_rows(html_no_table).unwrap();
-        assert_eq!(result_no_table, html_no_table);
+        // Test HTML with no meaningful text (all images)
+        let html_all_images = r#"<table>
+<tr>
+<td><img src="image1.jpg"></td>
+</tr>
+<tr>
+<td><img src="image2.jpg"></td>
+<td><img src="image3.jpg"></td>
+</tr>
+</table>"#;
+
+        let index = find_first_text_row_in_libreoffice_html(html_all_images).unwrap();
+        assert_eq!(index, None); // No meaningful text found
+
+        // Test empty table
+        let empty_table = r#"<table></table>"#;
+        let index = find_first_text_row_in_libreoffice_html(empty_table).unwrap();
+        assert_eq!(index, None);
+
+        // Test no table
+        let no_table = r#"<div>No table here</div>"#;
+        let index = find_first_text_row_in_libreoffice_html(no_table).unwrap();
+        assert_eq!(index, None);
+    }
+
+    #[test]
+    fn test_sync_calamine_with_libreoffice_coordinates() {
+        // Test case: Calamine reports row 5, LibreOffice has first text at HTML index 3
+        // Expected result: synced_start = 5 - 3 = 2
+        let html_with_offset = r#"<table>
+<tr><td bgcolor="FFFFFF"><br></td></tr>
+<tr><td><img src="image1.jpg"></td></tr>
+<tr><td> </td></tr>
+<tr><td>First meaningful text</td></tr>
+</table>"#;
+
+        let synced_start = sync_calamine_with_libreoffice_coordinates(html_with_offset, 5).unwrap();
+        assert_eq!(synced_start, 2); // 5 - 3 = 2
+
+        // Test case: Calamine reports row 0, LibreOffice has first text at HTML index 0
+        // Expected result: synced_start = 0 - 0 = 0
+        let html_no_offset = r#"<table>
+<tr><td>Immediate text</td></tr>
+<tr><td>More text</td></tr>
+</table>"#;
+
+        let synced_start = sync_calamine_with_libreoffice_coordinates(html_no_offset, 0).unwrap();
+        assert_eq!(synced_start, 0);
+
+        // Test case: No text found in HTML - should return original Calamine position
+        let html_no_text = r#"<table>
+<tr><td><img src="image1.jpg"></td></tr>
+<tr><td><br></td></tr>
+</table>"#;
+
+        let synced_start = sync_calamine_with_libreoffice_coordinates(html_no_text, 10).unwrap();
+        assert_eq!(synced_start, 10); // No text found, use original
+
+        // Test case: Edge case where Calamine row < HTML index (shouldn't happen normally)
+        let synced_start = sync_calamine_with_libreoffice_coordinates(html_with_offset, 2).unwrap();
+        assert_eq!(synced_start, 0); // Safety: defaults to 0
     }
 }

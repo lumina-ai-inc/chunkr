@@ -1,28 +1,35 @@
 use crate::configs::otel_config;
 use crate::models::pipeline::{Sheet, SheetInfo};
 use crate::utils::services::excel::get_worksheets_info;
-use crate::utils::services::html::{extract_sheets_from_html, get_html_table_bounds};
+use crate::utils::services::html::{
+    create_empty_sheet_html, extract_sheets_from_html, get_html_table_bounds,
+    sync_calamine_with_libreoffice_coordinates,
+};
 use crate::{models::pipeline::Pipeline, utils::services::file_operations::convert_to_html};
+use calamine::SheetVisible;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use opentelemetry::Context;
 use rayon::prelude::*;
+use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
 
 fn get_sheet_infos(file_path: &Path) -> Result<Vec<SheetInfo>, Box<dyn Error>> {
     let worksheets_info = get_worksheets_info(file_path)?;
+    // Filter out sheets that have content but LibreOffice doesn't recognize
+    // LibreOffice ignores empty/hidden sheets, so we filter out hidden sheets
     let sheets_info = worksheets_info
         .iter()
+        .filter(|(_, _, _, visibility)| *visibility == SheetVisible::Visible)
         .enumerate()
-        .map(|(sheet_idx, (name, start_pos, _end_pos))| {
+        .map(|(sheet_idx, (name, start_pos, _end_pos, visibility))| {
             let (start_row, start_column) = match start_pos {
                 Some((row, col)) => (Some(*row), Some(*col)),
                 None => {
                     println!("Sheet {name} has no start position");
-                    (Some(0), Some(0))
+                    (None, None)
                 }
             };
-            println!("Sheet {name} starts at row {start_row:?} and column {start_column:?}");
             SheetInfo {
                 name: name.to_string(),
                 start_row,
@@ -30,10 +37,73 @@ fn get_sheet_infos(file_path: &Path) -> Result<Vec<SheetInfo>, Box<dyn Error>> {
                 end_row: None,
                 end_column: None,
                 sheet_number: sheet_idx as u32 + 1,
+                visibility: *visibility,
             }
         })
         .collect();
     Ok(sheets_info)
+}
+
+/// Maps Calamine sheet information with LibreOffice HTML extraction results
+///
+/// This function handles the complex mapping between sheet data from two different sources:
+/// - Calamine: Provides sheet metadata but includes hidden/empty sheets
+/// - LibreOffice: Ignores empty/hidden sheets and does not return a name for files with only 1 sheet
+///
+/// ### Key Cases Handled:
+///
+/// 1. **Single sheet mapping**: When LibreOffice has exactly one sheet and returns no name for it
+///    (mapped to "Unknown"), but we have exactly one non-empty visible sheet from Calamine, we map
+///    the actual sheet name to the HTML content
+///
+/// 2. **HTML content assignment**: For visible sheets, either use the extracted HTML content
+///    or create empty sheet HTML as fallback
+///
+/// ### Arguments
+///
+/// * `sheet_infos` - Sheet metadata from Calamine
+/// * `extracted_sheet_htmls` - HTML content mapped by sheet name from LibreOffice
+///
+/// ### Returns
+///
+/// A tuple containing:
+/// * Updated sheet_infos with only visible sheets
+/// * Corresponding HTML content for each visible sheet
+fn map_sheets_with_html(
+    sheet_infos: Vec<SheetInfo>,
+    mut extracted_sheet_htmls: HashMap<String, String>,
+) -> Vec<String> {
+    // Handle the special case where LibreOffice returns a single unnamed sheet as "Unknown"
+    // This occurs when LibreOffice has 1 sheet but returns no name for it
+    let non_empty_sheets: Vec<_> = sheet_infos
+        .iter()
+        .filter(|sheet| sheet.start_row.is_some())
+        .collect();
+
+    if non_empty_sheets.len() == 1 && extracted_sheet_htmls.len() == 1 {
+        let non_empty_sheet = &non_empty_sheets[0];
+        // Get the single HTML content regardless of its key name and map it to actual sheet name
+        if let Some((_, single_html)) = extracted_sheet_htmls.iter().next() {
+            let single_html = single_html.clone();
+            extracted_sheet_htmls.clear();
+            extracted_sheet_htmls.insert(non_empty_sheet.name.clone(), single_html);
+        }
+    }
+
+    // Create HTML content for each visible sheet
+    let sheet_htmls = sheet_infos
+        .par_iter()
+        .map(|sheet_info| {
+            if let Some(html) = extracted_sheet_htmls.get(&sheet_info.name) {
+                html.clone()
+            } else {
+                // If no content found it must be an empty sheet
+                create_empty_sheet_html()
+            }
+        })
+        .collect::<Vec<String>>();
+
+    sheet_htmls
 }
 
 /// Create HTML from Excel
@@ -62,8 +132,8 @@ pub async fn process(
         otel_config::SpanName::ExtractSheetsFromHtml.to_string(),
         &Context::current(),
     );
-    let sheet_htmls =
-        extract_sheets_from_html(&html_conversion_result.html_file).inspect_err(|e| {
+    let extracted_sheet_htmls = extract_sheets_from_html(&html_conversion_result.html_file)
+        .inspect_err(|e| {
             span.set_status(opentelemetry::trace::Status::error(e.to_string()));
             span.record_error(e.as_ref());
             span.set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
@@ -87,15 +157,19 @@ pub async fn process(
         otel_config::SpanName::CreateSheets.to_string(),
         &Context::current(),
     );
+
+    // Map Calamine sheet info with LibreOffice HTML extraction
+    let sheet_htmls = map_sheets_with_html(sheet_infos.clone(), extracted_sheet_htmls);
+
     let sheets: Vec<Sheet> = sheet_infos
         .par_iter_mut()
         .zip(sheet_htmls.par_iter())
         .map(|(sheet_info, sheet_html)| {
-            // TODO: This ignores hidden rows and columns (libreoffice does not support changing the visibility)
             let process_sheet_span = tracer.start_with_context(
                 otel_config::SpanName::ProcessSheet.to_string(),
                 &Context::current(),
             );
+
             let sheet_info_context = Context::current().with_span(process_sheet_span);
             let mut get_bounds_span = tracer.start_with_context(
                 otel_config::SpanName::GetHtmlTableBounds.to_string(),
@@ -107,8 +181,23 @@ pub async fn process(
                 get_bounds_span.set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
             })?;
 
-            sheet_info.end_row = Some(end_row as u32);
-            sheet_info.end_column = Some(end_col as u32);
+            // Synchronize Calamine and LibreOffice coordinate systems
+            // Calamine reports first text row, LibreOffice may have additional rows before that
+            let synced_start_row = if let Some(calamine_start) = sheet_info.start_row {
+                sync_calamine_with_libreoffice_coordinates(sheet_html, calamine_start as usize)
+                    .unwrap_or(calamine_start as usize)
+            } else {
+                0
+            };
+            let synced_start_column = sheet_info.start_column.unwrap_or(0) as usize;
+
+            // Update both start and end positions with synchronized coordinates
+            sheet_info.start_row = Some(synced_start_row as u32);
+            sheet_info.start_column = Some(synced_start_column as u32);
+            sheet_info.end_row = Some((synced_start_row + end_row) as u32);
+            sheet_info.end_column = Some((synced_start_column + end_col) as u32);
+
+            println!("Sheet info: {sheet_info:?}");
 
             get_bounds_span.set_attribute(opentelemetry::KeyValue::new(
                 "sheet_info",
@@ -153,6 +242,7 @@ pub async fn process(
         &Context::current(),
     );
     let context = Context::current().with_span(span);
+    println!("sheets count: {:?}", sheets.len());
     let result = pipeline
         .set_spreadsheet_assets(sheets, html_conversion_result.html_file, tracer, &context)
         .await;
@@ -187,7 +277,7 @@ mod tests {
     async fn test_process() {
         initialize().await;
         let mut input_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input_file_path.push("input/Quaterly costs example.xlsx");
+        input_file_path.push("input/test.xlsx");
         let input_file = Arc::new(NamedTempFile::new().unwrap());
         fs::copy(input_file_path.clone(), input_file.path()).unwrap();
 

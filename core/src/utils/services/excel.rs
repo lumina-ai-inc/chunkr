@@ -1,12 +1,12 @@
-use calamine::{open_workbook_auto, Reader, Sheets};
+use calamine::{open_workbook_auto, Reader, SheetVisible, Sheets};
 use std::fs::File;
 use std::io::BufReader;
 use std::panic::{self, AssertUnwindSafe};
 use std::path::Path;
 use thiserror::Error;
 
-/// Represents worksheet information: (name, start_position, end_position)
-pub type WorksheetInfo = (String, Option<(u32, u32)>, Option<(u32, u32)>);
+/// Represents worksheet information: (name, start_position, end_position, visible_status)
+pub type WorksheetInfo = (String, Option<(u32, u32)>, Option<(u32, u32)>, SheetVisible);
 
 #[derive(Debug, Error)]
 pub enum ExcelError {
@@ -59,11 +59,33 @@ pub fn open_workbook(file_path: &Path) -> Result<Sheets<BufReader<File>>, ExcelE
     }
 }
 
-pub fn count_sheets(file_path: &Path) -> Result<u32, ExcelError> {
+pub fn count_sheets(file_path: &Path, count_hidden: bool) -> Result<u32, ExcelError> {
     let mut workbook = open_workbook(file_path)?;
 
     // Use panic::catch_unwind to safely handle potential panics in calamine
-    let result = panic::catch_unwind(AssertUnwindSafe(|| workbook.worksheets().len()));
+    let result = panic::catch_unwind(AssertUnwindSafe(|| {
+        let worksheets = workbook.worksheets();
+        let sheets_metadata = workbook.sheets_metadata();
+
+        let count = if count_hidden {
+            // If count_hidden is true, count all sheets
+            worksheets.len()
+        } else {
+            // If count_hidden is false, only count visible sheets
+            worksheets
+                .iter()
+                .filter(|(name, _)| {
+                    sheets_metadata
+                        .iter()
+                        .find(|sheet| sheet.name == *name)
+                        .map(|sheet| sheet.visible == SheetVisible::Visible)
+                        .unwrap_or(true) // Default to visible if not found
+                })
+                .count()
+        };
+
+        count
+    }));
 
     match result {
         Ok(sheet_count) => {
@@ -86,6 +108,7 @@ pub fn get_worksheets_info(file_path: &Path) -> Result<Vec<WorksheetInfo>, Excel
     // Use panic::catch_unwind to safely handle potential panics in calamine
     let result = panic::catch_unwind(AssertUnwindSafe(|| {
         let worksheets = workbook.worksheets();
+        let sheets_metadata = workbook.sheets_metadata();
         let mut sheet_infos = Vec::new();
 
         for (name, range) in worksheets {
@@ -97,26 +120,35 @@ pub fn get_worksheets_info(file_path: &Path) -> Result<Vec<WorksheetInfo>, Excel
             })) {
                 Ok((start, end)) => (start, end),
                 Err(_) => {
-                    // If we can't get range info safely, skip this sheet
-                    eprintln!("Warning: Could not safely read range for sheet '{name}'");
-                    continue;
+                    // If we can't get range info safely, error out
+                    return Err(ExcelError::PanicError(format!(
+                        "Could not safely read range for sheet '{name}'"
+                    )));
                 }
             };
 
-            sheet_infos.push((name, start_pos, end_pos));
+            // Get visibility status from sheet metadata
+            let visible_status = sheets_metadata
+                .iter()
+                .find(|sheet| sheet.name == name)
+                .map(|sheet| sheet.visible)
+                .unwrap_or(SheetVisible::Visible); // Default to visible if not found
+
+            sheet_infos.push((name, start_pos, end_pos, visible_status));
         }
 
-        sheet_infos
+        Ok(sheet_infos)
     }));
 
     match result {
-        Ok(sheet_infos) => {
+        Ok(Ok(sheet_infos)) => {
             if sheet_infos.is_empty() {
                 Err(ExcelError::NoSheetsFound)
             } else {
-                Ok(sheet_infos)
+                Ok(sheet_infos.clone())
             }
         }
+        Ok(Err(e)) => Err(e),
         Err(_) => Err(ExcelError::PanicError(
             "Calamine library encountered an internal error while reading worksheet information. The file may be corrupted or contain invalid data.".to_string()
         )),
@@ -133,7 +165,7 @@ mod tests {
         let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         file_path.push("/home/akhilesh/Downloads/1_runtime.xls");
 
-        match count_sheets(&file_path) {
+        match count_sheets(&file_path, false) {
             Ok(result) => assert_eq!(result, 1),
             Err(ExcelError::InvalidFile(_)) => {
                 // File doesn't exist, which is expected in CI/different environments
@@ -147,7 +179,7 @@ mod tests {
     async fn test_count_sheets_invalid_file() {
         let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         file_path.push("/nonexistent/file.xlsx");
-        let result = count_sheets(&file_path);
+        let result = count_sheets(&file_path, false);
         assert!(matches!(result, Err(ExcelError::InvalidFile(_))));
     }
 

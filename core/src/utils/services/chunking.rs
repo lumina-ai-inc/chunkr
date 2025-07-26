@@ -17,6 +17,11 @@ pub fn hierarchical_chunking(
     configuration: &Configuration,
     break_on_page_change: bool,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
+    // Return empty vector if no segments provided
+    if segments.is_empty() {
+        return Ok(Vec::new());
+    }
+
     let mut chunks: Vec<Chunk> = Vec::new();
     let mut current_segments: Vec<Segment> = Vec::new();
     let mut current_word_count = 0;
@@ -32,7 +37,7 @@ pub fn hierarchical_chunking(
 
     let mut prev_hierarchy_level = 1;
     let mut segment_paired = false;
-    let mut last_page_number = segments.first().ok_or("No segments provided")?.page_number;
+    let mut last_page_number = segments.first().unwrap().page_number;
 
     // Makes the chunking faster by calculating the word count in parallel
     segments.par_iter_mut().for_each(|segment| {

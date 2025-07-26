@@ -8,36 +8,11 @@ use serde::Deserialize;
 use std::time::Duration;
 pub use tokio_postgres::Error;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 pub struct PoolSettings {
-    #[serde(default = "default_timeout_wait_secs")]
-    pub timeout_wait_secs: u64,
-    #[serde(default = "default_timeout_create_secs")]
-    pub timeout_create_secs: u64,
-    #[serde(default = "default_timeout_recycle_secs")]
-    pub timeout_recycle_secs: u64,
-}
-
-fn default_timeout_wait_secs() -> u64 {
-    5
-}
-
-fn default_timeout_create_secs() -> u64 {
-    10
-}
-
-fn default_timeout_recycle_secs() -> u64 {
-    5
-}
-
-impl Default for PoolSettings {
-    fn default() -> Self {
-        Self {
-            timeout_wait_secs: default_timeout_wait_secs(),
-            timeout_create_secs: default_timeout_create_secs(),
-            timeout_recycle_secs: default_timeout_recycle_secs(),
-        }
-    }
+    pub timeout_wait_secs: Option<u64>,
+    pub timeout_create_secs: Option<u64>,
+    pub timeout_recycle_secs: Option<u64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -66,9 +41,15 @@ pub fn create_pool() -> Pool {
         cfg.pg.pool = Some(PoolConfig::default());
     }
     if let Some(ref mut pool_config) = cfg.pg.pool {
-        pool_config.timeouts.wait = Some(Duration::from_secs(cfg.pool.timeout_wait_secs));
-        pool_config.timeouts.create = Some(Duration::from_secs(cfg.pool.timeout_create_secs));
-        pool_config.timeouts.recycle = Some(Duration::from_secs(cfg.pool.timeout_recycle_secs));
+        if let Some(timeout_wait_secs) = cfg.pool.timeout_wait_secs {
+            pool_config.timeouts.wait = Some(Duration::from_secs(timeout_wait_secs));
+        }
+        if let Some(timeout_create_secs) = cfg.pool.timeout_create_secs {
+            pool_config.timeouts.create = Some(Duration::from_secs(timeout_create_secs));
+        }
+        if let Some(timeout_recycle_secs) = cfg.pool.timeout_recycle_secs {
+            pool_config.timeouts.recycle = Some(Duration::from_secs(timeout_recycle_secs));
+        }
     }
 
     let mut builder = SslConnector::builder(SslMethod::tls()).unwrap();

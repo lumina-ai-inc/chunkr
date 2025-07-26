@@ -13,6 +13,7 @@ use crate::utils::services::html::{
 use crate::utils::services::pdf::{combine_pdfs, count_pages, create_pdf_from_image};
 use crate::utils::services::renderer::{render_html_to_image, Capture};
 use crate::utils::storage::services::download_to_tempfile;
+use calamine::SheetVisible;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
@@ -95,6 +96,7 @@ pub struct SheetInfo {
     pub end_row: Option<u32>,
     pub end_column: Option<u32>,
     pub sheet_number: u32,
+    pub visibility: SheetVisible,
 }
 
 #[derive(Debug, Clone)]
@@ -481,6 +483,27 @@ fn column_index_to_letters(mut index: usize) -> String {
     result
 }
 
+/// Simplify single cell ranges (e.g., F49:F49 -> F49)
+///
+/// ### Arguments
+/// * `range` - The range string to potentially simplify
+///
+/// ### Returns
+/// Simplified range string if it represents a single cell, otherwise returns the original range
+fn simplify_single_cell_range(range: &str) -> String {
+    if let Ok(indices) = parse_range(range) {
+        if indices.start_row == indices.end_row && indices.start_col == indices.end_col {
+            // Single cell range, simplify it
+            return format!(
+                "{}{}",
+                column_index_to_letters(indices.start_col),
+                indices.start_row + 1
+            );
+        }
+    }
+    range.to_string()
+}
+
 /// Truncate a range to fit within sheet bounds using SheetInfo
 fn truncate_range_to_sheet_bounds(
     range: &str,
@@ -489,7 +512,7 @@ fn truncate_range_to_sheet_bounds(
     let indices = match parse_range(range) {
         Ok(indices) => indices,
         Err(_) => {
-            println!("Invalid range format: {}", range);
+            println!("Invalid range format: {range}");
             return Ok(None); // Invalid range, remove it
         }
     };
@@ -542,13 +565,6 @@ pub fn validate_and_convert_identified_elements(
     elements: IdentifiedElements,
     sheet_info: &SheetInfo,
 ) -> Result<Vec<Element>, Box<dyn Error + Send + Sync>> {
-    println!(
-        "Sheet '{}' dimensions: {} rows x {} columns",
-        sheet_info.name,
-        sheet_info.end_row.unwrap_or(0) + 1,
-        sheet_info.end_column.unwrap_or(0) + 1
-    );
-
     // Filter and fix elements
     let validated_elements: Vec<_> = elements
         .elements
@@ -579,13 +595,12 @@ pub fn validate_and_convert_identified_elements(
                         element.header_range = Some(truncated_header);
                     }
                     Ok(None) => {
-                        println!("Removing invalid header range: {}", header_range);
+                        println!("Removing invalid header range: {header_range}");
                         element.header_range = None; // Remove header but keep element
                     }
                     Err(e) => {
                         println!(
-                            "Error processing header range {}: {}, removing header",
-                            header_range, e
+                            "Error processing header range {header_range}: {e}, removing header"
                         );
                         element.header_range = None;
                     }
@@ -595,11 +610,6 @@ pub fn validate_and_convert_identified_elements(
             Some(element)
         })
         .collect();
-
-    println!(
-        "Validated {} elements after range checking",
-        validated_elements.len()
-    );
 
     // Convert to Elements
     validated_elements
@@ -1511,6 +1521,7 @@ impl Pipeline {
                     .to_str()
                     .ok_or("No input file path found for page count")
                     .map(Path::new)?,
+                false,
             )?
         } else {
             count_pages(
@@ -1686,7 +1697,7 @@ impl Pipeline {
             context,
         );
         let context = context.with_span(span);
-        self.chunks = sheets
+        let chunks = sheets
             .par_iter()
             .map(
                 |sheet| -> Result<Vec<Chunk>, Box<dyn Error + Send + Sync>> {
@@ -1710,12 +1721,48 @@ impl Pipeline {
             .inspect_err(|e| {
                 let span = context.span();
                 span.set_status(opentelemetry::trace::Status::error(e.to_string()));
-                span.record_error(e.as_ref());
+                span.record_error(&**e);
                 span.set_attribute(opentelemetry::KeyValue::new("error", e.to_string()));
             })?
             .into_iter()
             .flatten()
             .collect::<Vec<Chunk>>();
+        self.chunks = chunks
+            .into_par_iter()
+            .filter(|chunk| {
+                chunk.segments.iter().any(|segment| {
+                    if segment.segment_type == SegmentType::Picture {
+                        return true;
+                    }
+                    segment
+                        .ss_cells
+                        .as_ref()
+                        .unwrap_or(&vec![])
+                        .iter()
+                        .any(|cell| !cell.text.is_empty() || cell.value.is_some())
+                })
+            })
+            .map(|mut chunk| {
+                chunk.segments.par_iter_mut().for_each(|segment| {
+                    // Simplify single cell range (e.g., F49:F49 -> F49)
+                    if let Some(ss_range) = &segment.ss_range {
+                        segment.ss_range = Some(simplify_single_cell_range(ss_range));
+                    }
+
+                    // Also simplify header range
+                    if let Some(header_range) = &segment.ss_header_range {
+                        segment.ss_header_range = Some(simplify_single_cell_range(header_range));
+                    }
+
+                    if let Some(ss_cells) = &mut segment.ss_cells {
+                        ss_cells.par_iter_mut().for_each(|cell| {
+                            cell.range = simplify_single_cell_range(&cell.range);
+                        });
+                    }
+                });
+                chunk
+            })
+            .collect();
         Ok(())
     }
 
@@ -2130,6 +2177,7 @@ mod tests {
             end_row: Some(4),
             end_column: Some(3),
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         let table: Element = sheet_info.into();
@@ -2547,6 +2595,7 @@ mod tests {
             end_row: Some(9),    // 10 rows (0-9)
             end_column: Some(4), // 5 columns (0-4, A-E)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         // Test valid range that doesn't need truncation
@@ -2571,6 +2620,7 @@ mod tests {
             end_row: Some(4),    // 5 rows (0-4)
             end_column: Some(2), // 3 columns (0-2, A-C)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         // Test range that exceeds row bounds
@@ -2599,6 +2649,7 @@ mod tests {
             end_row: Some(4),    // 5 rows (0-4)
             end_column: Some(2), // 3 columns (0-2, A-C)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         // Test range completely out of bounds (row)
@@ -2629,6 +2680,7 @@ mod tests {
             end_row: Some(9),    // 10 rows
             end_column: Some(4), // 5 columns (A-E)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         let elements = IdentifiedElements {
@@ -2665,6 +2717,7 @@ mod tests {
             end_row: Some(4),    // 5 rows (0-4)
             end_column: Some(2), // 3 columns (A-C)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         let elements = IdentifiedElements {
@@ -2704,6 +2757,7 @@ mod tests {
             end_row: Some(4),    // 5 rows (0-4)
             end_column: Some(2), // 3 columns (A-C)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         let elements = IdentifiedElements {
@@ -2749,6 +2803,7 @@ mod tests {
             end_row: Some(2),    // 3 rows (0-2)
             end_column: Some(1), // 2 columns (A-B)
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         let elements = IdentifiedElements {
@@ -2785,6 +2840,7 @@ mod tests {
             end_row: Some(4),
             end_column: Some(2),
             sheet_number: 1,
+            visibility: SheetVisible::Visible,
         };
 
         let elements = IdentifiedElements { elements: vec![] };
