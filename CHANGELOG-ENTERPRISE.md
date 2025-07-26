@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.6-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.5-enterprise...v2.9.6-enterprise) (2025-07-26)
+
+
+### Bug Fixes
+
+* Sync issues with libreoffice and calamine coordinate system and sheets, add support for empty and visible sheets, filter out empty segments from excel outputs, added simplification of single cell range (e.g. F42:F42 -> F42), and allow no segments to pass through chunking ([#204](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/204)) ([df8a62a](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/df8a62a71597a0c78a859533928b55e231eb8a74))
+
 ## [2.9.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.4-enterprise...v2.9.5-enterprise) (2025-07-25)
 
 
