@@ -13,7 +13,6 @@
     "preview:deploy": "pnpm run build:deploy && vite preview"
   },
   "dependencies": {
-    "-": "^0.0.1",
     "@contentful/rich-text-react-renderer": "^16.0.1",
     "@contentful/rich-text-types": "^17.0.0",
     "@emotion/react": "^11.13.3",

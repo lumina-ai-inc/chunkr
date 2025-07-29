@@ -20,7 +20,7 @@ base64 = "0.22.1"
 bytes = "1.4.0"
 chrono = { version = "0.4.31", features = ["serde"] }
 config = "0.15.4"
-dashmap = { version = "=6.1.0", features = ["rayon"] }
+dashmap = { version = "^6.1.0", features = ["rayon"] }
 deadpool-postgres = { version = "0.14.0", features = ["serde"] }
 deadpool-redis = { version = "0.18.0", features = ["serde"] }
 diesel = { version = "2.2.3", features = [
@@ -30,7 +30,7 @@ diesel = { version = "2.2.3", features = [
   "postgres",
 ] }
 diesel_migrations = { version = "2.2.0", features = ["postgres"] }
-dotenvy = "=0.15.7"
+dotenvy = "^0.15.7",
 env_logger = "0.11.5"
 flate2 = "1.0.34"
 futures = "0.3.31"
@@ -87,11 +87,6 @@ opentelemetry_sdk = { version = "0.29.0", features = ["rt-tokio"] }
 opentelemetry-semantic-conventions = { version = "0.29.0" }
 opentelemetry-proto = { version = "0.29.0"}
 tonic = { version = "0.13.1", features = ["tls-webpki-roots"] }
-
-[dev-dependencies]
-rand = "0.9.0"
-imageproc = "0.25.0"
-limit-lens = "0.6.1"
 
 [build-dependencies]
 pkg-config = "0.3.19"
