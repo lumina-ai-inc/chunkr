@@ -177,7 +177,7 @@ pub async fn delete_folder(location: &str) -> Result<(), Box<dyn std::error::Err
     for result in results {
         match result {
             Ok(_) => (),
-            Err(e) => println!("Error deleting object: {:?}", e),
+            Err(e) => println!("Error deleting object: {e:?}"),
         }
     }
     Ok(())

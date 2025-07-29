@@ -31,7 +31,7 @@ pub async fn update_invoice_status(
     status: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
+        eprintln!("Error connecting to database: {e:?}");
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
     let _ = client
@@ -82,7 +82,7 @@ pub async fn create_stripe_setup_intent(
 
     if !stripe_response.status().is_success() {
         let error_message = match stripe_response.text().await {
-            Ok(text) => format!("Failed to create Stripe SetupIntent: {}", text),
+            Ok(text) => format!("Failed to create Stripe SetupIntent: {text}"),
             Err(_) => "Failed to create Stripe SetupIntent".to_string(),
         };
         return Err(Box::new(std::io::Error::other(error_message)));
@@ -148,8 +148,7 @@ pub async fn create_customer_session(
     if !stripe_response.status().is_success() {
         let error_message = stripe_response.text().await?;
         return Err(Box::new(std::io::Error::other(format!(
-            "Failed to create Stripe Customer Session: {}",
-            error_message
+            "Failed to create Stripe Customer Session: {error_message}"
         ))));
     }
 
@@ -196,7 +195,7 @@ pub async fn create_stripe_checkout_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to create checkout session: {}", err_body).into());
+        return Err(format!("Failed to create checkout session: {err_body}").into());
     }
 
     let checkout_session: serde_json::Value = stripe_response.json().await?;
@@ -209,9 +208,9 @@ pub async fn get_stripe_checkout_session(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-    let url = format!("https://api.stripe.com/v1/checkout/sessions/{}", session_id);
+    let url = format!("https://api.stripe.com/v1/checkout/sessions/{session_id}");
     let auth = format!("Bearer {}", stripe_config.api_key);
-    println!("curl -X GET '{}' -H 'Authorization: {}'", url, auth);
+    println!("curl -X GET '{url}' -H 'Authorization: {auth}'");
     let stripe_response = client
         .get(&url)
         .header("Authorization", auth)
@@ -220,7 +219,7 @@ pub async fn get_stripe_checkout_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to get checkout session line items: {}", err_body).into());
+        return Err(format!("Failed to get checkout session line items: {err_body}").into());
     }
 
     let line_items: serde_json::Value = stripe_response.json().await?;
@@ -248,7 +247,7 @@ pub async fn create_stripe_billing_portal_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to create billing portal session: {}", err_body).into());
+        return Err(format!("Failed to create billing portal session: {err_body}").into());
     }
 
     let portal_session: serde_json::Value = stripe_response.json().await?;

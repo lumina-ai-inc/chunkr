@@ -29,7 +29,7 @@ pub async fn open_ai_call(
     temperature: Option<f32>,
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
-    println!("OpenAI call with model: {:?}", model);
+    println!("OpenAI call with model: {model:?}");
 
     let request = OpenAiRequest {
         model: model.clone(),
@@ -42,7 +42,7 @@ pub async fn open_ai_call(
     let mut openai_request = client
         .post(url)
         .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", key));
+        .header("Authorization", format!("Bearer {key}"));
 
     if let Some(Some(timeout_value)) = LLM_TIMEOUT.get() {
         openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
@@ -147,7 +147,7 @@ async fn open_ai_call_handler(
         }
     }
     .inspect_err(|e| {
-        println!("Error: {}", e);
+        println!("Error: {e}");
         ctx.span()
             .set_status(opentelemetry::trace::Status::error(e.to_string()));
         ctx.span().record_error(e.as_ref());
@@ -245,7 +245,7 @@ fn get_llm_content(response: &OpenAiResponse) -> Result<String, Box<dyn Error + 
 /// Extract fenced content from a string
 fn extract_fenced_content(content: &str, fence_type: Option<&str>) -> Option<String> {
     let split_pattern = match fence_type {
-        Some(ft) => format!("```{}", ft),
+        Some(ft) => format!("```{ft}"),
         None => "```".to_string(),
     };
 

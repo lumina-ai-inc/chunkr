@@ -514,6 +514,8 @@ mod tests {
             target_chunk_length: None,
             error_handling: ErrorHandlingStrategy::default(),
             llm_processing: LlmProcessing::default(),
+            #[cfg(feature = "azure")]
+            pipeline: None,
         };
 
         config
@@ -533,7 +535,7 @@ mod tests {
 
         // Test with all sources enabled
         let content = segment.get_embed_content(&config);
-        println!("Content: {}", content);
+        println!("Content: {content}");
         assert!(content.contains("This is HTML text"));
         assert!(content.contains("This is *Markdown* text"));
     }
@@ -545,7 +547,7 @@ mod tests {
 
         // When using the Word tokenizer, we should get the word count
         let word_count = segment.count_embed_words(&config).unwrap();
-        println!("Word count: {}", word_count);
+        println!("Word count: {word_count}");
         // The exact count will depend on the whitespace tokenizer, but it should be reasonable
         // Expected to be the sum of words from content, HTML, markdown, and LLM
         assert!(word_count > 0);
@@ -567,7 +569,7 @@ mod tests {
         for identifier in identifiers {
             config.chunk_processing.tokenizer = identifier.clone();
             let word_count = segment.count_embed_words(&config).unwrap();
-            println!("Word count for {:?}: {}", identifier, word_count);
+            println!("Word count for {identifier:?}: {word_count}");
             // The exact count will depend on the whitespace tokenizer, but it should be reasonable
             // Expected to be the sum of words from content, HTML, markdown, and LLM
             assert!(word_count > 0);

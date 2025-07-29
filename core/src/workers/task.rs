@@ -49,7 +49,7 @@ pub async fn process(
     let start_time = std::time::Instant::now();
     let timeout_duration =
         std::time::Duration::from_secs(job_config::Config::from_env()?.task_timeout.into());
-    println!("Timeout duration: {:?}", timeout_duration);
+    println!("Timeout duration: {timeout_duration:?}");
     let mut pipeline = Pipeline::new();
 
     let process_result = match tokio::time::timeout(timeout_duration, async {
@@ -95,7 +95,7 @@ pub async fn process(
         pipeline_init_span.end();
         let status = pipeline.get_task()?.status;
         if status != Status::Processing {
-            println!("Skipping task as status is {:?}", status);
+            println!("Skipping task as status is {status:?}");
             opentelemetry::Context::current().span().add_event(
                 "task_skipped",
                 vec![opentelemetry::KeyValue::new("status", status.to_string())],
@@ -121,7 +121,7 @@ pub async fn process(
         }
         Err(e) => {
             // NOTE: The task times out via a CRON job to avoid ghosted tasks if the worker is down
-            println!("Task timed out after {:?}", timeout_duration);
+            println!("Task timed out after {timeout_duration:?}");
             Err(Box::new(e) as Box<dyn std::error::Error>)
         }
     };
@@ -152,7 +152,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|config| config.init_tracer(core::configs::otel_config::ServiceName::TaskWorker))
         .map_err(|e| e.to_string())
     {
-        eprintln!("Failed to initialize OpenTelemetry tracer: {}", e);
+        eprintln!("Failed to initialize OpenTelemetry tracer: {e}");
     }
     println!("Listening for tasks on queue: {}", &config.queue_task);
 
@@ -187,7 +187,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 println!("Task processed successfully");
                             }
                             Err(e) => {
-                                eprintln!("Error processing task: {}", e);
+                                eprintln!("Error processing task: {e}");
                                 let context = opentelemetry::Context::current();
                                 let span = context.span();
                                 span.set_status(opentelemetry::trace::Status::error(e.to_string()));
@@ -196,7 +196,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                         }
                     }
-                    Err(e) => eprintln!("Failed to parse task: {}", e),
+                    Err(e) => eprintln!("Failed to parse task: {e}"),
                 }
 
                 // Force a minor GC via MALLOC_TRIM (requires libc feature)

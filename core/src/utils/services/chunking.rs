@@ -35,7 +35,7 @@ pub fn hierarchical_chunking(
     // Makes the chunking faster by calculating the word count in parallel
     segments.par_iter().for_each(|segment| {
         if let Err(e) = segment.count_embed_words(configuration) {
-            println!("Error: {}", e);
+            println!("Error: {e}");
         }
     });
 
@@ -175,6 +175,8 @@ mod tests {
             target_chunk_length: None,
             error_handling: ErrorHandlingStrategy::default(),
             llm_processing: LlmProcessing::default(),
+            #[cfg(feature = "azure")]
+            pipeline: None,
         };
 
         config
@@ -294,7 +296,7 @@ mod tests {
 
         // Debug print
         for (i, chunk) in chunks.iter().enumerate() {
-            println!("Chunk {}:", i);
+            println!("Chunk {i}:");
             for segment in &chunk.segments {
                 println!("  {:?}", segment.segment_type);
             }
@@ -341,7 +343,7 @@ mod tests {
 
         println!("\n=== Chunk Contents ===");
         for (i, chunk) in chunks.iter().enumerate() {
-            println!("\nChunk {}:", i);
+            println!("\nChunk {i}:");
             println!("{:?}", chunk.chunk_length);
             for segment in &chunk.segments {
                 println!(
@@ -361,7 +363,7 @@ mod tests {
             })
             .count();
 
-        println!("\nTotal chunks with captions: {}", caption_count);
+        println!("\nTotal chunks with captions: {caption_count}");
 
         assert_eq!(
             caption_count, 1,
@@ -579,7 +581,7 @@ mod tests {
 
         // Print chunk contents for debugging
         for (i, chunk) in chunks.iter().enumerate() {
-            println!("\nChunk {}:", i);
+            println!("\nChunk {i}:");
             for segment in &chunk.segments {
                 println!("  {:?}: {}", segment.segment_type, segment.text);
             }

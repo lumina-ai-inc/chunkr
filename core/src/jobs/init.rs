@@ -16,7 +16,7 @@ pub fn run_expiration_job() {
             interval.tick().await;
             println!("Processing expired tasks");
             if let Err(e) = expire().await {
-                eprintln!("Error processing expired tasks: {}", e);
+                eprintln!("Error processing expired tasks: {e}");
             }
         }
     });
@@ -31,7 +31,7 @@ pub fn run_fail_processing_task_job() {
             interval.tick().await;
             println!("Processing timed out tasks");
             if let Err(e) = timeout(expiration_config.task_timeout).await {
-                eprintln!("Error processing timed out tasks: {}", e);
+                eprintln!("Error processing timed out tasks: {e}");
             }
         }
     });
@@ -51,7 +51,7 @@ pub fn run_invoice_job() {
             interval.tick().await;
             println!("Processing daily invoices");
             if let Err(e) = invoice().await {
-                eprintln!("Error processing daily invoices: {}", e);
+                eprintln!("Error processing daily invoices: {e}");
             }
         }
     });
@@ -64,7 +64,7 @@ pub fn run_usage_cron_job() {
             interval.tick().await;
             println!("Processing monthly usage maintenance");
             if let Err(e) = maintain_monthly_usage().await {
-                eprintln!("Error processing monthly usage maintenance: {}", e);
+                eprintln!("Error processing monthly usage maintenance: {e}");
             }
         }
     });
