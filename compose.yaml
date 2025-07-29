@@ -1,6 +1,8 @@
 services:
   server:
-    image: luminainc/server:2.1.1
+    build:
+      context: ./docker/server
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -16,7 +18,9 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task:2.1.1
+    build:
+      context: ./docker/task
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - redis
@@ -30,7 +34,9 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   web:
-    image: luminainc/web:2.1.1
+    build:
+      context: ./docker/web
+      dockerfile: Dockerfile
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -52,7 +58,9 @@ services:
     restart: always
 
   segmentation-backend:
-    image: luminainc/segmentation:1.4.2
+    build:
+      context: ./docker/segmentation
+      dockerfile: Dockerfile
     expose:
       - "8000"
     deploy:
@@ -84,7 +92,9 @@ services:
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:2.1.1
+    build:
+      context: ./docker/doctr
+      dockerfile: Dockerfile
     expose:
       - "8000"
     deploy:
@@ -205,8 +215,8 @@ services:
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8090:8090"   # HTTP port
-      - "8443:8443"  # HTTPS port
+      - "8090:8090" # HTTP port
+      - "8443:8443" # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -217,8 +227,8 @@ services:
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"    # HTTP port
-      - "443:443"  # HTTPS port
+      - "80:80" # HTTP port
+      - "443:443" # HTTPS port
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -231,8 +241,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:8010"   # HTTP port
-      - "8444:8444"  # HTTPS port
+      - "8010:8010" # HTTP port
+      - "8444:8444" # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -260,4 +270,5 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
-  
+
+
