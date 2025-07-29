@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.6-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.5-enterprise...chunkr-core-enterprise-v2.8.6-enterprise) (2025-07-29)
+
+
+### Bug Fixes
+
+* Added normalization for calamine sheet names when finding corresponding html ([#207](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/207)) ([e7c3885](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/e7c38859912223b0088d997466c47581f7bc502f))
+
 ## [2.8.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-core-enterprise-v2.8.4-enterprise...chunkr-core-enterprise-v2.8.5-enterprise) (2025-07-26)
 
 

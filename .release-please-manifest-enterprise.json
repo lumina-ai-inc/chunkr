@@ -1,9 +1,9 @@
 {
-    "core": "2.8.5-enterprise",
+    "core": "2.8.6-enterprise",
     "services": "0.1.10-enterprise",
     "apps/web": "1.12.5-enterprise",
     "kube/charts/chunkr": "1.1.0-enterprise",
-    ".": "2.9.6-enterprise",
+    ".": "2.9.7-enterprise",
     "kube/charts/chunkr-enterprise": "1.4.2",
     "clients/python-client": "0.3.1"
 }
