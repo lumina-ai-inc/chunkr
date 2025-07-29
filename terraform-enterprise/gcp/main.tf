@@ -54,9 +54,9 @@ locals {
       gpu_vm_count          = 3
       gpu_min_vm_count      = 3
       gpu_max_vm_count      = 3
-      general_vm_count      = 1
-      general_min_vm_count  = 1
-      general_max_vm_count  = 1
+      general_vm_count      = 2
+      general_min_vm_count  = 2
+      general_max_vm_count  = 2
       general_machine_type  = "n2-highmem-16"
       gpu_machine_type      = "a2-highgpu-1g"
       gpu_accelerator_type  = "nvidia-tesla-a100"
@@ -72,9 +72,9 @@ locals {
       gpu_vm_count          = 1
       gpu_min_vm_count      = 1
       gpu_max_vm_count      = 1
-      general_vm_count      = 3
-      general_min_vm_count  = 3
-      general_max_vm_count  = 3
+      general_vm_count      = 1
+      general_min_vm_count  = 1
+      general_max_vm_count  = 1
       general_machine_type  = "n2-highmem-16"
       gpu_machine_type      = "a2-highgpu-1g"
       gpu_accelerator_type  = "nvidia-tesla-a100"
