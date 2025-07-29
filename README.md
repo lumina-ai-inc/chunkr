@@ -24,7 +24,6 @@
   </p>
 </div>
 
-
 <div align="center">
   <a href="https://www.chunkr.ai" width="1200" height="630">
     <img src="https://chunkr.ai/og-image.png" style="bor">
@@ -35,9 +34,9 @@
 - [Table of Contents](#table-of-contents)
 - [(Super) Quick Start](#super-quick-start)
 - [Documentation](#documentation)
+- [OpenSource vs Commercial API vs Enterprise](#opensource-vs-commercial-api-vs-enterprise)
 - [Self-Hosted Deployment Options](#self-hosted-deployment-options)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
-    - [HTTPS Setup for Docker Compose](#https-setup-for-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [LLM Configuration](#llm-configuration)
   - [Using models.yaml (Recommended)](#using-modelsyaml-recommended)
@@ -79,6 +78,24 @@ chunkr.close()
 
 Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 
+## OpenSource vs Commercial API vs Enterprise
+
+| Feature | Open Source | Commercial API | Enterprise |
+|---------|-------------|----------------|------------|
+| **Perfect for** | Development & testing | Production applications | Large-scale/High security deployments|
+| **Layout Analysis** | Basic models | Advanced models | Advanced + custom-tuned |
+| **OCR Accuracy** | Standard models | Premium models | Premium + domain-tuned |
+| **VLM Processing** | Basic vision models | Enhanced VLM models | Enhanced + custom training |
+| **Excel Support** | ❌ | ✅ Native parser | ✅ Native parser |
+| **Document Types** | PDF, PPT, Word, Images | PDF, PPT, Word, Images, Excel | PDF, PPT, Word, Images, Excel |
+| **Infrastructure** | Self-hosted | Fully managed | Fully managed  |
+| **Data Control** | Full (on your servers) | Chunkr-hosted | Full (on your infrastructure) or Chunkr-hosted |
+| **Deployment** | Docker self-managed | Cloud API | On-premises/Private cloud |
+| **Support** | Discord community | Priority email + community | 24/7 dedicated founder support |
+| **Updates** | Manual (open source) | Automatic | Custom deployment schedule |
+| **Customization** | Code-level modifications | API configuration | Full model tuning + custom SLAs |
+| **Migration Support** | Community resources | Documentation + email | Dedicated migration team |
+
 ## Self-Hosted Deployment Options
 
 ### Quick Start with Docker Compose
@@ -101,8 +118,6 @@ cp .env.example .env
 # Configure your llm models
 cp models.example.yaml models.yaml
 ```
-
-**Note on Python Dependencies**: For Python services, `pyproject.toml` is the single source of truth for dependencies. `requirements.txt` is not used.
 
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
@@ -133,66 +148,6 @@ docker compose -f compose-cpu.yaml down
 # For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
 docker compose -f compose-cpu.yaml -f compose-mac.yaml down
 ```
-
-#### HTTPS Setup for Docker Compose
-
-This section explains how to set up HTTPS using a self signed certificate with Docker Compose when hosting Chunkr on a VM. This allows you to access the web UI, API, Keycloak (authentication service) and MinIO (object storage service) over HTTPS.
-
-1. Generate a self-signed certificate:
-```bash
-# Create a certs directory
-mkdir certs
-
-# Generate the certificate
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out certs/nginx.crt -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
-```
-
-2. Update the .env file with your VM's IP address:
-> **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
-```bash
-AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
-WORKER__SERVER_URL=https://your_vm_ip_address:8444
-VITE_API_URL=https://your_vm_ip_address:8444
-VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=https://your_vm_ip_address
-VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
-VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
-```
-
-1. Start the services:
-```bash
-# For GPU deployment, use the following command:
-docker compose --profile proxy up -d
-
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy up -d
-
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy up -d
-```
-
-4. Access the services:
-   - Web UI: `https://your_vm_ip_address`
-   - API: `https://your_vm_ip_address:8444`
-
-5. Stop the services when done:
-```bash
-# For GPU deployment, use the following command:
-docker compose --profile proxy down
-
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy down
-
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy down
-```
-
-### Deployment with Kubernetes
-
-For production environments, we provide a Helm chart and detailed deployment instructions:
-1. See our detailed guide at [`kube/README.md`](kube/README.md)
-2. Includes configurations for high availability and scaling
-
-For enterprise support and deployment assistance, [contact us].
 
 ## LLM Configuration
 
@@ -259,6 +214,6 @@ The core of this project is dual-licensed:
 To use Chunkr without complying with the AGPL-3.0 license terms you can [contact us](mailto:mehul@chunkr.ai) or visit our [website](https://chunkr.ai).
 
 ## Connect With Us
-- 📧 Email: mehul@chunkr.ai
+- 📧 Email: [mehul@chunkr.ai](mailto:mehul@chunkr.ai)
 - 📅 Schedule a call: [Book a 30-minute meeting](https://cal.com/mehulc/30min)
 - 🌐 Visit our website: [chunkr.ai](https://chunkr.ai)
