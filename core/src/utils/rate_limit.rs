@@ -328,15 +328,24 @@ pub fn print_rate_limits() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "rate_monitor")]
     use crate::configs::llm_config::Config as LlmConfig;
+    #[cfg(feature = "rate_monitor")]
     use crate::models::open_ai::{ContentPart, Message, MessageContent};
     use crate::utils::clients::initialize;
+    #[cfg(feature = "rate_monitor")]
     use crate::utils::services::llm::open_ai_call;
+    #[cfg(feature = "rate_monitor")]
     use limit_lens::apis::{configuration::Configuration, rate_test_api};
+    #[cfg(feature = "rate_monitor")]
     use limit_lens::models::CreateSessionRequest;
+    #[cfg(feature = "rate_monitor")]
     use rand::Rng;
+    #[cfg(feature = "rate_monitor")]
     use std::error::Error;
+    #[cfg(feature = "rate_monitor")]
     use std::fs;
+    #[cfg(feature = "rate_monitor")]
     use std::path::Path;
 
     #[tokio::test]
@@ -395,6 +404,7 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "rate_monitor")]
     async fn send_request() -> Result<(), Box<dyn Error>> {
         initialize().await;
         let llm_config = LlmConfig::from_env().unwrap();
@@ -435,6 +445,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "rate_monitor")]
     async fn send_request_with_retry() -> Result<(), Box<dyn Error>> {
         initialize().await;
         let llm_config = LlmConfig::from_env().unwrap();
@@ -490,6 +501,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "rate_monitor")]
     async fn test_send_request() -> Result<(), Box<dyn Error>> {
         match send_request().await {
             Ok(_) => Ok(()),
@@ -501,6 +513,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "rate_monitor")]
     async fn test_send_request_with_retry() -> Result<(), Box<dyn Error>> {
         match send_request_with_retry().await {
             Ok(_) => Ok(()),
@@ -512,6 +525,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "rate_monitor")]
     async fn test_open_ai_rate_limit_with_retry() -> Result<(), Box<dyn Error>> {
         let start_time = std::time::Instant::now();
         let futures: Vec<_> = (0..10000)
@@ -544,6 +558,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "rate_monitor")]
     async fn test_open_ai_rate_limit_rate_limiter() -> Result<(), Box<dyn Error>> {
         initialize().await;
         let start_time = std::time::Instant::now();
@@ -588,6 +603,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(feature = "rate_monitor")]
     async fn test_rate_limiter_with_multiple_rates() -> Result<(), Box<dyn Error>> {
         // Initialize the environment
         initialize().await;
