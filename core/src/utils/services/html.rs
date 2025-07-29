@@ -95,11 +95,7 @@ pub fn convert_html_to_markdown(html: String) -> Result<String, Box<dyn std::err
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|e| {
-            format!(
-                "Failed to start pandoc: {e}. Make sure pandoc is installed."
-            )
-        })?;
+        .map_err(|e| format!("Failed to start pandoc: {e}. Make sure pandoc is installed."))?;
 
     // Write HTML to pandoc's stdin
     if let Some(stdin) = child.stdin.take() {

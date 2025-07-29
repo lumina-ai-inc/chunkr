@@ -91,8 +91,7 @@ impl Task {
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
-        let file_name: String =
-            file_name.unwrap_or(format!("{task_id}.{extension}").to_string());
+        let file_name: String = file_name.unwrap_or(format!("{task_id}.{extension}").to_string());
         let file_size = file.as_file().metadata()?.len();
         let status = Status::Starting;
         let base_url = worker_config.server_url;
@@ -217,9 +216,7 @@ impl Task {
         let configuration = match serde_json::from_str(&config_str) {
             Ok(config) => config,
             Err(e) => {
-                println!(
-                    "Error deserializing configuration for task {task_id}: {e:?}"
-                );
+                println!("Error deserializing configuration for task {task_id}: {e:?}");
                 println!("Configuration string: {config_str:?}");
                 return Err(format!("Error deserializing configuration: {e:?}").into());
             }
@@ -623,7 +620,7 @@ impl Task {
             format!("{base_path}/{file_name}"),      // input_location
             format!("{base_path}/{file_stem}.pdf"),  // pdf_location
             format!("{base_path}/{file_stem}.json"), // output_location
-            format!("{base_path}/images"),             // image_folder_location
+            format!("{base_path}/images"),           // image_folder_location
         )
     }
 
