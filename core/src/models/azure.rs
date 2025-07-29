@@ -753,9 +753,7 @@ fn table_to_html(table: &Table) -> Result<String, Box<dyn Error>> {
                 }
 
                 if rowspan > 1 || colspan > 1 {
-                    html.push_str(&format!(
-                        "<td rowspan=\"{rowspan}\" colspan=\"{colspan}\">"
-                    ));
+                    html.push_str(&format!("<td rowspan=\"{rowspan}\" colspan=\"{colspan}\">"));
                 } else {
                     html.push_str("<td>");
                 }

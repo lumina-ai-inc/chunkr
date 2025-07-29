@@ -611,10 +611,8 @@ mod tests {
             let session_id = session.id;
 
             // Create rate limiter with the current test scenario rate
-            let rate_limiter = RateLimiter::new(
-                rate_limit as f32,
-                &format!("limit_lens_test_{rate_limit}"),
-            );
+            let rate_limiter =
+                RateLimiter::new(rate_limit as f32, &format!("limit_lens_test_{rate_limit}"));
 
             // Calculate expected total requests
             let expected_requests = rate_limit * test_duration_secs;
@@ -723,9 +721,7 @@ mod tests {
             }
 
             println!("✅ Rate limit {rate_limit} RPS test passed:");
-            println!(
-                "   - Total requests: {total_requests} (expected ~{expected_requests})"
-            );
+            println!("   - Total requests: {total_requests} (expected ~{expected_requests})");
             println!("   - Measured rate: {requests_per_second:.2} RPS");
             println!(
                 "   - Test duration: {:.2}s",

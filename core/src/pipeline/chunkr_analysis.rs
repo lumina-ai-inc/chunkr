@@ -125,9 +125,7 @@ async fn segmentation_pages_batch(
             .map(|(batch_idx, result)| match result {
                 Ok(segments) => Ok(segments),
                 Err(e) => {
-                    println!(
-                        "Error in layout analysis: {e:?}, falling back to page segmentation"
-                    );
+                    println!("Error in layout analysis: {e:?}, falling back to page segmentation");
                     let start_idx = batch_idx * batch_size;
                     let batch_pages = pages
                         .iter()

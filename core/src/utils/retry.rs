@@ -24,9 +24,7 @@ where
                 }
                 let delay = Duration::from_millis((2u64.pow(retries) * 250).min(10000));
                 retries += 1;
-                println!(
-                    "Error: {e:?}. Retrying ({retries}/{max_retries}) in {delay:?}..."
-                );
+                println!("Error: {e:?}. Retrying ({retries}/{max_retries}) in {delay:?}...");
                 sleep(delay).await;
             }
         }
