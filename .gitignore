@@ -244,3 +244,5 @@ backup-isolation-*.csv
 backup-isolation-*.html
 
 node-compile-cache
+
+!compliance/**/*.pdf
