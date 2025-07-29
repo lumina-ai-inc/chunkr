@@ -94,7 +94,14 @@ fn map_sheets_with_html(
     let sheet_htmls = sheet_infos
         .par_iter()
         .map(|sheet_info| {
-            if let Some(html) = extracted_sheet_htmls.get(&sheet_info.name) {
+            let normalized_name = sheet_info
+                .name
+                .trim()
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"");
+            if let Some(html) = extracted_sheet_htmls.get(&normalized_name) {
                 html.clone()
             } else {
                 // If no content found it must be an empty sheet
@@ -277,7 +284,7 @@ mod tests {
     async fn test_process() {
         initialize().await;
         let mut input_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input_file_path.push("input/test.xlsx");
+        input_file_path.push("/home/akhilesh/Downloads/edgar (2).xlsx");
         let input_file = Arc::new(NamedTempFile::new().unwrap());
         fs::copy(input_file_path.clone(), input_file.path()).unwrap();
 

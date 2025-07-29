@@ -6,7 +6,7 @@
 
 ### Risk Registry
 
-#### 1. [ Add assement ]
+#### 1. [ Add assessment ]
 - **Description**: 
 - **Owner**: 
 - **Probability**: 
