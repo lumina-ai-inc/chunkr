@@ -215,8 +215,8 @@ services:
   keycloak-proxy:
     image: nginx:latest
     ports:
-      - "8090:8090"   # HTTP port
-      - "8443:8443"  # HTTPS port
+      - "8090:8090" # HTTP port
+      - "8443:8443" # HTTPS port
     volumes:
       - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -227,8 +227,8 @@ services:
   web-proxy:
     image: nginx:latest
     ports:
-      - "80:80"    # HTTP port
-      - "443:443"  # HTTPS port
+      - "80:80" # HTTP port
+      - "443:443" # HTTPS port
     volumes:
       - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -241,8 +241,8 @@ services:
   server-proxy:
     image: nginx:latest
     ports:
-      - "8010:8010"   # HTTP port
-      - "8444:8444"  # HTTPS port
+      - "8010:8010" # HTTP port
+      - "8444:8444" # HTTPS port
     volumes:
       - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -270,4 +270,5 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
-  
+
+

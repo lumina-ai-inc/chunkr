@@ -175,6 +175,8 @@ mod tests {
             target_chunk_length: None,
             error_handling: ErrorHandlingStrategy::default(),
             llm_processing: LlmProcessing::default(),
+            #[cfg(feature = "azure")]
+            pipeline: None,
         };
 
         config

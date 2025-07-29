@@ -38,14 +38,13 @@ impl RateLimiter {
         {
             let random_suffix: String = rand::thread_rng().gen_range(100000..1000000).to_string();
 
-            let session_name = format!("{}-{}", bucket_name, random_suffix);
+            let session_name = format!("{bucket_name}-{random_suffix}");
             let config = Configuration::default();
 
             match Self::create_monitoring_session(&config, &session_name) {
                 Ok(session_id) => {
                     println!(
-                        "Created rate monitoring session for bucket '{}': {}",
-                        bucket_name, session_id
+                        "Created rate monitoring session for bucket '{bucket_name}': {session_id}"
                     );
                     RateLimiter {
                         tokens_per_second,
@@ -56,8 +55,7 @@ impl RateLimiter {
                 }
                 Err(e) => {
                     println!(
-                        "Failed to create rate monitoring session for bucket '{}': {}",
-                        bucket_name, e
+                        "Failed to create rate monitoring session for bucket '{bucket_name}': {e}"
                     );
                     RateLimiter {
                         tokens_per_second,
@@ -89,7 +87,7 @@ impl RateLimiter {
             rate_test_api::create_test_session(config, session_request)
                 .await
                 .map(|session| session.id)
-                .map_err(|e| format!("Failed to create monitoring session: {}", e))
+                .map_err(|e| format!("Failed to create monitoring session: {e}"))
         })
     }
 
@@ -271,7 +269,7 @@ pub fn print_rate_limits() {
 
         #[cfg(feature = "rate_monitor")]
         if let Some(session_id) = &limiter.session_id {
-            println!("  Rate Monitoring Session: {}", session_id);
+            println!("  Rate Monitoring Session: {session_id}");
         }
     } else {
         println!("General OCR: not initialized");
@@ -286,7 +284,7 @@ pub fn print_rate_limits() {
 
         #[cfg(feature = "rate_monitor")]
         if let Some(session_id) = &limiter.session_id {
-            println!("  Rate Monitoring Session: {}", session_id);
+            println!("  Rate Monitoring Session: {session_id}");
         }
     } else {
         println!("Segmentation: not initialized");
@@ -309,7 +307,7 @@ pub fn print_rate_limits() {
 
                     #[cfg(feature = "rate_monitor")]
                     if let Some(session_id) = &limiter.session_id {
-                        println!("    Rate Monitoring Session: {}", session_id);
+                        println!("    Rate Monitoring Session: {session_id}");
                     }
                 } else {
                     println!("  {model_id}: no rate limit");

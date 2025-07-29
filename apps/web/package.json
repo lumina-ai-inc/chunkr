@@ -44,7 +44,7 @@
     "@types/prismjs": "^1.26.5",
     "@wojtekmaj/react-hooks": "^1.21.0",
     "autoprefixer": "^10.4.20",
-    "axios": "^1.7.5",
+    "axios": "^1.8.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "contentful": "^11.5.23",
@@ -58,9 +58,9 @@
     "lucide-react": "^0.474.0",
     "material-react-table": "^3.1.0",
     "oidc-client-ts": "^3.0.1",
-    "pdfjs-dist": "^2.6.347",
+    "pdfjs-dist": "^4.2.67",
     "prism-react-renderer": "^2.4.1",
-    "prismjs": "^1.29.0",
+    "prismjs": "^1.30.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.6",
@@ -106,7 +106,7 @@
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.3",
+    "vite": "^5.4.19",
     "vite-plugin-runtime-env": "^0.1.1"
   }
 }
