@@ -11,11 +11,11 @@ import Loader from "../Loader/Loader";
 import Usage from "../../components/Usage/Usage";
 import { useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "../../components/Upload/UploadDialog";
-import { useTasksQuery } from "../../hooks/useTaskQuery";
 import ApiKeyDialog from "../../components/ApiDialog/ApiKeyDialog";
 import { toast } from "react-hot-toast";
 import { getBillingPortalSession } from "../../services/stripeService";
 import ReactJson from "react-json-view";
+import { useQueryClient } from "react-query";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
@@ -49,7 +49,7 @@ export default function Dashboard() {
   const taskId = searchParams.get("taskId");
 
   const { data: taskResponse, isLoading } = useTaskQuery(taskId || "");
-  const { refetch: refetchTasks } = useTasksQuery();
+  const queryClient = useQueryClient();
   const isExcelFile =
     taskResponse?.output?.file_name?.toLowerCase().endsWith(".xls") ||
     taskResponse?.output?.file_name?.toLowerCase().endsWith(".xlsx");
@@ -1339,9 +1339,9 @@ export default function Dashboard() {
         auth={auth}
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
-        onUploadComplete={() => {
-          refetchTasks();
+        onUploadComplete={async () => {
           setShowUploadDialog(false);
+          queryClient.invalidateQueries(["tasks"]);
         }}
       />
     </Flex>
