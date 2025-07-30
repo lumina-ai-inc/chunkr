@@ -83,14 +83,11 @@ Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 | **Perfect for** | Development & testing | Production applications | Large-scale/High security deployments|
 | **Layout Analysis** | Basic models | Advanced models | Advanced + custom-tuned |
 | **OCR Accuracy** | Standard models | Premium models | Premium + domain-tuned |
-| **VLM Processing** | Basic vision models | Enhanced VLM models | Enhanced + custom training |
+| **VLM Processing** | Basic vision models | Enhanced VLM models | Enhanced + custom fine-tunes |
 | **Excel Support** | ❌ | ✅ Native parser | ✅ Native parser |
 | **Document Types** | PDF, PPT, Word, Images | PDF, PPT, Word, Images, Excel | PDF, PPT, Word, Images, Excel |
-| **Infrastructure** | Self-hosted | Fully managed | Fully managed  |
-| **Data Control** | Full (on your servers) | Chunkr-hosted | Full (on your infrastructure) or Chunkr-hosted |
-| **Support** | Discord community | Priority email + community | 24/7 dedicated founder support |
-| **Updates** | Manual (open source) | Automatic | Custom deployment schedule |
-| **Customization** | Code-level modifications | API configuration | Full model tuning + custom SLAs |
+| **Infrastructure** | Self-hosted | Fully managed | Fully managed (On-prem or Chunkr-hosted) |
+| **Support** | Discord community | Priority email + community | 24/7 dedicated founing team support |
 | **Migration Support** | Community resources | Documentation + email | Dedicated migration team |
 
 ## Quick Start with Docker Compose
