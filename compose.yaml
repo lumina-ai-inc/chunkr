@@ -1,8 +1,8 @@
 services:
   server:
     build:
-      context: ./docker/server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/server/Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -19,8 +19,8 @@ services:
 
   task:
     build:
-      context: ./docker/task
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/task/Dockerfile
     depends_on:
       - postgres
       - redis
@@ -35,8 +35,8 @@ services:
 
   web:
     build:
-      context: ./docker/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/web/Dockerfile
     platform: linux/amd64
     ports:
       - "5173:8000"
@@ -52,15 +52,14 @@ services:
       - "8001:8000"
     volumes:
       - ./nginx/segmentation.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - segmentation-backend
     restart: always
 
   segmentation-backend:
     build:
-      context: ./docker/segmentation
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/segmentation/Dockerfile
     expose:
       - "8000"
     deploy:
@@ -86,15 +85,14 @@ services:
       - "8002:8000"
     volumes:
       - ./nginx/ocr.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - ocr-backend
     restart: always
 
   ocr-backend:
     build:
-      context: ./docker/doctr
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/doctr/Dockerfile
     expose:
       - "8000"
     deploy:
@@ -111,7 +109,7 @@ services:
 
   postgres:
     build:
-      context: ./docker/postgres
+      context: docker/postgres
       dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres
@@ -211,60 +209,6 @@ services:
       postgres:
         condition: service_healthy
     restart: always
-
-  keycloak-proxy:
-    image: nginx:latest
-    ports:
-      - "8090:8090" # HTTP port
-      - "8443:8443" # HTTPS port
-    volumes:
-      - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    restart: always
-    profiles:
-      - proxy
-
-  web-proxy:
-    image: nginx:latest
-    ports:
-      - "80:80" # HTTP port
-      - "443:443" # HTTPS port
-    volumes:
-      - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    depends_on:
-      - web
-    restart: always
-    profiles:
-      - proxy
-
-  server-proxy:
-    image: nginx:latest
-    ports:
-      - "8010:8010" # HTTP port
-      - "8444:8444" # HTTPS port
-    volumes:
-      - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    depends_on:
-      - server
-    restart: always
-    profiles:
-      - proxy
-
-  minio-proxy:
-    image: nginx:latest
-    ports:
-      - "9100:9100" # MinIO API
-      - "9101:9101" # MinIO Console
-    volumes:
-      - ./nginx/minio.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    depends_on:
-      - minio
-    restart: always
-    profiles:
-      - proxy
 
 volumes:
   postgres_data:

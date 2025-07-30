@@ -1,7 +1,0 @@
-node_modules/
-dist/
-coverage/
-.env
-*.log
-logs/
-test_input/
