@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-services-v0.1.4...chunkr-services-v0.1.5) (2025-07-30)
+
+
+### Features
+
+* Created a stable and simple version by removing all extra/unused components ([#570](https://github.com/lumina-ai-inc/chunkr/issues/570)) ([7a444ea](https://github.com/lumina-ai-inc/chunkr/commit/7a444eac4cab1e4f811997fc513a9f2db97aa5b3))
+
 ## [0.1.4](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-services-v0.1.3...chunkr-services-v0.1.4) (2025-06-28)
 
 

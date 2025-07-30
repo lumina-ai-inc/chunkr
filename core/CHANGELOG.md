@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v2.0.0...chunkr-core-v2.0.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([afa853c](https://github.com/lumina-ai-inc/chunkr/commit/afa853cdd6122d75aa61cc743f507e76cd6e2be6))
+
 ## [2.0.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-core-v1.15.1...chunkr-core-v2.0.0) (2025-06-24)
 
 
