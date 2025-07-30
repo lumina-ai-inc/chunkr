@@ -15,7 +15,7 @@ ingress:
     replicas: 2
     image:
       repository: cloudflare/cloudflared
-      tag: 2025.2.0
+      tag: latest
       pullPolicy: Always
     config:
       tunnelName: chunkr

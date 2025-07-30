@@ -4,7 +4,7 @@ services:
     enabled: true
     image:
       repository: text-embeddings-inference
-      tag: 1.7.3
+      tag: 1.7
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
@@ -26,7 +26,7 @@ services:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: 1.7.3
+      tag: 1.7
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
@@ -48,7 +48,7 @@ services:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: 1.7.3
+      tag: 1.7
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
@@ -69,7 +69,7 @@ services:
     enabled: false
     image:
       repository: text-embeddings-inference
-      tag: 1.5
+      tag: 1.7
       registry: ghcr.io/huggingface
     ingress:
       enabled: false

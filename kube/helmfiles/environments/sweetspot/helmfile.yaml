@@ -14,7 +14,7 @@ releases:
         value: sweetspot
       - name: services.server.ingress.subdomain
         value: sweetspot-api
-      - name: services.keycloak.ingress.subdomain
+      - name: services.auth.ingress.subdomain
         value: sweetspot-auth
       - name: services.minio.enabled
         value: true
@@ -54,11 +54,7 @@ releases:
         value: false
       - name: services.ocr.enableTopologySpreadConstraints
         value: false
-      - name: ingress.type
-        value: cloudflare
-      - name: cloudflared.enabled
-        value: true
-      - name: cloudflared.config.tunnelName
+      - name: ingress.cloudflare.config.tunnelName
         value: sweetspot-tunnel
       - name: services.postgres.enabled
         value: false
