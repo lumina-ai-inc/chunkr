@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.6-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.5-enterprise...chunkr-web-enterprise-v1.12.6-enterprise) (2025-07-30)
+
+
+### Bug Fixes
+
+* Auto reload task table after upload ([#210](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/210)) ([cb8067f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/cb8067f5c35e6a66e467e659f843b1f659707070))
+
 ## [1.12.5-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/chunkr-web-enterprise-v1.12.4-enterprise...chunkr-web-enterprise-v1.12.5-enterprise) (2025-07-25)
 
 

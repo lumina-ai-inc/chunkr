@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.8-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.7-enterprise...v2.9.8-enterprise) (2025-07-30)
+
+
+### Bug Fixes
+
+* Auto reload task table after upload ([#210](https://github.com/lumina-ai-inc/chunkr-enterprise/issues/210)) ([cb8067f](https://github.com/lumina-ai-inc/chunkr-enterprise/commit/cb8067f5c35e6a66e467e659f843b1f659707070))
+
 ## [2.9.7-enterprise](https://github.com/lumina-ai-inc/chunkr-enterprise/compare/v2.9.6-enterprise...v2.9.7-enterprise) (2025-07-29)
 
 
