@@ -4,10 +4,6 @@
             "release-type": "rust",
             "package-name": "chunkr-core"
         },
-        "clients/python-client": {
-            "release-type": "python",
-            "package-name": "chunkr-ai"
-        },
         "services": {
             "release-type": "python",
             "package-name": "chunkr-services"
@@ -16,26 +12,10 @@
             "release-type": "node",
             "package-name": "chunkr-web"
         },
-        "kube/charts/chunkr": {
-            "release-type": "helm",
-            "package-name": "chunkr-chart"
-        },
         ".": {
             "release-type": "simple",
             "changelog-path": "CHANGELOG.md",
-            "include-component-in-tag": false,
-            "extra-files": [
-                {
-                    "type": "yaml",
-                    "path": "kube/charts/chunkr/values.yaml",
-                    "jsonpath": "$.services.*.image.tag"
-                },
-                {
-                    "type": "yaml",
-                    "path": "kube/charts/chunkr/Chart.yaml",
-                    "jsonpath": "$.version"
-                }
-            ]
+            "include-component-in-tag": false
         }
     },
     "plugins": [
