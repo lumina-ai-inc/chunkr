@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0](https://github.com/lumina-ai-inc/chunkr/compare/v2.1.1...v2.2.0) (2025-07-30)
+
+
+### Features
+
+* Created a stable and simple version by removing all extra/unused components ([#570](https://github.com/lumina-ai-inc/chunkr/issues/570)) ([7a444ea](https://github.com/lumina-ai-inc/chunkr/commit/7a444eac4cab1e4f811997fc513a9f2db97aa5b3))
+
+
+### Bug Fixes
+
+* **core:** Auto-fix clippy warnings ([afa853c](https://github.com/lumina-ai-inc/chunkr/commit/afa853cdd6122d75aa61cc743f507e76cd6e2be6))
+* Remove duplicate email addresses in README.md ([e15d2de](https://github.com/lumina-ai-inc/chunkr/commit/e15d2defa5f5372837c200c53a29505ae9924d89))
+* Use local builds in compose.yaml for easier development ([c53f1de](https://github.com/lumina-ai-inc/chunkr/commit/c53f1de5de2bcfcfab7919c04e0ed78f44d3f6e4))
+
 ## [2.1.1](https://github.com/lumina-ai-inc/chunkr/compare/v2.1.0...v2.1.1) (2025-06-30)
 
 

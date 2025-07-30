@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v2.1.1...chunkr-web-v2.2.0) (2025-07-30)
+
+
+### Features
+
+* Created a stable and simple version by removing all extra/unused components ([#570](https://github.com/lumina-ai-inc/chunkr/issues/570)) ([7a444ea](https://github.com/lumina-ai-inc/chunkr/commit/7a444eac4cab1e4f811997fc513a9f2db97aa5b3))
+
 ## [2.1.1](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-web-v2.1.0...chunkr-web-v2.1.1) (2025-06-30)
 
 
