@@ -90,7 +90,6 @@ Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 | **Document Types** | PDF, PPT, Word, Images | PDF, PPT, Word, Images, Excel | PDF, PPT, Word, Images, Excel |
 | **Infrastructure** | Self-hosted | Fully managed | Fully managed  |
 | **Data Control** | Full (on your servers) | Chunkr-hosted | Full (on your infrastructure) or Chunkr-hosted |
-| **Deployment** | Docker self-managed | Cloud API | On-premises/Private cloud |
 | **Support** | Discord community | Priority email + community | 24/7 dedicated founder support |
 | **Updates** | Manual (open source) | Automatic | Custom deployment schedule |
 | **Customization** | Code-level modifications | API configuration | Full model tuning + custom SLAs |
