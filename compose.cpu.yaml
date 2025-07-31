@@ -4,7 +4,9 @@ services:
       replicas: 10
 
   segmentation-backend:
-    image: luminainc/segmentation-yolo-cpu:1.10.0-enterprise
+    build:
+      context: .
+      dockerfile: docker/segmentation/Dockerfile
     deploy:
       replicas: 6
       resources: {}
@@ -18,7 +20,9 @@ services:
       - NUMEXPR_NUM_THREADS=12
 
   ocr-backend:
-    image: luminainc/doctr-small:1.15.1
+    build:
+      context: .
+      dockerfile: docker/doctr-small/Dockerfile
     deploy:
       replicas: 3
       resources: {}
