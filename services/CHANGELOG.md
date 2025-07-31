@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-services-v0.1.5...chunkr-services-v0.1.6) (2025-07-31)
+
+
+### Bug Fixes
+
+* Replaced vgt with yolo model as it's more practical for consumer hardware ([ff4b906](https://github.com/lumina-ai-inc/chunkr/commit/ff4b9063eaa0fabc14586d1176ec528fe77e2fa0))
+
 ## [0.1.5](https://github.com/lumina-ai-inc/chunkr/compare/chunkr-services-v0.1.4...chunkr-services-v0.1.5) (2025-07-30)
 
 
