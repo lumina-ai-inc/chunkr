@@ -1,4 +1,5 @@
 {
+	"name": "auth-header-rate-limits",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-01-28",
 	"unsafe": {
@@ -14,5 +15,11 @@
 			}
 		]
 	},
+	"routes": [
+		{
+			"pattern": "api.chunkr.ai/*",
+			"zone_name": "chunkr.ai"
+		}
+	],
 	"logpush": true
 }

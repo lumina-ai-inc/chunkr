@@ -70,7 +70,7 @@ fn run_migrations(url: &str) {
         contact(name = "Chunkr", url = "https://chunkr.ai", email = "ishaan@lumina.sh"),
         version = "1.0.0"
     ),
-    servers((url = "https://api.chunkr.ai", description = "Production server")),
+    servers((url = "https://api.chunkr.ai/api/v1", description = "Production server")),
     paths(
         routes::health::health_check,
         routes::task::create_task_route,
@@ -208,7 +208,7 @@ pub fn main() -> std::io::Result<()> {
                         .url("/docs/openapi.json", ApiDoc::openapi()),
                 );
 
-            let api_scope = web::scope("/api/v1")
+            let api_scope = web::scope("")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
                 .service(

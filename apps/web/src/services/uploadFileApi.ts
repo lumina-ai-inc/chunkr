@@ -4,7 +4,7 @@ import { TaskResponse } from "../models/taskResponse.model";
 
 export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const { data } = await axiosInstance.post<TaskResponse>(
-    "/api/v1/task/parse",
+    "/task/parse",
     payload,
     {
       headers: { "Content-Type": "application/json" },

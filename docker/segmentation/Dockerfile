@@ -21,10 +21,9 @@ COPY services/vgt/download_models.py download_models.py
 COPY services/vgt/requirements.txt requirements.txt
 
 RUN pip install --upgrade pip && \
-    pip install huggingface_hub==0.24.3 wheel setuptools && \
-    pip install torch torchvision torchaudio && \
-    pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git@70f454304e1a38378200459dd2dbca0f0f4a5ab4' && \
+    pip install wheel setuptools && \
     pip --default-timeout=1000 install -r requirements.txt && \
+    pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git@70f454304e1a38378200459dd2dbca0f0f4a5ab4' && \
     python download_models.py
 
 ENTRYPOINT ["python", "object_detection/server.py"]

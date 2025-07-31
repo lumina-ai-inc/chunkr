@@ -383,9 +383,8 @@ function Cell({
         textAlign: cellTextAlign as CSSProperties["textAlign"],
         alignItems: getFlexAlignItems(cellVerticalAlign),
       }}
-      className={`flex px-2 text-xs text-left overflow-visible relative ${
-        isHyperlink ? "cursor-pointer hover:underline" : ""
-      }`}
+      className={`flex px-2 text-xs text-left overflow-visible relative ${isHyperlink ? "cursor-pointer hover:underline" : ""
+        }`}
       onMouseEnter={handleMouseEnter}
       onClick={handleCellClick}
       title={isHyperlink ? `${cellValue} (${cellData?.hyperlink})` : cellValue}
@@ -508,18 +507,15 @@ function Cell({
             <div
               className="absolute px-2 py-1 rounded text-xs shadow-lg pointer-events-none whitespace-nowrap z-10"
               style={{
-                color: `var(--${
-                  segmentTypeStyles[finalTypeKey]?.dark || "gray-11"
-                })`,
+                color: `var(--${segmentTypeStyles[finalTypeKey]?.dark || "gray-11"
+                  })`,
                 top: "-100%",
                 left: "0",
                 transform: "translateY(-4px)",
-                backgroundColor: `color-mix(in srgb, var(--${
-                  segmentTypeStyles[finalTypeKey]?.fill || "gray-3"
-                }) 100%, transparent)`,
-                border: `1px solid var(--${
-                  segmentTypeStyles[finalTypeKey]?.border || "gray-8"
-                })`,
+                backgroundColor: `color-mix(in srgb, var(--${segmentTypeStyles[finalTypeKey]?.fill || "gray-3"
+                  }) 100%, transparent)`,
+                border: `1px solid var(--${segmentTypeStyles[finalTypeKey]?.border || "gray-8"
+                  })`,
               }}
             >
               {hoveredHighlight.type}

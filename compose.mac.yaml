@@ -12,4 +12,4 @@ services:
   redis:
     platform: linux/arm64
   keycloak:
-    platform: linux/amd64
+    platform: linux/arm64

@@ -8,6 +8,8 @@ releases:
       - ../../../charts/chunkr-enterprise/infrastructure.yaml
       - ../../../charts/chunkr-enterprise/embeddings.yaml
     set:
+      - name: services.web.apiUrl
+        value: https://chunkr.ai/api/v1
       - name: services.postgres.enabled
         value: false
       - name: services.minio.enabled
@@ -39,8 +41,8 @@ releases:
       - name: ingress.cloudflare.config.tunnelName
         value: chunkr-prod
       - name: global.storageClass
-        value: standard 
+        value: standard
       - name: services.task.serviceAccountName
         value: chunkr-workload-identity
       - name: services.server.serviceAccountName
-        value: chunkr-workload-identity 
+        value: chunkr-workload-identity

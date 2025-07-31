@@ -1,6 +1,8 @@
 services:
   server:
-    image: luminainc/server:1.20.3
+    build:
+      context: .
+      dockerfile: docker/server-azure/Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -14,13 +16,27 @@ services:
     restart: always
     volumes:
       - ./models.yaml:/app/models.yaml:ro
+    develop:
+      watch:
+        - action: rebuild
+          path: ./core/
+          ignore:
+            - ./core/target/
+            - ./core/Cargo.lock
 
   task:
-    image: luminainc/task:1.20.3
+    build:
+      context: .
+      dockerfile: docker/task-azure/Dockerfile
     depends_on:
       - postgres
       - redis
       - minio
+    environment:
+      - RENDERER__SANDBOX=false
+      - RENDERER__CLEAR_CACHE_ON_ERROR=true
+      - CHROME_NO_FIRST_RUN=1
+      - CHROME_DISABLE_GPU=1
     env_file:
       - .env
     deploy:
@@ -28,14 +44,26 @@ services:
     restart: always
     volumes:
       - ./models.yaml:/app/models.yaml:ro
+    develop:
+      watch:
+        - action: rebuild
+          path: ./core/
+          ignore:
+            - ./core/target/
+            - ./core/Cargo.lock
 
   web:
-    image: luminainc/web:1.20.3
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
     platform: linux/amd64
     ports:
       - "5173:8000"
     env_file:
       - .env
+    environment:
+      # Allow local development connections for CSP
+      - CSP_CONNECT_SRC_ADDITIONAL=localhost:8000 localhost:8001 localhost:8002 localhost:8080 localhost:5173
     deploy:
       replicas: 1
     restart: always
@@ -46,17 +74,18 @@ services:
       - "8001:8000"
     volumes:
       - ./nginx/segmentation.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - segmentation-backend
     restart: always
 
   segmentation-backend:
-    image: luminainc/segmentation:1.4.2
+    build:
+      context: .
+      dockerfile: docker/segmentation/Dockerfile
     expose:
       - "8000"
     deploy:
-      replicas: 1
+      replicas: 6
       resources:
         reservations:
           devices:
@@ -78,13 +107,14 @@ services:
       - "8002:8000"
     volumes:
       - ./nginx/ocr.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - ocr-backend
     restart: always
 
   ocr-backend:
-    image: luminainc/doctr:1.20.3
+    build:
+      context: .
+      dockerfile: docker/doctr/Dockerfile
     expose:
       - "8000"
     deploy:
@@ -101,7 +131,7 @@ services:
 
   postgres:
     build:
-      context: ./docker/postgres
+      context: docker/postgres
       dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres
@@ -171,18 +201,10 @@ services:
         /usr/bin/mc anonymous set public myminio/chunkr
       "
 
-  emails:
-    image: luminainc/emails:fb17c8f1
-    platform: linux/amd64
-    ports:
-      - "8009:8000"
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-
   keycloak:
-    image: luminainc/auth:latest
+    build:
+      context: .
+      dockerfile: docker/auth/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -200,7 +222,6 @@ services:
       - KC_TRANSACTION_XA_ENABLED=false
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: ["--import-realm"]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 30s
@@ -211,60 +232,6 @@ services:
       postgres:
         condition: service_healthy
     restart: always
-
-  keycloak-proxy:
-    image: nginx:latest
-    ports:
-      - "8090:8090" # HTTP port
-      - "8443:8443" # HTTPS port
-    volumes:
-      - ./nginx/keycloak.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    restart: always
-    profiles:
-      - proxy
-
-  web-proxy:
-    image: nginx:latest
-    ports:
-      - "80:80" # HTTP port
-      - "443:443" # HTTPS port
-    volumes:
-      - ./nginx/web.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    depends_on:
-      - web
-    restart: always
-    profiles:
-      - proxy
-
-  server-proxy:
-    image: nginx:latest
-    ports:
-      - "8010:8010" # HTTP port
-      - "8444:8444" # HTTPS port
-    volumes:
-      - ./nginx/server.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    depends_on:
-      - server
-    restart: always
-    profiles:
-      - proxy
-
-  minio-proxy:
-    image: nginx:latest
-    ports:
-      - "9100:9100" # MinIO API
-      - "9101:9101" # MinIO Console
-    volumes:
-      - ./nginx/minio.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro
-    depends_on:
-      - minio
-    restart: always
-    profiles:
-      - proxy
 
 volumes:
   postgres_data:

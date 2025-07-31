@@ -1,0 +1,46 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/server-azure/Dockerfile
+      target: development
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./core/src/
+          target: /app/src/
+        - action: restart
+          path: ./core/Cargo.toml
+        - action: restart
+          path: ./core/Cargo.lock
+
+  task:
+    build:
+      context: .
+      dockerfile: docker/task-azure/Dockerfile
+      target: development
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./core/src/
+          target: /app/src/
+        - action: restart
+          path: ./core/Cargo.toml
+        - action: restart
+          path: ./core/Cargo.lock
+
+  web:
+    build:
+      target: development
+    ports:
+      - "5174:5173"
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web/src/
+          target: /app/src/
+        - action: sync
+          path: ./apps/web/public/
+          target: /app/public/
+        - action: restart
+          path: ./apps/web/package.json

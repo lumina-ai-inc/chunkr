@@ -13,7 +13,7 @@ use actix_web::{web, Error, HttpResponse};
 #[utoipa::path(
     get,
     path = "/tasks",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Tasks",
     params(
         ("base64_urls" = Option<bool>, Query, description = "Whether to return base64 encoded URLs. If false, the URLs will be returned as presigned URLs."),

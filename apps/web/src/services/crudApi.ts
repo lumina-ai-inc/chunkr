@@ -5,7 +5,7 @@ export const deleteTasks = async (taskIds: string[]): Promise<void> => {
   try {
     // Make parallel delete requests for all selected tasks
     const deletePromises = taskIds.map((taskId) =>
-      axiosInstance.delete(`/api/v1/task/${taskId}`)
+      axiosInstance.delete(`/task/${taskId}`)
     );
 
     await Promise.all(deletePromises);
@@ -19,7 +19,7 @@ export const cancelTasks = async (taskIds: string[]): Promise<void> => {
   try {
     // Make parallel cancel requests for all selected tasks
     const cancelPromises = taskIds.map((taskId) =>
-      axiosInstance.get(`/api/v1/task/${taskId}/cancel`)
+      axiosInstance.get(`/task/${taskId}/cancel`)
     );
     await Promise.all(cancelPromises);
   } catch (error) {
@@ -33,7 +33,7 @@ export const updateTask = async (
   task: Partial<UploadForm>
 ): Promise<void> => {
   try {
-    await axiosInstance.patch(`/api/v1/task/${taskId}/parse`, task);
+    await axiosInstance.patch(`/task/${taskId}/parse`, task);
   } catch (error) {
     console.error("Error updating task:", error);
     throw error;
@@ -42,7 +42,7 @@ export const updateTask = async (
 
 export const cancelTask = async (taskId: string): Promise<void> => {
   try {
-    await axiosInstance.get(`/api/v1/task/${taskId}/cancel`);
+    await axiosInstance.get(`/task/${taskId}/cancel`);
   } catch (error) {
     console.error("Error cancelling task:", error);
     throw error;

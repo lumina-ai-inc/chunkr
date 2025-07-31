@@ -2,7 +2,7 @@ import axiosInstance from "./axios.config";
 import { TaskResponse } from "../models/taskResponse.model";
 
 export async function getTask(taskId: string): Promise<TaskResponse> {
-  const { data } = await axiosInstance.get(`/api/v1/task/${taskId}`);
+  const { data } = await axiosInstance.get(`/task/${taskId}`);
   return data;
 }
 
@@ -20,7 +20,7 @@ export async function getTasks(
   if (end) params.append("end", end);
   if (include_chunks) params.append("include_chunks", include_chunks.toString());
 
-  const url = `/api/v1/tasks?${params.toString()}`;
+  const url = `/tasks?${params.toString()}`;
   const { data } = await axiosInstance.get<TaskResponse[]>(url);
   return data;
 }

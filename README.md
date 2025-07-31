@@ -24,7 +24,6 @@
   </p>
 </div>
 
-
 <div align="center">
   <a href="https://www.chunkr.ai" width="1200" height="630">
     <img src="https://chunkr.ai/og-image.png" style="bor">
@@ -32,13 +31,14 @@
 </div>
 
 ## Table of Contents
+
 - [Table of Contents](#table-of-contents)
 - [(Super) Quick Start](#super-quick-start)
 - [Documentation](#documentation)
-- [Self-Hosted Deployment Options](#self-hosted-deployment-options)
-  - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
-    - [HTTPS Setup for Docker Compose](#https-setup-for-docker-compose)
-  - [Deployment with Kubernetes](#deployment-with-kubernetes)
+- [OpenSource vs Commercial API vs Enterprise](#opensource-vs-commercial-api-vs-enterprise)
+- [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+  - [Development with Docker Compose Watch](#development-with-docker-compose-watch)
+  - [HTTPS Setup](#https-setup)
 - [LLM Configuration](#llm-configuration)
   - [Using models.yaml (Recommended)](#using-modelsyaml-recommended)
   - [Using environment variables (Basic)](#using-environment-variables-basic)
@@ -48,13 +48,16 @@
 
 ## (Super) Quick Start
 
-1. Go to [chunkr.ai](https://www.chunkr.ai) 
+1. Go to [chunkr.ai](https://www.chunkr.ai)
 2. Make an account and copy your API key
 3. Install our Python SDK:
+
 ```bash
 pip install chunkr-ai
 ```
+
 4. Use the SDK to process your documents:
+
 ```python
 from chunkr_ai import Chunkr
 
@@ -79,21 +82,36 @@ chunkr.close()
 
 Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 
-## Self-Hosted Deployment Options
+## OpenSource vs Commercial API vs Enterprise
 
-### Quick Start with Docker Compose
+| Feature               | Open Source            | Commercial API                | Enterprise                               |
+| --------------------- | ---------------------- | ----------------------------- | ---------------------------------------- |
+| **Perfect for**       | Development & testing  | Production applications       | Large-scale/High security deployments    |
+| **Layout Analysis**   | Basic models           | Advanced models               | Advanced + custom-tuned                  |
+| **OCR Accuracy**      | Standard models        | Premium models                | Premium + domain-tuned                   |
+| **VLM Processing**    | Basic vision models    | Enhanced VLM models           | Enhanced + custom fine-tunes             |
+| **Excel Support**     | ❌                     | ✅ Native parser              | ✅ Native parser                         |
+| **Document Types**    | PDF, PPT, Word, Images | PDF, PPT, Word, Images, Excel | PDF, PPT, Word, Images, Excel            |
+| **Infrastructure**    | Self-hosted            | Fully managed                 | Fully managed (On-prem or Chunkr-hosted) |
+| **Support**           | Discord community      | Priority email + community    | 24/7 dedicated founing team support      |
+| **Migration Support** | Community resources    | Documentation + email         | Dedicated migration team                 |
+
+## Quick Start with Docker Compose
 
 1. Prerequisites:
+
    - [Docker and Docker Compose](https://docs.docker.com/get-docker/)
    - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (for GPU support, optional)
 
 2. Clone the repo:
+
 ```bash
 git clone https://github.com/lumina-ai-inc/chunkr
 cd chunkr
 ```
 
 3. Set up environment variables:
+
 ```bash
 # Copy the example environment file
 cp .env.example .env
@@ -101,41 +119,99 @@ cp .env.example .env
 # Configure your llm models
 cp models.example.yaml models.yaml
 ```
+
 For more information on how to set up LLMs, see [here](#llm-configuration).
 
-4. Start the services:
+4. Build the Docker images (optional, for faster startup):
+
 ```bash
-# For GPU deployment, use the following command:
-docker compose up -d
+# For GPU deployment:
+docker compose build --parallel
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml up -d
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml build --parallel
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml build --parallel
 ```
 
-5. Access the services:
+5. Start the services:
+
+```bash
+# For GPU deployment:
+docker compose up -d
+
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml up -d
+
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml up -d
+```
+
+6. Access the services:
+
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
-6. Stop the services when done:
+7. Stop the services when done:
+
+### Development with Docker Compose Watch
+
+For active development, use the dedicated development compose file that includes optimizations for faster iteration:
+
 ```bash
-# For GPU deployment, use the following command:
-docker compose down
+# Build images for development (optional, for faster startup)
+docker compose -f compose.yaml -f compose.dev.yaml build --parallel
 
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml down
+# Start services in development mode with watch
+docker compose -f compose.yaml -f compose.dev.yaml up --watch
 
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml down
+# For CPU-only development:
+docker compose -f compose.yaml -f compose.dev.yaml -f compose.cpu.yaml build --parallel
+docker compose -f compose.yaml -f compose.dev.yaml -f compose.cpu.yaml up --watch
+
+# For Mac ARM architecture:
+docker compose -f compose.yaml -f compose.dev.yaml -f compose.cpu.yaml -f compose.mac.yaml build --parallel
+docker compose -f compose.yaml -f compose.dev.yaml -f compose.cpu.yaml -f compose.mac.yaml up --watch
 ```
 
-#### HTTPS Setup for Docker Compose
+**Development optimizations:**
+- **Rust services** (`server`, `task`): Use `cargo run` with source mounting (~5-15s restarts)
+- **Frontend** (`web`): Vite dev server with hot module replacement (~1-3s)
+- **Python services** (`segmentation-backend`, `ocr-backend`): Direct source sync and restart (~5-10s)
+
+**Benefits:**
+- ⚡ **Ultra-fast**: No rebuilds needed for most changes
+- 🔥 **Hot reload**: Frontend changes appear instantly
+- 📁 **Source mounting**: Rust and Python changes sync directly into containers
+- 🎯 **Targeted**: Only affected services restart when changes occur
+
+**To stop development mode:**
+```bash
+# Press Ctrl+C to stop watch mode
+# Then stop services:
+docker compose -f compose.yaml -f compose.dev.yaml down
+```
+
+> **Production vs Development**: Use `compose.yaml` for production deployments and add `compose.dev.yaml` overlay for development. The development setup is optimized for speed over efficiency.
+
+```bash
+# For GPU deployment:
+docker compose down
+
+# For CPU-only deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml down
+
+# For Mac ARM architecture (M1, M2, M3, etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml down
+```
+
+### HTTPS Setup
 
 This section explains how to set up HTTPS using a self signed certificate with Docker Compose when hosting Chunkr on a VM. This allows you to access the web UI, API, Keycloak (authentication service) and MinIO (object storage service) over HTTPS.
 
 1. Generate a self-signed certificate:
+
 ```bash
 # Create a certs directory
 mkdir certs
@@ -145,7 +221,8 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out
 ```
 
 2. Update the .env file with your VM's IP address:
-> **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
+   > **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
+
 ```bash
 AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
 WORKER__SERVER_URL=https://your_vm_ip_address:8444
@@ -155,41 +232,49 @@ VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
 VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
 ```
 
-1. Start the services:
+1. Build the Docker images (optional, for faster startup):
+
+```bash
+# For GPU deployment:
+docker compose --profile proxy build --parallel
+
+# For CPU deployment:
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy build --parallel
+
+# For Mac ARM architecture (eg. M2, M3 etc.):
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy build --parallel
+```
+
+2. Start the services:
+
 ```bash
 # For GPU deployment, use the following command:
 docker compose --profile proxy up -d
 
 # For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy up -d
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy up -d
 
 # For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy up -d
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy up -d
 ```
 
-4. Access the services:
+3. Access the services:
+
    - Web UI: `https://your_vm_ip_address`
    - API: `https://your_vm_ip_address:8444`
 
-5. Stop the services when done:
+4. Stop the services when done:
+
 ```bash
 # For GPU deployment, use the following command:
 docker compose --profile proxy down
 
 # For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy down
+docker compose -f compose.yaml -f compose.cpu.yaml --profile proxy down
 
 # For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy down
+docker compose -f compose.yaml -f compose.cpu.yaml -f compose.mac.yaml --profile proxy down
 ```
-
-### Deployment with Kubernetes
-
-For production environments, we provide a Helm chart and detailed deployment instructions:
-1. See our detailed guide at [`kube/README.md`](kube/README.md)
-2. Includes configurations for high availability and scaling
-
-For enterprise support and deployment assistance, [contact us](mailto:mehul@chunkr.ai).
 
 ## LLM Configuration
 
@@ -203,11 +288,13 @@ Chunkr supports two ways to configure LLMs:
 For more flexible configuration with multiple models, default/fallback options, and rate limits:
 
 1. Copy the example file to create your configuration:
+
 ```bash
 cp models.example.yaml models.yaml
 ```
 
 2. Edit the models.yaml file with your configuration. Example:
+
 ```yaml
 models:
   - id: gpt-4o
@@ -219,17 +306,19 @@ models:
 ```
 
 Benefits of using models.yaml:
+
 - Configure multiple LLM providers simultaneously
 - Set default and fallback models
 - Add distributed rate limits per model
 - Reference models by ID in API requests (see docs for more info)
 
->Read the `models.example.yaml` file for more information on the available options.
+> Read the `models.example.yaml` file for more information on the available options.
 
 ### Using environment variables (Basic)
 
 You can use any OpenAI API compatible endpoint by setting the following variables in your .env file:
-``` 
+
+```
 LLM__KEY:
 LLM__MODEL:
 LLM__URL:
@@ -256,6 +345,7 @@ The core of this project is dual-licensed:
 To use Chunkr without complying with the AGPL-3.0 license terms you can [contact us](mailto:mehul@chunkr.ai) or visit our [website](https://chunkr.ai).
 
 ## Connect With Us
+
 - 📧 Email: [mehul@chunkr.ai](mailto:mehul@chunkr.ai)
 - 📅 Schedule a call: [Book a 30-minute meeting](https://cal.com/mehulc/30min)
 - 🌐 Visit our website: [chunkr.ai](https://chunkr.ai)

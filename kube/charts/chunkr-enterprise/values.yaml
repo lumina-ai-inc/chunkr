@@ -147,15 +147,15 @@ services:
           name: chunkr-secret
     env:
       - name: PG__POOL__MAX_SIZE
-        value: '3'
+        value: "3"
       - name: RENDERER__SANDBOX
-        value: 'false'
+        value: "false"
       - name: RENDERER__CLEAR_CACHE_ON_ERROR
-        value: 'true'
+        value: "true"
       - name: CHROME_NO_FIRST_RUN
-        value: '1'
+        value: "1"
       - name: CHROME_DISABLE_GPU
-        value: '1'
+        value: "1"
     securityContext:
       runAsUser: 0
       runAsGroup: 0
@@ -197,15 +197,15 @@ services:
     ingress:
       enabled: true
       subdomain: www
+    apiUrl: ""
     env:
       - name: VITE_API_URL
         value: >-
-          https://{{ .Values.services.server.ingress.subdomain }}.{{
-          .Values.ingress.domain }}
+          {{ .Values.web.apiUrl | default (printf "https://%s.%s" .Values.services.server.ingress.subdomain .Values.ingress.domain) }}
       - name: VITE_DOCS_URL
         value: https://docs.chunkr.ai
       - name: VITE_FEATURE_FLAG_PIPELINE
-        value: 'true'
+        value: "true"
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -234,7 +234,11 @@ services:
       - name: VITE_CONTENTFUL_ENVIRONMENT
         value: master
       - name: VITE_IS_SELF_HOST
-        value: 'false'
+        value: "false"
+      # CSP configuration - empty for production (secure default)
+      # For development, this should be set via environment override
+      - name: CSP_CONNECT_SRC_ADDITIONAL
+        value: ""
   ocr:
     enabled: true
     image:
@@ -248,7 +252,7 @@ services:
     enableTopologySpreadConstraints: true
     env:
       - name: MAX_BATCH_SIZE
-        value: '100'
+        value: "100"
     labels:
       workload-type: chunkr-gpu
   segmentation:
@@ -266,13 +270,13 @@ services:
       workload-type: chunkr-gpu
     env:
       - name: MAX_BATCH_SIZE
-        value: '100'
+        value: "100"
       - name: OVERLAP_THRESHOLD
-        value: '0.1'
+        value: "0.1"
       - name: SCORE_THRESHOLD
-        value: '0.15'
+        value: "0.15"
       - name: CONF_THRESHOLD
-        value: '0.1'
+        value: "0.1"
   emails:
     enabled: true
     image:

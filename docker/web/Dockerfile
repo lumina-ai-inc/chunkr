@@ -1,3 +1,13 @@
+# Development stage
+FROM node:18 as development
+WORKDIR /app
+COPY apps/web/package.json apps/web/pnpm-lock.yaml ./
+RUN npm install -g pnpm
+RUN pnpm install --frozen-lockfile
+COPY apps/web/ .
+EXPOSE 5173
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]
+
 # Build stage
 FROM node:18 as build
 
@@ -30,9 +40,15 @@ COPY <<'EOF' /docker-entrypoint.d/01-insert-window-variable.sh
 
 set -eu
 
+# Process index.html for environment variables
 cp /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.template
 envsubst < /usr/share/nginx/html/index.html.template > /usr/share/nginx/html/index.html 
 rm /usr/share/nginx/html/index.html.template
+
+# Process nginx.conf for environment variables
+cp /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.template
+envsubst '$CSP_CONNECT_SRC_ADDITIONAL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+rm /etc/nginx/conf.d/default.conf.template
 
 EOF
 

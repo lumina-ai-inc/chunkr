@@ -34,7 +34,7 @@ use tempfile;
 #[utoipa::path(
     get,
     path = "/task/{task_id}",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     params(
         ("task_id" = Option<String>, Path, description = "Id of the task to retrieve"),
@@ -98,7 +98,7 @@ pub async fn get_task_route(
 #[utoipa::path(
     post,
     path = "/task/parse",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     request_body(content = upload::CreateForm, description = "JSON request to create a task", content_type = "application/json"),
     responses(
@@ -211,7 +211,7 @@ pub async fn create_task_route(
 #[utoipa::path(
     patch,
     path = "/task/{task_id}/parse",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     request_body(content = upload::UpdateForm, description = "JSON request to update an task", content_type = "application/json"),
     responses(
@@ -289,7 +289,7 @@ pub async fn update_task_route(
 #[utoipa::path(
     delete,
     path = "/task/{task_id}",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     params(
         ("task_id" = Option<String>, Path, description = "Id of the task to delete")
@@ -346,7 +346,7 @@ pub async fn delete_task_route(
 #[utoipa::path(
     get,
     path = "/task/{task_id}/cancel",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     params(
         ("task_id" = Option<String>, Path, description = "Id of the task to cancel")
@@ -411,7 +411,7 @@ pub async fn cancel_task_route(
 #[utoipa::path(
     post,
     path = "/task",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     request_body(content = upload_multipart::CreateFormMultipart, description = "Multipart form request to create an task", content_type = "multipart/form-data"),
     responses(
@@ -475,7 +475,7 @@ pub async fn create_task_route_multipart(
 #[utoipa::path(
     patch,
     path = "/task/{task_id}",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Task",
     request_body(content = upload_multipart::UpdateFormMultipart, description = "Multipart form request to update an task", content_type = "multipart/form-data"),
     responses(

@@ -15,6 +15,53 @@ RUN cargo chef cook --release --recipe-path recipe.json --features "azure memory
 COPY core/ .
 RUN cargo build --release --features "azure memory_profiling"
 
+FROM chef AS development
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --recipe-path recipe.json --features "azure memory_profiling"
+# Copy source code
+COPY core/ .
+
+# Install all runtime dependencies
+RUN apt-get update -y && \
+    apt-get install -y \
+    pkg-config \
+    build-essential \
+    libssl-dev \
+    libpq-dev \
+    ca-certificates \
+    libreoffice \
+    file \
+    curl \
+    imagemagick \
+    pandoc && \
+    rm -rf /var/lib/apt/lists/*
+
+# Tweak ImageMagick policy
+RUN sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="width" value="32KP"\/>/<policy domain="resource" name="width" value="100KP"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="height" value="32KP"\/>/<policy domain="resource" name="height" value="100KP"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="area" value="256MP"\/>/<policy domain="resource" name="area" value="1GP"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="memory" value="1024MiB"\/>/<policy domain="resource" name="memory" value="8GiB"\/>/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="disk" value="2GiB"\/>/<policy domain="resource" name="disk" value="20GiB"\/>/' /etc/ImageMagick-6/policy.xml
+
+# Download PDFium binary
+RUN mkdir -p /app/pdfium-binaries && \
+    curl -L https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz | \
+    tar -xz -C /tmp && \
+    cp /tmp/lib/libpdfium.so /app/pdfium-binaries/
+
+# Install Google Cloud SDK
+RUN curl -sSL https://sdk.cloud.google.com | bash \
+    && echo "source /root/google-cloud-sdk/path.bash.inc" >> /root/.bashrc \
+    && echo "source /root/google-cloud-sdk/completion.bash.inc" >> /root/.bashrc
+
+# Add gcloud to PATH
+ENV PATH="/root/google-cloud-sdk/bin:$PATH"
+
+EXPOSE 8000
+CMD ["cargo", "run", "--features", "azure memory_profiling"]
+
 FROM ubuntu:24.04 AS runtime
 WORKDIR /app
 

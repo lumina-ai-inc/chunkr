@@ -11,7 +11,7 @@ use actix_web::{web, Error, HttpResponse};
 #[utoipa::path(
     post,
     path = "/structured_extract",
-    context_path = "/api/v1",
+    context_path = "",
     tag = "Structured Extraction",
     request_body = StructuredExtractionRequest,
     responses(
