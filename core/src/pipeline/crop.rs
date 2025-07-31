@@ -99,6 +99,22 @@ fn check_should_crop(
                 None => false,
             }
         }
+        SegmentType::PageHeader | SegmentType::PageFooter => {
+            let config = match segment.segment_type {
+                SegmentType::PageHeader => &configuration.segment_processing.page_header,
+                SegmentType::PageFooter => &configuration.segment_processing.page_footer,
+                _ => unreachable!(),
+            };
+            match config {
+                Some(config) => should_crop(
+                    &config.crop_image,
+                    &config.strategy,
+                    &config.llm,
+                    is_spreadsheet,
+                ),
+                None => false,
+            }
+        }
         _ => {
             let config = match segment.segment_type {
                 SegmentType::Title => &configuration.segment_processing.title,
@@ -107,8 +123,6 @@ fn check_should_crop(
                 SegmentType::ListItem => &configuration.segment_processing.list_item,
                 SegmentType::Caption => &configuration.segment_processing.caption,
                 SegmentType::Footnote => &configuration.segment_processing.footnote,
-                SegmentType::PageHeader => &configuration.segment_processing.page_header,
-                SegmentType::PageFooter => &configuration.segment_processing.page_footer,
                 _ => unreachable!(),
             };
             match config {

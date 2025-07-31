@@ -1,3 +1,4 @@
+use crate::models::segment_processing::GenerationStrategy;
 use crate::models::{
     output::{Chunk, Segment, SegmentType},
     task::Configuration,
@@ -26,7 +27,53 @@ pub fn hierarchical_chunking(
     let mut current_segments: Vec<Segment> = Vec::new();
     let mut current_word_count = 0;
     let target_length = configuration.chunk_processing.target_length;
-    let ignore_headers_and_footers = configuration.chunk_processing.ignore_headers_and_footers;
+
+    // Closure to decide if a segment should be skipped based on the configured
+    // generation strategy for its type.
+    let should_ignore_segment = |segment_type: &SegmentType| -> bool {
+        use SegmentType::*;
+        let strategy = match segment_type {
+            Title | SectionHeader | Text | ListItem | Caption | Footnote => {
+                let config = match segment_type {
+                    Title => configuration.segment_processing.title.as_ref(),
+                    SectionHeader => configuration.segment_processing.section_header.as_ref(),
+                    Text => configuration.segment_processing.text.as_ref(),
+                    ListItem => configuration.segment_processing.list_item.as_ref(),
+                    Caption => configuration.segment_processing.caption.as_ref(),
+                    Footnote => configuration.segment_processing.footnote.as_ref(),
+                    _ => unreachable!(),
+                };
+                config.map(|c| &c.strategy)
+            }
+            Formula | Page => {
+                let config = match segment_type {
+                    Formula => configuration.segment_processing.formula.as_ref(),
+                    Page => configuration.segment_processing.page.as_ref(),
+                    _ => unreachable!(),
+                };
+                config.map(|c| &c.strategy)
+            }
+            Table => configuration
+                .segment_processing
+                .table
+                .as_ref()
+                .map(|c| &c.strategy),
+            Picture => configuration
+                .segment_processing
+                .picture
+                .as_ref()
+                .map(|c| &c.strategy),
+            PageHeader | PageFooter => {
+                let config = match segment_type {
+                    PageHeader => configuration.segment_processing.page_header.as_ref(),
+                    PageFooter => configuration.segment_processing.page_footer.as_ref(),
+                    _ => unreachable!(),
+                };
+                config.map(|c| &c.strategy)
+            }
+        };
+        strategy.map_or(false, |s| *s == GenerationStrategy::Ignore)
+    };
 
     fn finalize_and_start_new_chunk(chunks: &mut Vec<Chunk>, segments: &mut Vec<Segment>) {
         if !segments.is_empty() {
@@ -55,6 +102,11 @@ pub fn hierarchical_chunking(
         let segment_word_count = segment_lengths[i];
         let current_hierarchy_level = get_hierarchy_level(&segment.segment_type);
 
+        // Skip segments configured to be ignored
+        if should_ignore_segment(&segment.segment_type) {
+            continue;
+        }
+
         if break_on_page_change && segment.page_number != last_page_number {
             finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
             current_word_count = 0;
@@ -70,9 +122,6 @@ pub fn hierarchical_chunking(
                 current_word_count = segment_word_count;
             }
             SegmentType::PageHeader | SegmentType::PageFooter => {
-                if ignore_headers_and_footers {
-                    continue;
-                }
                 finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                 current_segments.push(segment.clone());
                 finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
@@ -162,6 +211,8 @@ mod tests {
             content: String::new(),
             confidence: None,
             html: String::new(),
+            description: None,
+            embed: None,
             image: None,
             llm: None,
             markdown: String::new(),
@@ -211,7 +262,7 @@ mod tests {
             .table
             .as_mut()
             .unwrap()
-            .embed_sources = vec![EmbedSource::HTML, EmbedSource::Markdown];
+            .embed_sources = Some(vec![EmbedSource::HTML, EmbedSource::Markdown]);
 
         config
     }

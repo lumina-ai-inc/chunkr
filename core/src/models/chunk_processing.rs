@@ -8,15 +8,16 @@ use utoipa::ToSchema;
 pub struct ChunkProcessing {
     #[serde(default = "default_ignore_headers_and_footers")]
     #[schema(value_type = bool, default = true)]
-    /// Whether to ignore headers and footers in the chunking process.
-    /// This is recommended as headers and footers break reading order across pages.
+    #[deprecated]
+    /// DEPRECATED: use `segment_processing.ignore`
+    /// This value will not be used
     pub ignore_headers_and_footers: bool,
     #[serde(default = "default_target_length")]
-    #[schema(value_type = u32, default = 512)]
+    #[schema(value_type = u32, default = 4096)]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
     pub target_length: u32,
     /// The tokenizer to use for the chunking process.
-    #[schema( value_type = TokenizerType, default = "Word")]
+    #[schema(value_type = TokenizerType, default = "Cl100kBase")]
     #[serde(default)]
     pub tokenizer: TokenizerType,
 }
@@ -32,7 +33,7 @@ impl Default for ChunkProcessing {
 }
 
 pub fn default_target_length() -> u32 {
-    512
+    4096
 }
 
 pub fn default_ignore_headers_and_footers() -> bool {
@@ -48,9 +49,9 @@ pub fn default_ignore_headers_and_footers() -> bool {
 /// tokenizers from the Hugging Face ecosystem.
 pub enum Tokenizer {
     /// Split text by word boundaries
-    #[default]
     Word,
     /// For OpenAI models (e.g. GPT-3.5, GPT-4, text-embedding-ada-002)
+    #[default]
     Cl100kBase,
     /// For RoBERTa-based multilingual models
     #[strum(serialize = "xlm-roberta-base")]

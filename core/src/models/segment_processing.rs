@@ -5,13 +5,29 @@ use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-/// Controls the post-processing of each segment type.
-/// Allows you to generate HTML and Markdown from chunkr models for each segment type.
-/// By default, the HTML and Markdown are generated manually using the segmentation information except for `Table`, `Formula` and `Picture`.
-/// You can optionally configure custom LLM prompts and models to generate an additional `llm` field with LLM-processed content for each segment type.
+/// Defines how each segment type is handled when generating the final output.
 ///
-/// The configuration of which content sources (HTML, Markdown, LLM, Content) of the segment
-/// should be included in the chunk's `embed` field and counted towards the chunk length can be configured through the `embed_sources` setting.
+/// Each segment uses one of three strategies. The chosen strategy controls:
+/// • Whether the segment is kept (`Auto`, `LLM`) or skipped (`Ignore`).
+/// • How the content is produced (rule-based vs. LLM).
+/// • The output format (`Html` or `Markdown`).
+///   
+/// Optional flags such as image **cropping**, **extended context**, and **LLM descriptions** further refine behaviour.
+///
+/// ---
+/// **Default strategy per segment**
+/// • `Title`, `SectionHeader`, `Text`, `ListItem`, `Caption`, `Footnote` → **Auto** (Markdown)
+/// • `Table` → **LLM** (HTML, description on)
+/// • `Picture` → **LLM** (Markdown, description on, cropping *All*)
+/// • `Formula`, `Page` → **LLM** (Markdown)
+/// • `PageHeader`, `PageFooter` → **Ignore** (removed from output)
+///
+/// ---
+/// **Strategy reference**
+/// • **Auto** – rule-based content generation.
+/// • **LLM** – generate content with an LLM.
+/// • **Ignore** – exclude the segment entirely.
+
 pub struct SegmentProcessing {
     #[serde(rename = "Title", alias = "title")]
     pub title: Option<AutoGenerationConfig>,
@@ -32,9 +48,9 @@ pub struct SegmentProcessing {
     #[serde(rename = "Footnote", alias = "footnote")]
     pub footnote: Option<AutoGenerationConfig>,
     #[serde(rename = "PageHeader", alias = "page_header")]
-    pub page_header: Option<AutoGenerationConfig>,
+    pub page_header: Option<IgnoreGenerationConfig>,
     #[serde(rename = "PageFooter", alias = "page_footer")]
-    pub page_footer: Option<AutoGenerationConfig>,
+    pub page_footer: Option<IgnoreGenerationConfig>,
     #[serde(rename = "Page", alias = "page")]
     pub page: Option<LlmGenerationConfig>,
 }
@@ -51,8 +67,8 @@ impl Default for SegmentProcessing {
             caption: Some(AutoGenerationConfig::default()),
             formula: Some(LlmGenerationConfig::default()),
             footnote: Some(AutoGenerationConfig::default()),
-            page_header: Some(AutoGenerationConfig::default()),
-            page_footer: Some(AutoGenerationConfig::default()),
+            page_header: Some(IgnoreGenerationConfig::default()),
+            page_footer: Some(IgnoreGenerationConfig::default()),
             page: Some(LlmGenerationConfig::default()),
         }
     }
@@ -114,10 +130,7 @@ pub enum SegmentFormat {
 pub enum GenerationStrategy {
     LLM,
     Auto,
-}
-
-fn default_embed_sources() -> Vec<EmbedSource> {
-    vec![EmbedSource::Markdown]
+    Ignore,
 }
 
 fn default_cropping_strategy() -> CroppingStrategy {
@@ -144,8 +157,20 @@ fn default_llm_generation_strategy() -> GenerationStrategy {
     GenerationStrategy::LLM
 }
 
+fn default_ignore_generation_strategy() -> GenerationStrategy {
+    GenerationStrategy::Ignore
+}
+
 fn default_extended_context() -> bool {
     false
+}
+
+fn default_description_false() -> bool {
+    false
+}
+
+fn default_description_true() -> bool {
+    true
 }
 
 /// Helper function to determine format and strategy from legacy html/markdown fields
@@ -165,12 +190,29 @@ fn resolve_format_and_strategy(
             // If both are Auto, prefer the default format for this struct type
             (default_format, GenerationStrategy::Auto)
         }
+        (Some(GenerationStrategy::Ignore), Some(GenerationStrategy::Ignore)) => {
+            // If both are Ignore, prefer the default format for this struct type
+            (default_format, GenerationStrategy::Ignore)
+        }
         // One LLM, one Auto - use the LLM one, prefer HTML format for LLM
         (Some(GenerationStrategy::LLM), Some(GenerationStrategy::Auto)) => {
             (SegmentFormat::Html, GenerationStrategy::LLM)
         }
         (Some(GenerationStrategy::Auto), Some(GenerationStrategy::LLM)) => {
             (SegmentFormat::Markdown, GenerationStrategy::LLM)
+        }
+        // Ignore takes precedence over other strategies
+        (Some(GenerationStrategy::Ignore), Some(GenerationStrategy::Auto)) => {
+            (default_format, GenerationStrategy::Ignore)
+        }
+        (Some(GenerationStrategy::Ignore), Some(GenerationStrategy::LLM)) => {
+            (default_format, GenerationStrategy::Ignore)
+        }
+        (Some(GenerationStrategy::Auto), Some(GenerationStrategy::Ignore)) => {
+            (default_format, GenerationStrategy::Ignore)
+        }
+        (Some(GenerationStrategy::LLM), Some(GenerationStrategy::Ignore)) => {
+            (default_format, GenerationStrategy::Ignore)
         }
         // Only HTML set
         (Some(html_strategy), None) => (SegmentFormat::Html, html_strategy),
@@ -194,6 +236,10 @@ macro_rules! generation_config {
                 serde_default: $serde_default:literal,
                 schema_default: $strategy_schema_default:literal,
             },
+            description: {
+                default_fn: $description_default:literal,
+                schema_default: $description_schema_default:literal,
+            },
             default_format_fn: $default_format_fn:expr,
         }
     ) => {
@@ -203,13 +249,15 @@ macro_rules! generation_config {
         ///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
         ///   or `Auto` to only crop when needed for post-processing.
         /// - `format` specifies the output format: `Html` or `Markdown`
-        /// - `strategy` determines how the content is generated: `Auto` (heuristics) or `LLM` (using Chunkr fine-tuned models)
-        /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
-        /// - `embed_sources` defines which content sources will be included in the chunk's embed field and counted towards the chunk length.
-        ///   The array's order determines the sequence in which content appears in the embed field (e.g., [Content, LLM] means content (markdown or html)
-        ///   is followed by LLM content).
+        /// - `strategy` determines how the content is generated: `Auto`, `LLM`, or `Ignore`
+        ///   - `Auto`: Process content automatically
+        ///   - `LLM`: Use large language models for processing
+        ///   - `Ignore`: Exclude segments from final output
+        /// - `description` enables LLM-generated descriptions for segments
         ///
         /// **Deprecated fields (for backwards compatibility):**
+        /// - `llm` - **DEPRECATED**: Use `description` instead
+        /// - `embed_sources` - **DEPRECATED**: Embed field is auto-populated
         /// - `html` - **DEPRECATED**: Use `format: Html` and `strategy` instead
         /// - `markdown` - **DEPRECATED**: Use `format: Markdown` and `strategy` instead
         pub struct $struct_name {
@@ -222,22 +270,31 @@ macro_rules! generation_config {
             #[serde(default = $serde_default)]
             #[schema(default = $strategy_schema_default)]
             pub strategy: GenerationStrategy,
-            /// Prompt for the LLM model
-            pub llm: Option<String>,
-            #[serde(default = "default_embed_sources")]
-            #[schema(value_type = Vec<EmbedSource>, default = "[Content]")]
-            pub embed_sources: Vec<EmbedSource>,
             /// Use the full page image as context for LLM generation
             #[serde(default = "default_extended_context")]
             #[schema(default = false)]
             pub extended_context: bool,
-            /// **DEPRECATED**: Use `format: OutputFormat::Html` and `strategy` instead.
+            /// Generate LLM descriptions for this segment
+            #[serde(default = $description_default)]
+            #[schema(default = $description_schema_default)]
+            pub description: bool,
+            /// **DEPRECATED**: `embed` field is auto populated
             #[deprecated]
+            #[schema(value_type = Vec<EmbedSource>)]
             #[serde(skip_serializing_if = "Option::is_none")]
+            pub embed_sources: Option<Vec<EmbedSource>>,
+            /// **DEPRECATED**: use description instead
+            #[deprecated]
+            pub llm: Option<String>,
+            /// **DEPRECATED**: Use `format: html` and `strategy` instead.
+            #[serde(skip_serializing_if = "Option::is_none")]
+            #[schema(value_type = Option<GenerationStrategy>)]
+            #[deprecated]
             pub html: Option<GenerationStrategy>,
-            /// **DEPRECATED**: Use `format: OutputFormat::Markdown` and `strategy` instead.
-            #[deprecated]
+            /// **DEPRECATED**: Use `format: markdown` and `strategy` instead.
             #[serde(skip_serializing_if = "Option::is_none")]
+            #[schema(value_type = Option<GenerationStrategy>)]
+            #[deprecated]
             pub markdown: Option<GenerationStrategy>,
         }
 
@@ -256,10 +313,13 @@ macro_rules! generation_config {
                     strategy: Option<GenerationStrategy>,
                     #[serde(default)]
                     llm: Option<String>,
-                    #[serde(default = "default_embed_sources")]
-                    embed_sources: Vec<EmbedSource>,
+                    #[serde(default)]
+                    #[allow(dead_code)]
+                    embed_sources: Option<Vec<EmbedSource>>,
                     #[serde(default = "default_extended_context")]
                     extended_context: bool,
+                    #[serde(default)]
+                    description: bool,
                     // Legacy fields
                     #[serde(default)]
                     html: Option<GenerationStrategy>,
@@ -294,9 +354,10 @@ macro_rules! generation_config {
                     crop_image: helper.crop_image,
                     format: resolved_format,
                     strategy: resolved_strategy,
-                    llm: helper.llm,
-                    embed_sources: helper.embed_sources,
                     extended_context: helper.extended_context,
+                    description: helper.description,
+                    embed_sources: None,
+                    llm: helper.llm,
                     html: helper.html,
                     markdown: helper.markdown,
                 })
@@ -317,6 +378,10 @@ generation_config! {
             serde_default: "default_auto_generation_strategy",
             schema_default: "Auto",
         },
+        description: {
+            default_fn: "default_description_false",
+            schema_default: false,
+        },
         default_format_fn: default_output_format,
     }
 }
@@ -328,8 +393,9 @@ impl Default for AutoGenerationConfig {
             strategy: default_auto_generation_strategy(),
             llm: None,
             crop_image: default_cropping_strategy(),
-            embed_sources: default_embed_sources(),
+            embed_sources: None,
             extended_context: default_extended_context(),
+            description: default_description_false(),
             html: None,
             markdown: None,
         }
@@ -348,6 +414,10 @@ generation_config! {
             serde_default: "default_llm_generation_strategy",
             schema_default: "LLM",
         },
+        description: {
+            default_fn: "default_description_false",
+            schema_default: false,
+        },
         default_format_fn: default_output_format,
     }
 }
@@ -359,8 +429,9 @@ impl Default for LlmGenerationConfig {
             strategy: default_llm_generation_strategy(),
             llm: None,
             crop_image: default_cropping_strategy(),
-            embed_sources: default_embed_sources(),
+            embed_sources: None,
             extended_context: default_extended_context(),
+            description: default_description_false(),
             html: None,
             markdown: None,
         }
@@ -377,7 +448,11 @@ generation_config! {
         strategy: {
             default_fn: default_auto_generation_strategy,
             serde_default: "default_auto_generation_strategy",
-            schema_default: "Auto",
+            schema_default: "LLM",
+        },
+        description: {
+            default_fn: "default_description_true",
+            schema_default: true,
         },
         default_format_fn: default_output_format,
     }
@@ -390,8 +465,9 @@ impl Default for PictureGenerationConfig {
             strategy: default_llm_generation_strategy(),
             llm: None,
             crop_image: default_picture_cropping_strategy(),
-            embed_sources: default_embed_sources(),
+            embed_sources: None,
             extended_context: default_extended_context(),
+            description: default_description_true(),
             html: None,
             markdown: None,
         }
@@ -410,7 +486,31 @@ generation_config! {
             serde_default: "default_llm_generation_strategy",
             schema_default: "LLM",
         },
+        description: {
+            default_fn: "default_description_true",
+            schema_default: true,
+        },
         default_format_fn: default_table_output_format,
+    }
+}
+
+generation_config! {
+    IgnoreGenerationConfig {
+        crop_image: {
+            type: CroppingStrategy,
+            default_fn: "default_cropping_strategy",
+            schema_default: "Auto",
+        },
+        strategy: {
+            default_fn: default_ignore_generation_strategy,
+            serde_default: "default_ignore_generation_strategy",
+            schema_default: "Ignore",
+        },
+        description: {
+            default_fn: "default_description_false",
+            schema_default: false,
+        },
+        default_format_fn: default_output_format,
     }
 }
 
@@ -421,8 +521,25 @@ impl Default for TableGenerationConfig {
             strategy: default_llm_generation_strategy(),
             llm: None,
             crop_image: default_cropping_strategy(),
-            embed_sources: default_embed_sources(),
+            embed_sources: None,
             extended_context: default_extended_context(),
+            description: default_description_true(),
+            html: None,
+            markdown: None,
+        }
+    }
+}
+
+impl Default for IgnoreGenerationConfig {
+    fn default() -> Self {
+        Self {
+            format: default_output_format(),
+            strategy: default_ignore_generation_strategy(),
+            llm: None,
+            crop_image: default_cropping_strategy(),
+            embed_sources: None,
+            extended_context: default_extended_context(),
+            description: default_description_false(),
             html: None,
             markdown: None,
         }

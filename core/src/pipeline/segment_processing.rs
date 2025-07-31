@@ -2,8 +2,8 @@ use crate::configs::{llm_config::create_messages_from_template, otel_config};
 use crate::models::output::{Segment, SegmentType};
 use crate::models::pipeline::{Pipeline, Sheet};
 use crate::models::segment_processing::{
-    AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
-    SegmentFormat, TableGenerationConfig,
+    AutoGenerationConfig, GenerationStrategy, IgnoreGenerationConfig, LlmGenerationConfig,
+    PictureGenerationConfig, SegmentFormat, TableGenerationConfig,
 };
 use crate::models::task::Configuration;
 use crate::models::upload::ErrorHandlingStrategy;
@@ -554,6 +554,7 @@ async fn apply_generation_strategy<T: ContentGenerator>(
                 .await?)
         }
         GenerationStrategy::Auto => Ok(params.generator.generate_auto(params.auto_content)),
+        GenerationStrategy::Ignore => Ok(String::new()),
     }
 }
 
@@ -826,6 +827,27 @@ async fn process_segment(
                 config.extended_context,
             )
         }
+        SegmentType::PageHeader | SegmentType::PageFooter => {
+            let config: &IgnoreGenerationConfig = match segment.segment_type {
+                SegmentType::PageHeader => configuration
+                    .segment_processing
+                    .page_header
+                    .as_ref()
+                    .unwrap(),
+                SegmentType::PageFooter => configuration
+                    .segment_processing
+                    .page_footer
+                    .as_ref()
+                    .unwrap(),
+                _ => unreachable!(),
+            };
+            (
+                &config.format,
+                &config.strategy,
+                &config.llm,
+                config.extended_context,
+            )
+        }
         segment_type => {
             let config: &AutoGenerationConfig = match segment_type {
                 SegmentType::Title => configuration.segment_processing.title.as_ref().unwrap(),
@@ -842,16 +864,6 @@ async fn process_segment(
                 SegmentType::Footnote => {
                     configuration.segment_processing.footnote.as_ref().unwrap()
                 }
-                SegmentType::PageHeader => configuration
-                    .segment_processing
-                    .page_header
-                    .as_ref()
-                    .unwrap(),
-                SegmentType::PageFooter => configuration
-                    .segment_processing
-                    .page_footer
-                    .as_ref()
-                    .unwrap(),
                 _ => unreachable!(),
             };
             (

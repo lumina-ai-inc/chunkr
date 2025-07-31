@@ -322,6 +322,8 @@ impl AzureAnalysisResponse {
                                             ss_range: None,
                                             ss_sheet_name: None,
                                             text: table_to_text(table)?,
+                                            description: None,
+                                            embed: None,
                                         };
 
                                         if min_paragraph_idx != usize::MAX {
@@ -389,6 +391,8 @@ impl AzureAnalysisResponse {
                                         ss_range: None,
                                         ss_sheet_name: None,
                                         text: String::new(),
+                                        description: None,
+                                        embed: None,
                                     };
 
                                     if min_paragraph_idx != usize::MAX {
@@ -459,6 +463,8 @@ impl AzureAnalysisResponse {
                                         ss_range: None,
                                         ss_sheet_name: None,
                                         text: paragraph.content.clone().unwrap_or_default(),
+                                        description: None,
+                                        embed: None,
                                     };
                                     all_segments.push(segment);
                                 }
@@ -658,6 +664,8 @@ fn process_caption(
                         ss_range: None,
                         ss_sheet_name: None,
                         text: caption.content.clone().unwrap_or_default(),
+                        description: None,
+                        embed: None,
                     };
                     replacements.entry(first_idx).or_default().push(segment);
                 }
