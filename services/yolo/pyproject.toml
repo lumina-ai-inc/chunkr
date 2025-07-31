@@ -1,0 +1,17 @@
+[project]
+name = "yolo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "doclayout-yolo>=0.0.3",
+    "fastapi==0.111.1",
+    "huggingface-hub>=0.29.1",
+    "python-dotenv>=1.0.1",
+    "python-multipart==0.0.9",
+    "scikit-learn>=1.6.1",
+    "torch>=2.6.0",
+    "uvicorn>=0.32.0",
+    "ruff>=0.9.3",
+]
