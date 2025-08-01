@@ -14,7 +14,7 @@ fn get_hierarchy_level(segment_type: &SegmentType) -> u32 {
 }
 
 pub fn hierarchical_chunking(
-    mut segments: Vec<Segment>,
+    segments: Vec<Segment>,
     configuration: &Configuration,
     break_on_page_change: bool,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
@@ -86,16 +86,10 @@ pub fn hierarchical_chunking(
     let mut segment_paired = false;
     let mut last_page_number = segments.first().unwrap().page_number;
 
-    // Makes the chunking faster by calculating the word count in parallel
-    segments.par_iter_mut().for_each(|segment| {
-        if let Err(e) = segment.count_embed_words(configuration) {
-            println!("Error: {e}");
-        }
-    });
-
+    // Get embed lengths in parallel - assumes embed fields are already set
     let segment_lengths: Vec<_> = segments
-        .iter_mut()
-        .map(|s| s.get_segment_length(configuration).unwrap_or(0))
+        .par_iter()
+        .map(|s| s.get_embed_length(configuration).unwrap_or(0))
         .collect();
 
     for (i, segment) in segments.iter().enumerate() {

@@ -1128,9 +1128,7 @@ pub async fn process(
     let configuration = task.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
     let is_spreadsheet = task.is_spreadsheet;
-
-    // Simply clone out the Option<Vec<…>> and default to an empty Vec if missing
-    let page_images: Vec<_> = pipeline.page_images.clone().unwrap_or_default();
+    let page_images: Vec<_> = pipeline.page_images.clone().ok_or("No page images found")?;
 
     // Clone the chunks to avoid modifying originals until processing succeeds
     let mut cloned_chunks = pipeline.chunks.clone();

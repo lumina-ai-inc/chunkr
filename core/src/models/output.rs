@@ -132,18 +132,20 @@ impl Chunk {
     }
 
     pub fn generate_embed_text(&mut self, configuration: &Configuration) {
-        self.embed = Some(
-            self.segments
-                .iter()
-                .map(|s| s.get_embed_content())
-                .collect::<Vec<String>>()
-                .join("\n"),
-        );
+        // Collect embed content from segments (should already be set)
+        let embed_contents: Vec<String> = self
+            .segments
+            .iter()
+            .filter_map(|s| s.embed.clone())
+            .collect();
+
+        self.embed = Some(embed_contents.join("\n"));
+
+        // Calculate chunk length from segment embed lengths
         self.chunk_length = self
             .segments
-            .iter_mut()
-            .map(|s| s.count_embed_words(configuration))
-            .filter_map(Result::ok)
+            .iter()
+            .map(|s| s.get_embed_length(configuration).unwrap_or(0))
             .sum();
     }
 
@@ -1229,67 +1231,51 @@ impl Segment {
         Ok(tokens.len() as u32)
     }
 
-    pub fn count_embed_words(
+    /// Sets the embed field for this segment and calculates its length
+    pub fn set_embed_field(
         &mut self,
         configuration: &Configuration,
     ) -> std::result::Result<u32, Box<dyn Error>> {
-        let cache_key = format!(
-            "{}-{:?}",
-            self.segment_id, configuration.chunk_processing.tokenizer
-        );
-
-        {
-            if let Ok(mut cache) = WORD_COUNT_CACHE.lock() {
-                if let Some(count) = cache.get(&cache_key) {
-                    return Ok(*count);
-                }
-            }
-        }
-
         let content = self.get_embed_content();
-
-        let result: Result<u32, Box<dyn Error>> = match &configuration.chunk_processing.tokenizer {
-            TokenizerType::Enum(tokenizer) => match tokenizer {
-                crate::models::chunk_processing::Tokenizer::Word => {
-                    // Simple whitespace tokenization
-                    let count = content.split_whitespace().count();
-                    Ok(count as u32)
-                }
-                crate::models::chunk_processing::Tokenizer::Cl100kBase => {
-                    let bpe = cl100k_base().unwrap();
-                    let tokens = bpe.encode_with_special_tokens(&content);
-                    Ok(tokens.len() as u32)
-                }
-                _ => {
-                    // For other enum tokenizers, use the HuggingFace tokenizer
-                    let tokenizer_name = tokenizer.to_string();
-                    Self::count_with_huggingface_tokenizer(&content, &tokenizer_name)
-                }
-            },
-            TokenizerType::String(model_name) => {
-                // Use the specified model name with the HuggingFace tokenizer
-                Self::count_with_huggingface_tokenizer(&content, model_name)
-            }
-        };
-
-        if let Ok(count) = result {
-            self.segment_length = Some(count);
-            if let Ok(mut cache) = WORD_COUNT_CACHE.lock() {
-                cache.put(cache_key, count);
-            }
-        }
-
-        result
+        self.embed = Some(content);
+        let length = self.get_embed_length(configuration)?;
+        self.segment_length = Some(length);
+        Ok(length)
     }
 
-    pub fn get_segment_length(
-        &mut self,
+    /// Gets the length of the embed field if it exists, otherwise calculates it
+    pub fn get_embed_length(
+        &self,
         configuration: &Configuration,
     ) -> std::result::Result<u32, Box<dyn Error>> {
-        if let Some(length) = self.segment_length {
-            Ok(length)
+        if let Some(embed_content) = &self.embed {
+            // Calculate length from embed content directly
+            match &configuration.chunk_processing.tokenizer {
+                crate::models::chunk_processing::TokenizerType::Enum(tokenizer) => {
+                    match tokenizer {
+                        crate::models::chunk_processing::Tokenizer::Word => {
+                            Ok(embed_content.split_whitespace().count() as u32)
+                        }
+                        crate::models::chunk_processing::Tokenizer::Cl100kBase => {
+                            let bpe = cl100k_base().unwrap();
+                            let tokens = bpe.encode_with_special_tokens(embed_content);
+                            Ok(tokens.len() as u32)
+                        }
+                        _ => {
+                            let tokenizer_name = tokenizer.to_string();
+                            Self::count_with_huggingface_tokenizer(embed_content, &tokenizer_name)
+                        }
+                    }
+                }
+                crate::models::chunk_processing::TokenizerType::String(model_name) => {
+                    Self::count_with_huggingface_tokenizer(embed_content, model_name)
+                }
+            }
         } else {
-            self.count_embed_words(configuration)
+            // Fallback to segment_length if embed not set
+            self.segment_length
+                .map(|l| Ok(l))
+                .unwrap_or_else(|| Err("Neither embed nor segment_length is set".into()))
         }
     }
 }
@@ -1469,8 +1455,6 @@ mod tests {
     #[test]
     fn test_get_embed_content() {
         let segment = create_test_segment();
-        let config = create_test_config();
-
         // Test with all sources enabled
         let content = segment.get_embed_content();
         println!("Content: {content}");
@@ -1480,11 +1464,11 @@ mod tests {
 
     #[test]
     fn test_count_embed_words() {
-        let mut segment = create_test_segment();
+        let segment = create_test_segment();
         let config = create_test_config();
 
         // When using the Word tokenizer, we should get the word count
-        let word_count = segment.count_embed_words(&config).unwrap();
+        let word_count = segment.get_embed_length(&config).unwrap();
         println!("Word count: {word_count}");
         // The exact count will depend on the whitespace tokenizer, but it should be reasonable
         // Expected to be the sum of words from content, HTML, markdown, and LLM
@@ -1493,7 +1477,7 @@ mod tests {
 
     #[test]
     fn test_count_embed_words_with_many_tokenizers() {
-        let mut segment = create_test_segment();
+        let segment = create_test_segment();
         let mut config = create_test_config();
         let identifiers = vec![
             TokenizerType::Enum(Tokenizer::Word),
@@ -1506,7 +1490,7 @@ mod tests {
 
         for identifier in identifiers {
             config.chunk_processing.tokenizer = identifier.clone();
-            let word_count = segment.count_embed_words(&config).unwrap();
+            let word_count = segment.get_embed_length(&config).unwrap();
             println!("Word count for {identifier:?}: {word_count}");
             // The exact count will depend on the whitespace tokenizer, but it should be reasonable
             // Expected to be the sum of words from content, HTML, markdown, and LLM
