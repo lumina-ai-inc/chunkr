@@ -1386,7 +1386,7 @@ mod tests {
     use super::*;
     use crate::models::chunk_processing::{ChunkProcessing, Tokenizer, TokenizerType};
     use crate::models::llm::LlmProcessing;
-    use crate::models::segment_processing::{EmbedSource, SegmentProcessing};
+    use crate::models::segment_processing::SegmentProcessing;
     use crate::models::upload::{ErrorHandlingStrategy, OcrStrategy, SegmentationStrategy};
 
     fn create_test_segment() -> Segment {
