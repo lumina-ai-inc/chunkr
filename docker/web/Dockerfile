@@ -47,7 +47,7 @@ rm /usr/share/nginx/html/index.html.template
 
 # Process nginx.conf for environment variables
 cp /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.template
-envsubst '$CSP_CONNECT_SRC_ADDITIONAL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+envsubst '$CSP_CONNECT_SRC_ADDITIONAL $CSP_IMG_SRC_ADDITIONAL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 rm /etc/nginx/conf.d/default.conf.template
 
 EOF

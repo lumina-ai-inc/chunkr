@@ -63,7 +63,9 @@ services:
       - .env
     environment:
       # Allow local development connections for CSP
-      - CSP_CONNECT_SRC_ADDITIONAL=localhost:8000 localhost:8001 localhost:8002 localhost:8080 localhost:5173
+      - CSP_CONNECT_SRC_ADDITIONAL=localhost:8000 localhost:9000 localhost:8080 localhost:5173
+      # Allow local development images for CSP
+      - CSP_IMG_SRC_ADDITIONAL=http://localhost:9000
     deploy:
       replicas: 1
     restart: always

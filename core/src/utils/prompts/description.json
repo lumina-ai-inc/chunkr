@@ -1,0 +1,17 @@
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Describe the {segment_type} provided in text. Do not turn schematics into ASCII representations. Output the description directly in ``` tags."
+  }
+]

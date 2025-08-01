@@ -1,0 +1,31 @@
+[
+  {
+    "role": "user",
+    "content": "Describe the {segment_type} provided in text, using the context of the full page it came from if necessary. Do not turn schematics into ASCII representations. Output the description directly in ``` tags."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Segment Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{image_url}"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Full Page Image:"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "{page_image_url}"
+        }
+      }
+    ]
+  }
+]

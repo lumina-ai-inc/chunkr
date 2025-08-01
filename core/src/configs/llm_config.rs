@@ -536,6 +536,8 @@ macro_rules! prompt_templates {
 }
 
 const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
+    "description",
+    "description_extended",
     "formula",
     "formula_extended",
     "html_caption",
