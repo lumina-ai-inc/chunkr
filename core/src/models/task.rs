@@ -962,16 +962,9 @@ pub struct Configuration {
     /// The number of seconds until task is deleted.
     /// Expired tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,
-    /// Whether to use high-resolution images for cropping and post-processing.
-    pub high_resolution: bool,
     /// The presigned URL of the input file.
     pub input_file_url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[deprecated]
-    pub json_schema: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[deprecated]
-    pub model: Option<Model>,
+
     pub ocr_strategy: OcrStrategy,
     pub segment_processing: SegmentProcessing,
     pub segmentation_strategy: SegmentationStrategy,
@@ -984,6 +977,10 @@ pub struct Configuration {
     pub pipeline: Option<PipelineType>,
     pub error_handling: ErrorHandlingStrategy,
     pub llm_processing: LlmProcessing,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated]
+    /// Whether to use high-resolution images for cropping and post-processing.
+    pub high_resolution: Option<bool>,
 }
 
 impl<'de> Deserialize<'de> for Configuration {
@@ -998,10 +995,8 @@ impl<'de> Deserialize<'de> for Configuration {
             #[serde(alias = "expires_at")]
             expires_in: Option<i32>,
             #[serde(default)]
-            high_resolution: bool,
+            high_resolution: Option<bool>,
             input_file_url: Option<String>,
-            json_schema: Option<serde_json::Value>,
-            model: Option<Model>,
             #[serde(default)]
             ocr_strategy: Option<OcrStrategy>,
             #[serde(default)]
@@ -1035,8 +1030,6 @@ impl<'de> Deserialize<'de> for Configuration {
             expires_in: helper.expires_in,
             high_resolution: helper.high_resolution,
             input_file_url: helper.input_file_url,
-            json_schema: helper.json_schema,
-            model: helper.model,
             ocr_strategy: helper.ocr_strategy.unwrap_or(OcrStrategy::default()),
             segment_processing: helper
                 .segment_processing

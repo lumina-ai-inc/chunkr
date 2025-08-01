@@ -39,8 +39,7 @@ use routes::stripe::{
     get_user_invoices, stripe_webhook,
 };
 use routes::task::{
-    cancel_task_route, create_task_route, create_task_route_multipart, delete_task_route,
-    get_task_route, update_task_route, update_task_route_multipart,
+    cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
 };
 use routes::tasks::get_tasks_route;
 use routes::user::get_or_create_user;
@@ -107,8 +106,6 @@ fn run_migrations(url: &str) {
             models::upload::SegmentationStrategy,
             models::upload::CreateForm,
             models::upload::UpdateForm,
-            models::upload_multipart::CreateFormMultipart,
-            models::upload_multipart::UpdateFormMultipart,
         )
     ),
     modifiers(&SecurityAddon),
@@ -213,11 +210,9 @@ pub fn main() -> std::io::Result<()> {
                 .route("/user", web::get().to(get_or_create_user))
                 .service(
                     web::scope("/task")
-                        .route("", web::post().to(create_task_route_multipart))
                         .route("/parse", web::post().to(create_task_route))
                         .route("/{task_id}", web::get().to(get_task_route))
                         .route("/{task_id}", web::delete().to(delete_task_route))
-                        .route("/{task_id}", web::patch().to(update_task_route_multipart))
                         .route("/{task_id}/parse", web::patch().to(update_task_route))
                         .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
                 )

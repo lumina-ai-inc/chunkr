@@ -1665,7 +1665,12 @@ impl Pipeline {
             Ok(1.0)
         } else {
             let worker_config = worker_config::Config::from_env()?;
-            if self.get_task()?.configuration.high_resolution {
+            if self
+                .get_task()?
+                .configuration
+                .high_resolution
+                .unwrap_or(true)
+            {
                 Ok(worker_config.high_res_scaling_factor)
             } else {
                 Ok(1.0)

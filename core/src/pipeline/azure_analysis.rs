@@ -7,7 +7,7 @@ use rayon::prelude::*;
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     let configuration = pipeline.get_task()?.configuration.clone();
     let scaling_factor = pipeline.get_scaling_factor()?;
-    let features = if configuration.high_resolution {
+    let features = if configuration.high_resolution.unwrap_or(true) {
         Some(vec![DocumentAnalysisFeature::OcrHighResolution])
     } else {
         None

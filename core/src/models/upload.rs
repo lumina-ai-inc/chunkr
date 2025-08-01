@@ -89,9 +89,6 @@ pub struct CreateForm {
     pub file: String,
     /// The name of the file to be uploaded. If not set a name will be generated.
     pub file_name: Option<String>,
-    /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
-    #[schema(default = true)]
-    pub high_resolution: Option<bool>,
     #[schema(default = "All")]
     pub ocr_strategy: Option<OcrStrategy>,
     #[cfg(feature = "azure")]
@@ -115,10 +112,6 @@ impl CreateForm {
     fn get_expires_in(&self) -> Option<i32> {
         let job_config = job_config::Config::from_env().unwrap();
         self.expires_in.or(job_config.expiration_time)
-    }
-
-    fn get_high_resolution(&self) -> bool {
-        self.high_resolution.unwrap_or(true)
     }
 
     fn get_ocr_strategy(&self) -> OcrStrategy {
@@ -184,10 +177,8 @@ impl CreateForm {
         Ok(Configuration {
             chunk_processing: self.get_chunk_processing(),
             expires_in: self.get_expires_in(),
-            high_resolution: self.get_high_resolution(),
+            high_resolution: None,
             input_file_url: None,
-            json_schema: None,
-            model: None,
             ocr_strategy: self.get_ocr_strategy(),
             #[cfg(feature = "azure")]
             pipeline: self.get_pipeline(),
@@ -284,12 +275,8 @@ impl UpdateForm {
                 .clone()
                 .unwrap_or_else(|| current_config.chunk_processing.clone()),
             expires_in: self.expires_in.or(current_config.expires_in),
-            high_resolution: self
-                .high_resolution
-                .unwrap_or(current_config.high_resolution),
+            high_resolution: None,
             input_file_url: None,
-            json_schema: None,
-            model: None,
             ocr_strategy: self
                 .ocr_strategy
                 .clone()

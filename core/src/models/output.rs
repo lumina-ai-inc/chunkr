@@ -1,15 +1,11 @@
-use crate::models::{chunk_processing::TokenizerType, search::SimpleChunk, task::Configuration};
+use crate::models::{search::SimpleChunk, task::Configuration};
 use crate::utils::services::html::extract_cells_from_ranges;
 use crate::utils::services::renderer::Capture;
-use lru::LruCache;
-use once_cell::sync::Lazy;
 use opentelemetry::trace::{Span, TraceContextExt, Tracer};
 use postgres_types::{FromSql, ToSql};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::num::NonZeroUsize;
-use std::sync::{Arc, Mutex};
 use strum_macros::{Display, EnumString};
 use thiserror::Error as ThisError;
 use tiktoken_rs::cl100k_base;
@@ -27,11 +23,6 @@ pub enum SegmentCreationError {
     #[error("Other error: {0}")]
     Other(String),
 }
-
-static WORD_COUNT_CACHE: Lazy<Arc<Mutex<LruCache<String, u32>>>> = Lazy::new(|| {
-    let cache_size = NonZeroUsize::new(10000).unwrap();
-    Arc::new(Mutex::new(LruCache::new(cache_size)))
-});
 
 /// Extract the alt text from an img tag HTML string
 fn extract_alt_text_from_img(html: &str) -> Option<String> {
@@ -1435,10 +1426,8 @@ mod tests {
                 tokenizer: TokenizerType::Enum(Tokenizer::Cl100kBase),
             },
             expires_in: None,
-            high_resolution: false,
+            high_resolution: Some(true),
             input_file_url: None,
-            json_schema: None,
-            model: None,
             ocr_strategy: OcrStrategy::All,
             segment_processing: SegmentProcessing::default(),
             segmentation_strategy: SegmentationStrategy::LayoutAnalysis,

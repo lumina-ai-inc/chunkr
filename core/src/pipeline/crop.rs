@@ -34,19 +34,33 @@ impl CroppingBehavior for PictureCroppingStrategy {
     }
 }
 
+/// Determines if a segment should be cropped based on strategy and context.
+///
+/// Decision logic:
+/// - **Crop All**: Always crop segments
+/// - **Auto**: Crop when:
+///   - Generating descriptions (always crop for better visual context)
+///   - Spreadsheets: only if LLM field prompt is specified
+///   - Other content: if using LLM generation strategy or LLM field prompt is specified
+/// - **Never**: Never crop segments (should never happen)
 fn should_crop<T: CroppingBehavior>(
     cropping_strategy: &T,
     strategy: &GenerationStrategy,
     llm: &Option<String>,
     is_spreadsheet: bool,
+    generate_description: bool,
 ) -> bool {
     if cropping_strategy.should_crop_all() {
         true
     } else if cropping_strategy.should_crop_auto() {
-        if is_spreadsheet {
-            llm.is_some()
+        if generate_description {
+            true
         } else {
-            *strategy == GenerationStrategy::LLM || llm.is_some()
+            if is_spreadsheet {
+                llm.is_some()
+            } else {
+                *strategy == GenerationStrategy::LLM || llm.is_some()
+            }
         }
     } else {
         false
@@ -71,6 +85,7 @@ fn check_should_crop(
                     &config.strategy,
                     &config.llm,
                     is_spreadsheet,
+                    config.description,
                 ),
                 None => false,
             }
@@ -83,6 +98,7 @@ fn check_should_crop(
                     &config.strategy,
                     &config.llm,
                     is_spreadsheet,
+                    config.description,
                 ),
                 None => false,
             }
@@ -95,6 +111,7 @@ fn check_should_crop(
                     &config.strategy,
                     &config.llm,
                     is_spreadsheet,
+                    config.description,
                 ),
                 None => false,
             }
@@ -111,6 +128,7 @@ fn check_should_crop(
                     &config.strategy,
                     &config.llm,
                     is_spreadsheet,
+                    config.description,
                 ),
                 None => false,
             }
@@ -131,6 +149,7 @@ fn check_should_crop(
                     &config.strategy,
                     &config.llm,
                     is_spreadsheet,
+                    config.description,
                 ),
                 None => false,
             }
