@@ -87,7 +87,7 @@ Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 | **Excel Support** | ❌ | ✅ Native parser | ✅ Native parser |
 | **Document Types** | PDF, PPT, Word, Images | PDF, PPT, Word, Images, Excel | PDF, PPT, Word, Images, Excel |
 | **Infrastructure** | Self-hosted | Fully managed | Fully managed (On-prem or Chunkr-hosted) |
-| **Support** | Discord community | Priority email + community | 24/7 dedicated founing team support |
+| **Support** | Discord community | Dedicated support | Dedicated founding team support |
 | **Migration Support** | Community resources | Documentation + email | Dedicated migration team |
 
 ## Quick Start with Docker Compose
