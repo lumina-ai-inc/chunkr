@@ -1,17 +1,20 @@
 <br />
 <div align="center">
   <a href="https://github.com/lumina-ai-inc/chunkr">
-    <img src="images/logo.svg" alt="Logo" width="80" height="80">
+    <img src="images/logo.svg" alt="Chunkr Logo" width="80" height="80">
   </a>
 
 <h3 align="center">Chunkr | Open Source Document Intelligence API</h3>
 
   <p align="center">
-    Production-ready API service for document layout analysis, OCR, and semantic chunking.<br />Convert PDFs, PPTs, Word docs & images into RAG/LLM-ready chunks.
+    Production-ready service for document layout analysis, OCR, and semantic chunking.<br />
+    Convert PDFs, PPTs, Word docs & images into RAG/LLM-ready chunks.
     <br /><br />
-    <b>Layout Analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b> | <b>VLM Processing controls</b>
-    <br />
-    <br />
+    <b>Layout Analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML & Markdown</b> | <b>Vision-Language Model Processing</b>
+    <br /><br />
+    👉 <b>Note:</b> The <a href="https://github.com/lumina-ai-inc/chunkr">open-source AGPL version</a> is **different** from our fully managed <a href="https://www.chunkr.ai">Cloud API</a>.  
+    The open-source release uses community/open-source models, while the Cloud API runs **proprietary in-house models** for higher accuracy, speed, and enterprise reliability.
+    <br /><br />
     <a href="https://www.chunkr.ai"><img src="https://img.shields.io/badge/Try_it_out-chunkr.ai-blue?style=flat&logo=rocket&height=20" alt="Try it out" height="20"></a>
     &nbsp;&nbsp;&nbsp;
     <a href="https://github.com/lumina-ai-inc/chunkr/issues/new"><img src="https://img.shields.io/badge/Report_Bug-GitHub_Issues-red?style=flat&logo=github&height=20" alt="Report Bug" height="20"></a>
@@ -26,7 +29,7 @@
 
 <div align="center">
   <a href="https://www.chunkr.ai" width="1200" height="630">
-    <img src="https://chunkr.ai/og-image.png" style="bor">
+    <img src="https://chunkr.ai/og-image.png" alt="Chunkr Cloud API">
   </a>
 </div>
 
@@ -34,7 +37,7 @@
 - [Table of Contents](#table-of-contents)
 - [(Super) Quick Start](#super-quick-start)
 - [Documentation](#documentation)
-- [OpenSource vs Commercial API vs Enterprise](#opensource-vs-commercial-api-vs-enterprise)
+- [Open Source vs Cloud API vs Enterprise](#open-source-vs-cloud-api-vs-enterprise)
 - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
 - [LLM Configuration](#llm-configuration)
   - [Using models.yaml (Recommended)](#using-modelsyaml-recommended)
@@ -43,52 +46,26 @@
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
-## (Super) Quick Start
+## Open Source vs Cloud API vs Enterprise
 
-1. Go to [chunkr.ai](https://www.chunkr.ai) 
-2. Make an account and copy your API key
-3. Install our Python SDK:
-```bash
-pip install chunkr-ai
-```
-4. Use the SDK to process your documents:
-```python
-from chunkr_ai import Chunkr
-
-# Initialize with your API key from chunkr.ai
-chunkr = Chunkr(api_key="your_api_key")
-
-# Upload a document (URL or local file path)
-url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
-task = chunkr.upload(url)
-
-# Export results in various formats
-html = task.html(output_file="output.html")
-markdown = task.markdown(output_file="output.md")
-content = task.content(output_file="output.txt")
-task.json(output_file="output.json")
-
-# Clean up
-chunkr.close()
-```
-
-## Documentation
-
-Visit our [docs](https://docs.chunkr.ai) for more information and examples.
-
-## OpenSource vs Commercial API vs Enterprise
-
-| Feature | Open Source | Commercial API | Enterprise |
-|---------|-------------|----------------|------------|
-| **Perfect for** | Development & testing | Production applications | Large-scale/High security deployments|
-| **Layout Analysis** | Basic models | Advanced models | Advanced + custom-tuned |
-| **OCR Accuracy** | Standard models | Premium models | Premium + domain-tuned |
-| **VLM Processing** | Basic vision models | Enhanced VLM models | Enhanced + custom fine-tunes |
+| Feature | Open Source (AGPL) | Cloud API (chunkr.ai) | Enterprise |
+|---------|--------------------|------------------------|------------|
+| **Perfect for** | Development & testing | Production workloads | Large-scale / High-security |
+| **Layout Analysis** | Uses open-source models | Proprietary in-house models | In-house + custom-tuned |
+| **OCR Accuracy** | Community OCR engines | Optimized OCR stack | Optimized + domain-tuned |
+| **VLM Processing** | Basic open VLMs | Enhanced proprietary VLMs | Custom fine-tunes |
 | **Excel Support** | ❌ | ✅ Native parser | ✅ Native parser |
 | **Document Types** | PDF, PPT, Word, Images | PDF, PPT, Word, Images, Excel | PDF, PPT, Word, Images, Excel |
-| **Infrastructure** | Self-hosted | Fully managed | Fully managed (On-prem or Chunkr-hosted) |
-| **Support** | Discord community | Dedicated support | Dedicated founding team support |
-| **Migration Support** | Community resources | Documentation + email | Dedicated migration team |
+| **Infrastructure** | Self-hosted | Fully managed cloud | Managed / On-prem |
+| **Support** | Discord community | Dedicated support | Dedicated founding team |
+| **Migration Support** | Community-driven | Docs + email | Dedicated migration team |
+
+---
+
+The **open-source release** is ideal if you want transparency, local hosting, or to experiment with Chunkr’s pipeline.  
+For **best performance, production reliability, and access to in-house models**, we recommend the <a href="https://www.chunkr.ai">Chunkr Cloud API</a>.  
+For **high-security or regulated industries**, our **Enterprise edition** offers on-prem or VPC deployments.
+
 
 ## Quick Start with Docker Compose
 
