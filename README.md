@@ -48,7 +48,7 @@
 
 ## Open Source vs Cloud API vs Enterprise
 
-| Feature | Open Source (AGPL) | Cloud API (chunkr.ai) | Enterprise |
+| Feature | Open Source Repo (good) | Cloud API - chunkr.ai (best) | Enterprise |
 |---------|--------------------|------------------------|------------|
 | **Perfect for** | Development & testing | Production workloads | Large-scale / High-security |
 | **Layout Analysis** | Uses open-source models | Proprietary in-house models | In-house + custom-tuned |
