@@ -153,7 +153,7 @@ const InvestorPackage = () => {
                     </Text>
                   </Flex>
                   <Badge color="green" size="2">
-                    Ready for Investment
+                    Equity Investment
                   </Badge>
                 </Flex>
 

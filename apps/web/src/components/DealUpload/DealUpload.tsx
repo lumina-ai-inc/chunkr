@@ -54,6 +54,9 @@ export default function DealUpload({ onUploadSuccess, onUploadStart }: DealUploa
   };
 
   const handleSubmit = useCallback(async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DealUpload.tsx:56',message:'handleSubmit called',data:{fileCount:files.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     if (files.length === 0) {
       toast.error("Please select at least one file");
       return;
@@ -67,18 +70,27 @@ export default function DealUpload({ onUploadSuccess, onUploadStart }: DealUploa
     let successCount = 0;
     for (const file of files) {
       try {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DealUpload.tsx:70',message:'Before encodeFile',data:{fileName:file.name,fileSize:file.size},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H1-H2'})}).catch(()=>{});
+        // #endregion
         const b64 = await encodeFile(file);
         const payload: UploadForm = {
           file: b64,
           file_name: file.name,
           ocr_strategy: OcrStrategy.All,
-          segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
+          segmentation_strategy: SegmentationStrategy.Page,  // Changed from LayoutAnalysis to Page (no segmentation service needed)
           high_resolution: true,
           pipeline: Pipeline.Orin as any,
           error_handling: ErrorHandling.Fail,
         };
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DealUpload.tsx:81',message:'Before uploadFile API call',data:{fileName:file.name,payloadSize:b64.length,segmentationStrategy:payload.segmentation_strategy,pipeline:payload.pipeline},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H2'})}).catch(()=>{});
+        // #endregion
         
         const result = await uploadFile(payload);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DealUpload.tsx:82',message:'uploadFile success',data:{taskId:result.task_id,fileName:file.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H2'})}).catch(()=>{});
+        // #endregion
         setUploadProgress((prev) => ({ ...prev, [file.name]: true }));
         successCount++;
         
@@ -86,6 +98,9 @@ export default function DealUpload({ onUploadSuccess, onUploadStart }: DealUploa
           onUploadSuccess?.(result.task_id);
         }
       } catch (err) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DealUpload.tsx:89',message:'Upload failed with error',data:{fileName:file.name,error:err instanceof Error?err.message:String(err),errorType:err?.constructor?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H2-H3'})}).catch(()=>{});
+        // #endregion
         console.error(`Upload failed for ${file.name}:`, err);
         toast.error(`Failed to upload ${file.name}`);
       }
@@ -126,11 +141,11 @@ export default function DealUpload({ onUploadSuccess, onUploadStart }: DealUploa
             cursor: "pointer",
             transition: "all 0.2s ease",
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
             e.currentTarget.style.borderColor = "#545454";
             e.currentTarget.style.backgroundColor = "#f0f0f0";
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
             e.currentTarget.style.borderColor = "#e0e0e0";
             e.currentTarget.style.backgroundColor = "#f8f9fa";
           }}

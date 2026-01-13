@@ -1,11 +1,13 @@
 import { Flex, Text, Tabs, ScrollArea, Button } from "@radix-ui/themes";
+import { useState } from "react";
 import { useQuery } from "react-query";
-import { getDeal, getDealFacts, getDealDocuments } from "../../services/dealApi";
+import { getDeal, getDealFacts, getDealDocuments, DocumentResponse } from "../../services/dealApi";
 import { calculateUnderwriting, UnderwritingResult } from "../../services/underwritingApi";
 import DealSummaryCard from "./DealSummaryCard";
 import FactReviewDeal from "../FactReview/FactReviewDeal";
 import UnderwritingDashboard from "../Underwriting/UnderwritingDashboard";
 import InvestorPackage from "../InvestorPackage/InvestorPackage";
+import OCRDocumentViewer from "../Documents/OCRDocumentViewer";
 import "./RightPreviewPane.css";
 
 interface RightPreviewPaneProps {
@@ -17,6 +19,8 @@ export default function RightPreviewPane({
   dealId,
   previewType,
 }: RightPreviewPaneProps) {
+  const [viewingDocument, setViewingDocument] = useState<DocumentResponse | null>(null);
+
   const { data: deal } = useQuery(
     ["deal", dealId],
     () => (dealId ? getDeal(dealId) : null),
@@ -109,13 +113,13 @@ export default function RightPreviewPane({
         flexShrink: 0,
       }}
     >
-      <Tabs.Root defaultValue="analysis" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <Tabs.Root defaultValue="memo" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <Tabs.List style={{ padding: "16px 16px 0", backgroundColor: "#fff", borderBottom: "1px solid #e0e0e0" }}>
-          <Tabs.Trigger value="analysis">Overview</Tabs.Trigger>
-          <Tabs.Trigger value="documents">Documents</Tabs.Trigger>
-          <Tabs.Trigger value="facts">Facts</Tabs.Trigger>
-          <Tabs.Trigger value="underwriting">Underwriting</Tabs.Trigger>
           <Tabs.Trigger value="memo">Memo</Tabs.Trigger>
+          <Tabs.Trigger value="underwriting">Analysis</Tabs.Trigger>
+          <Tabs.Trigger value="facts">Facts</Tabs.Trigger>
+          <Tabs.Trigger value="documents">Documents</Tabs.Trigger>
+          <Tabs.Trigger value="analysis">Summary</Tabs.Trigger>
         </Tabs.List>
 
         <ScrollArea style={{ flex: 1 }} scrollbars="vertical">
@@ -148,7 +152,8 @@ export default function RightPreviewPane({
                 documents.map((doc) => (
                   <Flex
                     key={doc.document_id}
-                    direction="column"
+                    justify="between"
+                    align="center"
                     p="12px"
                     style={{
                       backgroundColor: "#fff",
@@ -156,12 +161,22 @@ export default function RightPreviewPane({
                       border: "1px solid #e0e0e0",
                     }}
                   >
-                    <Text size="2" weight="medium">
-                      {doc.file_name}
-                    </Text>
-                    <Text size="1" style={{ color: "#666" }}>
-                      {doc.status} • {doc.page_count || 0} pages
-                    </Text>
+                    <Flex direction="column" gap="1" style={{ flex: 1 }}>
+                      <Text size="2" weight="medium">
+                        {doc.file_name}
+                      </Text>
+                      <Text size="1" style={{ color: "#666" }}>
+                        {doc.status} • {doc.page_count || 0} pages
+                      </Text>
+                    </Flex>
+                    <Button
+                      size="2"
+                      variant="outline"
+                      onClick={() => setViewingDocument(doc)}
+                      style={{ flexShrink: 0 }}
+                    >
+                      View Source
+                    </Button>
                   </Flex>
                 ))
               ) : (
@@ -217,6 +232,16 @@ export default function RightPreviewPane({
           </Tabs.Content>
         </ScrollArea>
       </Tabs.Root>
+
+      {/* OCR Document Viewer Dialog */}
+      {dealId && (
+        <OCRDocumentViewer
+          document={viewingDocument}
+          dealId={dealId}
+          open={!!viewingDocument}
+          onOpenChange={(open) => !open && setViewingDocument(null)}
+        />
+      )}
     </Flex>
   );
 }

@@ -3,7 +3,12 @@
 
 import { DealResponse, DocumentResponse, FactResponse } from "./dealApi";
 
-export const MOCK_DEALS: DealResponse[] = [
+// LocalStorage keys
+const MOCK_DEALS_KEY = 'orin_mock_deals';
+const MOCK_DOCUMENTS_KEY = 'orin_mock_documents';
+
+// Default mock deals
+const DEFAULT_MOCK_DEALS: DealResponse[] = [
   {
     deal_id: "deal-002-mockdata",
     user_id: "mock-user-001",
@@ -28,7 +33,8 @@ export const MOCK_DEALS: DealResponse[] = [
   },
 ];
 
-export const MOCK_DOCUMENTS: DocumentResponse[] = [
+// Default mock documents
+const DEFAULT_MOCK_DOCUMENTS: DocumentResponse[] = [
   // Documents for Downtown Commercial Property (deal-002-mockdata)
   {
     document_id: "doc-downtown-001",
@@ -398,6 +404,33 @@ export const generateMockDealId = (): string => {
   return `deal-${Date.now()}-mockdata`;
 };
 
+// Load from localStorage with fallback to defaults
+const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error(`Failed to load ${key} from localStorage:`, e);
+  }
+  return defaultValue;
+};
+
+// Initialize from localStorage
+export const MOCK_DEALS: DealResponse[] = loadFromLocalStorage(MOCK_DEALS_KEY, DEFAULT_MOCK_DEALS);
+export const MOCK_DOCUMENTS: DocumentResponse[] = loadFromLocalStorage(MOCK_DOCUMENTS_KEY, DEFAULT_MOCK_DOCUMENTS);
+
+// Save to localStorage
+export const saveMockData = () => {
+  try {
+    localStorage.setItem(MOCK_DEALS_KEY, JSON.stringify(MOCK_DEALS));
+    localStorage.setItem(MOCK_DOCUMENTS_KEY, JSON.stringify(MOCK_DOCUMENTS));
+  } catch (e) {
+    console.error('Failed to save mock data to localStorage:', e);
+  }
+};
+
 export const createMockDeal = (dealName: string): DealResponse => {
   const newDeal = {
     deal_id: generateMockDealId(),
@@ -411,5 +444,6 @@ export const createMockDeal = (dealName: string): DealResponse => {
     fact_count: 0,
   };
   MOCK_DEALS.push(newDeal);
+  saveMockData();  // Auto-save
   return newDeal;
 };

@@ -37,11 +37,12 @@ llm:
   default_provider: openai
   timeout_seconds: 120
 
-# OCR Services
+# OCR Services - Docling
 ocr:
-  url: http://localhost:8002
-  max_batch_size: 10
-  batch_wait_time: 0.1
+  provider: docling
+  service_url: http://localhost:8002
+  cache_enabled: true
+  timeout_seconds: 120
 
 # Segmentation Services
 segmentation:

@@ -121,7 +121,7 @@ const UnderwritingDashboard = ({ dealId }: UnderwritingDashboardProps) => {
       className="underwriting-dashboard-container"
     >
       <Text size="6" weight="bold">
-        Underwriting Dashboard
+        Pro Forma Simulator
       </Text>
 
       {/* Warnings */}

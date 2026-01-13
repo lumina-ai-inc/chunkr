@@ -4,7 +4,7 @@ use async_openai::{
         ChatCompletionRequestMessage, ChatCompletionRequestSystemMessageArgs,
         ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequest,
         CreateChatCompletionRequestArgs, CreateEmbeddingRequest, CreateEmbeddingRequestArgs,
-        EmbeddingInput, ResponseFormat,
+        EmbeddingInput,
     },
     Client,
 };
@@ -70,6 +70,8 @@ impl OpenAIClient {
             ),
         ];
 
+        use async_openai::types::ResponseFormat;
+        
         let request = CreateChatCompletionRequestArgs::default()
             .model(&self.model)
             .messages(messages)

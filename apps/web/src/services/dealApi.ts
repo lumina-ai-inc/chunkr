@@ -1,10 +1,13 @@
 import axiosInstance from "./axios.config";
 // Type imports reserved for future use
 // import type { Deal, DealDocument, ExtractedFact } from "../models/deal.model";
-import { createMockDeal, MOCK_FACTS, MOCK_DOCUMENTS, MOCK_DEALS, isMockDeal } from "./mockDealData";
+import { createMockDeal, MOCK_FACTS, MOCK_DOCUMENTS, MOCK_DEALS, isMockDeal, saveMockData } from "./mockDealData";
 
 // TODO: Set to false once backend is fully operational
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = true;  // REVERTED: Back to mock mode - backend deal APIs not available
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:7',message:'dealApi module loaded',data:{USE_MOCK_DATA},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
+// #endregion
 
 export interface CreateDealRequest {
   deal_name: string;
@@ -27,9 +30,10 @@ export interface DocumentResponse {
   deal_id: string;
   file_name: string;
   document_type: string;
-  status: string;
+  status: string; // "pending" | "processing" | "completed" | "failed"
   storage_location?: string;
   page_count?: number;
+  ocr_output?: any;
   created_at: string;
   updated_at: string;
   extracted_at?: string;
@@ -79,12 +83,21 @@ export const createDeal = async (dealName: string): Promise<DealResponse> => {
 
 // Get all deals for the current user
 export const getDeals = async (): Promise<DealResponse[]> => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:65',message:'getDeals called',data:{USE_MOCK_DATA},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H6-H7-H8'})}).catch(()=>{});
+  // #endregion
   if (USE_MOCK_DATA) {
     await new Promise((resolve) => setTimeout(resolve, 300));
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:71',message:'Returning mock deals',data:{dealsCount:MOCK_DEALS.length,dealIds:MOCK_DEALS.map(d=>d.deal_id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
+    // #endregion
     return MOCK_DEALS;
   }
   
   const response = await axiosInstance.get("/api/v1/deals");
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:78',message:'Returning real deals from API',data:{dealsCount:response.data.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H7-H8'})}).catch(()=>{});
+  // #endregion
   return response.data;
 };
 
@@ -108,31 +121,82 @@ export const uploadDealDocuments = async (
   documentType: string
 ): Promise<DocumentResponse[]> => {
   if (USE_MOCK_DATA && isMockDeal(dealId)) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:118',message:'Mock mode - creating real processing tasks',data:{dealId,fileCount:files.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H11'})}).catch(()=>{});
+    // #endregion
     
-    const mockDocuments: DocumentResponse[] = files.map((file, index) => ({
-      document_id: `doc-${Date.now()}-${index}-mockdata`,
-      deal_id: dealId,
-      file_name: file.name,
-      document_type: documentType,
-      status: "processing",
-      storage_location: `/mock-documents/${file.name}`,
-      page_count: 1,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      extracted_at: undefined,
-    }));
+    // Import uploadFile to create real processing tasks
+    const { uploadFile } = await import('./uploadFileApi');
+    const { OcrStrategy, SegmentationStrategy, Pipeline, ErrorHandling } = await import('../models/taskConfig.model');
     
-    MOCK_DOCUMENTS.push(...mockDocuments);
+    const mockDocuments: DocumentResponse[] = [];
+    
+    // For each file, create a REAL processing task
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      try {
+        // Encode file to base64
+        const reader = new FileReader();
+        const b64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        // Create real OCR task
+        const payload: any = {
+          file: b64,
+          file_name: file.name,
+          ocr_strategy: OcrStrategy.All,
+          segmentation_strategy: SegmentationStrategy.Page,
+          high_resolution: true,
+          pipeline: Pipeline.Orin,
+          error_handling: ErrorHandling.Fail,
+        };
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:145',message:'Calling real uploadFile for mock document',data:{fileName:file.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H11'})}).catch(()=>{});
+        // #endregion
+        
+        const taskResult = await uploadFile(payload);
+        
+        // Create mock document with real task ID
+        const mockDoc: DocumentResponse = {
+          document_id: taskResult.task_id,  // Use real task ID
+          deal_id: dealId,
+          file_name: file.name,
+          document_type: documentType,
+          status: "processing",
+          storage_location: taskResult.task_url || `/mock-documents/${file.name}`,
+          page_count: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          extracted_at: undefined,
+        };
+        
+        mockDocuments.push(mockDoc);
+        MOCK_DOCUMENTS.push(mockDoc);
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:166',message:'Real task created for mock document',data:{taskId:taskResult.task_id,fileName:file.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H11'})}).catch(()=>{});
+        // #endregion
+      } catch (error) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:170',message:'Failed to create real task for mock document',data:{fileName:file.name,error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H11'})}).catch(()=>{});
+        // #endregion
+        console.error(`Failed to process ${file.name}:`, error);
+      }
+    }
     
     const deal = MOCK_DEALS.find(d => d.deal_id === dealId);
     if (deal) {
-      deal.document_count = (deal.document_count || 0) + files.length;
+      deal.document_count = (deal.document_count || 0) + mockDocuments.length;
       deal.status = "processing_documents";
       deal.updated_at = new Date().toISOString();
     }
     
-    console.log("Created mock documents:", mockDocuments);
+    saveMockData();  // Persist to localStorage
+    console.log("Created mock documents with real tasks:", mockDocuments);
     return mockDocuments;
   }
   
@@ -164,6 +228,42 @@ export const getDealDocuments = async (
   
   const response = await axiosInstance.get(`/api/v1/deals/${dealId}/documents`);
   return response.data;
+};
+
+// Poll document status for real-time updates
+export const pollDocumentStatus = async (
+  dealId: string,
+  documentId: string,
+  onStatusUpdate: (status: string, ocrOutput?: any) => void,
+  interval = 2000, // Poll every 2 seconds
+  timeout = 120000 // Timeout after 2 minutes
+): Promise<DocumentResponse> => {
+  const startTime = Date.now();
+  return new Promise((resolve, reject) => {
+    const intervalId = setInterval(async () => {
+      if (Date.now() - startTime > timeout) {
+        clearInterval(intervalId);
+        reject(new Error("Document processing timed out"));
+        return;
+      }
+
+      try {
+        const documents = await getDealDocuments(dealId);
+        const document = documents.find((doc) => doc.document_id === documentId);
+
+        if (document) {
+          onStatusUpdate(document.status, document.ocr_output);
+          if (document.status === "completed" || document.status === "failed") {
+            clearInterval(intervalId);
+            resolve(document);
+          }
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+        // Continue polling even if there's a temporary error
+      }
+    }, interval);
+  });
 };
 
 // Get facts for a deal

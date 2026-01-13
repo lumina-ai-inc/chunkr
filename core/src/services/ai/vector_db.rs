@@ -217,33 +217,46 @@ pub struct SearchResult {
 
 /// Convert serde_json::Value to qdrant Value
 fn json_to_qdrant_value(json: JsonValue) -> Value {
+    use qdrant_client::qdrant::value::Kind;
+    
     match json {
-        JsonValue::Null => Value::from("null"),
-        JsonValue::Bool(b) => Value::from(b),
+        JsonValue::Null => Value {
+            kind: Some(Kind::NullValue(0)),
+        },
+        JsonValue::Bool(b) => Value {
+            kind: Some(Kind::BoolValue(b)),
+        },
         JsonValue::Number(n) => {
             if let Some(i) = n.as_i64() {
-                Value::from(i)
+                Value {
+                    kind: Some(Kind::IntegerValue(i)),
+                }
             } else if let Some(f) = n.as_f64() {
-                Value::from(f)
+                Value {
+                    kind: Some(Kind::DoubleValue(f)),
+                }
             } else {
-                Value::from("0")
+                Value {
+                    kind: Some(Kind::NullValue(0)),
+                }
             }
         }
-        JsonValue::String(s) => Value::from(s),
+        JsonValue::String(s) => Value {
+            kind: Some(Kind::StringValue(s)),
+        },
         JsonValue::Array(arr) => {
             let values: Vec<Value> = arr.into_iter().map(json_to_qdrant_value).collect();
-            Value::from(values)
+            Value {
+                kind: Some(Kind::ListValue(qdrant_client::qdrant::ListValue { values })),
+            }
         }
         JsonValue::Object(obj) => {
             let map: HashMap<String, Value> = obj
                 .into_iter()
                 .map(|(k, v)| (k, json_to_qdrant_value(v)))
                 .collect();
-            // Create a struct value with the map
             Value {
-                kind: Some(qdrant_client::qdrant::value::Kind::StructValue(
-                    qdrant_client::qdrant::Struct { fields: map }
-                ))
+                kind: Some(Kind::StructValue(qdrant_client::qdrant::Struct { fields: map })),
             }
         }
     }

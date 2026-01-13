@@ -13,11 +13,13 @@ rate_monitor = ["limit-lens", "rand"]
 actix-cors = "0.7.0"
 actix-multipart = "0.7.2"
 actix-web = "4.8.0"
+async-trait = "0.1.83"
 async-stripe = { version = "0.41.0", features = ["runtime-tokio-hyper"] }
 aws-credential-types = { version = "1.2.0", features = ["hardcoded-credentials"] }
 aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
 base64 = "0.22.1"
 bytes = "1.4.0"
+calamine = "0.26.0"
 chrono = { version = "0.4.31", features = ["serde"] }
 config = "0.15.4"
 dashmap = { version = "=6.1.0", features = ["rayon"] }
@@ -78,6 +80,7 @@ tokenizers = { version = "0.21.1", features = ["http"] }
 tiktoken-rs = "0.6.0"
 lru = "0.14.0"
 serde_yaml = "0.9.34"
+sha2 = "0.10.8"
 # AI Agent dependencies
 async-openai = "0.24.0"
 anthropic-sdk = "0.1.5"
@@ -104,4 +107,8 @@ pkg-config = "0.3.19"
 [[bin]]
 name = "task"
 path = "src/workers/task.rs"
+
+[[bin]]
+name = "deal_document_worker"
+path = "src/workers/deal_document_worker.rs"
 

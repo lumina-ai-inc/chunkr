@@ -1,19 +1,16 @@
 import { useState } from "react";
-import { Flex, Text, Card, Button, TextField, Badge, Dialog } from "@radix-ui/themes";
+import { Flex, Text, Card, Button, TextField, Badge } from "@radix-ui/themes";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   getDeal,
   getDealFacts,
-  getDealDocuments,
   updateFact,
   approveFacts,
   resetFacts,
   updateDealStatus,
   DealResponse,
   FactResponse,
-  DocumentResponse,
 } from "../../services/dealApi";
-import { isMockDeal } from "../../services/mockDealData";
 import toast from "react-hot-toast";
 import "./FactReviewDeal.css";
 
@@ -29,7 +26,6 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     Record<string, { value: string; unit?: string }>
   >({});
   const [selectedFacts, setSelectedFacts] = useState<Set<string>>(new Set());
-  const [viewingDocument, setViewingDocument] = useState<DocumentResponse | null>(null);
   const queryClient = useQueryClient();
 
   const {
@@ -47,13 +43,6 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
   } = useQuery<FactResponse[]>({
     queryKey: ["deal-facts", dealId],
     queryFn: () => getDealFacts(dealId),
-  });
-
-  const {
-    data: documents,
-  } = useQuery<DocumentResponse[]>({
-    queryKey: ["deal-documents", dealId],
-    queryFn: () => getDealDocuments(dealId),
   });
 
   const updateMutation = useMutation({
@@ -227,18 +216,6 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     }
   };
 
-  const findDocumentByName = (fileName: string): DocumentResponse | undefined => {
-    return documents?.find((doc) => doc.file_name === fileName);
-  };
-
-  const handleViewSource = (fact: FactResponse) => {
-    const doc = findDocumentByName(fact.source_citation.document);
-    if (doc) {
-      setViewingDocument(doc);
-    } else {
-      toast.error("Document not found");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -321,7 +298,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                 color: "#fff",
               }}
             >
-              Run Underwriting →
+              Run Analysis →
             </Button>
           </Flex>
         </Flex>
@@ -332,7 +309,6 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
           const status = getFactStatus(fact);
           const statusDisplay = getStatusDisplay(status);
           const isEdited = !!editedFacts[fact.fact_id];
-          const sourceDoc = findDocumentByName(fact.source_citation.document);
 
           return (
             <Card
@@ -369,25 +345,20 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                       </Badge>
                     )}
                   </Flex>
-                  {sourceDoc && (
-                    <Flex
-                      align="center"
-                      gap="1"
-                      onClick={() => handleViewSource(fact)}
-                      style={{
-                        cursor: "pointer",
-                        flexShrink: 0,
-                        color: "#111",
-                      }}
-                    >
-                      <Text size="2" style={{ color: "#111" }}>
-                        📄
+                  <Flex direction="column" align="end" gap="1" style={{ fontSize: "11px", flexShrink: 0 }}>
+                    <Text size="1" color="gray" style={{ textAlign: "right" }}>
+                      <strong>Source:</strong> {fact.source_citation.document}, Page{" "}
+                      {fact.source_citation.page}
+                      {fact.source_citation.line && ` - Line: ${fact.source_citation.line}`}
+                    </Text>
+                    {fact.approved_at && (
+                      <Text size="1" color="gray" style={{ textAlign: "right" }}>
+                        <strong>Verified:</strong>{" "}
+                        {new Date(fact.approved_at).toLocaleDateString()}
+                        {fact.approved_by && ` by ${fact.approved_by}`}
                       </Text>
-                      <Text size="2" weight="medium" style={{ color: "#111" }}>
-                        View Source
-                      </Text>
-                    </Flex>
-                  )}
+                    )}
+                  </Flex>
                 </Flex>
 
                 <Flex gap="2" align="center" wrap="wrap">
@@ -426,156 +397,12 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                     </Button>
                   )}
                 </Flex>
-
-                <Flex direction="column" gap="1" style={{ fontSize: "11px" }}>
-                  <Text size="1" color="gray">
-                    <strong>Source:</strong> {fact.source_citation.document}, Page{" "}
-                    {fact.source_citation.page}
-                    {fact.source_citation.line && ` - Line: ${fact.source_citation.line}`}
-                  </Text>
-                  {fact.approved_at && (
-                    <Text size="1" color="gray">
-                      <strong>Verified:</strong>{" "}
-                      {new Date(fact.approved_at).toLocaleDateString()}
-                      {fact.approved_by && ` by ${fact.approved_by}`}
-                    </Text>
-                  )}
-                </Flex>
               </Flex>
             </Card>
           );
         })}
       </Flex>
 
-      {/* Document Viewer Dialog */}
-      <Dialog.Root open={!!viewingDocument} onOpenChange={(open) => !open && setViewingDocument(null)}>
-        <Dialog.Content style={{ maxWidth: "90vw", maxHeight: "90vh" }}>
-          <Dialog.Title>
-            {viewingDocument?.file_name || "Source Document"}
-          </Dialog.Title>
-          <Dialog.Description size="2" mb="4">
-            Page {viewingDocument && facts?.find(f => f.source_citation.document === viewingDocument.file_name)?.source_citation.page || 1}
-          </Dialog.Description>
-          
-          <Flex direction="column" gap="3" style={{ maxHeight: "70vh", overflow: "auto" }}>
-            {isMockDeal(dealId) ? (
-              // Mock data - show sample PDF with disclaimer
-              <Flex direction="column" gap="3">
-                <Card style={{ background: "#fff3cd", borderColor: "#ffc107", padding: "16px" }}>
-                  <Flex direction="column" gap="2">
-                    <Text size="3" weight="bold" style={{ color: "#856404" }}>
-                      ⚠️ Mock Data Preview
-                    </Text>
-                    <Text size="2" style={{ color: "#856404" }}>
-                      This is a sample document preview for demonstration purposes. 
-                      In production, this would display the actual uploaded document.
-                    </Text>
-                  </Flex>
-                </Card>
-                
-                <Card style={{ padding: "24px", background: "#f8f9fa", border: "1px solid #e0e0e0" }}>
-                  <Flex direction="column" gap="3">
-                    <Flex direction="column" gap="1">
-                      <Text size="4" weight="bold">
-                        {viewingDocument?.file_name || "Sample Document"}
-                      </Text>
-                      <Text size="2" color="gray">
-                        Document Type: {viewingDocument?.document_type || "N/A"}
-                      </Text>
-                      {viewingDocument?.page_count && (
-                        <Text size="2" color="gray">
-                          Pages: {viewingDocument.page_count}
-                        </Text>
-                      )}
-                    </Flex>
-                    
-                    <Flex direction="column" gap="2" mt="3">
-                      <Text size="3" weight="medium">
-                        Extracted Information:
-                      </Text>
-                      {facts?.filter(f => f.source_citation.document === viewingDocument?.file_name).map((fact, _idx) => (
-                        <Card key={fact.fact_id} style={{ padding: "12px", background: "#fff" }}>
-                          <Flex direction="column" gap="1">
-                            <Flex justify="between" align="center">
-                              <Text size="2" weight="medium">{fact.label}</Text>
-                              <Badge color={fact.status === "approved" ? "green" : fact.status === "missing" ? "red" : "yellow"}>
-                                {fact.status === "approved" ? "Verified" : fact.status === "missing" ? "Missing" : "Needs Review"}
-                              </Badge>
-                            </Flex>
-                            {fact.value && (
-                              <Text size="3" weight="bold">
-                                {fact.value} {fact.unit || ""}
-                              </Text>
-                            )}
-                            <Text size="1" color="gray">
-                              Page {fact.source_citation.page}, Line: {fact.source_citation.line || "N/A"}
-                            </Text>
-                          </Flex>
-                        </Card>
-                      ))}
-                    </Flex>
-                    
-                    <Flex direction="column" gap="1" mt="3" p="3" style={{ background: "#e9ecef", borderRadius: "4px" }}>
-                      <Text size="2" weight="medium">Document Metadata:</Text>
-                      <Text size="1" color="gray">
-                        Created: {viewingDocument?.created_at ? new Date(viewingDocument.created_at).toLocaleDateString() : "N/A"}
-                      </Text>
-                      <Text size="1" color="gray">
-                        Status: {viewingDocument?.status || "N/A"}
-                      </Text>
-                      {viewingDocument?.extracted_at && (
-                        <Text size="1" color="gray">
-                          Extracted: {new Date(viewingDocument.extracted_at).toLocaleDateString()}
-                        </Text>
-                      )}
-                    </Flex>
-                  </Flex>
-                </Card>
-              </Flex>
-            ) : viewingDocument?.storage_location ? (
-              // Real data - show actual document
-              <iframe
-                src={viewingDocument.storage_location}
-                style={{
-                  width: "100%",
-                  height: "600px",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "4px",
-                }}
-                title={viewingDocument.file_name}
-              />
-            ) : (
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                p="8"
-                gap="2"
-                style={{ minHeight: "400px" }}
-              >
-                <Text size="4" color="gray">
-                  📄 {viewingDocument?.file_name}
-                </Text>
-                <Text size="2" color="gray">
-                  Document preview not available. The document will be available once uploaded and processed.
-                </Text>
-                <Text size="1" color="gray" style={{ marginTop: "8px" }}>
-                  Source: {facts?.find(f => f.source_citation.document === viewingDocument?.file_name)?.source_citation.document}
-                  {facts?.find(f => f.source_citation.document === viewingDocument?.file_name)?.source_citation.page && 
-                    `, Page ${facts.find(f => f.source_citation.document === viewingDocument?.file_name)?.source_citation.page}`
-                  }
-                </Text>
-              </Flex>
-            )}
-          </Flex>
-
-          <Flex gap="3" mt="4" justify="end">
-            <Dialog.Close>
-              <Button variant="soft">Close</Button>
-            </Dialog.Close>
-          </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
     </Flex>
   );
 };

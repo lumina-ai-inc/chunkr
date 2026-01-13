@@ -39,9 +39,12 @@ llm:
 
 # OCR Services
 ocr:
-  url: ${WORKER__GENERAL_OCR_URL}
+  provider: ${OCR_PROVIDER:-azure}  # azure|google|tesseract
+  url: ${WORKER__GENERAL_OCR_URL}  # Legacy GPU OCR
   max_batch_size: 10
   batch_wait_time: 0.1
+  cache_enabled: true
+  max_concurrent: 10
 
 # Segmentation Services
 segmentation:

@@ -46,10 +46,10 @@ export default function TemplateCards({ onSelect }: TemplateCardsProps) {
     
     },
     {
-      id: "review-portfolio",
-      title: "Review My Portfolio",
-      description: "Upload multiple properties and get a consolidated view of NOI, equity, and risk.",
-      prompt: "Can you analyze a multi-property portfolio? What would that look like?",
+      id: "generate-proforma",
+      title: "Generate Pro Forma",
+      description: "Create forward-looking financial projections with projected income, expenses, and returns for your property deal.",
+      prompt: "Can you help me generate a pro forma for my property? What should it include?",
     },
   ];
 

@@ -16,8 +16,8 @@ export default function QuickActionButtons({ onAction }: QuickActionButtonsProps
     {
       id: "calculate",
       icon: "📈",
-      label: "Calculate Cashflow",
-      prompt: "I need to calculate DSCR and cap spread for my property. Show me an example.",
+      label: "Generate Pro Forma",
+      prompt: "I need to build Pro Forma for a property. Show me an example.",
     },
     {
       id: "generate",

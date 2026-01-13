@@ -20,6 +20,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 pub mod configs;
 pub mod data;
+pub mod events;
 pub mod jobs;
 pub mod middleware;
 // pub mod agents; // Temporarily disabled - needs conversion from diesel to tokio-postgres

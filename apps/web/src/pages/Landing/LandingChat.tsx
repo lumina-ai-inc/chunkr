@@ -234,26 +234,35 @@ I also factor in:
 Want me to model a specific project?`;
         hasTemplateResponse = true;
       } 
-      else if (lowerContent.includes("multi-property") || (lowerContent.includes("portfolio analysis") && lowerContent.includes("compare properties"))) {
-        assistantResponse = `Yes — here's what a portfolio view looks like:
+      else if (lowerContent.includes("pro forma") || lowerContent.includes("proforma") || lowerContent.includes("financial projection") || lowerContent.includes("forward-looking")) {
+        assistantResponse = `I can help you generate a comprehensive pro forma for your property deal. Here's what it typically includes:
 
+**Pro Forma Components:**
 ┌─────────────────────────────────────────────────┐
-│  Portfolio: 6 Properties | Texas               │
-├──────────────────┬──────────┬─────────┬────────┤
-│  Property        │  NOI     │  DSCR   │ Status │
-├──────────────────┼──────────┼─────────┼────────┤
-│  Austin 12-Unit  │  $108K   │  1.42x  │ ✓      │
-│  Dallas Retail   │  $84K    │  1.18x  │ ⚠️     │
-│  Houston 8-Unit  │  $72K    │  1.55x  │ ✓      │
-│  SA Industrial   │  $156K   │  1.61x  │ ✓      │
-│  FW Mixed-Use    │  $48K    │  0.98x  │ 🔴     │
-│  Plano 4-Plex    │  $36K    │  1.33x  │ ✓      │
-├──────────────────┴──────────┴─────────┴────────┤
-│  Total NOI: $504K | Avg DSCR: 1.35x            │
-│  ⚠️ 2 assets underperforming                   │
+│  Property: 12-Unit Multifamily | Austin, TX   │
+├─────────────────────────────────────────────────┤
+│  **Year 1 Projections**                        │
+│  Gross Scheduled Rent      $180,000            │
+│  Less: Vacancy (5%)        ($9,000)           │
+│  Effective Gross Income    $171,000            │
+│                                                │
+│  Operating Expenses:                          │
+│  • Property Management     $12,780 (7.5%)    │
+│  • Maintenance & Repairs    $8,550 (5%)       │
+│  • Insurance & Taxes       $15,390 (9%)       │
+│  • Utilities & Other       $5,130 (3%)       │
+│  Total Operating Expenses  $41,850            │
+│                                                │
+│  Net Operating Income (NOI) $129,150          │
+│  Debt Service              ($78,000)           │
+│  Cash Flow After Debt      $51,150            │
+│                                                │
+│  **5-Year Projection**                        │
+│  Year 1: $51K | Year 2: $58K | Year 3: $65K │
+│  (Assumes 3% rent growth, 2% expense growth) │
 └─────────────────────────────────────────────────┘
 
-Upload your rent rolls and I'll build this for you.`;
+I'll need your current rent roll, P&L, and any planned improvements to build an accurate pro forma.`;
         hasTemplateResponse = true;
       } else if (lowerContent.includes("analyze") || lowerContent.includes("property")) {
         assistantResponse =
@@ -482,7 +491,7 @@ Upload your rent rolls and I'll build this for you.`;
               textAlign: "center",
             }}
           >
-            What can I do for you?
+            Raise capital for your property?
           </Text>
 
           <ChatInterface
