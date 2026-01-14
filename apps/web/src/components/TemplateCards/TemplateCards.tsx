@@ -22,27 +22,27 @@ export default function TemplateCards({ onSelect }: TemplateCardsProps) {
     },
     {
       id: "calculate-dscr",
-      title: "Calculate DSCR & Cap Spread",
+      title: "Simulate DSCR & Cash Flow Scenarios",
       description: "Get accurate financial numbers and rates to see if a deal pencils before you go deeper",
       prompt: "How do you calculate DSCR and cap spread? Show me an example",
     },
     {
       id: "generate-memo",
-      title: "Create an LP Package",
-      description: "Turn your deal into an investor-ready memo with financials, risks, and terms.",
+      title: "Create an Investor Memo",
+      description: "Turn your deal into an investor-ready package with financials, risks, and terms.",
       prompt: "What goes into an investor memo? Show me a sample structure.",
     },
     {
       id: "estimate-capital",
       title: "Estimate Capital Access",
-      description: "See how much capital your rental equity can support — without refinancing.",
-      prompt: "How do you estimate equity capital access from rental properties?",
+      description: "See how much capital you can raise from rental equity without refinancing.",
+      prompt: "How do you estimate home-equity capital access from my rental properties?",
     },
     {
       id: "model-renovation",
-      title: "Model a Renovation",
-      description: "See how unit upgrades affect rent, cash flow, and property value.",
-      prompt: "How do I know if a renovation is worth it? What should I consider?",
+      title: "Build Investor List",
+      description: "Keep your prospective investors, partners engaged with a personalized updates and teaser emails.",
+      prompt: "What are some of formats to send email updates to my list of investors?",
     
     },
     {
