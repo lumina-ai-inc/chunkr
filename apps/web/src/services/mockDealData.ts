@@ -396,11 +396,23 @@ export const MOCK_FACTS: FactResponse[] = [
   },
 ];
 
+// These two pre-existing deals have pre-loaded documents for demo
+const PREEXISTING_MOCK_DEALS = ['deal-002-mockdata', 'deal-003-mockdata'];
+
 export const isMockDeal = (dealId?: string): boolean => {
+  // ANY deal with "mockdata" suffix uses mock mode for deal management
+  // (but file uploads still go through REAL OCR processing)
   return dealId ? dealId.includes("mockdata") : false;
 };
 
+export const isPreexistingMockDeal = (dealId?: string): boolean => {
+  // Check if it's one of the two pre-existing deals with pre-loaded documents
+  return dealId ? PREEXISTING_MOCK_DEALS.includes(dealId) : false;
+};
+
 export const generateMockDealId = (): string => {
+  // NEW deals get "mockdata" suffix so they use mock mode for deal management
+  // but file uploads still use REAL backend for OCR processing
   return `deal-${Date.now()}-mockdata`;
 };
 

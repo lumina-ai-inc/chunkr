@@ -80,7 +80,7 @@ export default function DealUpload({ onUploadSuccess, onUploadStart }: DealUploa
           ocr_strategy: OcrStrategy.All,
           segmentation_strategy: SegmentationStrategy.Page,  // Changed from LayoutAnalysis to Page (no segmentation service needed)
           high_resolution: true,
-          pipeline: Pipeline.Orin as any,
+          pipeline: Pipeline.Chunkr as any,  // FIXED: Use Chunkr pipeline (backend compatible)
           error_handling: ErrorHandling.Fail,
         };
         // #region agent log

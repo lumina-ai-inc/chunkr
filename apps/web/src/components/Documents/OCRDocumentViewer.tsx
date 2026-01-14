@@ -2,7 +2,7 @@ import { Flex, Text, Dialog, Button, Card, Badge, Spinner } from "@radix-ui/them
 import { DocumentResponse, FactResponse } from "../../services/dealApi";
 import { getDealFacts, pollDocumentStatus } from "../../services/dealApi";
 import { useQuery } from "react-query";
-import { isMockDeal } from "../../services/mockDealData";
+import { isMockDeal, isPreexistingMockDeal } from "../../services/mockDealData";
 import { useEffect, useState } from "react";
 
 interface OCRDocumentViewerProps {
@@ -29,8 +29,9 @@ export default function OCRDocumentViewer({
 
   // Poll document status if it's processing
   useEffect(() => {
-    if (!document || !open || isMockDeal(dealId)) return;
+    if (!document || !open) return;
     
+    // Poll even for mock deals since they may have real tasks
     if (document.status === "processing" || document.status === "pending") {
       setProcessingStatus("Processing document...");
       
@@ -94,8 +95,8 @@ export default function OCRDocumentViewer({
                 </Text>
               </Flex>
             </Card>
-          ) : isMockDeal(dealId) ? (
-            // Mock data - show sample document with disclaimer
+          ) : isPreexistingMockDeal(dealId) ? (
+            // Pre-existing demo deals - show sample document with disclaimer
             <Flex direction="column" gap="3">
               <Card style={{ background: "#fff3cd", borderColor: "#ffc107", padding: "16px" }}>
                 <Flex direction="column" gap="2">

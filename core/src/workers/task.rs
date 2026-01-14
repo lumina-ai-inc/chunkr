@@ -24,13 +24,24 @@ fn orchestrate_task(
     {
         match _pipeline.get_task()?.configuration.pipeline.clone() {
             Some(core::models::task::PipelineType::Azure) => {
+                // #region agent log
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task_worker.rs:27\",\"message\":\"Using Azure pipeline\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run3\",\"hypothesisId\":\"H13\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
                 steps.push(PipelineStep::AzureAnalysis)
             }
-            _ => steps.push(PipelineStep::ChunkrAnalysis),
+            _ => {
+                // #region agent log
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task_worker.rs:34\",\"message\":\"Using Chunkr pipeline\",\"data\":{{\"pipelineValue\":\"{:?}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run3\",\"hypothesisId\":\"H13\"}}\n", _pipeline.get_task()?.configuration.pipeline, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+                steps.push(PipelineStep::ChunkrAnalysis)
+            },
         }
     }
     #[cfg(not(feature = "azure"))]
     {
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task_worker.rs:45\",\"message\":\"Using Chunkr pipeline (no azure feature)\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run3\",\"hypothesisId\":\"H13\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
         steps.push(PipelineStep::ChunkrAnalysis);
     }
 
