@@ -62,7 +62,6 @@ impl OCRService for AzureOCRService {
     async fn process_document(&self, file_path: &Path) -> Result<OCRResponse, Box<dyn Error + Send + Sync>> {
         use crate::utils::services::azure::perform_azure_analysis;
         use crate::models::upload::SegmentationStrategy;
-        use base64::{engine::general_purpose, Engine as _};
         
         // Create temp file from path
         let temp_file = tempfile::NamedTempFile::new()?;

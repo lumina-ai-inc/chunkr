@@ -33,7 +33,7 @@ pub async fn create_conversation(
         updated_at: now,
     };
 
-    let mut client = get_pg_client().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Database connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection failed")
     })?;
@@ -57,7 +57,7 @@ pub async fn create_conversation(
 pub async fn list_conversations(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse> {
     let user_id = user_info.user_id.clone();
 
-    let mut client = get_pg_client().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Database connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection failed")
     })?;
@@ -91,7 +91,7 @@ pub async fn get_conversation(
     let user_id = user_info.user_id.clone();
     let conversation_id = path.into_inner();
 
-    let mut client = get_pg_client().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Database connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection failed")
     })?;
@@ -149,13 +149,13 @@ pub struct SendMessageRequest {
 pub async fn send_message(
     user_info: web::ReqData<UserInfo>,
     path: web::Path<String>,
-    req: web::Json<SendMessageRequest>,
+    _req: web::Json<SendMessageRequest>,
 ) -> Result<HttpResponse> {
     let user_id = user_info.user_id.clone();
     let conversation_id = path.into_inner();
 
     // Verify conversation belongs to user and get deal_id
-    let mut client = get_pg_client().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Database connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection failed")
     })?;
@@ -168,7 +168,7 @@ pub async fn send_message(
         actix_web::error::ErrorInternalServerError("Database error")
     })?.ok_or_else(|| actix_web::error::ErrorNotFound("Conversation not found"))?;
 
-    let conversation = Conversation {
+    let _conversation = Conversation {
         conversation_id: conv_row.get("conversation_id"),
         user_id: conv_row.get("user_id"),
         deal_id: conv_row.get("deal_id"),
@@ -207,7 +207,7 @@ pub async fn delete_conversation(
     let user_id = user_info.user_id.clone();
     let conversation_id = path.into_inner();
 
-    let mut client = get_pg_client().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Database connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection failed")
     })?;

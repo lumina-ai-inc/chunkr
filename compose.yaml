@@ -16,7 +16,9 @@ services:
       - ./models.yaml:/app/models.yaml:ro
 
   task:
-    image: luminainc/task:1.20.1
+    build:
+      context: .
+      dockerfile: docker/task/Dockerfile
     depends_on:
       - postgres
       - redis

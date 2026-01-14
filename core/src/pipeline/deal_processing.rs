@@ -102,7 +102,7 @@ impl DealDocumentProcessor {
     }
 
     async fn store_ocr_results(&self, ocr_results: &OCRResponse) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let mut client = get_pg_client().await?;
+        let client = get_pg_client().await?;
         
         let ocr_json = json!({
             "pages": ocr_results.pages,
@@ -147,7 +147,7 @@ impl DealDocumentProcessor {
     }
 
     async fn update_status(&self, new_status: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let mut client = get_pg_client().await?;
+        let client = get_pg_client().await?;
         
         // Update document status using raw SQL
         client.execute(

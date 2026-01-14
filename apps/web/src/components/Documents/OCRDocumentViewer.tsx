@@ -2,7 +2,7 @@ import { Flex, Text, Dialog, Button, Card, Badge, Spinner } from "@radix-ui/them
 import { DocumentResponse, FactResponse } from "../../services/dealApi";
 import { getDealFacts, pollDocumentStatus } from "../../services/dealApi";
 import { useQuery } from "react-query";
-import { isMockDeal, isPreexistingMockDeal } from "../../services/mockDealData";
+import { isPreexistingMockDeal } from "../../services/mockDealData";
 import { useEffect, useState } from "react";
 
 interface OCRDocumentViewerProps {

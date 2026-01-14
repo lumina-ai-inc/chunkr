@@ -114,7 +114,11 @@ pub async fn create_task_route(
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     // #region agent log
-    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:112\",\"message\":\"create_task_route called\",\"data\":{{\"userId\":\"{}\",\"fileName\":\"{}\",\"segmentationStrategy\":\"{:?}\",\"pipeline\":\"{:?}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run3\",\"hypothesisId\":\"H12\"}}\n", user_info.user_id, payload.file_name.as_ref().unwrap_or(&"unknown".to_string()), payload.segmentation_strategy, payload.pipeline, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    #[cfg(feature = "azure")]
+    let pipeline_str = format!("{:?}", payload.pipeline);
+    #[cfg(not(feature = "azure"))]
+    let pipeline_str = "N/A (azure feature disabled)".to_string();
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:112\",\"message\":\"create_task_route called\",\"data\":{{\"userId\":\"{}\",\"fileName\":\"{}\",\"segmentationStrategy\":\"{:?}\",\"pipeline\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run3\",\"hypothesisId\":\"H12\"}}\n", user_info.user_id, payload.file_name.as_ref().unwrap_or(&"unknown".to_string()), payload.segmentation_strategy, pipeline_str, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
     // #endregion
     let otel_config = otel_config::Config::from_env().unwrap();
     let tracer = otel_config.get_tracer(otel_config::ServiceName::Server);

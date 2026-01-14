@@ -2,14 +2,13 @@ use async_openai::{
     config::OpenAIConfig,
     types::{
         ChatCompletionRequestMessage, ChatCompletionRequestSystemMessageArgs,
-        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequest,
-        CreateChatCompletionRequestArgs, CreateEmbeddingRequest, CreateEmbeddingRequestArgs,
+        ChatCompletionRequestUserMessageArgs,
+        CreateChatCompletionRequestArgs, CreateEmbeddingRequestArgs,
         EmbeddingInput,
     },
     Client,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
 use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::OnceCell;
