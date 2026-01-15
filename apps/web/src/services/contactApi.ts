@@ -6,6 +6,10 @@ export interface Contact {
   first_name: string;
   last_name: string;
   email: string;
+  title?: string;
+  company?: string;
+  person_linkedin_url?: string;
+  mobile_phone?: string;
   type?: "investor" | "institutional" | "family_office" | null;
   tags?: string[];
   created_at: string;
@@ -87,6 +91,10 @@ export function importContactsFromCSV(
       first_name: (row[columnMapping.first_name] || "").trim(),
       last_name: (row[columnMapping.last_name] || "").trim(),
       email: email,
+      title: columnMapping.title ? (row[columnMapping.title] || "").trim() : undefined,
+      company: columnMapping.company ? (row[columnMapping.company] || "").trim() : undefined,
+      person_linkedin_url: columnMapping.person_linkedin_url ? (row[columnMapping.person_linkedin_url] || "").trim() : undefined,
+      mobile_phone: columnMapping.mobile_phone ? (row[columnMapping.mobile_phone] || "").trim() : undefined,
       type: row[columnMapping.type]?.trim().toLowerCase() === "investor" ? "investor" :
             row[columnMapping.type]?.trim().toLowerCase() === "institutional" ? "institutional" :
             row[columnMapping.type]?.trim().toLowerCase() === "family office" ? "family_office" : null,

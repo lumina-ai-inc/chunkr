@@ -491,7 +491,7 @@ I'll need your current rent roll, P&L, and any planned improvements to build an 
               textAlign: "center",
             }}
           >
-            Raise capital for your property?
+            Let's run the numbers on your rental..
           </Text>
 
           <ChatInterface

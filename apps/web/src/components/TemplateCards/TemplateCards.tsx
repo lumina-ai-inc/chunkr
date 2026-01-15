@@ -17,39 +17,39 @@ export default function TemplateCards({ onSelect }: TemplateCardsProps) {
     {
       id: "analyze-property",
       title: "Analyze a Deal in 2 Minutes",
-      description: "Drop a rent roll, P&L or cashflow statement to extract key facts NOI, DSCR, and cap rate instantly.",
+      description: "Drop rent rolls, P&Ls, or cash flow statements. We extract NOI, DSCR, and cap rates in seconds - no spreadsheet work required.",
       prompt: "What can you tell me from a rent roll?",
     },
     {
+      id: "generate-proforma",
+      title: "Build a Pro Forma",
+      description: "Create detailed cash flow projections showing income, expenses, debt service, and investor returns over 5-10 years.",
+      prompt: "Can you help me generate a pro forma for my property? What should it include?",
+    },
+    {
       id: "calculate-dscr",
-      title: "Simulate DSCR & Cash Flow Scenarios",
-      description: "Get accurate financial numbers and rates to see if a deal pencils before you go deeper",
+      title: "Run Scenarios & Stress Tests",
+      description: "Model different assumptions - vacancy rates, interest rates, rent growth - to see if the deal still works when things change.",
       prompt: "How do you calculate DSCR and cap spread? Show me an example",
     },
     {
       id: "generate-memo",
-      title: "Create an Investor Memo",
-      description: "Turn your deal into an investor-ready package with financials, risks, and terms.",
+      title: "Draft Investor Memo",
+      description: "Turn your analysis into professional investment packages with financials, risk highlights, and deal terms.",
       prompt: "What goes into an investor memo? Show me a sample structure.",
     },
     {
-      id: "estimate-capital",
-      title: "Estimate Capital Access",
-      description: "See how much capital you can raise from rental equity without refinancing.",
-      prompt: "How do you estimate home-equity capital access from my rental properties?",
-    },
-    {
       id: "model-renovation",
-      title: "Build Investor List",
-      description: "Keep your prospective investors, partners engaged with a personalized updates and teaser emails.",
+      title: "Organize Your Partner List",
+      description: "Import contacts, tag by investor type (accredited, institutional), and track who you've shared deals with.",
       prompt: "What are some of formats to send email updates to my list of investors?",
     
     },
     {
-      id: "generate-proforma",
-      title: "Generate Pro Forma",
-      description: "Create forward-looking financial projections with projected income, expenses, and returns for your property deal.",
-      prompt: "Can you help me generate a pro forma for my property? What should it include?",
+      id: "estimate-capital",
+      title: "Share an Update with Investors",
+      description: "Send personalized deal updates, emails and get engagement.",
+      prompt: "How do you estimate home-equity capital access from my rental properties?",
     },
   ];
 

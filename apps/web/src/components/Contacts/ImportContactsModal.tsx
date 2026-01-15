@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Flex, Text, Button, Dialog, Table, Select } from "@radix-ui/themes";
+import { Flex, Text, Button, Dialog, Table, Select, ScrollArea } from "@radix-ui/themes";
 import { importContactsFromCSV } from "../../services/contactApi";
 import { toast } from "react-hot-toast";
 
@@ -23,6 +23,10 @@ export default function ImportContactsModal({
     first_name: "",
     last_name: "",
     email: "",
+    title: "",
+    company: "",
+    person_linkedin_url: "",
+    mobile_phone: "",
     type: "",
   });
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
@@ -82,17 +86,30 @@ export default function ImportContactsModal({
         first_name: "",
         last_name: "",
         email: "",
+        title: "",
+        company: "",
+        person_linkedin_url: "",
+        mobile_phone: "",
         type: "",
       };
 
       columns.forEach((col) => {
-        const lower = col.toLowerCase();
-        if (lower.includes("first") && lower.includes("name")) {
+        const lower = col.toLowerCase().trim();
+        // Match exact header names or common variations
+        if (lower === "first name" || lower === "firstname" || (lower.includes("first") && lower.includes("name"))) {
           autoMapping.first_name = col;
-        } else if (lower.includes("last") && lower.includes("name")) {
+        } else if (lower === "last name" || lower === "lastname" || (lower.includes("last") && lower.includes("name"))) {
           autoMapping.last_name = col;
-        } else if (lower.includes("email")) {
+        } else if (lower === "email" || lower === "primary email" || lower.includes("email")) {
           autoMapping.email = col;
+        } else if (lower === "title" || lower.includes("title") || lower.includes("job title")) {
+          autoMapping.title = col;
+        } else if (lower === "company" || lower.includes("company") || lower.includes("organization")) {
+          autoMapping.company = col;
+        } else if (lower === "person linkedin url" || lower === "linkedin url" || lower === "linkedin" || lower.includes("linkedin")) {
+          autoMapping.person_linkedin_url = col;
+        } else if (lower === "mobile phone" || lower === "mobile" || lower === "phone" || lower.includes("mobile") || lower.includes("phone")) {
+          autoMapping.mobile_phone = col;
         } else if (lower.includes("type") || lower.includes("category")) {
           autoMapping.type = col;
         }
@@ -155,6 +172,10 @@ export default function ImportContactsModal({
       first_name: "",
       last_name: "",
       email: "",
+      title: "",
+      company: "",
+      person_linkedin_url: "",
+      mobile_phone: "",
       type: "",
     });
     setAvailableColumns([]);
@@ -166,13 +187,14 @@ export default function ImportContactsModal({
 
   return (
     <Dialog.Root open={open} onOpenChange={handleClose}>
-      <Dialog.Content style={{ maxWidth: "700px", maxHeight: "80vh" }}>
+      <Dialog.Content style={{ maxWidth: "700px", maxHeight: "80vh", display: "flex", flexDirection: "column" }}>
         <Dialog.Title>Import Contacts</Dialog.Title>
         <Dialog.Description size="2" mb="4">
-          Upload a CSV file with contact information (first name, last name, email, optional type)
+          Upload a CSV file with contact information. Required: First Name, Last Name, Email (or Primary Email). Optional: Title, Company, Person Linkedin Url, Mobile Phone, Type.
         </Dialog.Description>
 
-        <Flex direction="column" gap="4">
+        <ScrollArea style={{ flex: 1, maxHeight: "60vh" }} scrollbars="vertical">
+          <Flex direction="column" gap="4" p="2">
           {/* File Upload */}
           <Flex direction="column" gap="2">
             <Text size="2" weight="bold">
@@ -253,11 +275,105 @@ export default function ImportContactsModal({
                   >
                     <Select.Trigger style={{ flex: 1 }} placeholder="Select column... *" />
                     <Select.Content>
-                      {availableColumns.map((col) => (
-                        <Select.Item key={col} value={col}>
-                          {col}
-                        </Select.Item>
-                      ))}
+                      {availableColumns
+                        .filter((col) => col && col.trim().length > 0)
+                        .map((col) => (
+                          <Select.Item key={col} value={col}>
+                            {col}
+                          </Select.Item>
+                        ))}
+                    </Select.Content>
+                  </Select.Root>
+                </Flex>
+
+                <Flex align="center" gap="2">
+                  <Text size="2" style={{ width: "120px" }}>
+                    Title (optional):
+                  </Text>
+                  <Select.Root
+                    value={columnMapping.title || undefined}
+                    onValueChange={(value) =>
+                      setColumnMapping({ ...columnMapping, title: value })
+                    }
+                  >
+                    <Select.Trigger style={{ flex: 1 }} placeholder="Select column... (optional)" />
+                    <Select.Content>
+                      {availableColumns
+                        .filter((col) => col && col.trim().length > 0)
+                        .map((col) => (
+                          <Select.Item key={col} value={col}>
+                            {col}
+                          </Select.Item>
+                        ))}
+                    </Select.Content>
+                  </Select.Root>
+                </Flex>
+
+                <Flex align="center" gap="2">
+                  <Text size="2" style={{ width: "120px" }}>
+                    Company (optional):
+                  </Text>
+                  <Select.Root
+                    value={columnMapping.company || undefined}
+                    onValueChange={(value) =>
+                      setColumnMapping({ ...columnMapping, company: value })
+                    }
+                  >
+                    <Select.Trigger style={{ flex: 1 }} placeholder="Select column... (optional)" />
+                    <Select.Content>
+                      {availableColumns
+                        .filter((col) => col && col.trim().length > 0)
+                        .map((col) => (
+                          <Select.Item key={col} value={col}>
+                            {col}
+                          </Select.Item>
+                        ))}
+                    </Select.Content>
+                  </Select.Root>
+                </Flex>
+
+                <Flex align="center" gap="2">
+                  <Text size="2" style={{ width: "120px" }}>
+                    LinkedIn URL (optional):
+                  </Text>
+                  <Select.Root
+                    value={columnMapping.person_linkedin_url || undefined}
+                    onValueChange={(value) =>
+                      setColumnMapping({ ...columnMapping, person_linkedin_url: value })
+                    }
+                  >
+                    <Select.Trigger style={{ flex: 1 }} placeholder="Select column... (optional)" />
+                    <Select.Content>
+                      {availableColumns
+                        .filter((col) => col && col.trim().length > 0)
+                        .map((col) => (
+                          <Select.Item key={col} value={col}>
+                            {col}
+                          </Select.Item>
+                        ))}
+                    </Select.Content>
+                  </Select.Root>
+                </Flex>
+
+                <Flex align="center" gap="2">
+                  <Text size="2" style={{ width: "120px" }}>
+                    Mobile Phone (optional):
+                  </Text>
+                  <Select.Root
+                    value={columnMapping.mobile_phone || undefined}
+                    onValueChange={(value) =>
+                      setColumnMapping({ ...columnMapping, mobile_phone: value })
+                    }
+                  >
+                    <Select.Trigger style={{ flex: 1 }} placeholder="Select column... (optional)" />
+                    <Select.Content>
+                      {availableColumns
+                        .filter((col) => col && col.trim().length > 0)
+                        .map((col) => (
+                          <Select.Item key={col} value={col}>
+                            {col}
+                          </Select.Item>
+                        ))}
                     </Select.Content>
                   </Select.Root>
                 </Flex>
@@ -274,11 +390,13 @@ export default function ImportContactsModal({
                   >
                     <Select.Trigger style={{ flex: 1 }} placeholder="Select column... (optional)" />
                     <Select.Content>
-                      {availableColumns.map((col) => (
-                        <Select.Item key={col} value={col}>
-                          {col}
-                        </Select.Item>
-                      ))}
+                      {availableColumns
+                        .filter((col) => col && col.trim().length > 0)
+                        .map((col) => (
+                          <Select.Item key={col} value={col}>
+                            {col}
+                          </Select.Item>
+                        ))}
                     </Select.Content>
                   </Select.Root>
                 </Flex>
@@ -316,9 +434,10 @@ export default function ImportContactsModal({
               </div>
             </Flex>
           )}
-        </Flex>
+          </Flex>
+        </ScrollArea>
 
-        <Flex gap="3" mt="4" justify="end">
+        <Flex gap="3" mt="4" justify="end" style={{ flexShrink: 0, paddingTop: "16px", borderTop: "1px solid #e0e0e0" }}>
           <Dialog.Close>
             <Button variant="soft" color="gray">
               Cancel

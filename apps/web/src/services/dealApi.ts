@@ -459,3 +459,35 @@ export const updateDealStatus = async (
 
   await axiosInstance.patch(`/api/v1/deals/${dealId}`, { status });
 };
+
+// Delete a deal
+export const deleteDeal = async (dealId: string): Promise<void> => {
+  if (USE_MOCK_DATA && isMockDeal(dealId)) {
+    // Remove from MOCK_DEALS array
+    const index = MOCK_DEALS.findIndex((d) => d.deal_id === dealId);
+    if (index !== -1) {
+      MOCK_DEALS.splice(index, 1);
+      // Also remove associated documents and facts
+      const { MOCK_DOCUMENTS, MOCK_FACTS, saveMockData } = await import('./mockDealData');
+      
+      // Remove all documents for this deal
+      let docIndex = MOCK_DOCUMENTS.findIndex((d) => d.deal_id === dealId);
+      while (docIndex !== -1) {
+        MOCK_DOCUMENTS.splice(docIndex, 1);
+        docIndex = MOCK_DOCUMENTS.findIndex((d) => d.deal_id === dealId);
+      }
+      
+      // Remove all facts for this deal
+      let factIndex = MOCK_FACTS.findIndex((f) => f.deal_id === dealId);
+      while (factIndex !== -1) {
+        MOCK_FACTS.splice(factIndex, 1);
+        factIndex = MOCK_FACTS.findIndex((f) => f.deal_id === dealId);
+      }
+      
+      saveMockData();
+    }
+    return;
+  }
+
+  await axiosInstance.delete(`/api/v1/deals/${dealId}`);
+};
