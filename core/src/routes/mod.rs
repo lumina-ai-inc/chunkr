@@ -1,4 +1,5 @@
-pub mod deal;
+pub mod conversation;
+// pub mod deal; // Temporarily disabled - needs Diesel to tokio-postgres conversion
 pub mod github;
 pub mod health;
 pub mod llm;

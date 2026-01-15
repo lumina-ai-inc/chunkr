@@ -36,7 +36,7 @@ export interface ChatContext {
 // Public mode: Preview responses only (no login required)
 export const sendPublicMessage = async (
   message: string,
-  file?: File
+  _file?: File // Reserved for future file upload feature
 ): Promise<ChatMessage> => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 800));
@@ -72,7 +72,7 @@ export const sendPublicMessage = async (
 
 // Handle file upload in public mode (preview only)
 export const handlePublicFileUpload = async (
-  file: File
+  _file: File // Reserved for future file upload feature
 ): Promise<ChatMessage> => {
   // Simulate processing
   await new Promise((resolve) => setTimeout(resolve, 600));

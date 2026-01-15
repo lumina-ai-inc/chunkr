@@ -15,7 +15,11 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
 
     let file = pipeline.get_file()?;
     let mut chunks =
-        perform_azure_analysis(&file, features, configuration.segmentation_strategy).await?;
+        perform_azure_analysis(&file, features, configuration.segmentation_strategy)
+            .await
+            .map_err(|e| -> Box<dyn std::error::Error> {
+                format!("{}", e).into()
+            })?;
     chunks.par_iter_mut().for_each(|chunk| {
         chunk.segments.par_iter_mut().for_each(|segment| {
             segment.scale(scaling_factor);

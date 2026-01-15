@@ -17,7 +17,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function ChatDialog({ open, onClose, initialPrompt, onLoginRequest }: ChatDialogProps) {
+export default function ChatDialog({ open, onClose, initialPrompt, onLoginRequest: _onLoginRequest }: ChatDialogProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",

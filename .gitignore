@@ -1,151 +1,149 @@
-.lh
+# Environment Variables
 .env
-.venv
-venv
-output
-test
-output-gpu
-staging
-examples
-annotated
-annotated-gpu
-sample
-input
-.whisper
-.env
-__pycache__
-.DS_Store
-node_modules
-.turbo
-*.log
-dist
-dist-ssr
-*.local
-.env
-.cache
-server/dist
-public/dist
-input2
-output
-test
-output-gpu
-staging
-examples
-annotated
-annotated-gpu
-sample
-samples
-test_images
-# Ignore Rust build artifacts
+.env.local
+.env.*.local
+.env.production
+.env.development
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+uv.lock
+
+# Node.js / TypeScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.turbo/
+dist/
+dist-ssr/
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+.next/
+out/
+.nuxt/
+.vuepress/dist/
+
+# Rust
 target/
 **/*.rs.bk
+*.rlib
+Cargo.lock
 
-# Ignore environment variable files
-.env
-
-# Ignore specific IDE/editor files
+# IDE / Editor
 .idea/
 .vscode/
 *.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.iml
 
-# Ignore compiled libraries
-*.rlib
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
 
-# Ignore Cargo.lock if it's a library
-Cargo.lock
-
-# Ignore backup files
-*.bak
-*.tmp
-
-.lh
-.dev/otel-collector/otel-collector-config.yaml
-*secret.yaml
-
-# Local .terraform directories
-**/.terraform/*
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-# Crash log files
-crash.log
-crash.*.log
-
-# Exclude all .tfvars files, which are likely to contain sensitive data, such as
-# password, private keys, and other secrets. These should not be part of version 
-# control as they are data points which are potentially sensitive and subject 
-# to change depending on the environment.
-*.tfvars
-*.tfvars.json
-
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in.dev/otel-collector/otel-collector-config.yaml
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Ignore transient lock info files created by terraform apply
-.terraform.tfstate.lock.info
-
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-
-# Ignore CLI configuration files
-.terraformrc
-terraform.rc
-
-log.py
-logs.md
+# Logs
+*.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+ocr_log.csv
+ocr_aggregate_results.csv
 commit.py
 commits.md
+log.py
+logs.md
 
-# Ignore SSH keys
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+.cache/
+
+# Build Artifacts
+output/
+output-gpu/
+staging/
+dist/
+dist-ssr/
+server/dist/
+public/dist/
+build/
+*.local
+
+# Test Files
+test/
+test_images/
+test.py
+score.py
+input/
+input2/
+input_pdfs/
+samples/
+sample/
+examples/
+annotated/
+annotated-gpu/
+figures/
+images/
+output_structured_extraction/
+
+# Secrets & Certificates
+*.pem
+*.key
+*.crt
+*.cert
 id_rsa
 id_rsa.pub
 id_ed25519
 id_ed25519.pub
-*.pem
-commits.md
-test_images
+*secret.yaml
+secrets/
+certs/
+cookies.txt
 
-*.crt
-*.key
-
-test.py
-
-ocr_log.csv
-ocr_aggregate_results.csv
-
-output.json## Running otel collector
-
-```bash
-docker run -p 4317:4317 -p 4318:4318 \
-  -v $(pwd)/otel-collector-config.yaml:/etc/otel-collector-config.yaml \
-  -e SIGNOZ_ENDPOINT=ingest.us.signoz.cloud:443 \
-  -e SIGNOZ_INGESTION_KEY=your-key-here \
-  otel/opentelemetry-collector-contrib:latest \
-  --config=/etc/otel-collector-config.yaml
-```
-
-output.html
-
-*.dylib
-microsoft/table-transformer-structure-recognition-v1.1-all
-score.py
-# ui_table_test.py
-# table_test.py
-figures
-images
-input_pdfs
-
-
-# Terraform files
+# Terraform
 **/.terraform/*
 *.tfstate
 *.tfstate.*
@@ -159,32 +157,46 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+.terraform.tfstate.lock.info
 crash.log
 crash.*.log
-
-# Exclude example files
 !*.example.tfvars
 !backend.example.hcl
 !backend.hcl.example
 
-.ruff_cache
+# Docker
+.dockerignore
+docker-compose.override.yml
 
-uv.lock
-output_structured_extraction
-request.sh
-certs
+# Kubernetes / Helm
+current-values.yaml
+*.values.yaml
+!*.example.values.yaml
+
+# OpenTelemetry
+otel-collector-config.yaml
+.dev/otel-collector/
+
+# Project Specific
+.lh
+.whisper
 models.yaml
-/pdfs
+!models.example.yaml
 *.pdf
 *.pdfs
 *.pdfs.zip
 *.pdfs.zip.part
-*.pdfs.zip.part.1
-*.pdfs.zip.part.2
-*.pdfs.zip.part.3
+*.pdfs.zip.part.*
+/pdfs
+request.sh
+realm-export.json
 
-otel-collector-config.yaml
-# Deployment files with sensitive data
-current-values.yaml
-apps/web/.env.production
+# Debug / Development
+.cursor/
+debug.log
+*.dylib
+microsoft/table-transformer-structure-recognition-v1.1-all
 
+# Output Files
+output.json
+output.html

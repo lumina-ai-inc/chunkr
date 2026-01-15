@@ -5,6 +5,7 @@ import { useAuth } from "react-oidc-context";
 import ChatInterface, { ChatMessage } from "../../components/ChatInterface/ChatInterface";
 import QuickActionButtons from "../../components/QuickActions/QuickActionButtons";
 import TemplateCards from "../../components/TemplateCards/TemplateCards";
+import { sendPublicMessage } from "../../services/conversationApi";
 import "./LandingChat.css";
 
 export default function LandingChat() {
@@ -14,6 +15,8 @@ export default function LandingChat() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [pendingLoginAction, setPendingLoginAction] = useState(false);
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+  const [_isLoading, setIsLoading] = useState(false);
   const chatInterfaceRef = useRef<HTMLDivElement>(null);
 
   const handleGoToDashboard = () => {
@@ -32,7 +35,7 @@ export default function LandingChat() {
     });
   };
 
-  const handleMessage = (content: string) => {
+  const handleMessage = async (content: string) => {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
@@ -42,6 +45,7 @@ export default function LandingChat() {
 
     setMessages((prev) => [...prev, userMessage]);
     setMessageCount((prev) => prev + 1);
+    setIsLoading(true);
 
     const lowerContent = content.toLowerCase().trim();
 
@@ -64,6 +68,7 @@ export default function LandingChat() {
 
     // If user responds positively to account creation, trigger login
     if (isLoginResponse && (wasAskingAboutAccount || pendingLoginAction)) {
+      setIsLoading(false);
       setTimeout(() => {
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -81,10 +86,43 @@ export default function LandingChat() {
       return;
     }
 
-    // Simulate assistant response
-    setTimeout(() => {
-      let assistantResponse = "";
-      let hasTemplateResponse = false;
+    // Call the real AI API
+    try {
+      const response = await sendPublicMessage(content, sessionId);
+      
+      // Store session ID for continuity
+      if (response.session_id) {
+        setSessionId(response.session_id);
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: response.response,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsLoading(false);
+
+      // Check if AI suggests creating an account
+      if (response.response.toLowerCase().includes("create an account") || 
+          response.response.toLowerCase().includes("sign up")) {
+        setPendingLoginAction(true);
+      }
+
+      // Scroll to chat interface
+      if (chatInterfaceRef.current) {
+        chatInterfaceRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setIsLoading(false);
+      
+      // Fallback to template responses if API fails
+      setTimeout(() => {
+        let assistantResponse = "";
+        let hasTemplateResponse = false;
       
       // Check for template card prompts first
       if (lowerContent.includes("rent roll") || lowerContent.includes("analyze")) {
@@ -196,26 +234,35 @@ I also factor in:
 Want me to model a specific project?`;
         hasTemplateResponse = true;
       } 
-      else if (lowerContent.includes("multi-property") || (lowerContent.includes("portfolio analysis") && lowerContent.includes("compare properties"))) {
-        assistantResponse = `Yes — here's what a portfolio view looks like:
+      else if (lowerContent.includes("pro forma") || lowerContent.includes("proforma") || lowerContent.includes("financial projection") || lowerContent.includes("forward-looking")) {
+        assistantResponse = `I can help you generate a comprehensive pro forma for your property deal. Here's what it typically includes:
 
+**Pro Forma Components:**
 ┌─────────────────────────────────────────────────┐
-│  Portfolio: 6 Properties | Texas               │
-├──────────────────┬──────────┬─────────┬────────┤
-│  Property        │  NOI     │  DSCR   │ Status │
-├──────────────────┼──────────┼─────────┼────────┤
-│  Austin 12-Unit  │  $108K   │  1.42x  │ ✓      │
-│  Dallas Retail   │  $84K    │  1.18x  │ ⚠️     │
-│  Houston 8-Unit  │  $72K    │  1.55x  │ ✓      │
-│  SA Industrial   │  $156K   │  1.61x  │ ✓      │
-│  FW Mixed-Use    │  $48K    │  0.98x  │ 🔴     │
-│  Plano 4-Plex    │  $36K    │  1.33x  │ ✓      │
-├──────────────────┴──────────┴─────────┴────────┤
-│  Total NOI: $504K | Avg DSCR: 1.35x            │
-│  ⚠️ 2 assets underperforming                   │
+│  Property: 12-Unit Multifamily | Austin, TX   │
+├─────────────────────────────────────────────────┤
+│  **Year 1 Projections**                        │
+│  Gross Scheduled Rent      $180,000            │
+│  Less: Vacancy (5%)        ($9,000)           │
+│  Effective Gross Income    $171,000            │
+│                                                │
+│  Operating Expenses:                          │
+│  • Property Management     $12,780 (7.5%)    │
+│  • Maintenance & Repairs    $8,550 (5%)       │
+│  • Insurance & Taxes       $15,390 (9%)       │
+│  • Utilities & Other       $5,130 (3%)       │
+│  Total Operating Expenses  $41,850            │
+│                                                │
+│  Net Operating Income (NOI) $129,150          │
+│  Debt Service              ($78,000)           │
+│  Cash Flow After Debt      $51,150            │
+│                                                │
+│  **5-Year Projection**                        │
+│  Year 1: $51K | Year 2: $58K | Year 3: $65K │
+│  (Assumes 3% rent growth, 2% expense growth) │
 └─────────────────────────────────────────────────┘
 
-Upload your rent rolls and I'll build this for you.`;
+I'll need your current rent roll, P&L, and any planned improvements to build an accurate pro forma.`;
         hasTemplateResponse = true;
       } else if (lowerContent.includes("analyze") || lowerContent.includes("property")) {
         assistantResponse =
@@ -267,13 +314,19 @@ Upload your rent rolls and I'll build this for you.`;
         }, 1500);
       }
 
-      // Trigger login modal after 2nd user message (if not already authenticated)
-      if (messageCount >= 1 && !auth.isAuthenticated && !pendingLoginAction && !hasTemplateResponse) {
-        setTimeout(() => {
-          setShowLoginModal(true);
-        }, 1000);
-      }
-    }, 800);
+        // Trigger login modal after 2nd user message (if not already authenticated)
+        if (messageCount >= 1 && !auth.isAuthenticated && !pendingLoginAction && !hasTemplateResponse) {
+          setTimeout(() => {
+            setShowLoginModal(true);
+          }, 1000);
+        }
+
+        // Scroll to chat interface
+        if (chatInterfaceRef.current) {
+          chatInterfaceRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 800);
+    }
   };
 
   const handleFileUpload = (file: File) => {
@@ -438,7 +491,7 @@ Upload your rent rolls and I'll build this for you.`;
               textAlign: "center",
             }}
           >
-            What can I do for you?
+            Let's run the numbers on your rental..
           </Text>
 
           <ChatInterface

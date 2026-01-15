@@ -30,29 +30,31 @@ pub async fn create_deal_route(
         metadata: None,
     };
 
-    let mut client = get_pg_client().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Database connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection failed")
     })?;
 
-    let result = web::block(move || {
-        use crate::data::schema::deals::dsl::*;
-        
-        diesel::insert_into(deals)
-            .values(&new_deal)
-            .get_result::<Deal>(&mut client)
-    })
-    .await
-    .map_err(|e| {
-        eprintln!("Error creating deal: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Failed to create deal")
-    })?
-    .map_err(|e| {
+    let row = client.query_one(
+        "INSERT INTO deals (deal_id, user_id, deal_name, status, metadata, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING deal_id, user_id, deal_name, status, metadata, created_at, updated_at",
+        &[&new_deal.deal_id, &new_deal.user_id, &new_deal.deal_name, &new_deal.status, &new_deal.metadata]
+    ).await.map_err(|e| {
         eprintln!("Database error: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Database error")
+        actix_web::error::ErrorInternalServerError("Failed to create deal")
     })?;
 
-    let response: DealResponse = result.into();
+    let response = DealResponse {
+        deal_id: row.get("deal_id"),
+        user_id: row.get("user_id"),
+        deal_name: row.get("deal_name"),
+        status: row.get("status"),
+        created_at: row.get("created_at"),
+        updated_at: row.get("updated_at"),
+        metadata: row.get("metadata"),
+        document_count: Some(0),
+        fact_count: Some(0),
+    };
+    
     Ok(HttpResponse::Ok().json(response))
 }
 
@@ -215,16 +217,49 @@ pub async fn upload_deal_documents(
         let document_id = Uuid::new_v4().to_string();
         let file_name = file.file_name.unwrap_or_else(|| "unknown".to_string());
         
-        // TODO: Upload file to S3 and trigger OCR processing
-        // For now, just create the database record
+        // Upload file to S3
+        let worker_config = crate::configs::worker_config::Config::from_env()
+            .map_err(|e| {
+                eprintln!("Failed to load worker config: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Configuration error")
+            })?;
+        
+        let bucket_name = worker_config.s3_bucket;
+        let s3_key = format!("{}/{}/{}", user_id, deal_id.clone(), file_name);
+        let s3_location = format!("s3://{}/{}", bucket_name, s3_key);
+        
+        // Save temp file content
+        let file_data = file.data;
+        let temp_file = web::block(move || {
+            let mut temp = tempfile::NamedTempFile::new()?;
+            std::io::Write::write_all(&mut temp, &file_data)?;
+            Ok::<tempfile::NamedTempFile, std::io::Error>(temp)
+        })
+        .await
+        .map_err(|e| {
+            eprintln!("Error creating temp file: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Failed to process file")
+        })?
+        .map_err(|e| {
+            eprintln!("I/O error: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Failed to save file")
+        })?;
+        
+        // Upload to S3
+        crate::utils::storage::services::upload_to_s3(&s3_location, temp_file.path())
+            .await
+            .map_err(|e| {
+                eprintln!("S3 upload error: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Failed to upload file")
+            })?;
         
         let new_doc = NewDocument {
             document_id: document_id.clone(),
             deal_id: deal_id.clone(),
             file_name: file_name.clone(),
             document_type: doc_type.clone(),
-            status: "pending".to_string(),
-            storage_location: None,
+            status: "processing".to_string(),
+            storage_location: Some(s3_location.clone()),
             page_count: None,
             ocr_output: None,
         };
@@ -247,6 +282,32 @@ pub async fn upload_deal_documents(
             eprintln!("Database error: {:?}", e);
             actix_web::error::ErrorInternalServerError("Database error")
         })?;
+
+        // Queue document processing task
+        let processing_message = serde_json::json!({
+            "document_id": document_id.clone(),
+            "deal_id": deal_id.clone(),
+            "user_id": user_id.clone(),
+            "s3_location": s3_location,
+            "file_name": file_name,
+            "document_type": doc_type.clone(),
+        });
+        
+        let pool = crate::utils::clients::get_redis_pool();
+        let mut conn = pool.get().await.map_err(|e| {
+            eprintln!("Redis connection error: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Queue error")
+        })?;
+        
+        deadpool_redis::redis::cmd("RPUSH")
+            .arg("deal_documents")
+            .arg(serde_json::to_string(&processing_message).unwrap())
+            .query_async::<i64>(&mut conn)
+            .await
+            .map_err(|e| {
+                eprintln!("Redis queue error: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Failed to queue processing")
+            })?;
 
         document_responses.push(DocumentResponse::from(doc));
     }

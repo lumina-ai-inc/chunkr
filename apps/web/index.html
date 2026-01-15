@@ -67,6 +67,23 @@
   </head>
 
   <body>
+    <script>
+      // Environment variables - will be replaced by Vite during build
+      // These defaults are for local development
+      window.env = {
+        VITE_IS_SELF_HOST: '%VITE_IS_SELF_HOST%',
+        VITE_DOCS_URL: '%VITE_DOCS_URL%',
+        VITE_KEYCLOAK_URL: '%VITE_KEYCLOAK_URL%',
+        VITE_KEYCLOAK_REALM: '%VITE_KEYCLOAK_REALM%',
+        VITE_KEYCLOAK_CLIENT_ID: '%VITE_KEYCLOAK_CLIENT_ID%',
+        VITE_KEYCLOAK_REDIRECT_URI: '%VITE_KEYCLOAK_REDIRECT_URI%',
+        VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI: '%VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI%',
+        VITE_API_URL: '%VITE_API_URL%',
+        VITE_CONTENTFUL_SPACE_ID: '%VITE_CONTENTFUL_SPACE_ID%',
+        VITE_CONTENTFUL_ACCESS_TOKEN: '%VITE_CONTENTFUL_ACCESS_TOKEN%',
+        VITE_FEATURE_FLAG_PIPELINE: '%VITE_FEATURE_FLAG_PIPELINE%',
+      };
+    </script>
     <div id="root" style="height: 100%; width: 100%"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

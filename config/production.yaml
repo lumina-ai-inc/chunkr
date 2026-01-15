@@ -1,0 +1,85 @@
+# Orin Production Configuration
+
+# Database
+database:
+  url: ${PG__URL}
+  max_connections: 20
+  connection_timeout: 30
+
+# Redis Cache
+redis:
+  url: ${REDIS__URL}
+  pool_size: 10
+
+# Object Storage (MinIO/S3)
+storage:
+  endpoint: ${AWS__ENDPOINT}
+  presigned_url_endpoint: ${AWS__PRESIGNED_URL_ENDPOINT}
+  access_key: ${AWS__ACCESS_KEY}
+  secret_key: ${AWS__SECRET_KEY}
+  bucket: ${WORKER__S3_BUCKET}
+  region: ${AWS__REGION}
+
+# Vector Database (Qdrant)
+qdrant:
+  url: ${QDRANT__URL:-http://qdrant:6333}
+  collection_prefix: orin_prod
+
+# Authentication (Keycloak)
+auth:
+  keycloak_url: ${AUTH__KEYCLOAK_URL}
+  realm: ${AUTH__KEYCLOAK_REALM:-orin}
+  client_id: ${AUTH__CLIENT_ID:-orin-api}
+
+# LLM Configuration
+llm:
+  models_path: ${LLM__MODELS_PATH:-/app/models.yaml}
+  default_provider: openai
+  timeout_seconds: 120
+
+# OCR Services
+ocr:
+  provider: ${OCR_PROVIDER:-azure}  # azure|google|tesseract
+  url: ${WORKER__GENERAL_OCR_URL}  # Legacy GPU OCR
+  max_batch_size: 10
+  batch_wait_time: 0.1
+  cache_enabled: true
+  max_concurrent: 10
+
+# Segmentation Services
+segmentation:
+  url: ${WORKER__SEGMENTATION_URL}
+  max_batch_size: 4
+  batch_wait_time: 0.2
+
+# Server Configuration
+server:
+  host: 0.0.0.0
+  port: 8000
+  workers: 4
+  max_request_size: 1073741824  # 1GB
+  timeout: 600
+
+# Task Workers
+worker:
+  redis_url: ${REDIS__URL}
+  task_timeout: 3600  # 1 hour
+  max_retries: 3
+
+# Feature Flags
+features:
+  stripe_enabled: ${STRIPE__API_KEY:+true}
+  analytics_enabled: true
+  rate_limiting_enabled: true
+
+# Monitoring & Observability
+monitoring:
+  otel_endpoint: ${OTEL_ENDPOINT:-}
+  log_level: ${LOG_LEVEL:-info}
+  metrics_enabled: true
+
+# GCP Specific
+gcp:
+  project_id: ${GCP_PROJECT_ID:-}
+  secret_manager_enabled: ${GCP_SECRET_MANAGER_ENABLED:-false}
+

@@ -65,9 +65,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   // Create deal mutation
   const createDealMutation = useMutation(
-    (dealName: string) => createDeal({ deal_name: dealName }),
+    (dealData: { deal_name: string }) => createDeal(dealData.deal_name),
     {
-      onSuccess: (data) => {
+      onSuccess: (__data) => {
         queryClient.invalidateQueries("deals");
         toast.success("New deal created!");
       },
@@ -80,15 +80,25 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   // Upload file mutation
   const uploadFileMutation = useMutation(
-    ({ dealId, file }: { dealId: string; file: File }) =>
-      uploadDealDocuments(dealId, [file]),
+    ({ dealId, file }: { dealId: string; file: File }) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChatContext.tsx:83',message:'uploadFileMutation starting',data:{dealId,fileName:file.name,fileSize:file.size},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H1-H2'})}).catch(()=>{});
+      // #endregion
+      return uploadDealDocuments(dealId, [file], 'rental_document') as any;
+    },
     {
       onSuccess: (_, variables) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChatContext.tsx:87',message:'uploadFileMutation success',data:{dealId:variables.dealId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H2'})}).catch(()=>{});
+        // #endregion
         queryClient.invalidateQueries(["documents", variables.dealId]);
         queryClient.invalidateQueries(["deal", variables.dealId]);
         toast.success("Document uploaded successfully!");
       },
       onError: (error) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChatContext.tsx:92',message:'uploadFileMutation error',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H2-H3'})}).catch(()=>{});
+        // #endregion
         console.error("Error uploading file:", error);
         toast.error("Failed to upload document");
       },
@@ -121,8 +131,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         const context: ChatContextType = {
           dealId,
           dealData: deal,
-          facts,
-          documents,
+          facts: facts || undefined,
+          documents: documents || undefined,
           previousMessages: chatSessions.get(dealId) || [],
         };
 
@@ -190,7 +200,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const createNewDeal = useCallback(async () => {
     const dealName = `New Deal ${new Date().toLocaleDateString()}`;
-    const result = await createDealMutation.mutateAsync(dealName);
+    const result = await createDealMutation.mutateAsync({ deal_name: dealName });
     setCurrentDealId(result.deal_id);
     setChatSessions((prev) => {
       const updated = new Map(prev);

@@ -1,0 +1,178 @@
+# ReFlow - AI-Native Real Estate Fund Management Platform
+
+## Project Context
+ReFlow is a fintech/prop-tech application that helps real estate fund managers and commercial brokers:
+- Parse and extract data from property documents (rent rolls, financials, leases)
+- Run institutional-grade underwriting (NOI, DSCR, cash-on-cash returns)
+- Generate investor memorandums
+- Manage investor contacts and deal sharing
+
+## Tech Stack
+- **Frontend:** React + TypeScript + Tailwind CSS
+- **Backend:** Python FastAPI or Node.js/Express
+- **Database:** PostgreSQL
+- **Document Processing:** Docling (open-source OCR)
+- **Storage:** AWS S3 for documents
+- **Email:** SendGrid (future: Gmail OAuth)
+- **Auth:** (TBD - likely Clerk or Auth0)
+
+## Code Style & Conventions
+
+### Python Backend
+- Use type hints everywhere
+- Use Pydantic for data validation
+- Follow PEP 8 naming (snake_case)
+- Async/await for I/O operations
+- Descriptive variable names (no single letters except i, j in loops)
+
+### React Frontend
+- Functional components only (no classes)
+- TypeScript strict mode
+- Use Tailwind for styling (no custom CSS unless necessary)
+- Descriptive component names (DealAnalysisModal, not Modal)
+- Keep components under 200 lines (split if bigger)
+
+### API Design
+- RESTful endpoints: /api/v1/deals, /api/v1/contacts
+- Use proper HTTP methods (GET, POST, PUT, DELETE)
+- Return consistent error format: {error: string, details?: object}
+- Include request validation on all POST/PUT endpoints
+
+## Domain-Specific Rules
+
+### Financial Calculations
+- Always use Decimal type for money (never float)
+- Document units clearly (e.g., // in basis points, // annual)
+- Add validation: NOI cannot be negative, cap rates 1-20%
+- Cite formulas in comments: // DSCR = NOI / Annual Debt Service
+
+### Real Estate Terminology
+- Use industry terms: NOI (not "net income"), Cap Rate (not "yield")
+- Investor types: Accredited, Institutional, Family Office
+- Deal stages: Pipeline, Underwriting, Investor Ready, Fundraising, Funded, Passed
+
+### Document Processing
+- Always extract with citations (page number, source file)
+- Store original document + extracted JSON separately
+- Validate extracted data (e.g., rent roll totals must sum)
+- Handle OCR errors gracefully (flag for human review)
+
+### Security & Compliance
+- Never log sensitive data (SSN, bank accounts, investor financials)
+- Verify accredited investor status before showing deal details
+- Add audit trails for investor actions (who viewed what, when)
+- Encrypt documents at rest (S3 server-side encryption)
+
+## AI Assistant Instructions
+
+When writing code:
+1. **Ask clarifying questions** if requirements are ambiguous
+2. **Suggest better approaches** if you see issues
+3. **Include error handling** for all external calls (APIs, DB, file I/O)
+4. **Write tests** for business logic (not needed for simple CRUD)
+5. **Add comments** for complex financial calculations
+6. **Flag security concerns** (e.g., missing auth checks)
+
+When refactoring:
+1. **Preserve functionality** - don't change behavior
+2. **Explain trade-offs** - why this approach is better
+3. **Update tests** if they break
+4. **Keep diffs small** - don't rewrite everything at once
+
+## Common Patterns
+
+### API Endpoint Template
+```python
+@router.post("/api/v1/deals/{deal_id}/analyze")
+async def analyze_deal(
+    deal_id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> DealAnalysis:
+    """
+    Run underwriting analysis on a deal.
+    
+    Returns: DealAnalysis with NOI, DSCR, cash flows
+    Raises: 404 if deal not found, 403 if user lacks access
+    """
+    # 1. Validate deal exists and user has access
+    deal = get_deal_or_404(db, deal_id, user)
+    
+    # 2. Extract/validate required data
+    if not deal.rent_roll_parsed:
+        raise HTTPException(400, "Rent roll not yet processed")
+    
+    # 3. Run calculations
+    analysis = run_underwriting(deal)
+    
+    # 4. Save and return
+    db.add(analysis)
+    db.commit()
+    return analysis
+```
+
+### React Component Template
+```tsx
+interface DealCardProps {
+  deal: Deal;
+  onSelect: (dealId: string) => void;
+}
+
+export function DealCard({ deal, onSelect }: DealCardProps) {
+  // 1. Local state
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // 2. Derived data
+  const statusColor = getStatusColor(deal.status);
+  
+  // 3. Event handlers
+  const handleClick = () => {
+    onSelect(deal.id);
+  };
+  
+  // 4. Render
+  return (
+    <div className="border rounded-lg p-4 hover:shadow-lg transition">
+      {/* component JSX */}
+    </div>
+  );
+}
+```
+
+## Don't Do This
+- ❌ Use `any` type in TypeScript (use `unknown` or proper types)
+- ❌ Store passwords or API keys in code (use env vars)
+- ❌ Parse money as floats (use Decimal or store as cents)
+- ❌ Skip input validation on API endpoints
+- ❌ Use `SELECT *` in production queries
+- ❌ Commit console.logs or debugger statements
+- ❌ Write 500-line functions (break them up)
+
+## Project Structure
+```
+reflow/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   ├── api/
+│   │   └── types/
+├── backend/
+│   ├── api/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── services/
+│   ├── processing/  # Document parsing
+│   ├── underwriting/  # Financial calculations
+│   └── tests/
+└── docs/
+```
+
+## Questions to Ask Before Starting
+1. What's the expected data format/schema?
+2. What are the edge cases? (empty docs, invalid data)
+3. Do we need authentication/authorization for this?
+4. Should this be async or sync?
+5. What's the error handling strategy?

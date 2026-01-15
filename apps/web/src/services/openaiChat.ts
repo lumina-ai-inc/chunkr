@@ -118,7 +118,7 @@ function parseAIResponse(content: string): { content: string; actions: ChatActio
 // Generate chat response using OpenAI API
 export const generateChatResponse = async (
   userMessage: string,
-  context: ChatContext
+  context: ChatContext // Chat context for future RAG integration
 ): Promise<ChatMessage> => {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   const model = import.meta.env.VITE_OPENAI_MODEL || "gpt-4";
@@ -180,7 +180,7 @@ export const generateChatResponse = async (
 // Fallback mock response when OpenAI is not available
 function generateMockResponse(
   userMessage: string,
-  context: ChatContext
+  _context: ChatContext // Chat context for future RAG integration
 ): ChatMessage {
   const lowerMessage = userMessage.toLowerCase();
 

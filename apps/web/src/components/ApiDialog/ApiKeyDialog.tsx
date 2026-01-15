@@ -15,7 +15,7 @@ export default function ApiKeyDialog({
   user,
   showApiKey,
   setShowApiKey,
-  phone = false,
+  phone: _phone = false, // Reserved for future phone verification
 }: ApiKeyDialogProps) {
   return (
     <Dialog.Root open={showApiKey} onOpenChange={setShowApiKey}>

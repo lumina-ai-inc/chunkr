@@ -4,12 +4,12 @@
     <img src="images/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">Orin | Open Source Data Extraction API</h3>
+<h3 align="center">Orin | AI-Powered Real Estate Deal Analysis</h3>
 
   <p align="center">
-    Production-ready API service for document layout analysis, OCR, and semantic chunking.<br />Convert PDFs, PPTs, Word docs & images into RAG/LLM-ready chunks.
+    SaaS platform for real estate fund managers to analyze deals, extract insights, and generate investor-ready packages.<br />Turn rental portfolios and property documents into funding opportunities.
     <br /><br />
-    <b>Layout Analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b> | <b>VLM Processing controls</b>
+    <b>AI Agents</b> | <b>Document Processing</b> | <b>Underwriting Analysis</b> | <b>Investor Packages</b>
     <br />
     <br />
     <a href="https://www.chunkr.ai"><img src="https://img.shields.io/badge/Try_it_out-chunkr.ai-blue?style=flat&logo=rocket&height=20" alt="Try it out" height="20"></a>
@@ -33,12 +33,9 @@
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
-- [(Super) Quick Start](#super-quick-start)
-- [Documentation](#documentation)
-- [Self-Hosted Deployment Options](#self-hosted-deployment-options)
-  - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
-    - [HTTPS Setup for Docker Compose](#https-setup-for-docker-compose)
-  - [Deployment with Kubernetes](#deployment-with-kubernetes)
+- [Quick Start](#quick-start)
+- [Development Setup](#development-setup)
+- [GCP Deployment](#gcp-deployment)
 - [LLM Configuration](#llm-configuration)
   - [Using models.yaml (Recommended)](#using-modelsyaml-recommended)
   - [Using environment variables (Basic)](#using-environment-variables-basic)
@@ -46,150 +43,107 @@
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
-## (Super) Quick Start
+## Quick Start
 
-1. Go to [chunkr.ai](https://www.chunkr.ai) 
-2. Make an account and copy your API key
-3. Install our Python SDK:
-```bash
-pip install chunkr-ai
-```
-4. Use the SDK to process your documents:
-```python
-from chunkr_ai import Chunkr
+Visit the Orin platform at your deployment URL to get started analyzing real estate deals.
 
-# Initialize with your API key from chunkr.ai
-chunkr = Chunkr(api_key="your_api_key")
+## Development Setup
 
-# Upload a document (URL or local file path)
-url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
-task = chunkr.upload(url)
+### Prerequisites
+- [Docker and Docker Compose](https://docs.docker.com/get-docker/)
+- Node.js 18+ (for frontend development)
+- Rust 1.70+ (for backend development)
 
-# Export results in various formats
-html = task.html(output_file="output.html")
-markdown = task.markdown(output_file="output.md")
-content = task.content(output_file="output.txt")
-task.json(output_file="output.json")
+### Quick Start
 
-# Clean up
-chunkr.close()
-```
-
-## Documentation
-
-Visit our [docs](https://docs.chunkr.ai) for more information and examples.
-
-## Self-Hosted Deployment Options
-
-### Quick Start with Docker Compose
-
-1. Prerequisites:
-   - [Docker and Docker Compose](https://docs.docker.com/get-docker/)
-   - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (for GPU support, optional)
-
-2. Clone the repo:
+1. Clone the repository:
 ```bash
 git clone https://github.com/buildorin/data-extract
 cd data-extract
 ```
 
-3. Set up environment variables:
+2. Set up environment variables:
 ```bash
 # Copy the example environment file
 cp .env.example .env
 
-# Configure your llm models
+# Configure your LLM models
 cp models.example.yaml models.yaml
 ```
-For more information on how to set up LLMs, see [here](#llm-configuration).
 
-4. Start the services:
+3. Start all services:
 ```bash
-# For GPU deployment, use the following command:
-docker compose up -d
-
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml up -d
-
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml up -d
+make start
 ```
 
-5. Access the services:
+4. Access the development environment:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
+   - Keycloak: `http://localhost:8080`
+   - MinIO: `http://localhost:9001`
+   - Qdrant: `http://localhost:6333`
 
-6. Stop the services when done:
+### Common Commands
+
+**Daily Development:**
 ```bash
-# For GPU deployment, use the following command:
-docker compose down
-
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml down
-
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml down
+make start-no-build  # Fastest - use existing builds
+make logs            # View logs
+make stop            # Stop services
 ```
 
-#### HTTPS Setup for Docker Compose
-
-This section explains how to set up HTTPS using a self signed certificate with Docker Compose when hosting Chunkr on a VM. This allows you to access the web UI, API, Keycloak (authentication service) and MinIO (object storage service) over HTTPS.
-
-1. Generate a self-signed certificate:
+**After Code Changes:**
 ```bash
-# Create a certs directory
-mkdir certs
-
-# Generate the certificate
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/nginx.key -out certs/nginx.crt -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+make build-backend   # Rebuild backend only
+make build-frontend  # Rebuild frontend only
+make build-all       # Rebuild everything
+make restart         # Restart services
 ```
 
-2. Update the .env file with your VM's IP address:
-> **Important**: Replace all instances of "localhost" with your VM's actual IP address. Note that you must use "https://" instead of "http://" and the ports are different from the HTTP setup (No port for web, 8444 for API, 8443 for Keycloak, 9100 for MinIO):
+**Maintenance:**
 ```bash
-AWS__PRESIGNED_URL_ENDPOINT=https://your_vm_ip_address:9100
-WORKER__SERVER_URL=https://your_vm_ip_address:8444
-VITE_API_URL=https://your_vm_ip_address:8444
-VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=https://your_vm_ip_address
-VITE_KEYCLOAK_REDIRECT_URI=https://your_vm_ip_address
-VITE_KEYCLOAK_URL=https://your_vm_ip_address:8443
+make status          # Check service status
+make clean           # Clean up everything
 ```
 
-1. Start the services:
+**Note:** On Mac, services automatically run in CPU mode (no GPU required). See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for details.
+
+## GCP Deployment
+
+### Prerequisites
+- Google Cloud Project with billing enabled
+- `gcloud` CLI installed and configured
+- Terraform installed (optional, for IaC)
+
+### Deploy to GCP
+
+1. Set up your GCP project:
 ```bash
-# For GPU deployment, use the following command:
-docker compose --profile proxy up -d
-
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy up -d
-
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy up -d
+export PROJECT_ID=your-gcp-project-id
+gcloud config set project $PROJECT_ID
 ```
 
-4. Access the services:
-   - Web UI: `https://your_vm_ip_address`
-   - API: `https://your_vm_ip_address:8444`
-
-5. Stop the services when done:
+2. Deploy using the deployment script:
 ```bash
-# For GPU deployment, use the following command:
-docker compose --profile proxy down
-
-# For CPU deployment, use the following command:
-docker compose -f compose-cpu.yaml --profile proxy down
-
-# For Mac ARM architecture (eg. M2, M3 etc.) deployment, use the following command:
-docker compose -f compose-cpu.yaml -f compose-mac.yaml --profile proxy down
+make deploy
 ```
 
-### Deployment with Kubernetes
+Or manually:
+```bash
+./scripts/deploy-gcp.sh
+```
 
-For production environments, we provide a Helm chart and detailed deployment instructions:
-1. See our detailed guide at [`kube/README.md`](kube/README.md)
-2. Includes configurations for high availability and scaling
+### Architecture
+The GCP deployment includes:
+- Compute Engine VM with GPU for OCR/Segmentation workloads
+- Containerized services (Postgres, Redis, MinIO, Qdrant, Keycloak)
+- Cloud Load Balancer for HTTPS termination
+- Cloud Storage for document backups
+- Secret Manager for sensitive configuration
 
-For enterprise support and deployment assistance, [contact us](mailto:mehul@chunkr.ai).
+For detailed deployment instructions, see:
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Complete deployment guide
+- [gcp/README.md](gcp/README.md) - GCP-specific details
 
 ## LLM Configuration
 

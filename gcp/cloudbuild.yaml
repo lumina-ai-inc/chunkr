@@ -1,0 +1,82 @@
+steps:
+  # Build server image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orin-server:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orin-server:latest'
+      - '-f'
+      - 'docker/server/Dockerfile'
+      - '.'
+    id: 'build-server'
+
+  # Build web frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orin-web:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orin-web:latest'
+      - '-f'
+      - 'docker/web/Dockerfile'
+      - '.'
+    id: 'build-web'
+
+  # Build task worker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orin-task:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orin-task:latest'
+      - '-f'
+      - 'docker/task/Dockerfile'
+      - '.'
+    id: 'build-task'
+
+  # Push all images
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/orin-server']
+    id: 'push-server'
+    waitFor: ['build-server']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/orin-web']
+    id: 'push-web'
+    waitFor: ['build-web']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/orin-task']
+    id: 'push-task'
+    waitFor: ['build-task']
+
+  # Deploy to Compute Engine
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'compute'
+      - 'instances'
+      - 'update-container'
+      - 'orin-production'
+      - '--zone=us-central1-a'
+      - '--container-image=gcr.io/$PROJECT_ID/orin-server:$SHORT_SHA'
+    id: 'deploy-server'
+    waitFor: ['push-server', 'push-web', 'push-task']
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1800s'
+
+images:
+  - 'gcr.io/$PROJECT_ID/orin-server:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/orin-server:latest'
+  - 'gcr.io/$PROJECT_ID/orin-web:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/orin-web:latest'
+  - 'gcr.io/$PROJECT_ID/orin-task:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/orin-task:latest'
+

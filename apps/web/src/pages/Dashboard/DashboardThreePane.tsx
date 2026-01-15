@@ -1,4 +1,5 @@
 import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
 import { ChatProvider, useChatContext } from "../../contexts/ChatContext";
 import LeftNavPane from "../../components/Dashboard/LeftNavPane";
 import MiddleChatPane from "../../components/Dashboard/MiddleChatPane";
@@ -15,6 +16,8 @@ function DashboardContent() {
     uploadFile,
     previewType,
   } = useChatContext();
+  
+  const [selectedContactType, setSelectedContactType] = useState<string | null>(null);
 
   const currentMessages = currentDealId
     ? chatSessions.get(currentDealId) || []
@@ -32,13 +35,27 @@ function DashboardContent() {
     }
   };
 
+  const handleSelectDeal = (dealId: string) => {
+    selectDeal(dealId);
+    setSelectedContactType(null); // Clear contact selection when deal is selected
+  };
+
+  const handleSelectContactType = (type: string | null) => {
+    setSelectedContactType(type);
+    if (type) {
+      selectDeal(null); // Clear deal selection when contact type is selected
+    }
+  };
+
   return (
     <Flex style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
       {/* Left Pane: 240px fixed */}
       <LeftNavPane
         selectedDealId={currentDealId}
-        onSelectDeal={selectDeal}
+        onSelectDeal={handleSelectDeal}
         onNewDeal={createNewDeal}
+        selectedContactType={selectedContactType}
+        onSelectContactType={handleSelectContactType}
       />
 
       {/* Middle Pane: Flexible width (min 400px) */}
@@ -50,7 +67,14 @@ function DashboardContent() {
       />
 
       {/* Right Pane: 400px fixed */}
-      <RightPreviewPane dealId={currentDealId} previewType={previewType} />
+      <RightPreviewPane
+        dealId={currentDealId}
+        previewType={previewType}
+        selectedContactType={selectedContactType}
+        onDealDeleted={() => {
+          selectDeal(null);
+        }}
+      />
     </Flex>
   );
 }

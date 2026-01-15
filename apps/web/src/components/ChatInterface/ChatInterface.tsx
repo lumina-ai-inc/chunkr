@@ -14,6 +14,7 @@ interface ChatInterfaceProps {
   onSend: (message: string) => void;
   onFileUpload?: (file: File) => void;
   placeholder?: string;
+  isLoading?: boolean;
 }
 
 export default function ChatInterface({
@@ -21,6 +22,7 @@ export default function ChatInterface({
   onSend,
   onFileUpload,
   placeholder = "Give Orin a task to work on...",
+  isLoading: _isLoading = false,
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState("");
   const [isDragging, setIsDragging] = useState(false);

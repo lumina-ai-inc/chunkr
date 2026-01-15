@@ -1,0 +1,83 @@
+# Orin Development Configuration
+
+# Database
+database:
+  url: postgresql://postgres:postgres@localhost:5432/chunkr
+  max_connections: 10
+  connection_timeout: 30
+
+# Redis Cache
+redis:
+  url: redis://localhost:6379
+  pool_size: 5
+
+# Object Storage (MinIO)
+storage:
+  endpoint: http://localhost:9000
+  presigned_url_endpoint: http://localhost:9000
+  access_key: minioadmin
+  secret_key: minioadmin
+  bucket: chunkr
+  region: us-east-1
+
+# Vector Database (Qdrant)
+qdrant:
+  url: http://localhost:6333
+  collection_prefix: orin_dev
+
+# Authentication (Keycloak)
+auth:
+  keycloak_url: http://localhost:8080
+  realm: orin
+  client_id: orin-api
+
+# LLM Configuration
+llm:
+  models_path: ./models.yaml
+  default_provider: openai
+  timeout_seconds: 120
+
+# OCR Services - Docling
+ocr:
+  provider: docling
+  service_url: http://localhost:8002
+  cache_enabled: true
+  timeout_seconds: 120
+
+# Segmentation Services
+segmentation:
+  url: http://localhost:8001
+  max_batch_size: 4
+  batch_wait_time: 0.2
+
+# Server Configuration
+server:
+  host: 0.0.0.0
+  port: 8000
+  workers: 2
+  max_request_size: 1073741824  # 1GB
+  timeout: 600
+
+# Task Workers
+worker:
+  redis_url: redis://localhost:6379
+  task_timeout: 3600
+  max_retries: 3
+
+# Feature Flags
+features:
+  stripe_enabled: false
+  analytics_enabled: false
+  rate_limiting_enabled: false
+
+# Monitoring & Observability
+monitoring:
+  otel_endpoint: ""
+  log_level: debug
+  metrics_enabled: false
+
+# GCP Specific
+gcp:
+  project_id: ""
+  secret_manager_enabled: false
+

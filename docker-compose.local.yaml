@@ -1,0 +1,48 @@
+# Local development override for Mac (ARM64/Intel)
+# This file adds platform specifications and removes GPU requirements
+# Usage: docker compose -f docker-compose.production.yaml -f docker-compose.local.yaml up -d
+
+services:
+  server:
+    platform: linux/amd64
+    # Set to 1 replica for local dev - can't have multiple containers binding to same port
+    deploy:
+      replicas: 1
+    environment:
+      # Docling OCR Configuration
+      - OCR_PROVIDER=docling
+      - DOCLING_SERVICE_URL=http://docling-service:8000
+      - OCR_CACHE_ENABLED=true
+      - SKIP_GPU_SERVICES=true
+      - ENABLE_PROGRESSIVE_RESULTS=true
+  task:
+    platform: linux/amd64
+    environment:
+      # Docling OCR Configuration
+      - OCR_PROVIDER=docling
+      - DOCLING_SERVICE_URL=http://docling-service:8000
+      - SKIP_GPU_SERVICES=true
+  # deal-worker service is commented out in production.yaml for local dev
+  # Run via ./scripts/run-deal-worker-local.sh instead
+  web:
+    platform: linux/amd64
+    # Mount local build for development (not read-only to allow entrypoint scripts)
+    volumes:
+      - ./apps/web/dist:/usr/share/nginx/html
+  
+  # NEW: Docling OCR service (replaces 18.5GB GPU backends)
+  docling-service:
+    build: ./services/docling-service
+    image: orin-docling:latest
+    platform: linux/amd64
+    ports:
+      - "8002:8000"
+    environment:
+      - DOCLING_OCR_ENABLED=true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+    restart: unless-stopped
+

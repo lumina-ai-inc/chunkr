@@ -1,16 +1,17 @@
 {
-  "name": "chunk-my-docs",
+  "name": "orin-web",
   "private": true,
-  "version": "1.6.1",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode development",
     "copy-pdf-worker": "node copyPdfWorker.js",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL:-http://localhost:8080} VITE_KEYCLOAK_REDIRECT_URI=${VITE_KEYCLOAK_REDIRECT_URI:-http://localhost:5173} VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=${VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI:-http://localhost:5173} VITE_API_URL=${VITE_API_URL:-http://localhost:8000} vite build --mode production",
+    "build:dev": "tsc -b && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:deploy": "pnpm exec env-cmd -f .env vite build",
-    "preview:deploy": "pnpm run build:deploy && vite preview"
+    "deploy": "npm run build && gsutil rsync -r dist gs://orin-web-app",
+    "deploy:dev": "npm run build:dev && gsutil rsync -r dist gs://orin-web-app-dev"
   },
   "dependencies": {
     "-": "^0.0.1",

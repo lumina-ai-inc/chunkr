@@ -210,6 +210,12 @@ async fn process_ocr(
 ///
 /// This function will perform OCR, segmentation and chunking on the pages
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
+    println!("CHUNKR_ANALYSIS: Function called - has_task: {}, has_page_images: {}, has_pdf: {}", pipeline.task.is_some(), pipeline.page_images.is_some(), pipeline.pdf_file.is_some());
+
+    // #region agent log - right at start
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:212\",\"message\":\"Chunkr analysis function called\",\"data\":{{\"has_task\":\"{}\",\"has_page_images\":\"{}\",\"has_pdf\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", pipeline.task.is_some(), pipeline.page_images.is_some(), pipeline.pdf_file.is_some(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+
     let mut task = pipeline.get_task()?;
     let pdf_file = pipeline.pdf_file.as_ref().unwrap();
     let scaling_factor = pipeline.get_scaling_factor()?;
@@ -221,17 +227,41 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .map(|x| x.as_ref())
         .collect();
 
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:229\",\"message\":\"Starting OCR processing\",\"data\":{{\"pageCount\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", pages.len(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+
     let ocr_results = match process_ocr(&mut task, pdf_file, scaling_factor, &pages).await {
-        Ok(ocr_results) => ocr_results,
+        Ok(ocr_results) => {
+            // #region agent log
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:233\",\"message\":\"OCR processing completed\",\"data\":{{\"ocrResultsCount\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", ocr_results.len(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
+            ocr_results
+        }
         Err(e) => {
+            // #region agent log
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:239\",\"message\":\"OCR processing failed\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", e.to_string().replace("\"", "\\\""), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
             println!("Error in OCR: {:?}", e);
             return Err(e.to_string().into());
         }
     };
 
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:247\",\"message\":\"Starting segmentation processing\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+
     let page_segments = match process_segmentation(&mut task, &pages, ocr_results).await {
-        Ok(page_segments) => page_segments,
+        Ok(page_segments) => {
+            // #region agent log
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:251\",\"message\":\"Segmentation processing completed\",\"data\":{{\"segmentCount\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", page_segments.len(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
+            page_segments
+        }
         Err(e) => {
+            // #region agent log
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:257\",\"message\":\"Segmentation processing failed\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", e.to_string().replace("\"", "\\\""), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
             println!("Error in segmentation and OCR: {:?}", e);
             return Err(e.to_string().into());
         }
@@ -242,6 +272,10 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .flatten()
         .map(|s| Chunk::new(vec![s]))
         .collect();
+
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"chunkr_analysis.rs:266\",\"message\":\"Chunkr analysis completed successfully\",\"data\":{{\"chunkCount\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", pipeline.chunks.len(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
 
     Ok(())
 }

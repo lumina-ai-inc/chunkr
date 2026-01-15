@@ -150,7 +150,7 @@ export interface UploadFormData {
 
 export enum Pipeline {
   Azure = "Azure",
-  Orin = "Orin",
+  Chunkr = "Chunkr",  // FIXED: Backend uses "Chunkr" not "Orin"
 }
 
 const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
@@ -217,7 +217,7 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   chunk_processing: DEFAULT_CHUNK_PROCESSING,
   high_resolution: true,
   ocr_strategy: OcrStrategy.All,
-  segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
+  segmentation_strategy: SegmentationStrategy.Page,  // Changed from LayoutAnalysis to Page (no segmentation service needed on ARM64)
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   llm_processing: DEFAULT_LLM_PROCESSING,
   pipeline: Pipeline.Azure as unknown as WhenEnabled<"pipeline", Pipeline>,

@@ -1,0 +1,66 @@
+spec:
+  containers:
+    - name: orin-server
+      image: gcr.io/${project_id}/orin-server:latest
+      env:
+        - name: PG__URL
+          value: "postgresql://postgres:postgres@postgres:5432/chunkr"
+        - name: REDIS__URL
+          value: "redis://redis:6379"
+        - name: AWS__ENDPOINT
+          value: "http://minio:9000"
+      ports:
+        - containerPort: 8000
+          hostPort: 8000
+
+    - name: postgres
+      image: postgres:15
+      env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "postgres"
+        - name: POSTGRES_DB
+          value: "postgres"
+      volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+
+    - name: redis
+      image: redis:latest
+      volumeMounts:
+        - name: redis-data
+          mountPath: /data
+
+    - name: minio
+      image: minio/minio:latest
+      args: ["server", "/data", "--console-address", ":9001"]
+      env:
+        - name: MINIO_ROOT_USER
+          value: "minioadmin"
+        - name: MINIO_ROOT_PASSWORD
+          value: "minioadmin"
+      volumeMounts:
+        - name: minio-data
+          mountPath: /data
+
+    - name: qdrant
+      image: qdrant/qdrant:latest
+      volumeMounts:
+        - name: qdrant-data
+          mountPath: /qdrant/storage
+
+  volumes:
+    - name: postgres-data
+      hostPath:
+        path: /mnt/disks/data/postgres
+    - name: redis-data
+      hostPath:
+        path: /mnt/disks/data/redis
+    - name: minio-data
+      hostPath:
+        path: /mnt/disks/data/minio
+    - name: qdrant-data
+      hostPath:
+        path: /mnt/disks/data/qdrant
+

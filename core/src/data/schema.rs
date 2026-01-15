@@ -40,6 +40,10 @@ diesel::table! {
         page_count -> Nullable<Int4>,
         ocr_output -> Nullable<Jsonb>,
         created_at -> Timestamptz,
+        ocr_completed_at -> Nullable<Timestamptz>,
+        fact_extraction_status -> Nullable<Text>,
+        fact_extraction_completed_at -> Nullable<Timestamptz>,
+        embedding_id -> Nullable<Text>,
     }
 }
 
@@ -59,6 +63,9 @@ diesel::table! {
         approved_by -> Nullable<Text>,
         locked -> Bool,
         created_at -> Timestamptz,
+        extraction_method -> Nullable<Text>,
+        reviewed_by_user -> Nullable<Bool>,
+        embedding_id -> Nullable<Text>,
     }
 }
 
@@ -173,7 +180,8 @@ diesel::table! {
     usage (id) {
         id -> Int4,
         user_id -> Nullable<Text>,
-        usage -> Nullable<Int4>,
+        #[sql_name = "usage"]
+        usage_col -> Nullable<Int4>,
         usage_limit -> Nullable<Int4>,
         usage_type -> Nullable<Text>,
         unit -> Nullable<Text>,
@@ -217,18 +225,84 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    conversations (conversation_id) {
+        conversation_id -> Text,
+        user_id -> Text,
+        deal_id -> Nullable<Text>,
+        title -> Nullable<Text>,
+        context -> Nullable<Jsonb>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
+    messages (message_id) {
+        message_id -> Text,
+        conversation_id -> Text,
+        role -> Text,
+        content -> Text,
+        metadata -> Nullable<Jsonb>,
+        embedding_id -> Nullable<Text>,
+        created_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
+    agent_executions (execution_id) {
+        execution_id -> Text,
+        agent_type -> Text,
+        entity_id -> Nullable<Text>,
+        entity_type -> Nullable<Text>,
+        input -> Jsonb,
+        output -> Nullable<Jsonb>,
+        status -> Text,
+        error -> Nullable<Text>,
+        llm_provider -> Nullable<Text>,
+        model -> Nullable<Text>,
+        tokens_used -> Nullable<Int4>,
+        execution_time_ms -> Nullable<Int4>,
+        created_at -> Timestamptz,
+        completed_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
+    investor_memos (memo_id) {
+        memo_id -> Text,
+        deal_id -> Text,
+        title -> Nullable<Text>,
+        content -> Text,
+        sections -> Nullable<Jsonb>,
+        version -> Nullable<Int4>,
+        status -> Nullable<Text>,
+        created_by_agent -> Nullable<Bool>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+diesel::joinable!(conversations -> deals (deal_id));
+diesel::joinable!(conversations -> users (user_id));
 diesel::joinable!(deals -> users (user_id));
 diesel::joinable!(documents -> deals (deal_id));
 diesel::joinable!(facts -> deals (deal_id));
 diesel::joinable!(facts -> documents (document_id));
+diesel::joinable!(investor_memos -> deals (deal_id));
+diesel::joinable!(messages -> conversations (conversation_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    agent_executions,
     api_keys,
+    conversations,
     deals,
     discounts,
     documents,
     facts,
+    investor_memos,
     invoices,
+    messages,
     monthly_usage,
     pre_applied_free_pages,
     segment_process,

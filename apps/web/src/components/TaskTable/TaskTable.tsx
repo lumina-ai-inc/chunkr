@@ -3,11 +3,11 @@ import {
   MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_PaginationState,
-  type MRT_Row,
+  // type MRT_Row, // Reserved for future detail panel
 } from "material-react-table";
 import { IconButton, Tooltip, createTheme, ThemeProvider, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import FolderIcon from "@mui/icons-material/Folder";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -25,7 +25,7 @@ import toast from "react-hot-toast";
 import { Box } from "@mui/material";
 import { Status } from "../../models/taskResponse.model";
 import BetterButton from "../BetterButton/BetterButton";
-import ReactJson from "react-json-view";
+// import ReactJson from "react-json-view"; // Reserved for future detail panel
 import UploadDialog from "../Upload/UploadDialog";
 import Loader from "../../pages/Loader/Loader";
 
@@ -235,7 +235,7 @@ const TaskTable = ({ context = "extracts" }: { context?: "extracts" | "flows" })
         },
       },
       {
-        accessorKey: "task.task_id",
+        accessorKey: "task.task?.task_id",
         header: context === "flows" ? "Flow ID" : "Package Id",
         Cell: ({ row }) => {
           const item = row.original;
@@ -407,6 +407,8 @@ const TaskTable = ({ context = "extracts" }: { context?: "extracts" | "flows" })
     [context, togglePackage]
   );
 
+  // Reserved for future detail expansion
+  /*
   const renderDetailPanel = ({ row }: { row: MRT_Row<PackageItem> }) => {
     const item = row.original;
     if (item.type === 'package' && item.task) {
@@ -471,6 +473,7 @@ const TaskTable = ({ context = "extracts" }: { context?: "extracts" | "flows" })
     }
     return null;
   };
+  */
 
   const tableTheme = useMemo(
     () =>
@@ -862,7 +865,7 @@ const TaskTable = ({ context = "extracts" }: { context?: "extracts" | "flows" })
     return Object.keys(rowSelection).some((itemId) => {
       const item = packageItems.find((item) => item.id === itemId);
       if (item?.type === 'package' && item.task) {
-        const task = tasks?.find((t) => t.task_id === item.task.task_id);
+        const task = tasks?.find((t) => t.task_id === item.task?.task_id);
         return task?.status === Status.Starting;
       }
       return false;
@@ -873,7 +876,7 @@ const TaskTable = ({ context = "extracts" }: { context?: "extracts" | "flows" })
     return Object.keys(rowSelection).some((itemId) => {
       const item = packageItems.find((item) => item.id === itemId);
       if (item?.type === 'package' && item.task) {
-        const task = tasks?.find((t) => t.task_id === item.task.task_id);
+        const task = tasks?.find((t) => t.task_id === item.task?.task_id);
         return task?.status === Status.Failed;
       }
       return false;
@@ -937,7 +940,7 @@ const TaskTable = ({ context = "extracts" }: { context?: "extracts" | "flows" })
             enableStickyHeader
             enableStickyFooter
             rowPinningDisplayMode="select-sticky"
-            getRowId={(row) => row.task_id}
+            getRowId={(row) => row.task?.task_id || row.id}
             muiPaginationProps={{
               rowsPerPageOptions: [10, 20, 50, 100],
               defaultValue: 20,

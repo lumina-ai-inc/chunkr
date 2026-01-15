@@ -5,7 +5,8 @@ import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 import BetterButton from "../BetterButton/BetterButton";
 
-const DOCS_URL = import.meta.env.VITE_DOCS_URL;
+// Reserved for future use
+// const DOCS_URL = import.meta.env.VITE_DOCS_URL;
 
 interface UploadProps {
   onFileUpload: (files: File[]) => void;

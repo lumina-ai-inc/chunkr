@@ -14,8 +14,9 @@ async fn azure_analysis(
     temp_file: &NamedTempFile,
     features: Option<Vec<String>>,
     segmentation_strategy: SegmentationStrategy,
-) -> Result<Vec<Chunk>, Box<dyn Error>> {
-    let azure_config = azure_config::Config::from_env()?;
+) -> Result<Vec<Chunk>, Box<dyn Error + Send + Sync>> {
+    let azure_config = azure_config::Config::from_env()
+        .map_err(|e| -> Box<dyn Error + Send + Sync> { format!("{}", e).into() })?;
     let api_version = azure_config.api_version;
     let endpoint = azure_config.endpoint;
     let key = azure_config.key;
@@ -69,7 +70,8 @@ async fn azure_analysis(
 
             match azure_response.status.as_str() {
                 "succeeded" => {
-                    let chunks = azure_response.to_chunks(segmentation_strategy)?;
+                    let chunks = azure_response.to_chunks(segmentation_strategy)
+                        .map_err(|e| -> Box<dyn Error + Send + Sync> { format!("{}", e).into() })?;
                     return Ok(chunks);
                 }
                 "failed" => return Err("Analysis failed".into()),
@@ -89,7 +91,7 @@ pub async fn perform_azure_analysis(
     temp_file: &NamedTempFile,
     features: Option<Vec<DocumentAnalysisFeature>>,
     segmentation_strategy: SegmentationStrategy,
-) -> Result<Vec<Chunk>, Box<dyn Error>> {
+) -> Result<Vec<Chunk>, Box<dyn Error + Send + Sync>> {
     let features_str = features.map(|f| {
         f.into_iter()
             .map(|feature| feature.as_str().to_string())
@@ -105,6 +107,9 @@ pub async fn perform_azure_analysis(
         .await
     })
     .await
+    .map_err(|e| -> Box<dyn Error + Send + Sync> {
+        format!("{}", e).into()
+    })
 }
 
 #[cfg(test)]

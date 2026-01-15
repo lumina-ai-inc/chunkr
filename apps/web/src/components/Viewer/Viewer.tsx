@@ -32,7 +32,8 @@ export default function Viewer({
   const [showConfig, setShowConfig] = useState(false);
   const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const hideTimeoutRef = useRef<NodeJS.Timeout>();
+  // Reserved for future auto-hide functionality
+  // const hideTimeoutRef = useRef<NodeJS.Timeout>();
 
   const [selectedView, setSelectedView] = useState<
     "html" | "markdown" | "json"

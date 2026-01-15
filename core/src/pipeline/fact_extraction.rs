@@ -1,5 +1,5 @@
 use crate::models::document::{Document, DocumentType};
-use crate::models::fact::{FactType, NewFact, SourceCitation, BoundingBox};
+use crate::models::fact::{FactType, NewFact, SourceCitation};
 use crate::models::output::OCRResult;
 use regex::Regex;
 use serde_json::json;
