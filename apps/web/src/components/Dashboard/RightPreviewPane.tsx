@@ -114,15 +114,21 @@ export default function RightPreviewPane({
       }}
     >
       <Tabs.Root defaultValue="memo" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <Tabs.List style={{ padding: "16px 16px 0", backgroundColor: "#fff", borderBottom: "1px solid #e0e0e0" }}>
-          <Tabs.Trigger value="memo">Memo</Tabs.Trigger>
-          <Tabs.Trigger value="underwriting">Analysis</Tabs.Trigger>
-          <Tabs.Trigger value="facts">Facts</Tabs.Trigger>
-          <Tabs.Trigger value="documents">Documents</Tabs.Trigger>
-          <Tabs.Trigger value="analysis">Summary</Tabs.Trigger>
+        <Tabs.List style={{ 
+          padding: "4px", 
+          backgroundColor: "#fff", 
+          borderBottom: "1px solid #e0e0e0",
+          display: "flex",
+          width: "100%"
+        }}>
+          <Tabs.Trigger value="memo" style={{ flex: 1 }}>Memo</Tabs.Trigger>
+          <Tabs.Trigger value="underwriting" style={{ flex: 1 }}>Analysis</Tabs.Trigger>
+          <Tabs.Trigger value="facts" style={{ flex: 1 }}>Facts</Tabs.Trigger>
+          <Tabs.Trigger value="documents" style={{ flex: 1 }}>Documents</Tabs.Trigger>
+          <Tabs.Trigger value="analysis" style={{ flex: 1 }}>Summary</Tabs.Trigger>
         </Tabs.List>
 
-        <ScrollArea style={{ flex: 1 }} scrollbars="vertical">
+        <ScrollArea style={{ flex: 1, minHeight: 0 }} scrollbars="vertical">
           {/* Analysis Tab */}
           <Tabs.Content value="analysis" style={{ padding: "16px" }}>
             {deal && (
@@ -169,14 +175,23 @@ export default function RightPreviewPane({
                         {doc.status} • {doc.page_count || 0} pages
                       </Text>
                     </Flex>
-                    <Button
-                      size="2"
-                      variant="outline"
+                    <Flex
+                      align="center"
+                      gap="4px"
                       onClick={() => setViewingDocument(doc)}
-                      style={{ flexShrink: 0 }}
+                      style={{ 
+                        cursor: "pointer",
+                        color: "#666",
+                        fontSize: "13px"
+                      }}
                     >
-                      View Source
-                    </Button>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                      </svg>
+                      <Text size="3" style={{ color: "#666" }}>View Source</Text>
+                    </Flex>
                   </Flex>
                 ))
               ) : (

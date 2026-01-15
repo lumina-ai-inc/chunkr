@@ -249,10 +249,10 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
       direction="column"
       gap="3"
       p="24px"
-      style={{ overflowY: "auto", height: "100%" }}
+      style={{ height: "100%", display: "flex", overflow: "hidden" }}
       className="fact-review-container"
     >
-      <Flex direction="column" gap="3" mb="3">
+      <Flex direction="column" gap="3" mb="3" style={{ flexShrink: 0 }}>
         <Flex justify="between" align="center">
           <Flex direction="column" gap="1">
             <Text size="4" weight="medium">
@@ -290,21 +290,23 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
             >
               Verify All
             </Button>
-            <Button
-              size="2"
-              onClick={handleRunUnderwriting}
-              style={{
-                backgroundColor: "#111",
-                color: "#fff",
-              }}
-            >
-              Run Analysis →
-            </Button>
           </Flex>
+        </Flex>
+        <Flex justify="end" mt="2">
+          <Button
+            size="2"
+            onClick={handleRunUnderwriting}
+            style={{
+              backgroundColor: "#111",
+              color: "#fff",
+            }}
+          >
+            Run Analysis →
+          </Button>
         </Flex>
       </Flex>
 
-      <Flex direction="column" gap="2">
+      <Flex direction="column" gap="2" style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingBottom: "16px" }}>
         {facts.map((fact) => {
           const status = getFactStatus(fact);
           const statusDisplay = getStatusDisplay(status);
@@ -402,7 +404,6 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
           );
         })}
       </Flex>
-
     </Flex>
   );
 };

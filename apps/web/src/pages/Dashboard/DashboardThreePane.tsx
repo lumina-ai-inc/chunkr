@@ -1,4 +1,5 @@
 import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
 import { ChatProvider, useChatContext } from "../../contexts/ChatContext";
 import LeftNavPane from "../../components/Dashboard/LeftNavPane";
 import MiddleChatPane from "../../components/Dashboard/MiddleChatPane";
@@ -15,6 +16,8 @@ function DashboardContent() {
     uploadFile,
     previewType,
   } = useChatContext();
+  
+  const [selectedContactType, setSelectedContactType] = useState<string | null>(null);
 
   const currentMessages = currentDealId
     ? chatSessions.get(currentDealId) || []
@@ -39,6 +42,8 @@ function DashboardContent() {
         selectedDealId={currentDealId}
         onSelectDeal={selectDeal}
         onNewDeal={createNewDeal}
+        selectedContactType={selectedContactType}
+        onSelectContactType={setSelectedContactType}
       />
 
       {/* Middle Pane: Flexible width (min 400px) */}

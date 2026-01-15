@@ -1,6 +1,8 @@
 import { Flex, Card, Text, Button, Badge } from "@radix-ui/themes";
+import { useState } from "react";
 import { useQuery } from "react-query";
 import { getDeals, DealResponse } from "../../services/dealApi";
+import ShareWithContactsModal from "../Contacts/ShareWithContactsModal";
 import "./InvestorPackage.css";
 
 interface InvestorMemo {
@@ -60,6 +62,8 @@ const MOCK_INVESTOR_MEMO: InvestorMemo = {
 };
 
 const InvestorPackage = () => {
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedMemo, setSelectedMemo] = useState<InvestorMemo | null>(null);
   const { data: deals, isLoading } = useQuery<DealResponse[]>({
     queryKey: ["deals"],
     queryFn: getDeals,
@@ -119,7 +123,7 @@ const InvestorPackage = () => {
       direction="column"
       gap="4"
       p="24px"
-      style={{ overflowY: "auto", height: "100%", maxHeight: "calc(100vh - 200px)" }}
+      style={{ overflowY: "auto", height: "100%", minHeight: 0 }}
       className="investor-package-container"
     >
       <Text size="3" color="gray">
@@ -312,13 +316,37 @@ const InvestorPackage = () => {
                 {/* Actions */}
                 <Flex gap="3" justify="end" mt="2">
                   <Button variant="soft">Download PDF</Button>
-                  <Button>Get Shareable Link</Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedMemo(memo);
+                      setShowShareModal(true);
+                    }}
+                  >
+                    Share with Contacts
+                  </Button>
                 </Flex>
               </Flex>
             </Card>
           );
         })}
       </Flex>
+
+      {/* Share with Contacts Modal */}
+      {selectedMemo && (
+        <ShareWithContactsModal
+          open={showShareModal}
+          onClose={() => {
+            setShowShareModal(false);
+            setSelectedMemo(null);
+          }}
+          dealName={selectedMemo.dealName}
+          memoData={{
+            executiveSummary: selectedMemo.executiveSummary,
+            financialHighlights: selectedMemo.financialHighlights,
+            propertyDetails: selectedMemo.propertyDetails,
+          }}
+        />
+      )}
     </Flex>
   );
 };

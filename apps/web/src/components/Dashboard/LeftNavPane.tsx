@@ -2,31 +2,53 @@ import { useState } from "react";
 import { Flex, Text, Button, TextField, Badge, ScrollArea } from "@radix-ui/themes";
 import { useQuery } from "react-query";
 import { getDeals, DealResponse } from "../../services/dealApi";
+import { getAllContacts, getContactsByType, getFamilyOfficeContacts } from "../../services/contactApi";
+import ImportContactsModal from "../Contacts/ImportContactsModal";
 import "./LeftNavPane.css";
 
 interface LeftNavPaneProps {
   selectedDealId: string | null;
   onSelectDeal: (dealId: string) => void;
   onNewDeal: () => void;
+  selectedContactType?: string | null;
+  onSelectContactType?: (type: string | null) => void;
 }
 
 export default function LeftNavPane({
   selectedDealId,
   onSelectDeal,
   onNewDeal,
+  selectedContactType,
+  onSelectContactType,
 }: LeftNavPaneProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showImportModal, setShowImportModal] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     active: true,
     in_review: false,
     completed: false,
     shared: false,
   });
+  const [expandedContacts, setExpandedContacts] = useState<Record<string, boolean>>({
+    all: true,
+    investors: false,
+    institutional: false,
+  });
 
   const { data: deals = [] } = useQuery<DealResponse[]>("deals", getDeals);
+  
+  // Get contact counts
+  const allContacts = getAllContacts();
+  const investorContacts = getContactsByType("investor");
+  const institutionalContacts = getContactsByType("institutional");
+  const familyOfficeContacts = getFamilyOfficeContacts();
 
   const toggleGroup = (group: string) => {
     setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  const toggleContactGroup = (group: string) => {
+    setExpandedContacts((prev) => ({ ...prev, [group]: !prev[group] }));
   };
 
   const groupDeals = () => {
@@ -188,10 +210,126 @@ export default function LeftNavPane({
             My Deals
           </Text>
 
-          {renderGroup("Active", "🔵", "active", groupedDeals.active)}
-          {renderGroup("In Review", "🟡", "in_review", groupedDeals.in_review)}
-          {renderGroup("Completed", "🟢", "completed", groupedDeals.completed)}
-          {renderGroup("Shared", "🟣", "shared", groupedDeals.shared)}
+          {renderGroup("New", "🔵", "active", groupedDeals.active)}
+          {renderGroup("Underwriting", "🟡", "in_review", groupedDeals.in_review)}
+          {renderGroup("Ready to Fund", "🟢", "completed", groupedDeals.completed)}
+          {renderGroup("Closed", "🟣", "shared", groupedDeals.shared)}
+
+          {/* MY CONTACTS Section */}
+          <Text
+            size="2"
+            weight="bold"
+            style={{
+              color: "#666",
+              textTransform: "uppercase",
+              padding: "16px 12px 8px",
+              letterSpacing: "0.5px",
+            }}
+          >
+            My Contacts
+          </Text>
+
+          {/* All Contacts */}
+          <Flex
+            direction="column"
+            style={{ marginBottom: "4px" }}
+          >
+            <Flex
+              align="center"
+              justify="between"
+              p="8px 12px"
+              style={{
+                cursor: "pointer",
+                backgroundColor: selectedContactType === "all" ? "#f0f0f0" : "transparent",
+              }}
+              onClick={() => onSelectContactType && onSelectContactType("all")}
+            >
+              <Text size="2">All Contacts</Text>
+              <Badge size="1" variant="soft">
+                {allContacts.length}
+              </Badge>
+            </Flex>
+          </Flex>
+
+          {/* Accredited Investors */}
+          <Flex
+            direction="column"
+            style={{ marginBottom: "4px" }}
+          >
+            <Flex
+              align="center"
+              justify="between"
+              p="8px 12px"
+              style={{
+                cursor: "pointer",
+                backgroundColor: selectedContactType === "investors" ? "#f0f0f0" : "transparent",
+              }}
+              onClick={() => onSelectContactType && onSelectContactType("investors")}
+            >
+              <Text size="2">Accredited Investors</Text>
+              <Badge size="1" variant="soft">
+                {investorContacts.length}
+              </Badge>
+            </Flex>
+          </Flex>
+
+          {/* Institutional */}
+          <Flex direction="column" style={{ marginBottom: "8px" }}>
+            <Flex
+              align="center"
+              justify="between"
+              p="8px 12px"
+              style={{
+                cursor: "pointer",
+                backgroundColor: expandedContacts.institutional ? "#f8f9fa" : "transparent",
+              }}
+              onClick={() => toggleContactGroup("institutional")}
+            >
+              <Flex align="center" gap="8px">
+                <Text size="2">{expandedContacts.institutional ? "▼" : "▶"}</Text>
+                <Text size="2">Institutional</Text>
+                <Badge size="1" variant="soft">
+                  {institutionalContacts.length}
+                </Badge>
+              </Flex>
+            </Flex>
+            {expandedContacts.institutional && (
+              <Flex
+                align="center"
+                justify="between"
+                p="8px 12px 8px 28px"
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: selectedContactType === "family_office" ? "#f0f0f0" : "transparent",
+                }}
+                onClick={() => onSelectContactType && onSelectContactType("family_office")}
+              >
+                <Text size="2">Family Offices</Text>
+                <Badge size="1" variant="soft">
+                  {familyOfficeContacts.length}
+                </Badge>
+              </Flex>
+            )}
+          </Flex>
+
+          {/* Import Contacts Button */}
+          <Flex 
+            p="9px 12px"
+            align="center"
+            gap="6px"
+            onClick={() => setShowImportModal(true)}
+            style={{
+              cursor: "pointer",
+              color: "#666",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <Text size="2" weight="bold" style={{ color: "#666" }}>Import Contacts</Text>
+          </Flex>
 
           <Text
             size="2"
@@ -238,6 +376,16 @@ export default function LeftNavPane({
           + New Deal
         </Button>
       </Flex>
+
+      {/* Import Contacts Modal */}
+      <ImportContactsModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={() => {
+          setShowImportModal(false);
+          // Refetch contacts by invalidating query if using react-query
+        }}
+      />
     </Flex>
   );
 }
