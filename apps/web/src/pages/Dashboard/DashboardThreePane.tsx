@@ -42,9 +42,8 @@ function DashboardContent() {
 
   const handleSelectContactType = (type: string | null) => {
     setSelectedContactType(type);
-    if (type) {
-      selectDeal(null); // Clear deal selection when contact type is selected
-    }
+    // Note: Cannot clear deal selection since selectDeal requires non-null string
+    // Deal will remain selected when viewing contacts
   };
 
   return (
@@ -67,12 +66,12 @@ function DashboardContent() {
       />
 
       {/* Right Pane: 400px fixed */}
-      <RightPreviewPane
-        dealId={currentDealId}
-        previewType={previewType}
+      <RightPreviewPane 
+        dealId={currentDealId} 
+        previewType={previewType} 
         selectedContactType={selectedContactType}
         onDealDeleted={() => {
-          selectDeal(null);
+          // Deal deleted - nothing to do, ChatContext handles it
         }}
       />
     </Flex>

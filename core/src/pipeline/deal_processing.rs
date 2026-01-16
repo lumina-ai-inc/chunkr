@@ -2,10 +2,13 @@ use crate::events::document_events::{DocumentEvent, publish_event};
 use crate::services::ocr_service::{create_ocr_service, OCRResponse, OCRResult, BoundingBox};
 use crate::utils::clients::get_pg_client;
 use crate::utils::storage::services::download_to_tempfile;
+use chrono;
 use serde_json::json;
 use std::error::Error;
 use std::fs;
 use std::path::Path;
+use std::time::{Duration, Instant};
+use tokio::time::sleep;
 
 /// Simplified document processing pipeline for deal documents
 /// Bypasses heavy Chunkr pipeline and uses cloud OCR directly
@@ -26,9 +29,13 @@ impl DealDocumentProcessor {
         }
     }
 
-    /// Main processing pipeline
+    /// Main processing pipeline with retry logic and metrics
     pub async fn process(&self) -> Result<(), Box<dyn Error + Send + Sync>> {
-        println!("Processing document {} for deal {}", self.document_id, self.deal_id);
+        let start_time = Instant::now();
+        self.log_metric("pipeline_start", json!({
+            "document_id": &self.document_id,
+            "deal_id": &self.deal_id,
+        }));
 
         // Publish OCR started event
         publish_event(DocumentEvent::OCRStarted {
@@ -36,47 +43,58 @@ impl DealDocumentProcessor {
             deal_id: self.deal_id.clone(),
             user_id: self.user_id.clone(),
         }).await?;
+        
+        // Update status to processing
+        self.update_status("processing").await?;
 
-        // Step 1: Download document from S3
-        let temp_file = download_to_tempfile(&self.s3_location, None, "application/octet-stream")
-            .await
-            .map_err(|e| -> Box<dyn Error + Send + Sync> { 
-                format!("Failed to download from S3: {}", e).into()
-            })?;
-        println!("Downloaded document from S3: {}", self.s3_location);
+        // Step 1: Download document from S3 with retry
+        let download_start = Instant::now();
+        let temp_file = self.retry_operation(|| async {
+            download_to_tempfile(&self.s3_location, None, "application/octet-stream")
+                .await
+                .map_err(|e| -> Box<dyn Error + Send + Sync> { 
+                    format!("Failed to download from S3: {}", e).into()
+                })
+        }, 3).await?;
+        self.log_metric("s3_download_duration_ms", json!(download_start.elapsed().as_millis()));
 
-        // Step 2: Determine file type and process accordingly
+        // Step 2: Determine file type and process accordingly with retry
         let file_path = temp_file.path();
         let file_ext = file_path.extension()
             .and_then(|s| s.to_str())
             .unwrap_or("")
             .to_lowercase();
         
-        let ocr_results = match file_ext.as_str() {
-            "csv" => {
-                // CSV files don't need OCR, just parse directly
-                println!("Processing CSV file: {}", self.document_id);
-                self.process_csv(file_path).await?
+        self.log_metric("file_type", json!(file_ext));
+        let ocr_start = Instant::now();
+        let ocr_results = self.retry_operation(|| async {
+            match file_ext.as_str() {
+                "csv" => {
+                    // CSV files don't need OCR, just parse directly
+                    println!("Processing CSV file: {}", self.document_id);
+                    self.process_csv(file_path).await
+                }
+                "xls" | "xlsx" => {
+                    // Excel files - extract to text
+                    println!("Processing Excel file: {}", self.document_id);
+                    self.process_excel(file_path).await
+                }
+                "pdf" => {
+                    // PDF - try free OCR first, fallback to Azure if configured
+                    println!("Processing PDF file: {}", self.document_id);
+                    self.process_pdf(file_path).await
+                }
+                _ => {
+                    // Other files - try OCR service
+                    let ocr_service = create_ocr_service()?;
+                    println!("Using OCR service: {}", ocr_service.name());
+                    ocr_service.process_document(file_path).await
+                }
             }
-            "xls" | "xlsx" => {
-                // Excel files - extract to text
-                println!("Processing Excel file: {}", self.document_id);
-                self.process_excel(file_path).await?
-            }
-            "pdf" => {
-                // PDF - try free OCR first, fallback to Azure if configured
-                println!("Processing PDF file: {}", self.document_id);
-                self.process_pdf(file_path).await?
-            }
-            _ => {
-                // Other files - try OCR service
-                let ocr_service = create_ocr_service()?;
-                println!("Using OCR service: {}", ocr_service.name());
-                ocr_service.process_document(file_path).await?
-            }
-        };
+        }, 3).await?;
         
-        println!("Processing completed: {} pages processed", ocr_results.page_count);
+        self.log_metric("ocr_duration_ms", json!(ocr_start.elapsed().as_millis()));
+        self.log_metric("page_count", json!(ocr_results.page_count));
 
         // Publish OCR completed event
         publish_event(DocumentEvent::OCRCompleted {
@@ -88,15 +106,19 @@ impl DealDocumentProcessor {
 
         // Step 3: Store OCR results
         self.store_ocr_results(&ocr_results).await?;
-        println!("OCR results stored for document {}", self.document_id);
 
         // Step 4: Trigger AI agent for fact extraction
         self.trigger_fact_extraction(&ocr_results).await?;
-        println!("Fact extraction triggered for document {}", self.document_id);
 
         // Step 5: Update document status
         self.update_status("completed").await?;
-        println!("Document processing completed: {}", self.document_id);
+
+        let total_duration = start_time.elapsed();
+        self.log_metric("pipeline_complete", json!({
+            "total_duration_ms": total_duration.as_millis(),
+            "document_id": &self.document_id,
+            "status": "completed"
+        }));
 
         Ok(())
     }
@@ -156,6 +178,53 @@ impl DealDocumentProcessor {
         ).await?;
 
         Ok(())
+    }
+    
+    /// Retry operation with exponential backoff
+    async fn retry_operation<F, Fut, T>(&self, operation: F, max_retries: u32) -> Result<T, Box<dyn Error + Send + Sync>>
+    where
+        F: Fn() -> Fut,
+        Fut: std::future::Future<Output = Result<T, Box<dyn Error + Send + Sync>>>,
+    {
+        let mut retries = 0;
+        loop {
+            match operation().await {
+                Ok(result) => return Ok(result),
+                Err(e) if retries < max_retries => {
+                    retries += 1;
+                    let delay = Duration::from_secs(2u64.pow(retries));
+                    self.log_metric("retry_attempt", json!({
+                        "attempt": retries,
+                        "max_retries": max_retries,
+                        "error": e.to_string(),
+                        "delay_secs": delay.as_secs()
+                    }));
+                    sleep(delay).await;
+                }
+                Err(e) => {
+                    // Update document status to failed
+                    let _ = self.update_status("failed").await;
+                    self.log_metric("pipeline_failed", json!({
+                        "document_id": &self.document_id,
+                        "error": e.to_string(),
+                        "retries": max_retries
+                    }));
+                    return Err(format!("Operation failed after {} retries: {}", max_retries, e).into());
+                }
+            }
+        }
+    }
+    
+    /// Log structured metrics for monitoring
+    fn log_metric(&self, metric_name: &str, data: serde_json::Value) {
+        let log_entry = json!({
+            "timestamp": chrono::Utc::now().to_rfc3339(),
+            "metric": metric_name,
+            "document_id": &self.document_id,
+            "deal_id": &self.deal_id,
+            "data": data
+        });
+        println!("[METRIC] {}", serde_json::to_string(&log_entry).unwrap_or_default());
     }
 
     /// Process CSV files (no OCR needed, just parse the text)

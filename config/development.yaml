@@ -1,6 +1,6 @@
 # Orin Development Configuration
 
-# Database
+# Database - using localhost for local development
 database:
   url: postgresql://postgres:postgres@localhost:5432/chunkr
   max_connections: 10

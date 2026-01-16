@@ -18,12 +18,12 @@ use utoipa::{
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
 
+// pub mod agents; // Temporarily disabled - needs Diesel to tokio-postgres conversion
 pub mod configs;
 pub mod data;
 pub mod events;
 pub mod jobs;
 pub mod middleware;
-// pub mod agents; // Temporarily disabled - needs conversion from diesel to tokio-postgres
 pub mod models;
 pub mod pipeline;
 pub mod routes;
@@ -32,7 +32,7 @@ pub mod utils;
 
 use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
-// Deal routes temporarily disabled - need conversion from diesel to tokio-postgres
+// Deal routes temporarily disabled - need Diesel to tokio-postgres conversion
 // use routes::deal::{
 //     approve_facts_route, calculate_underwriting_route, create_deal_route, get_deal_documents,
 //     get_deal_facts, get_deal_route, get_deals_route, reset_facts_route, update_fact_route,
@@ -62,6 +62,10 @@ const ONE_GB: usize = 1024 * 1024 * 1024; // 1 GB in bytes
 fn run_migrations(url: &str) {
     use diesel::prelude::*;
     
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"lib.rs:62\",\"message\":\"run_migrations called\",\"data\":{{\"url_param\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H2\"}}\n", url.replace("postgres:postgres", "***:***"), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+    
     // Retry logic for production environments
     let max_retries = 5;
     let mut attempt = 0;
@@ -69,6 +73,10 @@ fn run_migrations(url: &str) {
     loop {
         attempt += 1;
         println!("Migration attempt {}/{}", attempt, max_retries);
+        
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"lib.rs:77\",\"message\":\"Attempting PgConnection::establish\",\"data\":{{\"url_used\":\"{}\",\"attempt\":{}}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H3\"}}\n", url.replace("postgres:postgres", "***:***"), attempt, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
         
         match diesel::pg::PgConnection::establish(url) {
             Ok(mut conn) => {
@@ -190,7 +198,16 @@ pub fn main() -> std::io::Result<()> {
 
         env_logger::init_from_env(Env::default().default_filter_or("info"));
         initialize().await;
-        run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
+        
+        // #region agent log
+        let pg_url = std::env::var("PG__URL").unwrap_or_else(|_| {
+            let fallback = std::env::var("DATABASE_URL").unwrap_or_else(|_| "NOT_SET".to_string());
+            fallback
+        });
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"lib.rs:193\",\"message\":\"Database URL resolution\",\"data\":{{\"PG__URL_exists\":{},\"DATABASE_URL_exists\":{},\"resolved_url\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", std::env::var("PG__URL").is_ok(), std::env::var("DATABASE_URL").is_ok(), pg_url.replace("postgres:postgres", "***:***"), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
+        
+        run_migrations(&pg_url);
         get_or_create_admin_user()
             .await
             .expect("Failed to create admin user");
@@ -248,7 +265,7 @@ pub fn main() -> std::io::Result<()> {
             let api_scope = web::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
-                // Deal routes temporarily disabled - need conversion from diesel to tokio-postgres
+                // Deal routes temporarily disabled - need Diesel to tokio-postgres conversion
                 // .service(
                 //     web::scope("/deals")
                 //         .route("", web::post().to(create_deal_route))

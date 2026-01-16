@@ -18,19 +18,10 @@ use memtrack::track_mem;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString)]
 pub enum PipelineStep {
-    #[cfg(feature = "azure")]
-    #[strum(serialize = "azure_analysis")]
-    AzureAnalysis,
-    #[strum(serialize = "chunking")]
-    Chunking,
-    #[strum(serialize = "chunkr_analysis")]
-    ChunkrAnalysis,
-    #[strum(serialize = "convert_to_images")]
-    ConvertToImages,
-    #[strum(serialize = "crop")]
-    Crop,
-    #[strum(serialize = "segment_processing")]
-    SegmentProcessing,
+    #[strum(serialize = "deal_processing")]
+    DealProcessing,
+    #[strum(serialize = "fact_extraction")]
+    FactExtraction,
 }
 
 pub trait PipelineStepMessages {
@@ -41,27 +32,15 @@ pub trait PipelineStepMessages {
 impl PipelineStepMessages for PipelineStep {
     fn start_message(&self) -> String {
         match self {
-            #[cfg(feature = "azure")]
-            PipelineStep::AzureAnalysis => "Running Azure analysis".to_string(),
-            PipelineStep::Chunking => "Chunking".to_string(),
-            PipelineStep::ChunkrAnalysis => "Running Orin extraction".to_string(),
-            PipelineStep::ConvertToImages => "Converting pages to images".to_string(),
-            PipelineStep::Crop => "Cropping segments".to_string(),
-            PipelineStep::SegmentProcessing => "Processing segments".to_string(),
+            PipelineStep::DealProcessing => "Processing document with OCR".to_string(),
+            PipelineStep::FactExtraction => "Extracting facts with AI".to_string(),
         }
     }
 
     fn error_message(&self) -> String {
         match self {
-            #[cfg(feature = "azure")]
-            PipelineStep::AzureAnalysis => "Failed to run Azure analysis".to_string(),
-            PipelineStep::Chunking => "Failed to chunk".to_string(),
-            PipelineStep::ChunkrAnalysis => "Failed to run Orin extraction".to_string(),
-            PipelineStep::ConvertToImages => "Failed to convert pages to images".to_string(),
-            PipelineStep::Crop => "Failed to crop segments".to_string(),
-            PipelineStep::SegmentProcessing => {
-                "Failed to process segments - LLM processing error".to_string()
-            }
+            PipelineStep::DealProcessing => "Failed to process document".to_string(),
+            PipelineStep::FactExtraction => "Failed to extract facts".to_string(),
         }
     }
 }
@@ -246,20 +225,15 @@ impl Pipeline {
             )
             .await?;
 
-            // Execute step
-            let result = match step {
-                #[cfg(feature = "azure")]
-                PipelineStep::AzureAnalysis => crate::pipeline::azure_analysis::process(self).await,
-                PipelineStep::Chunking => crate::pipeline::chunking::process(self).await,
-                PipelineStep::ConvertToImages => {
-                    crate::pipeline::convert_to_images::process(self).await
+            // Execute step - new simplified pipeline
+            let result: Result<(), Box<dyn std::error::Error>> = match step {
+                PipelineStep::DealProcessing => {
+                    // This is handled by deal_document_worker, not the old pipeline
+                    Ok(())
                 }
-                PipelineStep::Crop => crate::pipeline::crop::process(self).await,
-                PipelineStep::ChunkrAnalysis => {
-                    crate::pipeline::chunkr_analysis::process(self).await
-                }
-                PipelineStep::SegmentProcessing => {
-                    crate::pipeline::segment_processing::process(self, tracer).await
+                PipelineStep::FactExtraction => {
+                    // This is handled by fact_extraction_worker, not the old pipeline
+                    Ok(())
                 }
             };
 

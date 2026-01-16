@@ -1,36 +1,75 @@
-# Local development override for Mac (ARM64/Intel)
-# This file adds platform specifications and removes GPU requirements
-# Usage: docker compose -f docker-compose.production.yaml -f docker-compose.local.yaml up -d
+# Local development configuration - STANDALONE FILE
+# This file defines only the services needed for local development
+# Backend (server), workers, and frontend run locally via cargo/npm
+# Usage: docker compose -f docker-compose.local.yaml up -d
+# Or via: ./dev.sh
 
 services:
-  server:
+  postgres:
+    image: postgres:15
     platform: linux/amd64
-    # Set to 1 replica for local dev - can't have multiple containers binding to same port
-    deploy:
-      replicas: 1
+    ports:
+      - "5432:5432"
     environment:
-      # Docling OCR Configuration
-      - OCR_PROVIDER=docling
-      - DOCLING_SERVICE_URL=http://docling-service:8000
-      - OCR_CACHE_ENABLED=true
-      - SKIP_GPU_SERVICES=true
-      - ENABLE_PROGRESSIVE_RESULTS=true
-  task:
-    platform: linux/amd64
-    environment:
-      # Docling OCR Configuration
-      - OCR_PROVIDER=docling
-      - DOCLING_SERVICE_URL=http://docling-service:8000
-      - SKIP_GPU_SERVICES=true
-  # deal-worker service is commented out in production.yaml for local dev
-  # Run via ./scripts/run-deal-worker-local.sh instead
-  web:
-    platform: linux/amd64
-    # Mount local build for development (not read-only to allow entrypoint scripts)
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=chunkr
     volumes:
-      - ./apps/web/dist:/usr/share/nginx/html
-  
-  # NEW: Docling OCR service (replaces 18.5GB GPU backends)
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    platform: linux/amd64
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    platform: linux/amd64
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
   docling-service:
     build: ./services/docling-service
     image: orin-docling:latest
@@ -44,5 +83,47 @@ services:
         limits:
           cpus: '2'
           memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_PROXY=edge
+      - KC_DB=postgres
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HTTP_ENABLED=true
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_HEALTH_ENABLED=true
+      - KC_TRANSACTION_XA_ENABLED=false
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    command: [ "start-dev", "--import-realm" ]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  qdrant_data:

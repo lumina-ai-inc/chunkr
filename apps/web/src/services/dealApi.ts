@@ -4,9 +4,8 @@ import axiosInstance from "./axios.config";
 import { createMockDeal, MOCK_FACTS, MOCK_DOCUMENTS, MOCK_DEALS, isMockDeal, isPreexistingMockDeal, saveMockData } from "./mockDealData";
 
 // Deal management uses localStorage since backend deal APIs are temporarily disabled
-// All file uploads still create REAL OCR tasks via /api/v1/task/parse
-// Only the 2 pre-existing deals (Riverside, Downtown) have pre-loaded demo documents
-const USE_MOCK_DATA = true;  // Backend deal APIs temporarily disabled (see core/src/lib.rs:251-264)
+// Backend deal APIs need Diesel to tokio-postgres conversion
+const USE_MOCK_DATA = true;  // Using mock data until backend deal APIs are converted
 // #region agent log
 fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:7',message:'dealApi module loaded',data:{USE_MOCK_DATA},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
 // #endregion
