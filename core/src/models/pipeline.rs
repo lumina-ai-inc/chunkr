@@ -1,7 +1,7 @@
 use crate::configs::worker_config;
 use crate::models::output::Chunk;
 use crate::models::task::{Status, Task, TaskPayload};
-use crate::utils::services::file_operations::convert_to_pdf;
+// REMOVED: convert_to_pdf - no longer needed! Docling handles all formats natively
 use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
@@ -119,12 +119,21 @@ impl Pipeline {
                 download_to_tempfile(&task.input_location, None, task.mime_type.as_ref().unwrap())
                     .await?,
             ));
+            // OPTIMIZATION: Skip PDF conversion for Docling!
+            // Docling handles DOCX, XLSX, images natively - no need to convert
+            // PDF conversion now happens async for viewer only
             self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
-                "application/pdf" => Some(self.input_file.clone().unwrap()),
-                _ => Some(Arc::new(convert_to_pdf(
-                    self.input_file.as_ref().unwrap(),
-                    None,
-                )?)),
+                "application/pdf" => {
+                    println!("✅ PDF file - no conversion needed");
+                    Some(self.input_file.clone().unwrap())
+                }
+                _ => {
+                    // For non-PDF files, use original file for OCR
+                    // PDF conversion will happen asynchronously for viewer
+                    println!("✨ Using original {} file for OCR (skip PDF conversion)", 
+                        task.mime_type.as_ref().unwrap());
+                    Some(self.input_file.clone().unwrap())
+                }
             };
             println!("Task initialized with input file");
         }

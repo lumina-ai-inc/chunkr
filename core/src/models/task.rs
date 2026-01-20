@@ -81,14 +81,57 @@ impl Task {
         file: &NamedTempFile,
         file_name: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:83\",\"message\":\"Task::new started\",\"data\":{{\"userId\":\"{}\",\"fileName\":\"{:?}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", user_id, file_name, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
+        
         let name = file_name.clone().unwrap_or_default();
         let original_extension = name
             .split('.')
             .next_back()
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
-        let (mime_type, extension) = check_file_type(file, original_extension)?;
-        let client = get_pg_client().await?;
+        
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:90\",\"message\":\"Checking file type\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
+        
+        let (mime_type, extension) = match check_file_type(file, original_extension) {
+            Ok(result) => {
+                // #region agent log
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:92\",\"message\":\"File type checked\",\"data\":{{\"mimeType\":\"{}\",\"extension\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", result.0, result.1, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+                result
+            },
+            Err(e) => {
+                // #region agent log
+                let error_str = format!("{}", e).replace("\"", "\\\"");
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:94\",\"message\":\"File type check FAILED\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", error_str, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+                return Err(e);
+            }
+        };
+        
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:97\",\"message\":\"Getting PG client\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
+        
+        let client = match get_pg_client().await {
+            Ok(c) => {
+                // #region agent log
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:99\",\"message\":\"PG client obtained\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+                c
+            },
+            Err(e) => {
+                // #region agent log
+                let error_str = format!("{}", e).replace("\"", "\\\"");
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:101\",\"message\":\"PG client FAILED\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", error_str, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+                return Err(e.into());
+            }
+        };
+        
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
         let file_name: String =
@@ -104,10 +147,33 @@ impl Task {
         let version = worker_config.version;
 
         let file_path = PathBuf::from(file.path());
-        upload_to_s3(&input_location, &file_path).await?;
+        
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:118\",\"message\":\"Uploading to S3/MinIO\",\"data\":{{\"inputLocation\":\"{}\",\"taskId\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", input_location, task_id, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
+        
+        match upload_to_s3(&input_location, &file_path).await {
+            Ok(_) => {
+                // #region agent log
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:120\",\"message\":\"S3/MinIO upload succeeded\",\"data\":{{\"taskId\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", task_id, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+            },
+            Err(e) => {
+                // #region agent log
+                let error_str = format!("{}", e).replace("\"", "\\\"");
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:122\",\"message\":\"S3/MinIO upload FAILED\",\"data\":{{\"error\":\"{}\",\"taskId\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", error_str, task_id, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                // #endregion
+                return Err(e);
+            }
+        }
 
         let configuration_json = serde_json::to_string(&configuration)?;
-        client
+        
+        // #region agent log
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:127\",\"message\":\"Inserting into database\",\"data\":{{\"taskId\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", task_id, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
+        
+        match client
             .execute(
                 "INSERT INTO TASKS (
                     api_key,
@@ -150,7 +216,20 @@ impl Task {
                     &version,
                 ],
             )
-            .await?;
+            .await {
+                Ok(_) => {
+                    // #region agent log
+                    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:154\",\"message\":\"Database insert succeeded\",\"data\":{{\"taskId\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", task_id, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                    // #endregion
+                },
+                Err(e) => {
+                    // #region agent log
+                    let error_str = format!("{}", e).replace("\"", "\\\"");
+                    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:156\",\"message\":\"Database insert FAILED\",\"data\":{{\"error\":\"{}\",\"taskId\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H4\"}}\n", error_str, task_id, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+                    // #endregion
+                    return Err(e.into());
+                }
+            }
 
         Ok(Self {
             api_key,
@@ -262,14 +341,43 @@ impl Task {
         include_chunks: bool,
         base64_urls: bool,
     ) -> Result<OutputResponse, Box<dyn std::error::Error>> {
+        // #region agent log - Debug pdf_location
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| {
+            use std::io::Write;
+            let log_data = format!("{{\"location\":\"task.rs:339\",\"message\":\"create_output called\",\"data\":{{\"task_id\":\"{}\",\"pdf_location\":\"{}\",\"page_count\":{}}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"create-output\",\"hypothesisId\":\"H30\"}}\n", 
+                self.task_id, self.pdf_location, self.page_count.unwrap_or(0), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());
+            f.write_all(log_data.as_bytes())
+        });
+        // #endregion
+        
+        // Determine the correct mime type based on file extension
+        let mime_type = if self.pdf_location.ends_with(".pdf") {
+            "application/pdf"
+        } else if self.pdf_location.ends_with(".xlsx") || self.pdf_location.ends_with(".xls") {
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        } else if self.pdf_location.ends_with(".docx") {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        } else {
+            "application/pdf" // default
+        };
+        
         let pdf_url = generate_presigned_url(
             &self.pdf_location,
             true,
             None,
             base64_urls,
-            "application/pdf",
+            mime_type,
         )
         .await?;
+        
+        // #region agent log - Debug pdf_url
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| {
+            use std::io::Write;
+            let log_data = format!("{{\"location\":\"task.rs:362\",\"message\":\"Generated pdf_url\",\"data\":{{\"task_id\":\"{}\",\"pdf_url_preview\":\"{}\",\"mime_type\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"create-output\",\"hypothesisId\":\"H31\"}}\n", 
+                self.task_id, &pdf_url[..pdf_url.len().min(150)], mime_type, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());
+            f.write_all(log_data.as_bytes())
+        });
+        // #endregion
         let mut output_response = OutputResponse::default();
         if include_chunks {
             let temp_file =

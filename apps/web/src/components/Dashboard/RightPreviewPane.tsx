@@ -460,7 +460,11 @@ export default function RightPreviewPane({
                 Documents
               </Text>
               {documents && documents.length > 0 ? (
-                documents.map((doc) => (
+                documents.map((doc) => {
+                  // #region agent log: Check each document
+                  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'RightPreviewPane.tsx:465',message:'Rendering document',data:{fileName:doc.file_name,status:doc.status,hasStorageLocation:!!doc.storage_location,storageLocationPrefix:doc.storage_location?.substring(0,100),willShowViewSource:(doc.status==="completed"||doc.status==="processed")},timestamp:Date.now(),sessionId:'debug-session',runId:'view-source-debug',hypothesisId:'H23'})}).catch(()=>{});
+                  // #endregion
+                  return (
                   <Flex
                     key={doc.document_id}
                     justify="between"
@@ -480,25 +484,36 @@ export default function RightPreviewPane({
                         {doc.status} • {doc.page_count || 0} pages
                       </Text>
                     </Flex>
-                    <Flex
-                      align="center"
-                      gap="4px"
-                      onClick={() => setViewingDocument(doc)}
-                      style={{ 
-                        cursor: "pointer",
-                        color: "#666",
-                        fontSize: "13px"
-                      }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                      </svg>
-                      <Text size="3" style={{ color: "#666" }}>View Source</Text>
-                    </Flex>
+                    {doc.status === "completed" || doc.status === "processed" || doc.status === "succeeded" ? (
+                      <Flex
+                        align="center"
+                        gap="4px"
+                        onClick={() => setViewingDocument(doc)}
+                        style={{ 
+                          cursor: "pointer",
+                          color: "#666",
+                          fontSize: "13px"
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        <Text size="3" style={{ color: "#666" }}>View Source</Text>
+                      </Flex>
+                    ) : (
+                      <Text size="2" style={{ color: "#999", fontSize: "12px" }}>
+                        {doc.status === "processing" || doc.status === "pending" 
+                          ? "⏳ Processing..." 
+                          : doc.status === "failed" 
+                          ? "❌ Failed" 
+                          : "Not available"}
+                      </Text>
+                    )}
                   </Flex>
-                ))
+                );
+                })
               ) : (
                 <Text size="2" style={{ color: "#999" }}>
                   No documents uploaded yet

@@ -1,7 +1,6 @@
 use config::{Config as ConfigTrait, ConfigError};
 use deadpool_postgres::Runtime;
 pub use deadpool_postgres::{Client, Pool};
-use dotenvy::dotenv_override;
 use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres_openssl::MakeTlsConnector;
 use serde::Deserialize;
@@ -14,7 +13,11 @@ pub struct Config {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        dotenv_override().ok();
+        // For local development: Environment variables should take precedence over .env files
+        // Only load .env if environment variables are NOT already set
+        if std::env::var("PG__URL").is_err() && std::env::var("DATABASE_URL").is_err() {
+            dotenvy::dotenv().ok();
+        }
         ConfigTrait::builder()
             .add_source(config::Environment::default().separator("__"))
             .build()?

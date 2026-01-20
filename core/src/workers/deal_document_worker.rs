@@ -6,6 +6,15 @@ use core::utils::clients::get_redis_pool;
 /// This is the new simplified worker that replaces the heavy Chunkr pipeline
 pub async fn start_deal_document_worker() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting deal document worker");
+    
+    // Log environment variables for debugging
+    println!("=== Environment Check ===");
+    println!("AWS__ENDPOINT: {}", std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT SET".to_string()));
+    println!("AWS__ACCESS_KEY: {}", if std::env::var("AWS__ACCESS_KEY").is_ok() { "SET" } else { "NOT SET" });
+    println!("AWS__SECRET_KEY: {}", if std::env::var("AWS__SECRET_KEY").is_ok() { "SET" } else { "NOT SET" });
+    println!("AWS__REGION: {}", std::env::var("AWS__REGION").unwrap_or_else(|_| "NOT SET".to_string()));
+    println!("========================");
+    
     let config = WorkerConfig::from_env()?;
     let queue_name = "deal_documents";
     

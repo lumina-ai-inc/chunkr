@@ -147,32 +147,72 @@ pub async fn create_task_route(
         }
     };
 
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:150\",\"message\":\"About to decode base64\",\"data\":{{\"fileLen\":{}}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", payload.file.len(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+
     let (base64_data, filename) = match get_base64(payload.file.clone()).await {
-        Ok(file) => file,
-        Err(e) => match e.to_string().contains("Invalid base64 data") {
-            true => {
-                span.end();
-                return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
-            }
-            false => {
-                span.end();
-                return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
+        Ok(file) => {
+            // #region agent log
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:152\",\"message\":\"Base64 decoded successfully\",\"data\":{{\"dataSize\":{},\"hasFilename\":{}}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", file.0.len(), file.1.is_some(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
+            file
+        },
+        Err(e) => {
+            // #region agent log
+            let error_str = format!("{}", e).replace("\"", "\\\"");
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:154\",\"message\":\"Base64 decode FAILED\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", error_str, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
+            match e.to_string().contains("Invalid base64 data") {
+                true => {
+                    span.end();
+                    return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
+                }
+                false => {
+                    span.end();
+                    return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
+                }
             }
         },
     };
 
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:164\",\"message\":\"Creating temp file\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+
     let mut temp_file = match tempfile::NamedTempFile::new() {
-        Ok(file) => file,
-        Err(_) => {
+        Ok(file) => {
+            // #region agent log
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:166\",\"message\":\"Temp file created\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
+            file
+        },
+        Err(e) => {
+            // #region agent log
+            let error_str = format!("{}", e).replace("\"", "\\\"");
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:168\",\"message\":\"Temp file creation FAILED\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", error_str, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+            // #endregion
             span.end();
             return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
         }
     };
 
-    if std::io::Write::write_all(&mut temp_file, &base64_data).is_err() {
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:172\",\"message\":\"Writing to temp file\",\"data\":{{\"dataSize\":{}}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", base64_data.len(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
+
+    if let Err(e) = std::io::Write::write_all(&mut temp_file, &base64_data) {
+        // #region agent log
+        let error_str = format!("{}", e).replace("\"", "\\\"");
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:174\",\"message\":\"Write to temp file FAILED\",\"data\":{{\"error\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H2\"}}\n", error_str, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+        // #endregion
         span.end();
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
     };
+
+    // #region agent log
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"task.rs:177\",\"message\":\"About to call create_task\",\"data\":{{}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"file-upload\",\"hypothesisId\":\"H1\"}}\n", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
+    // #endregion
 
     let result = create_task::create_task(
         &temp_file,

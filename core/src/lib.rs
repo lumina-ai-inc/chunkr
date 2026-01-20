@@ -62,10 +62,6 @@ const ONE_GB: usize = 1024 * 1024 * 1024; // 1 GB in bytes
 fn run_migrations(url: &str) {
     use diesel::prelude::*;
     
-    // #region agent log
-    let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"lib.rs:62\",\"message\":\"run_migrations called\",\"data\":{{\"url_param\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H2\"}}\n", url.replace("postgres:postgres", "***:***"), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
-    // #endregion
-    
     // Retry logic for production environments
     let max_retries = 5;
     let mut attempt = 0;
@@ -73,10 +69,6 @@ fn run_migrations(url: &str) {
     loop {
         attempt += 1;
         println!("Migration attempt {}/{}", attempt, max_retries);
-        
-        // #region agent log
-        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"lib.rs:77\",\"message\":\"Attempting PgConnection::establish\",\"data\":{{\"url_used\":\"{}\",\"attempt\":{}}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H3\"}}\n", url.replace("postgres:postgres", "***:***"), attempt, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
-        // #endregion
         
         match diesel::pg::PgConnection::establish(url) {
             Ok(mut conn) => {
@@ -198,16 +190,7 @@ pub fn main() -> std::io::Result<()> {
 
         env_logger::init_from_env(Env::default().default_filter_or("info"));
         initialize().await;
-        
-        // #region agent log
-        let pg_url = std::env::var("PG__URL").unwrap_or_else(|_| {
-            let fallback = std::env::var("DATABASE_URL").unwrap_or_else(|_| "NOT_SET".to_string());
-            fallback
-        });
-        let _ = std::fs::OpenOptions::new().create(true).append(true).open("/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log").and_then(|mut f| std::io::Write::write_all(&mut f, format!("{{\"location\":\"lib.rs:193\",\"message\":\"Database URL resolution\",\"data\":{{\"PG__URL_exists\":{},\"DATABASE_URL_exists\":{},\"resolved_url\":\"{}\"}},\"timestamp\":{},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H1\"}}\n", std::env::var("PG__URL").is_ok(), std::env::var("DATABASE_URL").is_ok(), pg_url.replace("postgres:postgres", "***:***"), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis()).as_bytes()));
-        // #endregion
-        
-        run_migrations(&pg_url);
+        run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
         get_or_create_admin_user()
             .await
             .expect("Failed to create admin user");

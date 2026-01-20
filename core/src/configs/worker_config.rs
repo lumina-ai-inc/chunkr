@@ -1,5 +1,4 @@
 use config::{Config as ConfigTrait, ConfigError};
-use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -86,7 +85,19 @@ fn default_version() -> String {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        dotenv_override().ok();
+        // #region agent log H11: WorkerConfig loading
+        use std::fs::OpenOptions;use std::io::Write;let log_path="/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log";let mut f=OpenOptions::new().create(true).append(true).open(log_path).ok();if let Some(ref mut file)=f{let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"worker-config","hypothesisId":"H11","location":"worker_config.rs:88","message":"WorkerConfig::from_env called","data":{{"AWS__ENDPOINT_before":"{}","will_call_dotenv":{}}},"timestamp":{}}}"#,std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT_SET".to_string()),std::env::var("AWS__ENDPOINT").is_err(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+        // #endregion
+        
+        // For local development: Environment variables should take precedence over .env files
+        // Only load .env if critical environment variables are NOT already set
+        if std::env::var("AWS__ENDPOINT").is_err() {
+            dotenvy::dotenv().ok();
+        }
+        
+        // #region agent log H12: WorkerConfig after dotenv
+        if let Some(ref mut file)=f{let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"worker-config","hypothesisId":"H12","location":"worker_config.rs:99","message":"WorkerConfig after dotenv check","data":{{"AWS__ENDPOINT_after":"{}"}},"timestamp":{}}}"#,std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT_SET".to_string()),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+        // #endregion
 
         ConfigTrait::builder()
             .add_source(

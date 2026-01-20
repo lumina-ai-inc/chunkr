@@ -15,7 +15,16 @@ static PG_POOL: OnceCell<Pool> = OnceCell::new();
 static REDIS_POOL: OnceCell<RedisPool> = OnceCell::new();
 
 pub async fn initialize() {
+    // #region agent log H9: Environment at initialization
+    use std::fs::OpenOptions;use std::io::Write;let log_path="/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log";let mut f=OpenOptions::new().create(true).append(true).open(log_path).ok();if let Some(ref mut file)=f{let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"initialization","hypothesisId":"H9","location":"clients.rs:18","message":"initialize() called","data":{{"AWS__ENDPOINT":"{}","cwd":"{}"}},"timestamp":{}}}"#,std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT_SET".to_string()),std::env::current_dir().unwrap_or_default().display(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+    // #endregion
+    
     REQWEST_CLIENT.get_or_init(ReqwestClient::new);
+    
+    // #region agent log H10: Before S3 client creation
+    if let Some(ref mut file)=f{let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"initialization","hypothesisId":"H10","location":"clients.rs:25","message":"Creating S3 client","data":{{"AWS__ENDPOINT":"{}"}},"timestamp":{}}}"#,std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT_SET".to_string()),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+    // #endregion
+    
     S3_CLIENT.get_or_init(|| {
         async { create_client().await.unwrap() }
             .now_or_never()

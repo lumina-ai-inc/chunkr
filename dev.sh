@@ -52,7 +52,7 @@ echo "   - Qdrant (vector DB)"
 echo "   - Docling (OCR service)"
 echo ""
 
-docker compose -f docker-compose.local.yaml up -d postgres redis minio qdrant docling-service
+docker compose -f docker-compose.local.yaml up -d postgres redis minio qdrant docling-service keycloak
 
 # Wait for services with health checks
 echo "⏳ Waiting for services to be ready..."

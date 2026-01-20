@@ -22,6 +22,17 @@ if [ -f "$PROJECT_ROOT/.env" ]; then
     export $(cat "$PROJECT_ROOT/.env" | grep -v '^#' | xargs)
 fi
 
+# Override Docker hostnames with localhost for local worker
+export AWS__ENDPOINT="http://localhost:9000"
+export REDIS__URL="redis://localhost:6379"
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/chunkr"
+export PG__URL="postgresql://postgres:postgres@localhost:5432/chunkr"
+
+echo "🔧 Overriding environment for local development:"
+echo "   AWS__ENDPOINT=$AWS__ENDPOINT"
+echo "   REDIS__URL=$REDIS__URL"
+echo ""
+
 # Run the worker from project root (needed for models.yaml)
 cd "$PROJECT_ROOT"
 "$PROJECT_ROOT/core/target/release/deal_document_worker"

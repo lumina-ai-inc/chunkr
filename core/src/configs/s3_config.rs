@@ -2,7 +2,6 @@ use aws_credential_types::Credentials;
 use aws_sdk_s3::config::Region;
 use aws_sdk_s3::{Client, Config as S3Config};
 use config::{Config as ConfigTrait, ConfigError};
-use dotenvy::dotenv_override;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -23,11 +22,36 @@ fn default_endpoint() -> String {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        dotenv_override().ok();
-        ConfigTrait::builder()
+        // #region agent log H5: Track config loading flow
+        use std::fs::OpenOptions;use std::io::Write;let log_path="/Users/harishmaiya/Documents/GitHub/data-extract/.cursor/debug.log";let mut f=OpenOptions::new().create(true).append(true).open(log_path).ok();if let Some(ref mut file)=f{let endpoint_before=std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT_SET".to_string());let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"config-load","hypothesisId":"H5","location":"s3_config.rs:28","message":"Config::from_env called","data":{{"AWS__ENDPOINT_from_env":"{}","is_err":{}}},"timestamp":{}}}"#,endpoint_before,std::env::var("AWS__ENDPOINT").is_err(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+        // #endregion
+        
+        // For local development: Environment variables should take precedence over .env files
+        // Only load .env if environment variables are NOT already set
+        let should_load_dotenv = std::env::var("AWS__ENDPOINT").is_err();
+        
+        // #region agent log H6: Track dotenv decision
+        if let Some(ref mut file)=f{let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"config-load","hypothesisId":"H6","location":"s3_config.rs:38","message":"Dotenv decision","data":{{"should_load_dotenv":{},"current_working_dir":"{}"}},"timestamp":{}}}"#,should_load_dotenv,std::env::current_dir().unwrap_or_default().display(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+        // #endregion
+        
+        if should_load_dotenv {
+            dotenvy::dotenv().ok();
+        }
+        
+        // #region agent log H7: After dotenv, before config builder
+        if let Some(ref mut file)=f{let endpoint_after=std::env::var("AWS__ENDPOINT").unwrap_or_else(|_| "NOT_SET".to_string());let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"config-load","hypothesisId":"H7","location":"s3_config.rs:48","message":"After dotenv logic","data":{{"AWS__ENDPOINT_from_env":"{}","dotenv_loaded":{}}},"timestamp":{}}}"#,endpoint_after,should_load_dotenv,std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+        // #endregion
+        
+        let config_result = ConfigTrait::builder()
             .add_source(config::Environment::default().prefix("AWS").separator("__"))
             .build()?
-            .try_deserialize()
+            .try_deserialize::<Self>()?;
+        
+        // #region agent log H8: Final config value
+        if let Some(ref mut file)=f{let _=writeln!(file,r#"{{"sessionId":"debug-session","runId":"config-load","hypothesisId":"H8","location":"s3_config.rs:58","message":"Config deserialized","data":{{"config_endpoint":"{}","config_region":"{}"}},"timestamp":{}}}"#,config_result.endpoint,config_result.region,std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis());}
+        // #endregion
+        
+        Ok(config_result)
     }
 }
 

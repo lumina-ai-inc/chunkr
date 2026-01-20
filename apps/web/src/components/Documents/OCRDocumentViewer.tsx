@@ -72,8 +72,8 @@ export default function OCRDocumentViewer({
         </Dialog.Description>
 
         <Flex direction="column" gap="3" style={{ maxHeight: "70vh", overflow: "auto" }}>
-          {displayDocument.status === "processing" || displayDocument.status === "pending" ? (
-            // Show processing status
+          {displayDocument.status === "processing" || displayDocument.status === "pending" || displayDocument.status === "starting" ? (
+            // Show processing status (including "starting" which is the initial status)
             <Flex direction="column" gap="3" align="center" justify="center" style={{ minHeight: "200px" }}>
               <Spinner size="3" />
               <Text size="3" weight="medium">

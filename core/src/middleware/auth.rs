@@ -30,7 +30,7 @@ async fn get_decoding_key() -> &'static DecodingKey {
             );
 
             let response = client
-                .get(url)
+                .get(&url)
                 .send()
                 .await
                 .expect("Failed to fetch JWKS")

@@ -177,7 +177,8 @@ export const uploadDealDocuments = async (
       file_name: file.name,
       document_type: documentType,
       status: "processing",
-          storage_location: taskResult.task_url || `/mock-documents/${file.name}`,
+          // Use pdf_url (presigned URL) if available, otherwise fallback to task_url or mock path
+          storage_location: taskResult.output?.pdf_url || taskResult.task_url || `/mock-documents/${file.name}`,
       page_count: 1,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -269,8 +270,8 @@ export const getDealDocuments = async (
             const taskResponse = await axiosInstance.get(`/api/v1/task/${doc.document_id}`);
             const task = taskResponse.data;
             
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:247',message:'Real task status received',data:{taskId:doc.document_id,taskStatus:task.status,taskMessage:task.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H15'})}).catch(()=>{});
+            // #region agent log NEW: More detailed task info
+            fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:270',message:'Task status received - DETAILED',data:{taskId:doc.document_id,fileName:doc.file_name,taskStatus:task.status,hasPdfUrl:!!task.output?.pdf_url,pdfUrl:task.output?.pdf_url?.substring(0,100),outputKeys:task.output?Object.keys(task.output):[],taskKeys:Object.keys(task)},timestamp:Date.now(),sessionId:'debug-session',runId:'view-source-debug',hypothesisId:'H21'})}).catch(()=>{});
             // #endregion
             
             // Update mock document with real task data
@@ -280,7 +281,13 @@ export const getDealDocuments = async (
               ocr_output: task.output,
               page_count: task.page_count,
               message: task.message,
+              // Update storage_location with presigned URL if available
+              storage_location: task.output?.pdf_url || doc.storage_location,
             };
+            
+            // #region agent log NEW: Log the updated document
+            fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:285',message:'Updated document',data:{docId:doc.document_id,fileName:doc.file_name,status:updatedDoc.status,hasStorageLocation:!!updatedDoc.storage_location,storageLocationPrefix:updatedDoc.storage_location?.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'view-source-debug',hypothesisId:'H22'})}).catch(()=>{});
+            // #endregion
             
             // Update in MOCK_DOCUMENTS array for persistence
             const docIndex = MOCK_DOCUMENTS.findIndex(d => d.document_id === doc.document_id);
