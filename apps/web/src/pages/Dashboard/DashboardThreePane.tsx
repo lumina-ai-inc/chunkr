@@ -18,6 +18,7 @@ function DashboardContent() {
   } = useChatContext();
   
   const [selectedContactType, setSelectedContactType] = useState<string | null>(null);
+  const [selectedLiveShareId, setSelectedLiveShareId] = useState<string | null>(null);
 
   const currentMessages = currentDealId
     ? chatSessions.get(currentDealId) || []
@@ -38,12 +39,20 @@ function DashboardContent() {
   const handleSelectDeal = (dealId: string) => {
     selectDeal(dealId);
     setSelectedContactType(null); // Clear contact selection when deal is selected
+    setSelectedLiveShareId(null); // Clear live share selection when deal is selected
   };
 
   const handleSelectContactType = (type: string | null) => {
     setSelectedContactType(type);
     // Note: Cannot clear deal selection since selectDeal requires non-null string
     // Deal will remain selected when viewing contacts
+  };
+
+  const handleSelectLiveShare = (shareId: string) => {
+    setSelectedLiveShareId(shareId);
+    // Note: We don't clear deal selection via selectDeal since it requires a non-null string
+    // The UI will show InterestTracker instead of deal content when selectedLiveShareId is set
+    setSelectedContactType(null); // Clear contact selection
   };
 
   return (
@@ -53,8 +62,8 @@ function DashboardContent() {
         selectedDealId={currentDealId}
         onSelectDeal={handleSelectDeal}
         onNewDeal={createNewDeal}
-        selectedContactType={selectedContactType}
-        onSelectContactType={handleSelectContactType}
+        onSelectLiveShare={handleSelectLiveShare}
+        selectedLiveShareId={selectedLiveShareId}
       />
 
       {/* Middle Pane: Flexible width (min 400px) */}
@@ -70,6 +79,7 @@ function DashboardContent() {
         dealId={currentDealId} 
         previewType={previewType} 
         selectedContactType={selectedContactType}
+        selectedLiveShareId={selectedLiveShareId}
         onDealDeleted={() => {
           // Deal deleted - nothing to do, ChatContext handles it
         }}

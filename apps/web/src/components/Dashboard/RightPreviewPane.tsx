@@ -1,7 +1,7 @@
 import { Flex, Text, Tabs, ScrollArea, Button, Table, Dialog, Checkbox, TextField } from "@radix-ui/themes";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import { getDeal, getDealFacts, getDealDocuments, DocumentResponse, deleteDeal } from "../../services/dealApi";
+import { getDeal, getDealFacts, getDealDocuments, DocumentResponse, deleteDeal, updateDealName } from "../../services/dealApi";
 import { calculateUnderwriting, UnderwritingResult } from "../../services/underwritingApi";
 import { getAllContacts, getContactsByType, getFamilyOfficeContacts, Contact, updateContact, deleteContact } from "../../services/contactApi";
 import DealSummaryCard from "./DealSummaryCard";
@@ -9,6 +9,7 @@ import FactReviewDeal from "../FactReview/FactReviewDeal";
 import UnderwritingDashboard from "../Underwriting/UnderwritingDashboard";
 import InvestorPackage from "../InvestorPackage/InvestorPackage";
 import OCRDocumentViewer from "../Documents/OCRDocumentViewer";
+import { InterestTracker } from "../LiveShare/InterestTracker";
 import { toast } from "react-hot-toast";
 import "./RightPreviewPane.css";
 
@@ -16,6 +17,7 @@ interface RightPreviewPaneProps {
   dealId: string | null;
   previewType: "empty" | "document" | "analysis" | "memo" | "facts" | "underwriting";
   selectedContactType?: string | null;
+  selectedLiveShareId?: string | null;
   onDealDeleted?: () => void;
 }
 
@@ -23,13 +25,21 @@ export default function RightPreviewPane({
   dealId,
   previewType,
   selectedContactType,
+  selectedLiveShareId,
   onDealDeleted,
 }: RightPreviewPaneProps) {
+  
+  // Early return if live share is selected
+  if (selectedLiveShareId) {
+    return <InterestTracker shareId={selectedLiveShareId} />;
+  }
   const [viewingDocument, setViewingDocument] = useState<DocumentResponse | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Contact>>({});
+  const [editingDealName, setEditingDealName] = useState(false);
+  const [dealNameValue, setDealNameValue] = useState("");
   const queryClient = useQueryClient();
 
   const { data: deal } = useQuery(
@@ -100,6 +110,46 @@ export default function RightPreviewPane({
       },
     }
   );
+
+  // Update deal name mutation
+  const updateDealNameMutation = useMutation(
+    ({ dealId, dealName }: { dealId: string; dealName: string }) =>
+      updateDealName(dealId, dealName),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["deal", dealId]);
+        queryClient.invalidateQueries("deals");
+        setEditingDealName(false);
+        toast.success("Deal name updated successfully");
+      },
+      onError: (error: any) => {
+        console.error("Error updating deal name:", error);
+        toast.error("Failed to update deal name");
+      },
+    }
+  );
+
+  // Handle deal name edit
+  const handleStartEditDealName = () => {
+    if (deal) {
+      setDealNameValue(deal.deal_name);
+      setEditingDealName(true);
+    }
+  };
+
+  const handleSaveDealName = () => {
+    if (dealId && dealNameValue.trim()) {
+      updateDealNameMutation.mutate({
+        dealId,
+        dealName: dealNameValue.trim(),
+      });
+    }
+  };
+
+  const handleCancelEditDealName = () => {
+    setEditingDealName(false);
+    setDealNameValue("");
+  };
 
   const handleDeleteDeal = () => {
     if (dealId) {
@@ -399,7 +449,7 @@ export default function RightPreviewPane({
     <Flex
       direction="column"
       style={{
-        width: "650px",
+        width: "800px", // Increased by 20% (650 * 1.2 = 780)
         height: "100vh",
         backgroundColor: "#f8f9fa",
         flexShrink: 0,
@@ -425,6 +475,53 @@ export default function RightPreviewPane({
           <Tabs.Content value="analysis" style={{ padding: "16px" }}>
             {deal && (
               <Flex direction="column" gap="16px">
+                {/* Deal Name Editor */}
+                <Flex direction="column" gap="8px" p="16px" style={{ backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #e0e0e0" }}>
+                  <Text size="2" weight="medium" style={{ color: "#666" }}>
+                    Deal Name
+                  </Text>
+                  {editingDealName ? (
+                    <Flex gap="8px" align="center">
+                      <TextField.Root
+                        value={dealNameValue}
+                        onChange={(e) => setDealNameValue(e.target.value)}
+                        placeholder="Enter deal name"
+                        style={{ flex: 1 }}
+                        autoFocus
+                      />
+                      <Button
+                        size="2"
+                        onClick={handleSaveDealName}
+                        disabled={updateDealNameMutation.isLoading || !dealNameValue.trim()}
+                      >
+                        {updateDealNameMutation.isLoading ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        size="2"
+                        variant="soft"
+                        onClick={handleCancelEditDealName}
+                        disabled={updateDealNameMutation.isLoading}
+                      >
+                        Cancel
+                      </Button>
+                    </Flex>
+                  ) : (
+                    <Flex align="center" justify="between">
+                      <Text size="5" weight="bold">
+                        {deal.deal_name}
+                      </Text>
+                      <Button
+                        size="1"
+                        variant="soft"
+                        onClick={handleStartEditDealName}
+                        style={{ cursor: "pointer" }}
+                      >
+                        ✏️ Edit
+                      </Button>
+                    </Flex>
+                  )}
+                </Flex>
+
                 <DealSummaryCard
                   deal={deal}
                   metrics={
@@ -457,7 +554,7 @@ export default function RightPreviewPane({
           <Tabs.Content value="documents" style={{ padding: "16px" }}>
             <Flex direction="column" gap="12px">
               <Text size="4" weight="medium">
-                Documents
+                Parsed Documents
               </Text>
               {documents && documents.length > 0 ? (
                 documents.map((doc) => {

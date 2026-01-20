@@ -20,6 +20,7 @@ import DashboardThreePane from "./pages/Dashboard/DashboardThreePane.tsx";
 import Landing from "./pages/Landing/Landing.tsx"; // Old landing (keep for reference)
 import LandingChat from "./pages/Landing/LandingChat.tsx";
 import Checkout from "./pages/Checkout/Checkout";
+import { PublicSharePage } from "./pages/Share/PublicSharePage";
 import { env } from "./config/env";
 
 // Debug logging
@@ -49,6 +50,10 @@ const oidcConfig: AuthProviderProps = {
 };
 
 const router = createBrowserRouter([
+  {
+    path: "/share/:shareId",
+    element: <PublicSharePage />, // No AuthGuard - public route
+  },
   {
     path: "/",
     element: <Outlet />,

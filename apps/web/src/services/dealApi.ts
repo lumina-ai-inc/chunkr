@@ -428,6 +428,63 @@ export const resetFacts = async (
   );
 };
 
+// Create a new fact
+export const createFact = async (
+  dealId: string,
+  factData: {
+    label: string;
+    value: string;
+    unit?: string;
+    fact_type?: string;
+  }
+): Promise<FactResponse> => {
+  if (USE_MOCK_DATA && isMockDeal(dealId)) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    
+    // Get a document ID for this deal (use first document or create a placeholder)
+    const dealDocuments = MOCK_DOCUMENTS.filter((d) => d.deal_id === dealId);
+    const documentId = dealDocuments.length > 0 ? dealDocuments[0].document_id : `doc-${dealId}-placeholder`;
+    
+    const newFact: FactResponse = {
+      fact_id: `fact-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      document_id: documentId,
+      deal_id: dealId,
+      fact_type: factData.fact_type || "financial",
+      label: factData.label,
+      value: factData.value,
+      unit: factData.unit,
+      source_citation: {
+        document: "Manual Entry",
+        page: 1,
+      },
+      status: "pending_approval",
+      confidence_score: 1.0, // User-entered facts have full confidence
+      approved_at: undefined,
+      approved_by: undefined,
+      locked: false,
+      created_at: new Date().toISOString(),
+    };
+    
+    MOCK_FACTS.push(newFact);
+    
+    // Update deal fact count
+    const deal = MOCK_DEALS.find((d) => d.deal_id === dealId);
+    if (deal) {
+      deal.fact_count = (deal.fact_count || 0) + 1;
+      deal.updated_at = new Date().toISOString();
+    }
+    
+    saveMockData();
+    return newFact;
+  }
+  
+  const response = await axiosInstance.post(
+    `/api/v1/deals/${dealId}/facts`,
+    factData
+  );
+  return response.data;
+};
+
 // Update a fact
 export const updateFact = async (
   dealId: string,
@@ -439,6 +496,7 @@ export const updateFact = async (
     const fact = MOCK_FACTS.find((f) => f.fact_id === factId);
     if (!fact) throw new Error("Fact not found");
     Object.assign(fact, updates);
+    saveMockData();
     return fact;
   }
   
@@ -459,11 +517,32 @@ export const updateDealStatus = async (
     if (deal) {
       deal.status = status;
       deal.updated_at = new Date().toISOString();
+      saveMockData();
     }
     return;
   }
 
   await axiosInstance.patch(`/api/v1/deals/${dealId}`, { status });
+};
+
+// Update deal name
+export const updateDealName = async (
+  dealId: string,
+  dealName: string
+): Promise<DealResponse> => {
+  if (USE_MOCK_DATA && isMockDeal(dealId)) {
+    const deal = MOCK_DEALS.find((d) => d.deal_id === dealId);
+    if (deal) {
+      deal.deal_name = dealName;
+      deal.updated_at = new Date().toISOString();
+      saveMockData();
+      return deal;
+    }
+    throw new Error('Deal not found');
+  }
+
+  const response = await axiosInstance.patch(`/api/v1/deals/${dealId}`, { deal_name: dealName });
+  return response.data;
 };
 
 // Delete a deal

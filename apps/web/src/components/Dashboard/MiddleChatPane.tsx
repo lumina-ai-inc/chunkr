@@ -228,7 +228,7 @@ export default function MiddleChatPane({
       direction="column"
       style={{
         flex: 1,
-        minWidth: "400px",
+        minWidth: "320px", // Reduced from 400px to compensate for wider right pane
         height: "100vh",
         borderRight: "1px solid #e0e0e0",
         backgroundColor: "#fff",

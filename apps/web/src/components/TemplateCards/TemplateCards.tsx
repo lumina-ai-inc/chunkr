@@ -40,7 +40,7 @@ export default function TemplateCards({ onSelect }: TemplateCardsProps) {
     },
     {
       id: "model-renovation",
-      title: "Organize Your Partner List",
+      title: "Active Deal Rooms",
       description: "Import contacts, tag by investor type (accredited, institutional), and track who you've shared deals with.",
       prompt: "What are some of formats to send email updates to my list of investors?",
     

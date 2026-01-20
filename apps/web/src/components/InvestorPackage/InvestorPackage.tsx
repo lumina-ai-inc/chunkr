@@ -2,7 +2,7 @@ import { Flex, Card, Text, Button, Badge } from "@radix-ui/themes";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getDeals, DealResponse } from "../../services/dealApi";
-import ShareWithContactsModal from "../Contacts/ShareWithContactsModal";
+import { CreateLiveShareModal } from "../LiveShare/CreateLiveShareModal";
 import "./InvestorPackage.css";
 
 interface InvestorMemo {
@@ -62,7 +62,7 @@ const MOCK_INVESTOR_MEMO: InvestorMemo = {
 };
 
 const InvestorPackage = () => {
-  const [showShareModal, setShowShareModal] = useState(false);
+  const [showCreateLiveShareModal, setShowCreateLiveShareModal] = useState(false);
   const [selectedMemo, setSelectedMemo] = useState<InvestorMemo | null>(null);
   const { data: deals, isLoading } = useQuery<DealResponse[]>({
     queryKey: ["deals"],
@@ -126,9 +126,6 @@ const InvestorPackage = () => {
       style={{ overflowY: "auto", height: "100%", minHeight: 0 }}
       className="investor-package-container"
     >
-      <Text size="3" color="gray">
-        Investor-ready deal summaries and investment memorandums
-      </Text>
 
       <Flex gap="4" wrap="wrap">
         {dealsWithMemos.map((deal) => {
@@ -319,10 +316,10 @@ const InvestorPackage = () => {
                   <Button
                     onClick={() => {
                       setSelectedMemo(memo);
-                      setShowShareModal(true);
+                      setShowCreateLiveShareModal(true);
                     }}
                   >
-                    Share with Contacts
+                    Create Live Share
                   </Button>
                 </Flex>
               </Flex>
@@ -331,19 +328,15 @@ const InvestorPackage = () => {
         })}
       </Flex>
 
-      {/* Share with Contacts Modal */}
-      {selectedMemo && (
-        <ShareWithContactsModal
-          open={showShareModal}
-          onClose={() => {
-            setShowShareModal(false);
-            setSelectedMemo(null);
-          }}
+      {/* Create Live Share Modal */}
+      {selectedMemo && dealsWithMemos[0] && (
+        <CreateLiveShareModal
+          dealId={dealsWithMemos[0].deal_id}
           dealName={selectedMemo.dealName}
-          memoData={{
-            executiveSummary: selectedMemo.executiveSummary,
-            financialHighlights: selectedMemo.financialHighlights,
-            propertyDetails: selectedMemo.propertyDetails,
+          isOpen={showCreateLiveShareModal}
+          onClose={() => {
+            setShowCreateLiveShareModal(false);
+            setSelectedMemo(null);
           }}
         />
       )}

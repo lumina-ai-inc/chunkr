@@ -2,13 +2,12 @@ import { useState } from "react";
 import { Flex, Text, Card, Button, TextField, Badge } from "@radix-ui/themes";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
-  getDeal,
   getDealFacts,
+  createFact,
   updateFact,
   approveFacts,
   resetFacts,
   updateDealStatus,
-  DealResponse,
   FactResponse,
 } from "../../services/dealApi";
 import toast from "react-hot-toast";
@@ -26,14 +25,21 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     Record<string, { value: string; unit?: string }>
   >({});
   const [selectedFacts, setSelectedFacts] = useState<Set<string>>(new Set());
+  const [showAddFactForm, setShowAddFactForm] = useState(false);
+  const [newFactLabel, setNewFactLabel] = useState("");
+  const [newFactValue, setNewFactValue] = useState("");
+  const [newFactUnit, setNewFactUnit] = useState("");
   const queryClient = useQueryClient();
 
-  const {
-    data: dealInfo,
-  } = useQuery<DealResponse>({
-    queryKey: ["deal", dealId],
-    queryFn: () => getDeal(dealId),
-  });
+  // Initial seeded fields
+  const SEEDED_FIELDS = [
+    { label: "Gross Rent", unit: "$", type: "currency" },
+    { label: "Operating Expenses", unit: "$", type: "currency" },
+    { label: "Loan Amount", unit: "$", type: "currency" },
+    { label: "Interest Rate", unit: "%", type: "percentage" },
+    { label: "Loan Term", unit: "years", type: "number" },
+  ];
+
 
   const {
     data: facts,
@@ -43,6 +49,26 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
   } = useQuery<FactResponse[]>({
     queryKey: ["deal-facts", dealId],
     queryFn: () => getDealFacts(dealId),
+  });
+
+  const createFactMutation = useMutation({
+    mutationFn: (data: {
+      label: string;
+      value: string;
+      unit?: string;
+    }) => createFact(dealId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["deal-facts", dealId] });
+      queryClient.invalidateQueries({ queryKey: ["deal", dealId] });
+      setNewFactLabel("");
+      setNewFactValue("");
+      setNewFactUnit("");
+      setShowAddFactForm(false);
+      toast.success("Fact added");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to create fact");
+    },
   });
 
   const updateMutation = useMutation({
@@ -150,6 +176,49 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     approveMutation.mutate(allIds);
   };
 
+  const handleAddFact = () => {
+    if (!newFactLabel.trim() || !newFactValue.trim()) {
+      toast.error("Please provide both field name and value");
+      return;
+    }
+
+    // Validate Loan Term (should be 20-30 years)
+    if (newFactLabel.trim().toLowerCase() === "loan term") {
+      const termValue = parseFloat(newFactValue.trim());
+      if (isNaN(termValue) || termValue < 20 || termValue > 30) {
+        toast.error("Loan Term must be between 20 and 30 years");
+        return;
+      }
+    }
+
+    // Validate Interest Rate (should be a floating point number)
+    if (newFactLabel.trim().toLowerCase() === "interest rate") {
+      const rateValue = parseFloat(newFactValue.trim());
+      if (isNaN(rateValue) || rateValue < 0 || rateValue > 100) {
+        toast.error("Interest Rate must be a valid number between 0 and 100");
+        return;
+      }
+    }
+
+    createFactMutation.mutate({
+      label: newFactLabel.trim(),
+      value: newFactValue.trim(),
+      unit: newFactUnit.trim() || undefined,
+    });
+  };
+
+  const handleAddSeededField = (field: { label: string; unit: string; type: string }) => {
+    setNewFactLabel(field.label);
+    setNewFactUnit(field.unit);
+    setNewFactValue("");
+    setShowAddFactForm(true);
+  };
+
+  // Check which seeded fields are missing
+  const missingSeededFields = SEEDED_FIELDS.filter(
+    (field) => !facts?.some((f) => f.label.toLowerCase() === field.label.toLowerCase())
+  );
+
   const handleRunUnderwriting = async () => {
     // #region agent log
     fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FactReviewDeal.tsx:handleRunUnderwriting',message:'handleRunUnderwriting called',data:{dealId,factsCount:facts?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
@@ -256,10 +325,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
         <Flex justify="between" align="center">
           <Flex direction="column" gap="1">
             <Text size="4" weight="medium">
-              {dealInfo?.deal_name || "Deal"}
-            </Text>
-            <Text size="2" color="gray">
-              Verify extracted data to lock and analyze
+            Verify extracted data to lock and analyze
             </Text>
           </Flex>
           <Flex gap="2" wrap="wrap">
@@ -305,6 +371,101 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
           </Button>
         </Flex>
       </Flex>
+
+      {/* Add Fact Form */}
+      <Card
+        style={{
+          padding: "16px",
+          marginBottom: "16px",
+          backgroundColor: "#f9fafb",
+          border: "1px solid #e0e0e0",
+        }}
+      >
+        <Flex direction="column" gap="12px">
+          <Flex justify="between" align="center">
+            <Text size="3" weight="bold">
+              Add New Fact
+            </Text>
+            {!showAddFactForm && (
+              <Button
+                size="2"
+                onClick={() => setShowAddFactForm(true)}
+                style={{ cursor: "pointer" }}
+              >
+                + Add Fact
+              </Button>
+            )}
+          </Flex>
+
+          {showAddFactForm && (
+            <Flex direction="column" gap="12px">
+              <Flex gap="8px" align="center" wrap="wrap">
+                <TextField.Root
+                  placeholder="Field name (e.g., Gross Rent)"
+                  value={newFactLabel}
+                  onChange={(e) => setNewFactLabel(e.target.value)}
+                  style={{ flex: "1 1 200px", minWidth: "200px" }}
+                />
+                <TextField.Root
+                  placeholder="Value"
+                  value={newFactValue}
+                  onChange={(e) => setNewFactValue(e.target.value)}
+                  style={{ flex: "1 1 150px", minWidth: "150px" }}
+                />
+                <TextField.Root
+                  placeholder="Unit (optional)"
+                  value={newFactUnit}
+                  onChange={(e) => setNewFactUnit(e.target.value)}
+                  style={{ width: "120px" }}
+                />
+                <Button
+                  size="2"
+                  onClick={handleAddFact}
+                  disabled={createFactMutation.isLoading || !newFactLabel.trim() || !newFactValue.trim()}
+                  style={{ cursor: "pointer" }}
+                >
+                  {createFactMutation.isLoading ? "Adding..." : "Add"}
+                </Button>
+                <Button
+                  size="2"
+                  variant="soft"
+                  onClick={() => {
+                    setShowAddFactForm(false);
+                    setNewFactLabel("");
+                    setNewFactValue("");
+                    setNewFactUnit("");
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  Cancel
+                </Button>
+              </Flex>
+            </Flex>
+          )}
+
+          {/* Seeded Fields Quick Add */}
+          {missingSeededFields.length > 0 && (
+            <Flex direction="column" gap="8px" style={{ marginTop: "8px" }}>
+              <Text size="2" style={{ color: "#666" }}>
+                Quick Add:
+              </Text>
+              <Flex gap="8px" wrap="wrap">
+                {missingSeededFields.map((field) => (
+                  <Button
+                    key={field.label}
+                    size="1"
+                    variant="soft"
+                    onClick={() => handleAddSeededField(field)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    + {field.label}
+                  </Button>
+                ))}
+              </Flex>
+            </Flex>
+          )}
+        </Flex>
+      </Card>
 
       <Flex direction="column" gap="2" style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingBottom: "16px" }}>
         {facts.map((fact) => {
