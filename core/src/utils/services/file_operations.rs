@@ -115,7 +115,14 @@ pub fn convert_to_pdf(
         }
     } else {
         // Use LibreOffice for document conversion
-        let output = Command::new("libreoffice")
+        // Try 'soffice' first (macOS/Linux), fall back to 'libreoffice' (some Linux distros)
+        let libreoffice_cmd = if Command::new("soffice").arg("--version").output().is_ok() {
+            "soffice"
+        } else {
+            "libreoffice"
+        };
+        
+        let output = Command::new(libreoffice_cmd)
             .args([
                 "--headless",
                 "--convert-to",

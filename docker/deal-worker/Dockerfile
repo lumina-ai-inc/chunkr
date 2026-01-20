@@ -27,6 +27,9 @@ RUN apt-get update -y; \
     ca-certificates \
     file \
     curl \
+    libreoffice-writer \
+    libreoffice-calc \
+    imagemagick \
     ; \
     mkdir -p /app/tmp
 

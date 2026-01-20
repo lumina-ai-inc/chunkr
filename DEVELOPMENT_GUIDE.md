@@ -7,6 +7,7 @@
 - Rust toolchain (`rustup`)
 - Node.js 18+ and npm
 - PostgreSQL client (optional, for debugging)
+- **LibreOffice + ImageMagick** (for document preview - see below)
 
 ### Initial Setup
 
@@ -14,10 +15,13 @@
 # 1. Clone and navigate to project
 cd /path/to/data-extract
 
-# 2. Copy environment file
+# 2. Install PDF conversion tools (required for DOCX/XLSX preview)
+./scripts/setup-pdf-conversion.sh
+
+# 3. Copy environment file
 #cp .env.example .env  # Edit with your API keys
 
-# 3. Build everything (first time only)
+# 4. Build everything (first time only)
 make build-all
 ```
 
@@ -26,6 +30,12 @@ make build-all
 - Builds all worker binaries
 - Compiles TypeScript frontend
 - Takes ~5-10 minutes first time
+
+**Why PDF conversion tools?**
+- Browsers can only preview PDFs inline (not DOCX/XLSX)
+- The worker converts DOCX/XLSX → PDF for viewing
+- Without LibreOffice: documents download instead of previewing
+- The setup script installs: `libreoffice` + `imagemagick`
 
 ---
 
