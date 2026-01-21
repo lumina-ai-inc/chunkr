@@ -49,11 +49,6 @@ export function AddInterestModal({
       return;
     }
 
-    if (status !== 'Passed' && !amount) {
-      toast.error('Amount is required for Interested/Maybe status');
-      return;
-    }
-
     addMutation.mutate();
   };
 
@@ -134,19 +129,15 @@ export function AddInterestModal({
             {/* Amount */}
             <Flex direction="column" gap="4px">
               <Text size="2" weight="medium" style={{ color: '#333' }}>
-                Amount {status !== 'Passed' && '*'}
+                Amount (optional)
               </Text>
               <TextField.Root
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                disabled={status === 'Passed'}
                 placeholder="Investment amount"
                 min="0"
                 step="1000"
-                style={{
-                  opacity: status === 'Passed' ? 0.5 : 1,
-                }}
               />
             </Flex>
 

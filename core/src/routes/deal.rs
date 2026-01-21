@@ -373,6 +373,94 @@ pub async fn get_deal_documents(
     Ok(HttpResponse::Ok().json(results))
 }
 
+// POST /api/v1/deals/:deal_id/facts - Create a new fact
+pub async fn create_fact_route(
+    user_info: web::ReqData<UserInfo>,
+    path: web::Path<String>,
+    req: web::Json<serde_json::Value>,
+) -> Result<HttpResponse> {
+    let deal_id = path.into_inner();
+    let user_id = user_info.user_id.clone();
+    
+    // Extract fields from request
+    let label = req.get("label")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| actix_web::error::ErrorBadRequest("Missing 'label' field"))?;
+    let value = req.get("value")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| actix_web::error::ErrorBadRequest("Missing 'value' field"))?;
+    let unit = req.get("unit").and_then(|v| v.as_str());
+    let fact_type = req.get("fact_type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("financial");
+    
+    let mut client = get_pg_client().await.map_err(|e| {
+        eprintln!("Database connection error: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Database connection failed")
+    })?;
+
+    let result = web::block(move || {
+        use crate::data::schema::deals::dsl::*;
+        use crate::data::schema::documents;
+        use crate::data::schema::facts;
+        
+        // Verify deal ownership
+        deals
+            .filter(deal_id.eq(&deal_id))
+            .filter(user_id.eq(&user_id))
+            .first::<Deal>(&mut client)?;
+        
+        // Get first document for this deal, or create a placeholder document_id
+        let document_id: Option<String> = documents::table
+            .filter(documents::deal_id.eq(&deal_id))
+            .select(documents::document_id)
+            .first::<String>(&mut client)
+            .optional()?;
+        
+        let document_id = document_id.unwrap_or_else(|| format!("doc-{}-placeholder", deal_id));
+        
+        // Create new fact
+        let fact_id = Uuid::new_v4().to_string();
+        let source_citation = serde_json::json!({
+            "document": "Manual Entry",
+            "page": 1
+        });
+        
+        let new_fact = NewFact {
+            fact_id: fact_id.clone(),
+            document_id,
+            deal_id: deal_id.clone(),
+            fact_type: fact_type.to_string(),
+            label: label.to_string(),
+            value: value.to_string(),
+            unit: unit.map(|s| s.to_string()),
+            source_citation,
+            status: "pending_approval".to_string(),
+            confidence_score: Some(1.0), // User-entered facts have full confidence
+        };
+        
+        diesel::insert_into(facts::table)
+            .values(&new_fact)
+            .get_result::<Fact>(&mut client)
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("Error creating fact: {:?}", e);
+        actix_web::error::ErrorBadRequest("Cannot create fact")
+    })?
+    .map_err(|e| {
+        eprintln!("Database error: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Database error")
+    })?;
+
+    let response = result.to_response().map_err(|e| {
+        eprintln!("Serialization error: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Serialization error")
+    })?;
+
+    Ok(HttpResponse::Created().json(response))
+}
+
 // GET /api/v1/deals/:deal_id/facts - Get extracted facts
 pub async fn get_deal_facts(
     user_info: web::ReqData<UserInfo>,

@@ -73,3 +73,22 @@
   }
 }
 
+/* Override Radix UI button styles for outline buttons with transparent background */
+.fact-button-outline {
+  background-color: transparent !important;
+}
+
+.fact-button-outline:hover {
+  background-color: rgba(25, 118, 210, 0.1) !important;
+}
+
+.fact-button-outline[data-color="red"],
+.fact-button-outline[data-accent-color="red"] {
+  border-color: #e74c3c !important;
+  color: #000 !important;
+}
+
+.fact-button-outline[data-color="red"]:hover,
+.fact-button-outline[data-accent-color="red"]:hover {
+  background-color: rgba(231, 76, 60, 0.1) !important;
+}

@@ -1,4 +1,5 @@
-import { Flex, Text, Card, Button, Separator, Grid } from "@radix-ui/themes";
+import { Flex, Text, Card, Button, Separator, Grid, TextField } from "@radix-ui/themes";
+import { useState, useEffect } from "react";
 import { DealResponse } from "../../services/dealApi";
 import "./DealSummaryCard.css";
 
@@ -13,6 +14,7 @@ interface DealSummaryCardProps {
   };
   onViewFullAnalysis?: () => void;
   onExport?: () => void;
+  onDealNameUpdate?: (newName: string) => void;
 }
 
 interface InfoRowProps {
@@ -61,7 +63,26 @@ export default function DealSummaryCard({
   metrics,
   onViewFullAnalysis,
   onExport,
+  onDealNameUpdate,
 }: DealSummaryCardProps) {
+  const [isEditingDealName, setIsEditingDealName] = useState(false);
+  const [dealNameValue, setDealNameValue] = useState(deal.deal_name);
+
+  useEffect(() => {
+    setDealNameValue(deal.deal_name);
+  }, [deal.deal_name]);
+
+  const handleSaveDealName = () => {
+    if (dealNameValue.trim() && onDealNameUpdate) {
+      onDealNameUpdate(dealNameValue.trim());
+      setIsEditingDealName(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setDealNameValue(deal.deal_name);
+    setIsEditingDealName(false);
+  };
   // Calculate capital range based on metrics
   const getCapitalRange = () => {
     if (!metrics?.noi) return { min: 0, max: 0 };
@@ -89,16 +110,62 @@ export default function DealSummaryCard({
   };
 
   return (
-    <Card style={{ padding: "24px", height: "100%" }}>
-      <Flex direction="column" gap="20px">
+    <Card style={{ padding: "28px", height: "100%" }}>
+      <Flex direction="column" gap="24px">
         {/* Header */}
         <Flex direction="column" gap="8px">
           <Text size="2" weight="medium" style={{ color: "#666" }}>
             📊 Deal Analysis
           </Text>
-          <Text size="5" weight="bold">
-            {deal.deal_name}
-          </Text>
+          {isEditingDealName ? (
+            <Flex gap="8px" align="center">
+              <TextField.Root
+                value={dealNameValue}
+                onChange={(e) => setDealNameValue(e.target.value)}
+                placeholder="Enter deal name"
+                style={{ flex: 1 }}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSaveDealName();
+                  if (e.key === "Escape") handleCancelEdit();
+                }}
+              />
+              <Button
+                size="2"
+                onClick={handleSaveDealName}
+                disabled={!dealNameValue.trim()}
+              >
+                Save
+              </Button>
+              <Button
+                size="2"
+                variant="soft"
+                onClick={handleCancelEdit}
+              >
+                Cancel
+              </Button>
+            </Flex>
+          ) : (
+            <Text
+              size="5"
+              weight="bold"
+              onClick={() => setIsEditingDealName(true)}
+              style={{
+                cursor: "pointer",
+                padding: "4px 8px",
+                borderRadius: "4px",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#f0f0f0";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              {deal.deal_name}
+            </Text>
+          )}
         </Flex>
 
         <Separator size="4" />

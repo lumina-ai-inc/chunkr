@@ -51,6 +51,10 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     queryFn: () => getDealFacts(dealId),
   });
 
+  // Initialize factsList early to avoid temporal dead zone errors
+  const factsList = facts || [];
+  const hasLockedFacts = factsList.some((f) => f.locked);
+
   const createFactMutation = useMutation({
     mutationFn: (data: {
       label: string;
@@ -216,7 +220,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
 
   // Check which seeded fields are missing
   const missingSeededFields = SEEDED_FIELDS.filter(
-    (field) => !facts?.some((f) => f.label.toLowerCase() === field.label.toLowerCase())
+    (field) => !factsList.some((f) => f.label.toLowerCase() === field.label.toLowerCase())
   );
 
   const handleRunUnderwriting = async () => {
@@ -303,16 +307,6 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     );
   }
 
-  if (!facts || facts.length === 0) {
-    return (
-      <Flex justify="center" align="center" p="8">
-        <Text color="gray">No facts extracted yet</Text>
-      </Flex>
-    );
-  }
-
-  const hasLockedFacts = facts.some((f) => f.locked);
-
   return (
     <Flex
       direction="column"
@@ -322,54 +316,108 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
       className="fact-review-container"
     >
       <Flex direction="column" gap="3" mb="3" style={{ flexShrink: 0 }}>
-        <Flex justify="between" align="center">
-          <Flex direction="column" gap="1">
-            <Text size="4" weight="medium">
-            Verify extracted data to lock and analyze
-            </Text>
-          </Flex>
-          <Flex gap="2" wrap="wrap">
+        <Flex direction="column" gap="1">
+          <Text size="6" weight="medium">
+            Verify extracted data to analyze
+          </Text>
+        </Flex>
+        {factsList.length > 0 && (
+          <Flex justify="end" align="center" gap="12px">
             {hasLockedFacts && (
-              <Button
-                size="2"
-                variant="outline"
-                color="red"
-                onClick={() => resetMutation.mutate()}
-                disabled={resetMutation.isLoading}
+              <Flex
+                onClick={() => !resetMutation.isLoading && resetMutation.mutate()}
+                align="center"
+                gap="6px"
+                style={{
+                  cursor: resetMutation.isLoading ? "not-allowed" : "pointer",
+                  opacity: resetMutation.isLoading ? 0.5 : 1,
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!resetMutation.isLoading) {
+                    e.currentTarget.style.backgroundColor = "#f0f0f0";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
               >
-                Reset All
-              </Button>
+                <Text size="3">🔄</Text>
+                <Text size="2" style={{ color: "#e74c3c", fontWeight: "500" }}>
+                  Reset All
+                </Text>
+              </Flex>
             )}
-            {selectedFacts.size > 0 && (
-              <Button
-                size="2"
-                onClick={handleApproveSelected}
-                disabled={approveMutation.isLoading}
-              >
-                Verify Selected ({selectedFacts.size})
-              </Button>
+            {factsList.length > 0 && (
+              <>
+                {selectedFacts.size > 0 && (
+                  <Flex
+                    onClick={() => !approveMutation.isLoading && handleApproveSelected()}
+                    align="center"
+                    gap="6px"
+                    style={{
+                      cursor: approveMutation.isLoading ? "not-allowed" : "pointer",
+                      opacity: approveMutation.isLoading ? 0.5 : 1,
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      transition: "background-color 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!approveMutation.isLoading) {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
+                    <Text size="3">✓</Text>
+                    <Text size="2" style={{ color: "#1976D2", fontWeight: "500" }}>
+                      Verify Selected ({selectedFacts.size})
+                    </Text>
+                  </Flex>
+                )}
+                <Flex
+                  onClick={() => !approveMutation.isLoading && handleVerifyAll()}
+                  align="center"
+                  gap="6px"
+                  style={{
+                    cursor: approveMutation.isLoading ? "not-allowed" : "pointer",
+                    opacity: approveMutation.isLoading ? 0.5 : 1,
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!approveMutation.isLoading) {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  <Text size="3">✓</Text>
+                  <Text size="2" style={{ color: "#1976D2", fontWeight: "500" }}>
+                    Verify All
+                  </Text>
+                </Flex>
+              </>
             )}
             <Button
               size="2"
-              onClick={handleVerifyAll}
-              disabled={approveMutation.isLoading}
+              onClick={handleRunUnderwriting}
+              style={{
+                backgroundColor: "#111",
+                color: "#fff",
+              }}
             >
-              Verify All
+              Run Analysis →
             </Button>
           </Flex>
-        </Flex>
-        <Flex justify="end" mt="2">
-          <Button
-            size="2"
-            onClick={handleRunUnderwriting}
-            style={{
-              backgroundColor: "#111",
-              color: "#fff",
-            }}
-          >
-            Run Analysis →
-          </Button>
-        </Flex>
+        )}
       </Flex>
 
       {/* Add Fact Form */}
@@ -387,13 +435,21 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
               Add New Fact
             </Text>
             {!showAddFactForm && (
-              <Button
-                size="2"
+              <button
                 onClick={() => setShowAddFactForm(true)}
-                style={{ cursor: "pointer" }}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "1px solid #1976D2",
+                  color: "#000",
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                }}
               >
                 + Add Fact
-              </Button>
+              </button>
             )}
           </Flex>
 
@@ -451,15 +507,22 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
               </Text>
               <Flex gap="8px" wrap="wrap">
                 {missingSeededFields.map((field) => (
-                  <Button
+                  <button
                     key={field.label}
-                    size="1"
-                    variant="soft"
                     onClick={() => handleAddSeededField(field)}
-                    style={{ cursor: "pointer" }}
+                    style={{
+                      backgroundColor: "transparent",
+                      border: "1px solid #1976D2",
+                      color: "#000",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "500",
+                    }}
                   >
                     + {field.label}
-                  </Button>
+                  </button>
                 ))}
               </Flex>
             </Flex>
@@ -467,8 +530,21 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
         </Flex>
       </Card>
 
-      <Flex direction="column" gap="2" style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingBottom: "16px" }}>
-        {facts.map((fact) => {
+      {factsList.length === 0 ? (
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          p="24px"
+          style={{ flex: 1 }}
+        >
+          <Text size="3" style={{ color: "#666", marginBottom: "16px" }}>
+            No facts extracted yet. Add facts manually using the form above.
+          </Text>
+        </Flex>
+      ) : (
+        <Flex direction="column" gap="2" style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingBottom: "16px" }}>
+          {factsList.map((fact) => {
           const status = getFactStatus(fact);
           const statusDisplay = getStatusDisplay(status);
           const isEdited = !!editedFacts[fact.fact_id];
@@ -564,7 +640,8 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
             </Card>
           );
         })}
-      </Flex>
+        </Flex>
+      )}
     </Flex>
   );
 };

@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import {
   getLiveShare,
   getInvestorInterest,
+  deleteLiveShare,
   type LiveShare,
   type InvestorInterest,
 } from '../../services/liveShareApi';
 import { EditInterestModal } from './EditInterestModal';
+import { NotifyWatchersModal } from './NotifyWatchersModal';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import { Flex, Text, Button, Badge } from '@radix-ui/themes';
@@ -18,6 +20,8 @@ interface InterestTrackerProps {
 export function InterestTracker({ shareId }: InterestTrackerProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingInterest, setEditingInterest] = useState<InvestorInterest | null>(null);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: share } = useQuery<LiveShare>(
     ['liveShare', shareId],
@@ -31,6 +35,25 @@ export function InterestTracker({ shareId }: InterestTrackerProps) {
       refetchInterval: 10000,
     }
   );
+
+  const deleteShareMutation = useMutation({
+    mutationFn: () => deleteLiveShare(shareId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['liveShares']);
+      toast.success('Live share deleted successfully');
+      // Navigate back or close the view
+      window.location.href = '/dashboard';
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete live share');
+    },
+  });
+
+  const handleDeleteShare = () => {
+    if (window.confirm('Are you sure you want to delete this live share link? This action cannot be undone.')) {
+      deleteShareMutation.mutate();
+    }
+  };
 
   const handleCopyLink = () => {
     if (share?.share_url) {
@@ -164,9 +187,7 @@ export function InterestTracker({ shareId }: InterestTrackerProps) {
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              onClick={() => {
-                toast.success('Watchers notified!');
-              }}
+              onClick={() => setShowNotifyModal(true)}
             >
               <Text size="3" style={{ color: '#666' }}>
                 🔔
@@ -302,6 +323,42 @@ export function InterestTracker({ shareId }: InterestTrackerProps) {
         )}
       </Flex>
 
+      {/* Delete Link Option */}
+      <Flex
+        p="16px 24px"
+        justify="end"
+        style={{
+          borderTop: '1px solid #e0e0e0',
+          backgroundColor: '#f9fafb',
+        }}
+      >
+        <Flex
+          onClick={() => !deleteShareMutation.isLoading && handleDeleteShare()}
+          align="center"
+          gap="6px"
+          style={{
+            cursor: deleteShareMutation.isLoading ? 'not-allowed' : 'pointer',
+            opacity: deleteShareMutation.isLoading ? 0.5 : 1,
+            padding: '4px 8px',
+            borderRadius: '4px',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (!deleteShareMutation.isLoading) {
+              e.currentTarget.style.backgroundColor = '#fee2e2';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          <Text size="3">🗑️</Text>
+          <Text size="2" style={{ color: '#666', fontWeight: '500' }}>
+            {deleteShareMutation.isLoading ? 'Deleting...' : 'Delete Link'}
+          </Text>
+        </Flex>
+      </Flex>
+
       <EditInterestModal
         shareId={shareId}
         interest={null}
@@ -313,6 +370,11 @@ export function InterestTracker({ shareId }: InterestTrackerProps) {
         interest={editingInterest}
         isOpen={!!editingInterest}
         onClose={() => setEditingInterest(null)}
+      />
+      <NotifyWatchersModal
+        shareId={shareId}
+        isOpen={showNotifyModal}
+        onClose={() => setShowNotifyModal(false)}
       />
     </Flex>
   );

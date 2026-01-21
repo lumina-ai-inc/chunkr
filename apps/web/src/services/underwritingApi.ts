@@ -1,4 +1,5 @@
 import axiosInstance from "./axios.config";
+import { getDealFacts, FactResponse } from "./dealApi";
 
 export interface UnderwritingInput {
   unit_count?: number;
@@ -145,17 +146,221 @@ const MOCK_UNDERWRITING_DATA: Record<string, UnderwritingResult> = {
   },
 };
 
+// Helper function to extract numeric value from fact
+const extractNumericValue = (fact: FactResponse): number | null => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:extractNumericValue',message:'Extracting numeric value from fact',data:{factId:fact.fact_id,label:fact.label,value:fact.value,unit:fact.unit},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
+  // Remove currency symbols, commas, and whitespace
+  const cleaned = fact.value.replace(/[$,\s]/g, '');
+  const numValue = parseFloat(cleaned);
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:extractNumericValue',message:'Numeric value extracted',data:{factId:fact.fact_id,originalValue:fact.value,cleanedValue:cleaned,parsedValue:numValue,isNaN:isNaN(numValue)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
+  return isNaN(numValue) ? null : numValue;
+};
+
+// Calculate underwriting from facts dynamically
+const calculateFromFacts = (facts: FactResponse[]): UnderwritingResult | null => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Starting calculation from facts',data:{factsCount:facts.length,factLabels:facts.map(f=>f.label)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+  
+  // Find facts by label (case-insensitive, flexible matching)
+  const findFact = (labelPatterns: string[]): FactResponse | null => {
+    const lowerFacts = facts.map(f => ({ ...f, labelLower: f.label.toLowerCase() }));
+    for (const pattern of labelPatterns) {
+      const fact = lowerFacts.find(f => f.labelLower.includes(pattern.toLowerCase()));
+      if (fact) return fact;
+    }
+    return null;
+  };
+
+  // Extract key financial values
+  const grossRentFact = findFact(["Gross Rent", "Gross Scheduled Rent", "Collected Rent", "Rent"]);
+  const operatingExpensesFact = findFact(["Operating Expenses", "Operating Expense", "Expenses"]);
+  const loanAmountFact = findFact(["Loan Amount", "Loan", "Mortgage Balance"]);
+  const interestRateFact = findFact(["Interest Rate", "Interest"]);
+  const loanTermFact = findFact(["Loan Term", "Term"]);
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Facts found',data:{hasGrossRent:!!grossRentFact,hasOperatingExpenses:!!operatingExpensesFact,hasLoanAmount:!!loanAmountFact,hasInterestRate:!!interestRateFact,hasLoanTerm:!!loanTermFact},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+
+  const grossRent = grossRentFact ? extractNumericValue(grossRentFact) : null;
+  const operatingExpenses = operatingExpensesFact ? extractNumericValue(operatingExpensesFact) : null;
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Extracted values',data:{grossRent,operatingExpenses},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+
+  // Need at least Gross Rent and Operating Expenses to calculate NOI
+  if (grossRent === null || operatingExpenses === null) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Missing required facts',data:{grossRent,operatingExpenses},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    return null;
+  }
+
+  // Calculate NOI
+  const noi = grossRent - operatingExpenses;
+
+  // Calculate debt service if we have loan details
+  let debtService: number | undefined;
+  let dscr: number | undefined;
+  let cashFlowAfterDebt: number | undefined;
+
+  const loanAmount = loanAmountFact ? extractNumericValue(loanAmountFact) : null;
+  const interestRate = interestRateFact ? extractNumericValue(interestRateFact) : null;
+  const loanTerm = loanTermFact ? extractNumericValue(loanTermFact) : null;
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Loan details extracted',data:{loanAmount,interestRate,loanTerm},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+
+  if (loanAmount !== null && interestRate !== null && loanTerm !== null) {
+    // Calculate annual debt service using amortization formula
+    // Monthly payment = P * [r(1+r)^n] / [(1+r)^n - 1]
+    // Where P = principal, r = monthly interest rate, n = number of payments
+    const monthlyRate = (interestRate / 100) / 12;
+    const numPayments = loanTerm * 12;
+    const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                           (Math.pow(1 + monthlyRate, numPayments) - 1);
+    debtService = monthlyPayment * 12; // Annual debt service
+
+    dscr = debtService > 0 ? noi / debtService : undefined;
+    cashFlowAfterDebt = noi - debtService;
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Debt service calculated',data:{monthlyPayment,debtService,dscr,cashFlowAfterDebt},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+  }
+
+  // Build audit trail
+  const auditTrail: CalculationStep[] = [
+    {
+      metric: "Net Operating Income (NOI)",
+      formula: "Gross Rent - Operating Expenses",
+      inputs: [
+        ["Gross Rent", grossRent],
+        ["Operating Expenses", operatingExpenses],
+      ],
+      result: noi,
+      sources: [
+        grossRentFact?.fact_id || "",
+        operatingExpensesFact?.fact_id || "",
+      ].filter(Boolean),
+    },
+  ];
+
+  if (debtService !== undefined && dscr !== undefined) {
+    auditTrail.push({
+      metric: "Debt Service Coverage Ratio (DSCR)",
+      formula: "NOI / Annual Debt Service",
+      inputs: [
+        ["NOI", noi],
+        ["Annual Debt Service", debtService],
+      ],
+      result: dscr,
+      sources: [
+        loanAmountFact?.fact_id || "",
+        interestRateFact?.fact_id || "",
+        loanTermFact?.fact_id || "",
+      ].filter(Boolean),
+    });
+
+    if (cashFlowAfterDebt !== undefined) {
+      auditTrail.push({
+        metric: "Cash Flow After Debt Service",
+        formula: "NOI - Annual Debt Service",
+        inputs: [
+          ["NOI", noi],
+          ["Annual Debt Service", debtService],
+        ],
+        result: cashFlowAfterDebt,
+        sources: [],
+      });
+    }
+  }
+
+  const warnings: string[] = [];
+  if (dscr !== undefined && dscr < 1.2) {
+    warnings.push("DSCR below 1.2 - may indicate high risk");
+  }
+  if (dscr !== undefined && dscr > 2.0) {
+    warnings.push("DSCR above 2.0 - strong cash flow coverage");
+  }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateFromFacts',message:'Calculation complete',data:{noi,dscr,cashFlowAfterDebt,auditTrailLength:auditTrail.length,warningsCount:warnings.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+
+  return {
+    noi,
+    dscr,
+    cash_flow_after_debt: cashFlowAfterDebt,
+    cap_rate: undefined,
+    ltv: undefined,
+    gross_rent_multiplier: undefined,
+    audit_trail: auditTrail,
+    warnings,
+  };
+};
+
 // Calculate underwriting metrics for a deal
 export const calculateUnderwriting = async (
   dealId: string
 ): Promise<UnderwritingResult> => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'calculateUnderwriting called',data:{dealId,USE_MOCK_DATA},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
+
   if (USE_MOCK_DATA) {
     console.log(`[Mock] Calculating underwriting for deal: ${dealId}`);
+    
+    // First check if we have pre-defined mock data
     const mockData = MOCK_UNDERWRITING_DATA[dealId];
     if (mockData) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'Using pre-defined mock data',data:{dealId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
       return new Promise((resolve) => setTimeout(() => resolve(mockData), 500));
     }
-    throw new Error("Mock underwriting data not found for this deal");
+
+    // Try to calculate from facts
+    try {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'Fetching facts for dynamic calculation',data:{dealId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      const facts = await getDealFacts(dealId);
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'Facts retrieved',data:{dealId,factsCount:facts.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      const calculated = calculateFromFacts(facts);
+      
+      if (calculated) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'Dynamic calculation successful',data:{dealId,noi:calculated.noi,dscr:calculated.dscr},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        return new Promise((resolve) => setTimeout(() => resolve(calculated), 500));
+      }
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'Dynamic calculation failed - insufficient facts',data:{dealId,factsCount:facts.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+    } catch (error) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'underwritingApi.ts:calculateUnderwriting',message:'Error fetching facts',data:{dealId,error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+    }
+
+    throw new Error("Mock underwriting data not found for this deal and insufficient facts to calculate");
   }
 
   const response = await axiosInstance.post(

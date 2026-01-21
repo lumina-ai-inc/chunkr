@@ -240,6 +240,25 @@ export const deleteLiveShare = async (shareId: string): Promise<void> => {
   await axiosInstance.delete(`/api/v1/live-shares/${shareId}`);
 };
 
+// Notify watchers with a message
+export const notifyWatchers = async (
+  shareId: string,
+  message: string
+): Promise<void> => {
+  // Check if share is a mock share
+  const mockShare = MOCK_LIVE_SHARES.find((s) => s.id === shareId);
+  if (mockShare && isMockDeal(mockShare.deal_id)) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Mock implementation - just log the notification
+    console.log(`[Mock] Notifying watchers for share ${shareId}: ${message}`);
+    return;
+  }
+  
+  await axiosInstance.post(`/api/v1/live-shares/${shareId}/notify`, {
+    message,
+  });
+};
+
 // ============================================================================
 // PUBLIC ENDPOINTS (no auth required)
 // ============================================================================

@@ -82,11 +82,6 @@ export function EditInterestModal({
       return;
     }
 
-    if (status !== 'Passed' && !amount) {
-      toast.error('Amount is required for Interested/Maybe status');
-      return;
-    }
-
     if (isEditMode && interest) {
       // For edit mode, delete the old one first, then add the updated version
       try {
@@ -173,19 +168,15 @@ export function EditInterestModal({
             {/* Amount */}
             <Flex direction="column" gap="4px">
               <Text size="2" weight="medium" style={{ color: '#333' }}>
-                Amount {status !== 'Passed' && '*'}
+                Amount (optional)
               </Text>
               <TextField.Root
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                disabled={status === 'Passed'}
                 placeholder="Investment amount"
                 min="0"
                 step="1000"
-                style={{
-                  opacity: status === 'Passed' ? 0.5 : 1,
-                }}
               />
             </Flex>
 
@@ -227,13 +218,13 @@ export function EditInterestModal({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={addMutation.isPending || deleteMutation.isPending}
+                  disabled={addMutation.isLoading || deleteMutation.isLoading}
                   style={{
-                    cursor: addMutation.isPending || deleteMutation.isPending ? 'not-allowed' : 'pointer',
-                    opacity: addMutation.isPending || deleteMutation.isPending ? 0.5 : 1,
+                    cursor: addMutation.isLoading || deleteMutation.isLoading ? 'not-allowed' : 'pointer',
+                    opacity: addMutation.isLoading || deleteMutation.isLoading ? 0.5 : 1,
                   }}
                 >
-                  {addMutation.isPending || deleteMutation.isPending ? 'Saving...' : isEditMode ? 'Save' : 'Add'}
+                  {addMutation.isLoading || deleteMutation.isLoading ? 'Saving...' : isEditMode ? 'Save' : 'Add'}
                 </Button>
               </Flex>
             </Flex>
