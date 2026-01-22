@@ -20,7 +20,7 @@ interface ChatProviderContextType {
   sendMessage: (dealId: string, message: string) => Promise<void>;
   uploadFile: (dealId: string, file: File) => Promise<void>;
   selectDeal: (dealId: string) => void;
-  createNewDeal: () => Promise<string>;
+  createNewDeal: (dealName?: string, dealType?: 'rental_income' | 'value_add') => Promise<string>;
 
   // Preview state
   previewType: "empty" | "document" | "analysis" | "memo" | "facts" | "underwriting";
@@ -65,7 +65,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   // Create deal mutation
   const createDealMutation = useMutation(
-    (dealData: { deal_name: string }) => createDeal(dealData.deal_name),
+    (dealData: { deal_name: string; deal_type?: 'rental_income' | 'value_add' }) => createDeal(dealData.deal_name, dealData.deal_type),
     {
       onSuccess: (__data) => {
         queryClient.invalidateQueries("deals");
@@ -198,9 +198,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setPreviewType("analysis");
   }, []);
 
-  const createNewDeal = useCallback(async () => {
-    const dealName = `New Deal ${new Date().toLocaleDateString()}`;
-    const result = await createDealMutation.mutateAsync({ deal_name: dealName });
+  const createNewDeal = useCallback(async (dealName?: string, dealType: 'rental_income' | 'value_add' = 'rental_income') => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChatContext.tsx:201',message:'createNewDeal called',data:{dealName,dealType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    const finalDealName = dealName || `New Deal ${new Date().toLocaleDateString()}`;
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChatContext.tsx:203',message:'createDealMutation called',data:{dealName:finalDealName,dealType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    const result = await createDealMutation.mutateAsync({ deal_name: finalDealName, deal_type: dealType });
     setCurrentDealId(result.deal_id);
     setChatSessions((prev) => {
       const updated = new Map(prev);

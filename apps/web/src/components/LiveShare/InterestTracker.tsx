@@ -7,6 +7,8 @@ import {
   type LiveShare,
   type InvestorInterest,
 } from '../../services/liveShareApi';
+import { getDeal, DealResponse } from '../../services/dealApi';
+import { DealTypeBadge } from '../Dashboard/DealTypeBadge';
 import { EditInterestModal } from './EditInterestModal';
 import { NotifyWatchersModal } from './NotifyWatchersModal';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,6 +28,14 @@ export function InterestTracker({ shareId }: InterestTrackerProps) {
   const { data: share } = useQuery<LiveShare>(
     ['liveShare', shareId],
     () => getLiveShare(shareId)
+  );
+
+  const { data: deal } = useQuery<DealResponse>(
+    ['deal', share?.deal_id],
+    () => getDeal(share!.deal_id),
+    {
+      enabled: !!share?.deal_id,
+    }
   );
 
   const { data: interests = [] } = useQuery<InvestorInterest[]>(
@@ -158,6 +168,30 @@ export function InterestTracker({ shareId }: InterestTrackerProps) {
           <Text size="2" style={{ color: '#666' }}>
             Copy Link
           </Text>
+        </Flex>
+      </Flex>
+
+      {/* Deal Type Row */}
+      <Flex
+        p="16px 24px"
+        align="center"
+        justify="between"
+        style={{
+          borderBottom: '1px solid #e0e0e0',
+          backgroundColor: '#f9fafb',
+        }}
+      >
+        <Flex align="center" gap="24px">
+          <DealTypeBadge dealType={deal?.deal_type} />
+          {/* Deal Score placeholder for Phase 2 */}
+          <Flex direction="column">
+            <Text size="1" style={{ color: '#666', marginBottom: '2px' }}>
+              Deal Score
+            </Text>
+            <Text size="2" style={{ color: '#999' }}>
+              Coming Soon
+            </Text>
+          </Flex>
         </Flex>
       </Flex>
 

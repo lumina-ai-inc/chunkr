@@ -7,6 +7,9 @@ import {
   UnderwritingResult,
   StressTestResult,
 } from "../../services/underwritingApi";
+import { getDeal, DealResponse } from "../../services/dealApi";
+import { DealTypeBadge } from "../Dashboard/DealTypeBadge";
+import { ValueAddMetrics } from "./ValueAddMetrics";
 import StressTestPanel from "./StressTestPanel";
 // import toast";
 import "./UnderwritingDashboard.css";
@@ -22,6 +25,14 @@ const UnderwritingDashboard = ({ dealId }: UnderwritingDashboardProps) => {
     interestRateAdjustment: 0,
   });
 
+  // Get deal data to determine type
+  const { data: deal } = useQuery<DealResponse>({
+    queryKey: ["deal", dealId],
+    queryFn: () => getDeal(dealId),
+  });
+
+  const dealType = deal?.deal_type || 'rental_income';
+
   const {
     data: underwritingResult,
     isLoading,
@@ -31,6 +42,7 @@ const UnderwritingDashboard = ({ dealId }: UnderwritingDashboardProps) => {
   } = useQuery<UnderwritingResult>({
     queryKey: ["underwriting", dealId],
     queryFn: () => calculateUnderwriting(dealId),
+    enabled: dealType === 'rental_income', // Only calculate for rental income deals
   });
 
   const stressTestResult: StressTestResult | null =
@@ -105,6 +117,12 @@ const UnderwritingDashboard = ({ dealId }: UnderwritingDashboardProps) => {
     stressed_cash_flow: underwritingResult.cash_flow_after_debt,
   };
 
+  // Render Value-Add metrics if deal type is value_add
+  if (dealType === 'value_add') {
+    return <ValueAddMetrics dealId={dealId} />;
+  }
+
+  // Rental Income metrics (existing logic)
   return (
     <Flex
       direction="column"
@@ -120,9 +138,12 @@ const UnderwritingDashboard = ({ dealId }: UnderwritingDashboardProps) => {
       }}
       className="underwriting-dashboard-container"
     >
-      <Text size="6" weight="bold">
-        Pro Forma Simulator
-      </Text>
+      <Flex justify="between" align="center">
+        <Text size="6" weight="bold">
+          Rental Income Analysis
+        </Text>
+        <DealTypeBadge dealType="rental_income" />
+      </Flex>
 
       {/* Warnings */}
       {underwritingResult.warnings.length > 0 && (

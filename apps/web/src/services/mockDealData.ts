@@ -14,6 +14,7 @@ const DEFAULT_MOCK_DEALS: DealResponse[] = [
     user_id: "mock-user-001",
     deal_name: "Downtown Commercial Property",
     status: "processing_documents",
+    deal_type: "rental_income",
     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     metadata: {},
@@ -25,6 +26,7 @@ const DEFAULT_MOCK_DEALS: DealResponse[] = [
     user_id: "mock-user-001",
     deal_name: "Riverside Townhomes",
     status: "ready_for_underwriting",
+    deal_type: "rental_income",
     created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     metadata: {},
@@ -443,12 +445,13 @@ export const saveMockData = () => {
   }
 };
 
-export const createMockDeal = (dealName: string): DealResponse => {
-  const newDeal = {
+export const createMockDeal = (dealName: string, dealType: string = 'rental_income'): DealResponse => {
+  const newDeal: DealResponse = {
     deal_id: generateMockDealId(),
     user_id: "mock-user-001",
     deal_name: dealName,
     status: "draft",
+    deal_type: dealType as 'rental_income' | 'value_add',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     metadata: {},

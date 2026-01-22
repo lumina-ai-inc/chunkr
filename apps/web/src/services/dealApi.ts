@@ -19,6 +19,7 @@ export interface DealResponse {
   user_id: string;
   deal_name: string;
   status: string;
+  deal_type?: 'rental_income' | 'value_add'; // NEW - optional for backward compat
   created_at: string;
   updated_at: string;
   metadata: any;
@@ -68,17 +69,20 @@ export interface FactResponse {
 }
 
 // Create a new deal
-export const createDeal = async (dealName: string): Promise<DealResponse> => {
+export const createDeal = async (
+  dealName: string,
+  dealType: 'rental_income' | 'value_add' = 'rental_income'
+): Promise<DealResponse> => {
   // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:70',message:'createDeal called',data:{dealName,USE_MOCK_DATA},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'H19'})}).catch(()=>{});
+  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:70',message:'createDeal called',data:{dealName,dealType,USE_MOCK_DATA},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'H19'})}).catch(()=>{});
   // #endregion
   
   if (USE_MOCK_DATA) {
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const newDeal = createMockDeal(dealName);
+    const newDeal = createMockDeal(dealName, dealType);
     
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:78',message:'Created mock deal',data:{dealId:newDeal.deal_id,dealName:newDeal.deal_name},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'H19'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dealApi.ts:78',message:'Created mock deal',data:{dealId:newDeal.deal_id,dealName:newDeal.deal_name,dealType:newDeal.deal_type},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'H19'})}).catch(()=>{});
     // #endregion
     
     console.log("Created mock deal:", newDeal);
@@ -87,6 +91,7 @@ export const createDeal = async (dealName: string): Promise<DealResponse> => {
   
   const response = await axiosInstance.post("/api/v1/deals", {
     deal_name: dealName,
+    deal_type: dealType,
   });
   return response.data;
 };

@@ -1,8 +1,9 @@
-import { Flex, Card, Text, Button, Badge, TextArea, TextField } from "@radix-ui/themes";
+import { Flex, Card, Text, Button, TextArea, TextField } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 import { useQuery } from "react-query";
-import { getDeals, DealResponse } from "../../services/dealApi";
+import { getDeals, DealResponse, getDeal } from "../../services/dealApi";
 import { CreateLiveShareModal } from "../LiveShare/CreateLiveShareModal";
+import { DealTypeBadge } from "../Dashboard/DealTypeBadge";
 import "./InvestorPackage.css";
 
 interface MemoBlock {
@@ -149,6 +150,13 @@ const InvestorPackage = () => {
     : getDefaultMemo("", "");
 
   const [memo, setMemo] = useState<InvestorMemo>(initialMemo);
+
+  // Get deal data for the current memo to access deal_type
+  const { data: currentDeal } = useQuery<DealResponse>(
+    ["deal", memo.dealId],
+    () => getDeal(memo.dealId),
+    { enabled: !!memo.dealId }
+  );
 
   // Update memo when deals change - initialize with correct deal-specific data
   useEffect(() => {
@@ -411,7 +419,10 @@ const InvestorPackage = () => {
             >
               <Flex direction="column" gap="4">
                 {/* Header */}
-                <Flex justify="between" align="start">
+                <Flex direction="column" gap="2" style={{ position: "relative" }}>
+                  <Flex justify="end" style={{ position: "absolute", top: 0, right: 0, zIndex: 10 }}>
+                    <DealTypeBadge dealType={currentDeal?.deal_type} />
+                  </Flex>
                   <Flex direction="column" gap="2" style={{ flex: 1 }}>
                     {editingField === "dealName" ? (
                   <Flex direction="column" gap="2">
@@ -456,9 +467,6 @@ const InvestorPackage = () => {
                       Investment Memorandum
                     </Text>
                   </Flex>
-                  <Badge color="green" size="2">
-                    Equity Investment
-                  </Badge>
                 </Flex>
 
                 {/* Executive Summary */}

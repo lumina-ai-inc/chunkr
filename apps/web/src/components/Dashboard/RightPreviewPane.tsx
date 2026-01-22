@@ -579,10 +579,10 @@ export default function RightPreviewPane({
             {dealId && !underwriting && !isLoadingUnderwriting && !isUnderwritingError && (
               <Flex direction="column" align="center" justify="center" p="24px" gap="12px">
                 <Text size="3" style={{ color: "#999", textAlign: "center" }}>
-                  Run underwriting analysis to see metrics
+                  Run underwriting analysis in Facts into see metrics
                 </Text>
                 <Text size="2" style={{ color: "#999", textAlign: "center" }}>
-                  Go to the Facts tab and click "Run Underwriting →"
+                  Go to the Facts tab and click "Run Analysis →"
                 </Text>
               </Flex>
             )}

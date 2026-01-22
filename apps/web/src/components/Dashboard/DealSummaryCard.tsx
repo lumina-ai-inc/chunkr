@@ -1,6 +1,7 @@
 import { Flex, Text, Card, Button, Separator, Grid, TextField } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 import { DealResponse } from "../../services/dealApi";
+import { DealTypeBadge } from "./DealTypeBadge";
 import "./DealSummaryCard.css";
 
 interface DealSummaryCardProps {
@@ -67,6 +68,8 @@ export default function DealSummaryCard({
 }: DealSummaryCardProps) {
   const [isEditingDealName, setIsEditingDealName] = useState(false);
   const [dealNameValue, setDealNameValue] = useState(deal.deal_name);
+  const [isEditingDealScore, setIsEditingDealScore] = useState(false);
+  const [dealScoreValue, setDealScoreValue] = useState("—");
 
   useEffect(() => {
     setDealNameValue(deal.deal_name);
@@ -113,7 +116,10 @@ export default function DealSummaryCard({
     <Card style={{ padding: "28px", height: "100%" }}>
       <Flex direction="column" gap="24px">
         {/* Header */}
-        <Flex direction="column" gap="8px">
+        <Flex direction="column" gap="8px" style={{ position: "relative" }}>
+          <Flex justify="end" style={{ position: "absolute", top: 0, right: 0 }}>
+            <DealTypeBadge dealType={deal.deal_type} />
+          </Flex>
           <Text size="2" weight="medium" style={{ color: "#666" }}>
             📊 Deal Analysis
           </Text>
@@ -175,7 +181,54 @@ export default function DealSummaryCard({
           <InfoRow label="Property Type" value="Multi-Family" />
           <InfoRow label="Status" value={deal.status.replace(/_/g, " ")} />
           <InfoRow label="Documents" value={deal.document_count || 0} />
-          <InfoRow label="Facts" value={deal.fact_count || 0} />
+          <Flex direction="column" gap="4px">
+            <Text size="1" style={{ color: "#666", textTransform: "uppercase" }}>
+              Deal Score
+            </Text>
+            {isEditingDealScore ? (
+              <Flex gap="8px" align="center">
+                <TextField.Root
+                  value={dealScoreValue}
+                  onChange={(e) => setDealScoreValue(e.target.value)}
+                  placeholder="Enter score"
+                  style={{ flex: 1 }}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setIsEditingDealScore(false);
+                    }
+                    if (e.key === "Escape") {
+                      setDealScoreValue("—");
+                      setIsEditingDealScore(false);
+                    }
+                  }}
+                  onBlur={() => {
+                    setIsEditingDealScore(false);
+                  }}
+                />
+              </Flex>
+            ) : (
+              <Text
+                size="2"
+                weight="medium"
+                onClick={() => setIsEditingDealScore(true)}
+                style={{
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f0f0f0";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
+                {dealScoreValue}
+              </Text>
+            )}
+          </Flex>
         </Grid>
 
         {metrics && (

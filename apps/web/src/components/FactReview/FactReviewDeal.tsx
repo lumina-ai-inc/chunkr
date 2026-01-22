@@ -9,6 +9,8 @@ import {
   resetFacts,
   updateDealStatus,
   FactResponse,
+  getDeal,
+  DealResponse,
 } from "../../services/dealApi";
 import toast from "react-hot-toast";
 import "./FactReviewDeal.css";
@@ -29,9 +31,51 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
   const [newFactLabel, setNewFactLabel] = useState("");
   const [newFactValue, setNewFactValue] = useState("");
   const [newFactUnit, setNewFactUnit] = useState("");
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['primary']));
   const queryClient = useQueryClient();
 
-  // Initial seeded fields
+  // Adaptive field groups based on deal type
+  const RENTAL_INCOME_FIELDS = {
+    operations: {
+      title: "OPERATIONS",
+      fields: [
+        { label: "Annual Rental Income", unit: "$", type: "currency", placeholder: "e.g., 480000" },
+        { label: "Occupancy Rate", unit: "%", type: "percentage", placeholder: "e.g., 95" },
+        { label: "T12 Operating Expenses", unit: "$", type: "currency", placeholder: "e.g., 160000" },
+        { label: "Management Fee", unit: "%", type: "percentage", placeholder: "e.g., 5" },
+      ],
+    },
+    terminalValue: {
+      title: "TERMINAL VALUE",
+      fields: [
+        { label: "Exit Cap Rate", unit: "%", type: "percentage", placeholder: "e.g., 6.5" },
+        { label: "Annual Appreciation", unit: "%", type: "percentage", placeholder: "e.g., 3" },
+      ],
+    },
+  };
+
+  const VALUE_ADD_FIELDS = {
+    capitalReno: {
+      title: "CAPITAL & RENOVATION",
+      fields: [
+        { label: "ARV (After Repair Value)", unit: "$", type: "currency", placeholder: "e.g., 2500000" },
+        { label: "Renovation Budget", unit: "$", type: "currency", placeholder: "e.g., 500000" },
+        { label: "Hard Costs", unit: "$", type: "currency", placeholder: "e.g., 400000" },
+        { label: "Soft Costs", unit: "$", type: "currency", placeholder: "e.g., 100000" },
+        { label: "Construction Timeline", unit: "days", type: "number", placeholder: "e.g., 180" },
+      ],
+    },
+    acquisition: {
+      title: "ACQUISITION",
+      fields: [
+        { label: "Purchase Price", unit: "$", type: "currency", placeholder: "e.g., 1800000" },
+        { label: "Closing Costs", unit: "$", type: "currency", placeholder: "e.g., 50000" },
+        { label: "Short-term Loan Terms", unit: "", type: "text", placeholder: "e.g., 12% interest, 12 months" },
+      ],
+    },
+  };
+
+  // Legacy seeded fields for backward compatibility (will be replaced by adaptive groups)
   const SEEDED_FIELDS = [
     { label: "Gross Rent", unit: "$", type: "currency" },
     { label: "Operating Expenses", unit: "$", type: "currency" },
@@ -51,9 +95,39 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
     queryFn: () => getDealFacts(dealId),
   });
 
+  // Get deal data to determine type
+  const { data: deal } = useQuery<DealResponse>({
+    queryKey: ["deal", dealId],
+    queryFn: () => getDeal(dealId),
+  });
+
   // Initialize factsList early to avoid temporal dead zone errors
   const factsList = facts || [];
   const hasLockedFacts = factsList.some((f) => f.locked);
+
+  // Determine deal type and field groups
+  const dealType = deal?.deal_type || 'rental_income';
+  const fieldGroups = dealType === 'value_add' ? VALUE_ADD_FIELDS : RENTAL_INCOME_FIELDS;
+
+  // Accordion toggle function
+  const toggleGroup = (groupKey: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupKey)) {
+        next.delete(groupKey);
+      } else {
+        next.add(groupKey);
+      }
+      return next;
+    });
+  };
+
+  // Quick add handler
+  const handleQuickAdd = (field: { label: string; unit?: string; type: string; placeholder: string }) => {
+    setNewFactLabel(field.label);
+    setNewFactUnit(field.unit || "");
+    setShowAddFactForm(true);
+  };
 
   const createFactMutation = useMutation({
     mutationFn: (data: {
@@ -315,10 +389,13 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
       style={{ height: "100%", display: "flex", overflow: "hidden" }}
       className="fact-review-container"
     >
-      <Flex direction="column" gap="3" mb="3" style={{ flexShrink: 0 }}>
+      <Flex direction="column" gap="2" mb="2" style={{ flexShrink: 0 }}>
         <Flex direction="column" gap="1">
           <Text size="6" weight="medium">
-            Verify extracted data to analyze
+            Inputs to run deal analysis
+          </Text>
+          <Text size="2" weight="regular">
+            Auto extracted from documents when available
           </Text>
         </Flex>
         {factsList.length > 0 && (
@@ -345,7 +422,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                 }}
               >
                 <Text size="3">🔄</Text>
-                <Text size="2" style={{ color: "#e74c3c", fontWeight: "500" }}>
+                <Text size="2" style={{ color: "#666", fontWeight: "500" }}>
                   Reset All
                 </Text>
               </Flex>
@@ -400,7 +477,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                   }}
                 >
                   <Text size="3">✓</Text>
-                  <Text size="2" style={{ color: "#1976D2", fontWeight: "500" }}>
+                  <Text size="2" style={{ color: "#666", fontWeight: "500" }}>
                     Verify All
                   </Text>
                 </Flex>
@@ -448,7 +525,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                   fontWeight: "500",
                 }}
               >
-                + Add Fact
+                + Fact
               </button>
             )}
           </Flex>
@@ -498,53 +575,102 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
               </Flex>
             </Flex>
           )}
-
-          {/* Seeded Fields Quick Add */}
-          {missingSeededFields.length > 0 && (
-            <Flex direction="column" gap="8px" style={{ marginTop: "8px" }}>
-              <Text size="2" style={{ color: "#666" }}>
-                Quick Add:
-              </Text>
-              <Flex gap="8px" wrap="wrap">
-                {missingSeededFields.map((field) => (
-                  <button
-                    key={field.label}
-                    onClick={() => handleAddSeededField(field)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid #1976D2",
-                      color: "#000",
-                      padding: "4px 12px",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    + {field.label}
-                  </button>
-                ))}
-              </Flex>
-            </Flex>
-          )}
         </Flex>
       </Card>
 
-      {factsList.length === 0 ? (
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          p="24px"
-          style={{ flex: 1 }}
-        >
-          <Text size="3" style={{ color: "#666", marginBottom: "16px" }}>
-            No facts extracted yet. Add facts manually using the form above.
-          </Text>
-        </Flex>
-      ) : (
-        <Flex direction="column" gap="2" style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingBottom: "16px" }}>
-          {factsList.map((fact) => {
+      {/* Accordion Groups */}
+      <Flex direction="column" gap="16px" style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingBottom: "16px" }}>
+        {Object.entries(fieldGroups).map(([groupKey, group], index) => {
+          const isExpanded = expandedGroups.has(index === 0 ? 'primary' : 'secondary');
+          const groupFacts = factsList.filter(f => 
+            group.fields.some(field => field.label === f.label)
+          );
+          const completedCount = groupFacts.filter(f => f.locked).length;
+          const totalCount = group.fields.length;
+          
+          return (
+            <Card key={groupKey} style={{ padding: "0", border: "1px solid #e0e0e0" }}>
+              {/* Accordion Header */}
+              <Flex
+                onClick={() => toggleGroup(index === 0 ? 'primary' : 'secondary')}
+                p="16px"
+                align="center"
+                justify="between"
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: "#f9fafb",
+                  borderBottom: isExpanded ? "1px solid #e0e0e0" : "none",
+                }}
+              >
+                <Flex align="center" gap="12px">
+                  <Text size="2" weight="bold" style={{ color: "#333" }}>
+                    {group.title}
+                  </Text>
+                  <Badge variant="soft" color={completedCount === totalCount ? "green" : "gray"}>
+                    {completedCount}/{totalCount}
+                  </Badge>
+                </Flex>
+                <Text size="3">{isExpanded ? "▼" : "▶"}</Text>
+              </Flex>
+              
+              {/* Accordion Content */}
+              {isExpanded && (
+                <Flex direction="column" gap="12px" p="16px" style={{ transition: "all 0.3s ease" }}>
+                  {group.fields.map(field => {
+                    const existingFact = groupFacts.find(f => f.label === field.label);
+                    const status = existingFact ? getFactStatus(existingFact) : "missing";
+                    const statusDisplay = getStatusDisplay(status);
+                    const isEdited = existingFact ? !!editedFacts[existingFact.fact_id] : false;
+                    
+                    return (
+                      <Flex key={field.label} direction="column" gap="8px" p="12px" style={{ border: "1px solid #e0e0e0", borderRadius: "6px" }}>
+                        <Flex justify="between" align="center">
+                          <Text size="2" weight="medium">{field.label}</Text>
+                          <Flex align="center" gap="8px">
+                            {existingFact?.locked && <Badge color="green">✓ Verified</Badge>}
+                            {!existingFact && (
+                              <Button
+                                size="1"
+                                variant="soft"
+                                onClick={() => handleQuickAdd(field)}
+                              >
+                                + Quick add
+                              </Button>
+                            )}
+                          </Flex>
+                        </Flex>
+                        
+                        {existingFact && (
+                          <Flex gap="8px" align="center">
+                            <TextField.Root
+                              value={editedFacts[existingFact.fact_id]?.value ?? existingFact.value}
+                              onChange={(e) => handleValueChange(existingFact.fact_id, e.target.value)}
+                              disabled={existingFact.locked}
+                              style={{ flex: 1 }}
+                              placeholder={field.placeholder}
+                            />
+                            {existingFact.unit && <Text size="2">{existingFact.unit}</Text>}
+                            {!existingFact.locked && isEdited && (
+                              <Button size="1" onClick={() => saveFact(existingFact.fact_id)}>
+                                Save
+                              </Button>
+                            )}
+                          </Flex>
+                        )}
+                      </Flex>
+                    );
+                  })}
+                </Flex>
+              )}
+            </Card>
+          );
+        })}
+
+        {/* Legacy facts that don't match any field group */}
+        {factsList.filter(f => {
+          const allFieldLabels = Object.values(fieldGroups).flatMap(g => g.fields.map(field => field.label));
+          return !allFieldLabels.includes(f.label);
+        }).map((fact) => {
           const status = getFactStatus(fact);
           const statusDisplay = getStatusDisplay(status);
           const isEdited = !!editedFacts[fact.fact_id];
@@ -579,7 +705,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
                       {statusDisplay.icon} {statusDisplay.label}
                     </Badge>
                     {fact.locked && (
-                      <Badge color="green" style={{ flexShrink: 0 }}>
+                      <Badge color="gray" style={{ flexShrink: 0 }}>
                         Locked
                       </Badge>
                     )}
@@ -640,8 +766,7 @@ const FactReviewDeal = ({ dealId, onFactsApproved }: FactReviewDealProps) => {
             </Card>
           );
         })}
-        </Flex>
-      )}
+      </Flex>
     </Flex>
   );
 };

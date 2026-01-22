@@ -1,4 +1,4 @@
-import { Flex, Text, Button, Dialog, TextField } from "@radix-ui/themes";
+import { Flex, Text, Button, Dialog, TextField, RadioGroup } from "@radix-ui/themes";
 import "./Dashboard.css";
 import TaskTable from "../../components/TaskTable/TaskTable";
 import TaskCards from "../../components/TaskCards/TaskCards";
@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [showNewDealDialog, setShowNewDealDialog] = useState(false);
   const [newDealName, setNewDealName] = useState("");
+  const [newDealType, setNewDealType] = useState<'rental_income' | 'value_add'>('rental_income');
   const queryClient = useQueryClient();
 
   const location = useLocation();
@@ -237,12 +238,13 @@ export default function Dashboard() {
 
   // New Deal creation mutation
   const createDealMutation = useMutation({
-    mutationFn: (dealName: string) => createDeal(dealName),
+    mutationFn: (data: { deal_name: string; deal_type: 'rental_income' | 'value_add' }) => createDeal(data.deal_name, data.deal_type),
     onSuccess: (deal) => {
       toast.success("Deal created successfully!");
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       setShowNewDealDialog(false);
       setNewDealName("");
+      setNewDealType('rental_income');
       // Navigate to new deal
       const params = new URLSearchParams();
       params.set("view", "deals");
@@ -904,7 +906,12 @@ export default function Dashboard() {
             {(selectedNav === "Deals" || selectedNav === "Connectors" || selectedNav === "Usage") ? (
               <Button
                 size="3"
-                onClick={() => setShowNewDealDialog(true)}
+                onClick={() => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:909',message:'+ New Deal button clicked',data:{currentShowNewDealDialog:showNewDealDialog,newDealType,newDealName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                  // #endregion
+                  setShowNewDealDialog(true);
+                }}
                 style={{ cursor: "pointer" }}
               >
                 + New Deal
@@ -967,16 +974,66 @@ export default function Dashboard() {
       )}
       
       {/* New Deal Dialog */}
-      <Dialog.Root open={showNewDealDialog} onOpenChange={setShowNewDealDialog}>
+      <Dialog.Root open={showNewDealDialog} onOpenChange={(open) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:972',message:'Dialog onOpenChange called',data:{open,showNewDealDialog,newDealType,newDealName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        setShowNewDealDialog(open);
+        if (!open) {
+          setNewDealName("");
+          setNewDealType('rental_income');
+        }
+      }}>
         <Dialog.Content style={{ maxWidth: 450 }}>
+          {/* #region agent log */}
+          {showNewDealDialog && fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:979',message:'Dialog.Content rendering',data:{showNewDealDialog,newDealType,newDealName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{})}
+          {/* #endregion */}
           <Dialog.Title>Create New Deal</Dialog.Title>
           <Dialog.Description size="2" mb="4">
             Enter a name for your new underwriting deal.
           </Dialog.Description>
 
           <Flex direction="column" gap="3">
-            <label>
-              <Text as="div" size="2" mb="1" weight="bold">
+            <Flex direction="column" gap="2">
+              {/* #region agent log */}
+              {showNewDealDialog && fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:986',message:'Deal Strategy section rendering',data:{newDealType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{})}
+              {/* #endregion */}
+              <Text as="div" size="2" weight="bold">
+                Deal Strategy
+              </Text>
+              {/* #region agent log */}
+              {showNewDealDialog && fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:990',message:'RadioGroup.Root rendering',data:{newDealType,hasRadioGroup:typeof RadioGroup !== 'undefined'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{})}
+              {/* #endregion */}
+              <RadioGroup.Root 
+                value={newDealType} 
+                onValueChange={(val) => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:992',message:'RadioGroup onValueChange called',data:{oldValue:newDealType,newValue:val},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                  // #endregion
+                  setNewDealType(val as 'rental_income' | 'value_add');
+                }}
+              >
+                <Flex direction="column" gap="2">
+                  {/* #region agent log */}
+                  {showNewDealDialog && fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:995',message:'RadioGroup.Item rental_income rendering',data:{value:'rental_income',currentValue:newDealType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{})}
+                  {/* #endregion */}
+                  <Text as="label" size="2" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <RadioGroup.Item value="rental_income" />
+                    Rental Income (Buy & Hold)
+                  </Text>
+                  {/* #region agent log */}
+                  {showNewDealDialog && fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:999',message:'RadioGroup.Item value_add rendering',data:{value:'value_add',currentValue:newDealType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{})}
+                  {/* #endregion */}
+                  <Text as="label" size="2" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <RadioGroup.Item value="value_add" />
+                    Value-Add (Rehab)
+                  </Text>
+                </Flex>
+              </RadioGroup.Root>
+            </Flex>
+            
+            <Flex direction="column" gap="2">
+              <Text as="div" size="2" weight="bold">
                 Deal Name
               </Text>
               <TextField.Root
@@ -985,11 +1042,11 @@ export default function Dashboard() {
                 placeholder="e.g., 123 Main St Portfolio"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && newDealName.trim()) {
-                    createDealMutation.mutate(newDealName);
+                    createDealMutation.mutate({ deal_name: newDealName, deal_type: newDealType });
                   }
                 }}
               />
-            </label>
+            </Flex>
           </Flex>
 
           <Flex gap="3" mt="4" justify="end">
@@ -999,7 +1056,12 @@ export default function Dashboard() {
               </Button>
             </Dialog.Close>
             <Button
-              onClick={() => createDealMutation.mutate(newDealName)}
+              onClick={() => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8ba094c0-f913-4a1d-9d69-0a38a5483749',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:1031',message:'Create Deal button clicked',data:{newDealName,newDealType,showNewDealDialog},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+                createDealMutation.mutate({ deal_name: newDealName, deal_type: newDealType });
+              }}
               disabled={!newDealName.trim() || createDealMutation.isLoading}
             >
               {createDealMutation.isLoading ? "Creating..." : "Create Deal"}
