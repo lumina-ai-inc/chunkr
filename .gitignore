@@ -52,9 +52,6 @@ target/
 # Ignore compiled libraries
 *.rlib
 
-# Ignore Cargo.lock if it's a library
-Cargo.lock
-
 # Ignore backup files
 *.bak
 *.tmp
@@ -144,7 +141,6 @@ score.py
 figures
 images
 input_pdfs
-
 
 # Terraform files
 **/.terraform/*
