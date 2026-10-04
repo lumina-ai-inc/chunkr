@@ -9,7 +9,7 @@ dependencies = [
     "fastapi==0.111.1",
     "huggingface-hub>=0.29.1",
     "python-dotenv>=1.0.1",
-    "python-multipart==0.0.9",
+    "python-multipart==0.0.18",
     "scikit-learn>=1.6.1",
     "torch>=2.6.0",
     "uvicorn>=0.32.0",
